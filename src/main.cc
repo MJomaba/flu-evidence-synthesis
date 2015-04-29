@@ -1955,5 +1955,8 @@ FILE * append_file( const std::string filename )
     boost::filesystem::path path = filename;
     // Create directory if it doesn't exist
     boost::filesystem::create_directory( path.remove_filename() );
+    if (!boost::filesystem::exists( path )) {
+        return fopen(path.c_str(), "w+t");
+    }
     return fopen(path.c_str(), "a");
 }
