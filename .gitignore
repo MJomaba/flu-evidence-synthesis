@@ -8,3 +8,5 @@ cmake_install.cmake
 .ninja*
 *.ninja
 compile_commands.json
+*.log
+*.txt
