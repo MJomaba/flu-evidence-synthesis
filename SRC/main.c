@@ -90,27 +90,28 @@ int main(int argc, char *argv[])
     // Command line options
     namespace po = boost::program_options;
    	po::options_description desc( "Usage: flu-evidence-synthesis --data-path [DIR]" );
-	desc.add_options()
-		("help,h", "This message.")
-		;
+
+    desc.add_options()
+        ("help,h", "This message.")
+        ;
 
 
-	po::variables_map vm;
-	po::store( 
-			boost::program_options::command_line_parser( argc, argv ).options(desc).run(),
-			vm );
+    po::variables_map vm;
+    po::store( 
+            po::command_line_parser( argc, argv ).options(desc).run(),
+            vm );
 
-	try {
-		boost::program_options::notify( vm );
-	} catch (boost::program_options::required_option e) {
-		std::cout << e.what() << std::endl << std::endl;
-		std::cout << desc << std::endl;
-		return 1;
-	}
-	if (vm.count("help")) {
-		std::cout << desc << std::endl;
-		return 1;
-	} 
+    try {
+        po::notify( vm );
+    } catch (po::required_option e) {
+        std::cout << e.what() << std::endl << std::endl;
+        std::cout << desc << std::endl;
+        return 1;
+    }
+    if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        return 1;
+    } 
 
     opt=argv[1];
     env = atoi(opt)-1;
