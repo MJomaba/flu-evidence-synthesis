@@ -1946,19 +1946,22 @@ FILE * read_file( const std::string pathname, const std::string filename )
 
 FILE * write_file( const std::string filename )
 {
+    boost::filesystem::path filepath = filename;
     boost::filesystem::path path = filename;
     // Create directory if it doesn't exist
     boost::filesystem::create_directory( path.remove_filename() );
-    return fopen(path.c_str(), "w+t");
+    FILE * file = fopen( filepath.c_str(), "w+t" );
+    return file;
 }
 
 FILE * append_file( const std::string filename )
 {
+    boost::filesystem::path filepath = filename;
     boost::filesystem::path path = filename;
     // Create directory if it doesn't exist
     boost::filesystem::create_directory( path.remove_filename() );
-    if (!boost::filesystem::exists( path )) {
-        return fopen(path.c_str(), "w+t");
+    if (!boost::filesystem::exists( filepath )) {
+        return fopen(filepath.c_str(), "w+t");
     }
-    return fopen(path.c_str(), "a");
+    return fopen(filepath.c_str(), "a");
 }
