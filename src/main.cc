@@ -1949,6 +1949,8 @@ FILE * write_file( const std::string filename )
     boost::filesystem::path filepath = filename;
     boost::filesystem::path path = filename;
     // Create directory if it doesn't exist
+    // TODO: There is probably a function to get the path without using remove_filename()
+    // If so then the copy is not needed anymore
     boost::filesystem::create_directory( path.remove_filename() );
     FILE * file = fopen( filepath.c_str(), "w+t" );
     return file;
@@ -1959,6 +1961,8 @@ FILE * append_file( const std::string filename )
     boost::filesystem::path filepath = filename;
     boost::filesystem::path path = filename;
     // Create directory if it doesn't exist
+    // TODO: There is probably a function to get the path without using remove_filename()
+    // If so then the copy is not needed anymore
     boost::filesystem::create_directory( path.remove_filename() );
     if (!boost::filesystem::exists( filepath )) {
         return fopen(filepath.c_str(), "w+t");
