@@ -10,7 +10,7 @@ SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(GSL REQUIRED)
 
-set(BOOST_LIBS program_options) 
+set(BOOST_LIBS filesystem program_options system) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 

@@ -8,6 +8,7 @@
 
 #include<iostream>
 #include "boost/program_options.hpp"
+#include "boost/filesystem.hpp"
 
 #define NAG 7
 #define NAG2 49
@@ -45,6 +46,10 @@ void proposal_haario(parameter_set *, parameter_set *, double *, double *, int ,
 void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
 void cholevsky(double *, double *, int);
 void update_sum_corr(double *, parameter_set *);
+
+FILE * read_file( const std::string path, const std::string filename );
+FILE * write_file( const std::string filename );
+FILE * append_file( const std::string filename );
 
 /*declaring the random number*/
 gsl_rng * r ;
@@ -115,59 +120,45 @@ int main(int argc, char *argv[])
 	data_path += "/";
 
     /*opens the output log file*/
-    log_file=fopen("final.log","w+t");
-
-    std::string filepath;
+    log_file= write_file(data_path + "final.log");
 
     /*opens the file with the number of positive samples for that strain and season*/
-    filepath = data_path + "age_groups_model.txt";
-    f_pop_model=fopen(filepath.c_str(),"r");
+    f_pop_model = read_file( data_path, "age_groups_model.txt" );
 
     /*opens the file with the number of positive samples for that strain and season*/
-    filepath = data_path + "positivity.txt";
-    f_pos_sample=fopen(filepath.c_str(),"r");
+    f_pos_sample=read_file(data_path,"positivity.txt");
 
     /*opens the file with the total number of samples for that strain and season*/
-    filepath = data_path + "n_samples.txt";
-    f_n_sample=fopen(filepath.c_str(),"r");
+    f_n_sample=read_file(data_path,"n_samples.txt");
 
     /*opens the file with the RCGP ILI numbers*/
-    filepath = data_path + "ILI.txt";
-    f_GP=fopen(filepath.c_str(),"r");
+    f_GP=read_file(data_path,"ILI.txt");
 
     /*opens the file with the size of the monitored population*/
-    filepath = data_path + "mon_pop.txt";
-    f_mon_pop=fopen(filepath.c_str(),"r");
+    f_mon_pop=read_file(data_path,"mon_pop.txt");
 
     /*opens the file with the vaccine calendar*/
-    filepath = data_path + "vaccine_calendar.txt";
-    vacc_programme=fopen(filepath.c_str(),"r");
+    vacc_programme=read_file(data_path,"vaccine_calendar.txt");
 
     /*opens the file with the starting state of the MCMC chain*/
-    filepath = data_path + "init_MCMC.txt";
-    f_init=fopen(filepath.c_str(),"r");
+    f_init=read_file(data_path,"init_MCMC.txt");
 
     /*opens the file with the starting state of the covariance matrix for the proposal*/
-    filepath = data_path + "init_cov_matrix.txt";
-    f_init_cov=fopen(filepath.c_str(),"r");
+    f_init_cov=read_file(data_path,"init_cov_matrix.txt");
 
-    contacts_PM=fopen("contacts_for_inference.txt", "r");
+    contacts_PM=read_file(data_path,"contacts_for_inference.txt");
 
     /*opens the file with the different age sizes*/
-    filepath = data_path + "age_sizes.txt";
-    pop_sizes=fopen(filepath.c_str(), "r");
+    pop_sizes=read_file(data_path,"age_sizes.txt");
 
     /*opens the 1st scenarioFile*/
-    filepath = data_path + "scenarii/Scenario_vaccination_final_size.txt";
-    Scen1FS=fopen(filepath.c_str(),"w+t");
+    Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
 
     /*opens the 2nd scenarioFile*/
-    filepath = data_path + "scenarii/Scenario_no_vaccination_final_size.txt";
-    Scen2FS=fopen(filepath.c_str(),"w+t");
+    Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
 
     /*opens the file to save the posterior*/
-    filepath = data_path + "posterior.txt";
-    f_posterior=fopen(filepath.c_str(),"w+t");
+    f_posterior=write_file( data_path + "posterior.txt" );
     fprintf(f_posterior,"k epsilon_0_14 epsilon_15_64 epsilon_65_plus psi q sigma_0_14 sigma_15_64 sigma_65_plus init_pop adaptive_scaling likelihood\n");
     fclose(f_posterior);
 
@@ -523,8 +514,7 @@ int main(int argc, char *argv[])
 
         if(k%1000==0)
         {
-            filepath = data_path + "posterior.txt";
-            f_posterior=fopen(filepath.c_str(),"a");
+            f_posterior=append_file(data_path + "posterior.txt");
             fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par->epsilon[0],current_par->epsilon[2],current_par->epsilon[4],current_par->psi,current_par->transmissibility,current_par->susceptibility[0],current_par->susceptibility[3],current_par->susceptibility[6],current_par->init_pop,adaptive_scaling,lv);
             fclose(f_posterior);
         }
@@ -572,8 +562,7 @@ int main(int argc, char *argv[])
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_par->epsilon, current_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-            filepath = data_path + "samples/z_hyper";
-            save_state(filepath.c_str(), (k-burn_in)/freq_sampling, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+            save_state((data_path + "samples/z_hyper").c_str(), (k-burn_in)/freq_sampling, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
             save_scenarii(Scen1FS, Scen2FS, (k-burn_in)/freq_sampling, pop_vec, curr_init_inf, tl, ti, current_par->transmissibility, current_par->susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, path, &First_write);
         }
 
@@ -781,8 +770,7 @@ int main(int argc, char *argv[])
     END of the MCMC
     **************************************************************************************************************************************************************/
 
-    filepath = data_path + "final_cov.txt";
-    f_final_cov=fopen(filepath.c_str(),"w+t");
+    f_final_cov=write_file(data_path + "final_cov.txt");
     for(i=0;i<9;i++)
     {
         for(j=0;j<9;j++)
@@ -1492,7 +1480,7 @@ void save_state(const char *name_file, int number, double tl, double ti, double 
     full_name[i+4+3]='m';
     full_name[i+4+4]=0;
 
-    save_file=fopen(full_name,"w+t");
+    save_file=write_file(full_name);
 
     /*save the positivity data*/
     fprintf(save_file,"#Latent and infectious period\n");
@@ -1584,11 +1572,11 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, int number, double *pop_vec,  
         strcat(filepath,"_final_size.txt");
         if(*First_write==1)
         {
-            ScenRest=fopen(filepath,"w+t");
+            ScenRest=write_file(filepath);
         }
         else
         {
-            ScenRest=fopen(filepath,"a");
+            ScenRest=append_file(filepath);
         }
 
 
@@ -1942,4 +1930,30 @@ void update_sum_corr(double * sum_corr, parameter_set * par)
 
     /*ninth line*/
     sum_corr[80]+=par->init_pop*par->init_pop;
+}
+
+FILE * read_file( const std::string pathname, const std::string filename )
+{
+    boost::filesystem::path path = pathname;
+    path /= filename;
+    if (!boost::filesystem::exists( path )) {
+        std::cerr << "File does not exist: " << path << std::endl;
+    }
+    return fopen(path.c_str(),"r");
+}
+
+FILE * write_file( const std::string filename )
+{
+    boost::filesystem::path path = filename;
+    // Create directory if it doesn't exist
+    boost::filesystem::create_directory( path.remove_filename() );
+    return fopen(path.c_str(), "w+t");
+}
+
+FILE * append_file( const std::string filename )
+{
+    boost::filesystem::path path = filename;
+    // Create directory if it doesn't exist
+    boost::filesystem::create_directory( path.remove_filename() );
+    return fopen(path.c_str(), "a");
 }
