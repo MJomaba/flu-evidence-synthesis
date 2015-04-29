@@ -39,7 +39,7 @@ double log_likelihood_b(double *, double *, double *, double *, int *, int *, do
 double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
 double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
 double normal(double, double);
-void save_state(char *, int, double, double, double, double, double *, double *, double *, double, int *, double *, double *, double, double);
+void save_state(const char *, int, double, double, double, double, double *, double *, double *, double, int *, double *, double *, double, double);
 void save_scenarii( FILE *, FILE *, int, double *,  double *,  double, double, double, double *, double *, int, double **, double **, char *, int *);
 void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
 void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     double prop_init_inf[NAG];
     double curr_init_inf[NAG], tl, ti;
     int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
-    char sbuffer[300], path[20]="200001/B/", filepath[80];
+    char sbuffer[300], path[20]="200001/B/";
     double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
     double correct_prior, correct_prior_con;
     double alea, p_ac_mat;
@@ -83,16 +83,15 @@ int main(int argc, char *argv[])
     FILE *contacts_PM, *pop_sizes, *f_pop_model;
     FILE *f_posterior;
 
-    char my_stringarr[42][20]= {"199596/B", "199697/B", "199798/B", "199899/B", "199900/B", "200001/B", "200102/B", "200203/B", "200304/B", "200405/B", "200506/B", "200607/B", "200708/B", "200809/B", "199596/H1N1", "199697/H1N1", "199798/H1N1", "199899/H1N1", "199900/H1N1", "200001/H1N1", "200102/H1N1", "200203/H1N1", "200304/H1N1", "200405/H1N1", "200506/H1N1", "200607/H1N1", "200708/H1N1", "200809/H1N1", "199596/H3N2", "199697/H3N2", "199798/H3N2", "199899/H3N2", "199900/H3N2", "200001/H3N2", "200102/H3N2", "200203/H3N2", "200304/H3N2", "200405/H3N2", "200506/H3N2", "200607/H3N2", "200708/H3N2", "200809/H3N2"};
-	int env;
-    char *opt;
-
     // Command line options
     namespace po = boost::program_options;
    	po::options_description desc( "Usage: flu-evidence-synthesis --data-path [DIR]" );
 
+    std::string data_path = "./";
+
     desc.add_options()
         ("help,h", "This message.")
+        ("data-path,d", po::value<std::string>( &data_path ), "Path to the data")
         ;
 
 
@@ -113,78 +112,62 @@ int main(int argc, char *argv[])
         return 1;
     } 
 
-    opt=argv[1];
-    env = atoi(opt)-1;
-	for(i=0; i<20; i++)
-	{
-		path[i] =  my_stringarr[env][i];
-	}
-	strcat(path,"/");
+	data_path += "/";
 
     /*opens the output log file*/
     log_file=fopen("final.log","w+t");
 
-    /*opens the file with the number of positive samples for that strain and season*/
-    strcpy(filepath,path);
-    strcat(filepath,"age_groups_model.txt");
-    f_pop_model=fopen(filepath,"r");
+    std::string filepath;
 
     /*opens the file with the number of positive samples for that strain and season*/
-    strcpy(filepath,path);
-    strcat(filepath,"positivity.txt");
-    f_pos_sample=fopen(filepath,"r");
+    filepath = data_path + "age_groups_model.txt";
+    f_pop_model=fopen(filepath.c_str(),"r");
+
+    /*opens the file with the number of positive samples for that strain and season*/
+    filepath = data_path + "positivity.txt";
+    f_pos_sample=fopen(filepath.c_str(),"r");
 
     /*opens the file with the total number of samples for that strain and season*/
-    strcpy(filepath,path);
-    strcat(filepath,"n_samples.txt");
-    f_n_sample=fopen(filepath,"r");
+    filepath = data_path + "n_samples.txt";
+    f_n_sample=fopen(filepath.c_str(),"r");
 
     /*opens the file with the RCGP ILI numbers*/
-    strcpy(filepath,path);
-    strcat(filepath,"ILI.txt");
-    f_GP=fopen(filepath,"r");
+    filepath = data_path + "ILI.txt";
+    f_GP=fopen(filepath.c_str(),"r");
 
     /*opens the file with the size of the monitored population*/
-    strcpy(filepath,path);
-    strcat(filepath,"mon_pop.txt");
-    f_mon_pop=fopen(filepath,"r");
+    filepath = data_path + "mon_pop.txt";
+    f_mon_pop=fopen(filepath.c_str(),"r");
 
     /*opens the file with the vaccine calendar*/
-    strcpy(filepath,path);
-    strcat(filepath,"vaccine_calendar.txt");
-    vacc_programme=fopen(filepath,"r");
+    filepath = data_path + "vaccine_calendar.txt";
+    vacc_programme=fopen(filepath.c_str(),"r");
 
     /*opens the file with the starting state of the MCMC chain*/
-    strcpy(filepath,path);
-    strcat(filepath,"init_MCMC.txt");
-    f_init=fopen(filepath,"r");
+    filepath = data_path + "init_MCMC.txt";
+    f_init=fopen(filepath.c_str(),"r");
 
     /*opens the file with the starting state of the covariance matrix for the proposal*/
-    strcpy(filepath,path);
-    strcat(filepath,"init_cov_matrix.txt");
-    f_init_cov=fopen(filepath,"r");
+    filepath = data_path + "init_cov_matrix.txt";
+    f_init_cov=fopen(filepath.c_str(),"r");
 
     contacts_PM=fopen("contacts_for_inference.txt", "r");
 
     /*opens the file with the different age sizes*/
-    strcpy(filepath,path);
-    strcat(filepath,"age_sizes.txt");
-    pop_sizes=fopen(filepath, "r");
+    filepath = data_path + "age_sizes.txt";
+    pop_sizes=fopen(filepath.c_str(), "r");
 
     /*opens the 1st scenarioFile*/
-    strcpy(filepath,path);
-    strcat(filepath,"scenarii/Scenario_vaccination_final_size.txt");
-    Scen1FS=fopen(filepath,"w+t");
+    filepath = data_path + "scenarii/Scenario_vaccination_final_size.txt";
+    Scen1FS=fopen(filepath.c_str(),"w+t");
 
     /*opens the 2nd scenarioFile*/
-    strcpy(filepath,path);
-    strcat(filepath,"scenarii/Scenario_no_vaccination_final_size.txt");
-    Scen2FS=fopen(filepath,"w+t");
+    filepath = data_path + "scenarii/Scenario_no_vaccination_final_size.txt";
+    Scen2FS=fopen(filepath.c_str(),"w+t");
 
     /*opens the file to save the posterior*/
-    strcpy(filepath,path);
-    strcat(filepath,"posterior.txt");
-    f_posterior=fopen(filepath,"w+t");
+    filepath = data_path + "posterior.txt";
+    f_posterior=fopen(filepath.c_str(),"w+t");
     fprintf(f_posterior,"k epsilon_0_14 epsilon_15_64 epsilon_65_plus psi q sigma_0_14 sigma_15_64 sigma_65_plus init_pop adaptive_scaling likelihood\n");
     fclose(f_posterior);
 
@@ -540,9 +523,8 @@ int main(int argc, char *argv[])
 
         if(k%1000==0)
         {
-            strcpy(filepath,path);
-            strcat(filepath,"posterior.txt");
-            f_posterior=fopen(filepath,"a");
+            filepath = data_path + "posterior.txt";
+            f_posterior=fopen(filepath.c_str(),"a");
             fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par->epsilon[0],current_par->epsilon[2],current_par->epsilon[4],current_par->psi,current_par->transmissibility,current_par->susceptibility[0],current_par->susceptibility[3],current_par->susceptibility[6],current_par->init_pop,adaptive_scaling,lv);
             fclose(f_posterior);
         }
@@ -590,9 +572,8 @@ int main(int argc, char *argv[])
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_par->epsilon, current_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-			strcpy(filepath,path);
-            strcat(filepath,"samples/z_hyper");
-            save_state(filepath, (k-burn_in)/freq_sampling, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+            filepath = data_path + "samples/z_hyper";
+            save_state(filepath.c_str(), (k-burn_in)/freq_sampling, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
             save_scenarii(Scen1FS, Scen2FS, (k-burn_in)/freq_sampling, pop_vec, curr_init_inf, tl, ti, current_par->transmissibility, current_par->susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, path, &First_write);
         }
 
@@ -710,25 +691,27 @@ int main(int argc, char *argv[])
 
         /*correct_prior=0;*/
 
-        if(env!=37)
-        {
-            /*Prior for the transmissibility; year other than 2003/04*/
-            /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
-            /*prior on q*/
-            correct_prior=(current_par->transmissibility-proposed_par->transmissibility)*(current_par->transmissibility+proposed_par->transmissibility-0.3306366)*650.2099;
-        }
+        // TODO Edwin: reintroduce different priors
+        correct_prior=(current_par->transmissibility-proposed_par->transmissibility)*(current_par->transmissibility+proposed_par->transmissibility-0.3306366)*650.2099;
+        //if(env!=37)
+        //{
+        //    /*Prior for the transmissibility; year other than 2003/04*/
+        //    /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
+        //    /*prior on q*/
+        //    correct_prior=(current_par->transmissibility-proposed_par->transmissibility)*(current_par->transmissibility+proposed_par->transmissibility-0.3306366)*650.2099;
+        //}
 
-		if(env==37)
-		{
-            /*prior on the susceptibility (year 2003/04)*/
+		//if(env==37)
+		//{
+        //    /*prior on the susceptibility (year 2003/04)*/
 
-            /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
-            correct_prior=(current_par->susceptibility[0]-proposed_par->susceptibility[0])*(current_par->susceptibility[0]+proposed_par->susceptibility[0]-1.376)*145.1589/2;
-            /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
-            correct_prior+=(current_par->susceptibility[3]-proposed_par->susceptibility[3])*(current_par->susceptibility[3]+proposed_par->susceptibility[3]-1.058)*67.18624/2;
-            /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
-            correct_prior+=(current_par->susceptibility[6]-proposed_par->susceptibility[6])*(current_par->susceptibility[6]+proposed_par->susceptibility[6]-1.046)*32.65306/2;
-		}
+        //    /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
+        //    correct_prior=(current_par->susceptibility[0]-proposed_par->susceptibility[0])*(current_par->susceptibility[0]+proposed_par->susceptibility[0]-1.376)*145.1589/2;
+        //    /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
+        //    correct_prior+=(current_par->susceptibility[3]-proposed_par->susceptibility[3])*(current_par->susceptibility[3]+proposed_par->susceptibility[3]-1.058)*67.18624/2;
+        //    /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
+        //    correct_prior+=(current_par->susceptibility[6]-proposed_par->susceptibility[6])*(current_par->susceptibility[6]+proposed_par->susceptibility[6]-1.046)*32.65306/2;
+		//}
 
         /*Prior for the ascertainment probabilities*/
 
@@ -798,9 +781,8 @@ int main(int argc, char *argv[])
     END of the MCMC
     **************************************************************************************************************************************************************/
 
-    strcpy(filepath,path);
-    strcat(filepath,"final_cov.txt");
-    f_final_cov=fopen(filepath,"w+t");
+    filepath = data_path + "final_cov.txt";
+    f_final_cov=fopen(filepath.c_str(),"w+t");
     for(i=0;i<9;i++)
     {
         for(j=0;j<9;j++)
@@ -1490,7 +1472,7 @@ double normal(double mean, double sigma)
     return mean+sqrt(-2*log(gsl_rng_uniform (r)))*sigma*sin(twopi*gsl_rng_uniform (r));
 }
 
-void save_state(char *name_file, int number, double tl, double ti, double inf_scale, double q_mat, double *s_profile, double *positivity, double *c_prop, double psi, int *bs_part, double *contact_mat, double *epi_1, double lv, double Accept_rate)
+void save_state(const char *name_file, int number, double tl, double ti, double inf_scale, double q_mat, double *s_profile, double *positivity, double *c_prop, double psi, int *bs_part, double *contact_mat, double *epi_1, double lv, double Accept_rate)
 {
     FILE *save_file;
     char full_name[80];
