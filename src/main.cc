@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
         ;
 
 
+
     po::variables_map vm;
     po::store( 
             po::command_line_parser( argc, argv ).options(desc).run(),
@@ -117,7 +118,8 @@ int main(int argc, char *argv[])
         return 1;
     } 
 
-	data_path += "/";
+    data_path = (boost::filesystem::canonical(
+                boost::filesystem::complete( data_path ) )).native() + "/";
 
     /*opens the output log file*/
     log_file= write_file(data_path + "final.log");
