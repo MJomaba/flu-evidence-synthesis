@@ -6,6 +6,9 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_math.h>
 
+#include<iostream>
+#include "boost/program_options.hpp"
+
 #define NAG 7
 #define NAG2 49
 #define length 364
@@ -83,6 +86,31 @@ int main(int argc, char *argv[])
     char my_stringarr[42][20]= {"199596/B", "199697/B", "199798/B", "199899/B", "199900/B", "200001/B", "200102/B", "200203/B", "200304/B", "200405/B", "200506/B", "200607/B", "200708/B", "200809/B", "199596/H1N1", "199697/H1N1", "199798/H1N1", "199899/H1N1", "199900/H1N1", "200001/H1N1", "200102/H1N1", "200203/H1N1", "200304/H1N1", "200405/H1N1", "200506/H1N1", "200607/H1N1", "200708/H1N1", "200809/H1N1", "199596/H3N2", "199697/H3N2", "199798/H3N2", "199899/H3N2", "199900/H3N2", "200001/H3N2", "200102/H3N2", "200203/H3N2", "200304/H3N2", "200405/H3N2", "200506/H3N2", "200607/H3N2", "200708/H3N2", "200809/H3N2"};
 	int env;
     char *opt;
+
+    // Command line options
+    namespace po = boost::program_options;
+   	po::options_description desc( "Usage: flu-evidence-synthesis --data-path [DIR]" );
+	desc.add_options()
+		("help,h", "This message.")
+		;
+
+
+	po::variables_map vm;
+	po::store( 
+			boost::program_options::command_line_parser( argc, argv ).options(desc).run(),
+			vm );
+
+	try {
+		boost::program_options::notify( vm );
+	} catch (boost::program_options::required_option e) {
+		std::cout << e.what() << std::endl << std::endl;
+		std::cout << desc << std::endl;
+		return 1;
+	}
+	if (vm.count("help")) {
+		std::cout << desc << std::endl;
+		return 1;
+	} 
 
     opt=argv[1];
     env = atoi(opt)-1;

@@ -5,3 +5,6 @@ CMakeFiles/
 Makefile
 bin/
 cmake_install.cmake
+.ninja*
+*.ninja
+compile_commands.json
