@@ -14,7 +14,7 @@ set(BOOST_LIBS filesystem program_options system)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-add_executable (flu-evidence-synthesis src/main.cc)
+add_executable (flu-evidence-synthesis src/main.cc;src/model.cc)
 target_link_libraries(flu-evidence-synthesis ${GSL_LIBRARIES};${Boost_LIBRARIES})
 
 #Documentation
