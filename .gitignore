@@ -10,3 +10,5 @@ cmake_install.cmake
 compile_commands.json
 *.log
 *.txt
+doc/
+Doxyfile

@@ -13,7 +13,11 @@ find_package(GSL REQUIRED)
 set(BOOST_LIBS filesystem program_options system) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
-
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 add_executable (flu-evidence-synthesis src/main.cc)
 target_link_libraries(flu-evidence-synthesis ${GSL_LIBRARIES};${Boost_LIBRARIES})
+
+#Documentation
+set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+include(UseDoxygen)
