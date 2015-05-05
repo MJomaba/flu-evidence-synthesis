@@ -8,6 +8,9 @@ SET (CMAKE_CXX_FLAGS "-O3 -std=c++11 -Wall")
 # Can be used by youcompleteme to lookup compile information
 SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} . )
+include_directories( "/usr/local/include" )
+
 find_package(GSL REQUIRED)
 
 set(BOOST_LIBS filesystem program_options system) 
