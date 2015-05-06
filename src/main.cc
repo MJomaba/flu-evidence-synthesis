@@ -1,3 +1,4 @@
+#include <cstdarg>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -19,6 +20,18 @@ void save_fgets( char * buffer, int size, FILE * file )
     if (!res)
         throw "Could not read from file";
 }
+
+//! Check for return value of fscanf 
+void save_fscanf( FILE * stream, const char * format, ... ) 
+{
+    va_list args;
+    va_start( args, format );
+    auto res = vfscanf( stream, format, args );
+    va_end( args );
+    if (!res)
+        throw "Could not read from file";
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -157,22 +170,22 @@ int main(int argc, char *argv[])
 
     /*load the positivity data*/
     for(i=0;i<52;i++)
-        fscanf(f_pos_sample,"%d %d %d %d %d",&n_pos[i*5],&n_pos[i*5+1],&n_pos[i*5+2],&n_pos[i*5+3],&n_pos[i*5+4]);
+        save_fscanf(f_pos_sample,"%d %d %d %d %d",&n_pos[i*5],&n_pos[i*5+1],&n_pos[i*5+2],&n_pos[i*5+3],&n_pos[i*5+4]);
 
     /*load the number of samples data*/
     for(i=0;i<52;i++)
-        fscanf(f_n_sample,"%d %d %d %d %d",&n_samples[i*5],&n_samples[i*5+1],&n_samples[i*5+2],&n_samples[i*5+3],&n_samples[i*5+4]);
+        save_fscanf(f_n_sample,"%d %d %d %d %d",&n_samples[i*5],&n_samples[i*5+1],&n_samples[i*5+2],&n_samples[i*5+3],&n_samples[i*5+4]);
 
     /*load the number of GP ILI consultation data*/
     for(i=0;i<52;i++)
-        fscanf(f_GP,"%d %d %d %d %d",&ILI[i*5],&ILI[i*5+1],&ILI[i*5+2],&ILI[i*5+3],&ILI[i*5+4]);
+        save_fscanf(f_GP,"%d %d %d %d %d",&ILI[i*5],&ILI[i*5+1],&ILI[i*5+2],&ILI[i*5+3],&ILI[i*5+4]);
 
     /*load the size of the monitored population by week*/
     for(i=0;i<52;i++)
-        fscanf(f_mon_pop,"%d %d %d %d %d",&mon_pop[i*5],&mon_pop[i*5+1],&mon_pop[i*5+2],&mon_pop[i*5+3],&mon_pop[i*5+4]);
+        save_fscanf(f_mon_pop,"%d %d %d %d %d",&mon_pop[i*5],&mon_pop[i*5+1],&mon_pop[i*5+2],&mon_pop[i*5+3],&mon_pop[i*5+4]);
 
     /*load the size of the age groups for the model that year*/
-    fscanf(f_pop_model,"%lf %lf %lf %lf %lf %lf %lf",&pop_vec[0],&pop_vec[1],&pop_vec[2],&pop_vec[3],&pop_vec[4],&pop_vec[5],&pop_vec[6]);
+    save_fscanf(f_pop_model,"%lf %lf %lf %lf %lf %lf %lf",&pop_vec[0],&pop_vec[1],&pop_vec[2],&pop_vec[3],&pop_vec[4],&pop_vec[5],&pop_vec[6]);
 
     /*high risk*/
     pop_vec[7]=pop_vec[0]*0.021; /*2.1% in the <1 */
@@ -216,7 +229,7 @@ int main(int argc, char *argv[])
     /*Loading of the participants with their number of contacts from Polymod*/
     for(i=0; i<POLY_PART; i++)
     {
-        fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c_age[i], &c_we[i], &c_N1[i], &c_N2[i], &c_N3[i], &c_N4[i], &c_N5[i], &c_N6[i], &c_N7[i]);
+        save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c_age[i], &c_we[i], &c_N1[i], &c_N2[i], &c_N3[i], &c_N4[i], &c_N5[i], &c_N6[i], &c_N7[i]);
         age_part=c_age[i];
         c_ni[age_part]++;
         if(c_we[i]>0) c_nwe++;
@@ -238,7 +251,7 @@ int main(int argc, char *argv[])
         AG_sizes[i]=0;
     for(i=0; i<85; i++)
     {
-        fscanf(pop_sizes,"%d",&age_sizes[i]);
+        save_fscanf(pop_sizes,"%d",&age_sizes[i]);
         if(i==0)
             AG_sizes[0]=age_sizes[0];
         else
@@ -260,7 +273,7 @@ int main(int argc, char *argv[])
                                 AG_sizes[6]+=age_sizes[i];
     }
     /*put the remaining (85+) in the older AG*/
-    fscanf(pop_sizes,"%d",&aux);
+    save_fscanf(pop_sizes,"%d",&aux);
     AG_sizes[6]+=aux;
 
     /*printf("Number of w/e days: %d\n",curr_nwe);*/
