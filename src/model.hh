@@ -41,7 +41,6 @@ void days_to_weeks_5AG(double *, double *);
 double log_likelihood_b(double *, double *, double *, double *, int *, int *, double *);
 double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
 double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
-double normal(double, double);
 void save_state(const char *, int, double, double, double, double, double *, double *, double *, double, int *, double *, double *, double, double);
 void save_scenarii( FILE *, FILE *, int, double *,  double *,  double, double, double, double *, double *, int, double **, double **, char *, int *);
 void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);

@@ -647,11 +647,6 @@ double log_likelihood_hyper_poisson(double* eps, double psi, double * result_sim
     return(result);
 }
 
-double normal(double mean, double sigma)
-{
-    return mean+sqrt(-2*log(gsl_rng_uniform (r)))*sigma*sin(twopi*gsl_rng_uniform (r));
-}
-
 void save_state(const char *name_file, int number, double tl, double ti, double inf_scale, double q_mat, double *s_profile, double *positivity, double *c_prop, double psi, int *bs_part, double *contact_mat, double *epi_1, double lv, double Accept_rate)
 {
     FILE *save_file;
