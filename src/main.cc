@@ -12,6 +12,14 @@
 
 #include "model.hh"
 
+//! Check for return value of fgets 
+void save_fgets( char * buffer, int size, FILE * file ) 
+{
+    auto res = fgets( buffer, size, file );
+    if (!res)
+        throw "Could not read from file";
+}
+
 int main(int argc, char *argv[])
 {
     int i, j, k, age_part,  AG_part, alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
@@ -263,19 +271,19 @@ int main(int argc, char *argv[])
     /*end of loading the contacts and sizes of age populations*/
 
     /*loading parameters regarding vaccination*/
-    fgets(sbuffer, 100, vacc_programme);
-    fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
     sscanf(sbuffer,"%d",&n_scenarii);
 
-    fgets(sbuffer, 100, vacc_programme);
-    fgets(sbuffer, 100, vacc_programme);
-    fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
     sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&vaccine_efficacy_year[0],&vaccine_efficacy_year[1],&vaccine_efficacy_year[2],&vaccine_efficacy_year[3],&vaccine_efficacy_year[4],&vaccine_efficacy_year[5],&vaccine_efficacy_year[6]);
 
-    fgets(sbuffer, 50, vacc_programme);
+    save_fgets(sbuffer, 50, vacc_programme);
     for(j=0;j<123;j++)
     {
-        fgets(sbuffer, 300, vacc_programme);
+        save_fgets(sbuffer, 300, vacc_programme);
         sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &vaccine_cal[j*21],&vaccine_cal[j*21+1],&vaccine_cal[j*21+2],&vaccine_cal[j*21+3],&vaccine_cal[j*21+4],&vaccine_cal[j*21+5],&vaccine_cal[j*21+6],&vaccine_cal[j*21+7],&vaccine_cal[j*21+8],&vaccine_cal[j*21+9],&vaccine_cal[j*21+10],&vaccine_cal[j*21+11],&vaccine_cal[j*21+12],&vaccine_cal[j*21+13],&vaccine_cal[j*21+14],&vaccine_cal[j*21+15],&vaccine_cal[j*21+16],&vaccine_cal[j*21+17],&vaccine_cal[j*21+18],&vaccine_cal[j*21+19],&vaccine_cal[j*21+20]);
     }
 
@@ -285,17 +293,17 @@ int main(int argc, char *argv[])
     for(i=0;i<n_scenarii;i++)
     {
         VE_pro=(double *) malloc(7 * sizeof (double));
-        fgets(sbuffer, 100, vacc_programme);
-        fgets(sbuffer, 100, vacc_programme);
-        fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
         sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&VE_pro[0],&VE_pro[1],&VE_pro[2],&VE_pro[3],&VE_pro[4],&VE_pro[5],&VE_pro[6]);
         tab_VE[1+i]=VE_pro;
 
         VCAL_pro=(double *) malloc(2583 * sizeof (double));
-        fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
         for(j=0;j<123;j++)
         {
-            fgets(sbuffer, 300, vacc_programme);
+            save_fgets(sbuffer, 300, vacc_programme);
             sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &VCAL_pro[j*21],&VCAL_pro[j*21+1],&VCAL_pro[j*21+2],&VCAL_pro[j*21+3],&VCAL_pro[j*21+4],&VCAL_pro[j*21+5],&VCAL_pro[j*21+6],&VCAL_pro[j*21+7],&VCAL_pro[j*21+8],&VCAL_pro[j*21+9],&VCAL_pro[j*21+10],&VCAL_pro[j*21+11],&VCAL_pro[j*21+12],&VCAL_pro[j*21+13],&VCAL_pro[j*21+14],&VCAL_pro[j*21+15],&VCAL_pro[j*21+16],&VCAL_pro[j*21+17],&VCAL_pro[j*21+18],&VCAL_pro[j*21+19],&VCAL_pro[j*21+20]);
         }
         tab_cal[1+i]=VCAL_pro;
@@ -306,7 +314,7 @@ int main(int argc, char *argv[])
     /*load the size of the monitored population by week*/
     for(i=0;i<9;i++)
     {
-        fgets(sbuffer, 300, f_init_cov);
+        save_fgets(sbuffer, 300, f_init_cov);
         sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",&init_cov_matrix[i*9],&init_cov_matrix[i*9+1],&init_cov_matrix[i*9+2],&init_cov_matrix[i*9+3],&init_cov_matrix[i*9+4],&init_cov_matrix[i*9+5],&init_cov_matrix[i*9+6],&init_cov_matrix[i*9+7],&init_cov_matrix[i*9+8]);
     }
     printf("Initial covariance matrix loaded.\n");
@@ -320,49 +328,49 @@ int main(int argc, char *argv[])
     *********************************************************************************************************************************************************/
 
     /*Reading the init file*/
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     sscanf(sbuffer,"%lf %lf", &tl, &ti);
 
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     sscanf(sbuffer,"%lf", &current_par->init_pop);
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
         curr_init_inf[i]=pow(10,current_par->init_pop);
 
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     sscanf(sbuffer,"%lf", &current_par->transmissibility);
 
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf", &current_par->susceptibility[0],&current_par->susceptibility[1],&current_par->susceptibility[2],&current_par->susceptibility[3],&current_par->susceptibility[4],&current_par->susceptibility[5],&current_par->susceptibility[6]);
 
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     for(i=0;i<52;i++)
     {
-        fgets(sbuffer, 150, f_init);
+        save_fgets(sbuffer, 150, f_init);
         sscanf(sbuffer,"%lf %lf %lf %lf %lf",&p_ij[i*5],&p_ij[i*5+1],&p_ij[i*5+2],&p_ij[i*5+3],&p_ij[i*5+4]);
     }
 
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
     sscanf(sbuffer,"%lf %lf %lf %lf %lf", &current_par->epsilon[0],&current_par->epsilon[1],&current_par->epsilon[2],&current_par->epsilon[3],&current_par->epsilon[4]);
 
-    fgets(sbuffer, 100, f_init);
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
 	sscanf(sbuffer,"%lf", &current_par->psi);
 
-    fgets(sbuffer, 100, f_init);
+    save_fgets(sbuffer, 100, f_init);
 
     for(i=0;i<90;i++)
         curr_ni[i]=0;
     curr_nwe=0;
     for(i=0; i<POLY_PART; i++)
     {
-        fgets(sbuffer, 10, f_init);
+        save_fgets(sbuffer, 10, f_init);
         sscanf(sbuffer,"%d",&nc);
 
         age_part=c_age[nc];
