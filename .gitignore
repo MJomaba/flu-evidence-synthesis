@@ -1,6 +1,7 @@
 *.swp
 *.swo
 CMakeCache.txt
+CTestTestfile.cmake
 CMakeFiles/
 Makefile
 bin/

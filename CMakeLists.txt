@@ -24,3 +24,11 @@ target_link_libraries(flu-evidence-synthesis ${GSL_LIBRARIES};${Boost_LIBRARIES}
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 include(UseDoxygen)
+
+# Tests
+# Includes Catch in the project:
+include_directories(tests ${COMMON_INCLUDES})
+enable_testing(true)  # Enables unit-testing.
+
+add_executable (test_fes tests/catch.cc)
+add_test( test_fes bin/test_fes )
