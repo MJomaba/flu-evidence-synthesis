@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
     for(i=0;i<81;i++)
         chol_emp_cov[i]=chol_ini[i];
 
-    acceptance=234;
+    past_acceptance=acceptance=234;
     freq_sampling=10000;
 
     conv_scaling=0.001;
