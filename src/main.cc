@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, age_part,  AG_part, alea1, alea2, n_chain, acceptance, nc, burn_in;
+    int i, j, k, age_part,  AG_part, alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
     int c_age[POLY_PART], c_we[POLY_PART], c_N1[POLY_PART], c_N2[POLY_PART], c_N3[POLY_PART], c_N4[POLY_PART], c_N5[POLY_PART], c_N6[POLY_PART], c_N7[POLY_PART], c_AG[POLY_PART], c_ni[90], c_nwe;
     int prop_age[POLY_PART], prop_we[POLY_PART], prop_N1[POLY_PART], prop_N2[POLY_PART], prop_N3[POLY_PART], prop_N4[POLY_PART], prop_N5[POLY_PART], prop_N6[POLY_PART], prop_N7[POLY_PART], prop_AG[POLY_PART], prop_ni[90], prop_nwe, prop_cnt_number[POLY_PART];
     int curr_age[POLY_PART], curr_we[POLY_PART], curr_N1[POLY_PART], curr_N2[POLY_PART], curr_N3[POLY_PART], curr_N4[POLY_PART], curr_N5[POLY_PART], curr_N6[POLY_PART], curr_N7[POLY_PART], curr_AG[POLY_PART], curr_ni[90], curr_nwe, curr_cnt_number[POLY_PART];
@@ -52,12 +52,18 @@ int main(int argc, char *argv[])
 
     std::string data_path = "./";
 
+    // MCMC variables
+    mcmc_chain_length=10000000;
+    burn_in=1000000;
+    thinning=1000;
+
     desc.add_options()
         ("help,h", "This message.")
         ("data-path,d", po::value<std::string>( &data_path ), "Path to the data")
+        ("chain-length", po::value<int>( &mcmc_chain_length ), "Total mcmc chain length (no. of samples")
+        ("burn-in", po::value<int>( &burn_in ), "MCMC burn in period")
+        ("thinning", po::value<int>( &thinning ), "Thin the sample by only samples every n steps" )
         ;
-
-
 
     po::variables_map vm;
     po::store( 
@@ -446,19 +452,17 @@ int main(int argc, char *argv[])
     for(i=0;i<81;i++)
         chol_emp_cov[i]=chol_ini[i];
 
-    n_chain=10000000;
     acceptance=234;
     freq_sampling=10000;
-    burn_in=1000000;
 
     conv_scaling=0.001;
     adaptive_scaling=0.3;
-    /*n_chain=10000;
+    /*mcmc_chain_length=10000;
     acceptance=234;
     freq_sampling=100;
     burn_in=-1;*/
 
-    for(k=1; k<=n_chain + burn_in; k++)
+    for(k=1; k<=mcmc_chain_length + burn_in; k++)
     {
         /*update of the variance-covariance matrix and the mean vector*/
         update_sum_corr(sum_corr_param_matrix, current_par);
@@ -472,7 +476,7 @@ int main(int argc, char *argv[])
         sum_mean_param[7]+=current_par->susceptibility[6];
         sum_mean_param[8]+=current_par->init_pop;
 
-        if(k%1000==0)
+        if(k%thinning==0)
         {
             f_posterior=append_file(data_path + "posterior.txt");
             fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par->epsilon[0],current_par->epsilon[2],current_par->epsilon[4],current_par->psi,current_par->transmissibility,current_par->susceptibility[0],current_par->susceptibility[3],current_par->susceptibility[6],current_par->init_pop,adaptive_scaling,lv);
@@ -510,7 +514,7 @@ int main(int argc, char *argv[])
             conv_scaling/=1.005;
          }
 
-        /*generates a sample*/
+        /*generates a sample*/ // This is inference as far as I can tell
         if((k%freq_sampling==0)&&(k>burn_in))
         {
             printf("[%d]",(k-burn_in)/freq_sampling);

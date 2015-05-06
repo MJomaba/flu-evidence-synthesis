@@ -13,7 +13,7 @@ include_directories( "/usr/local/include" )
 
 find_package(GSL REQUIRED)
 
-set(BOOST_LIBS filesystem program_options system) 
+set(BOOST_LIBS filesystem program_options system iostreams) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
@@ -27,8 +27,9 @@ include(UseDoxygen)
 
 # Tests
 # Includes Catch in the project:
-include_directories(tests ${COMMON_INCLUDES})
+include_directories(tests src ${COMMON_INCLUDES})
 enable_testing(true)  # Enables unit-testing.
 
-add_executable (test_fes tests/catch.cc)
+add_executable (test_fes tests/test_fes.cc)
+target_link_libraries(test_fes ${GSL_LIBRARIES};${Boost_LIBRARIES})
 add_test( test_fes bin/test_fes )
