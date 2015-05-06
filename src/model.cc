@@ -703,13 +703,13 @@ void save_state(const char *name_file, int number, double tl, double ti, double 
     fclose(save_file);
 }
 
-void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, int number, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, char *path, int * First_write)
+void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, int number, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
 {
     double result_simu[7644];
     double FinalSize[21];
     int i, j, scen;
     FILE *ScenRest;
-    char temp_string[3], filepath[80];
+    char temp_string[3];
 
     /*scenario 1*/
     one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, tl, ti, s_profile, contact_mat, q_mat, vaccine_cal[0], vaccine_efficacy_year[0]);
@@ -752,11 +752,9 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, int number, double *pop_vec,  
     /*the rest of the scenarios*/
     for(scen=0;scen<n_scenarii;scen++)
     {
-        strcpy(filepath,path);
         sprintf(temp_string,"%d",scen);
-        strcat(filepath,"scenarii/Scenario_");
-        strcat(filepath,temp_string);
-        strcat(filepath,"_final_size.txt");
+        std::string filepath = path + "scenarii/Scenario_" + temp_string +
+            "_final_size.txt";
         if(*First_write==1)
         {
             ScenRest=write_file(filepath);
