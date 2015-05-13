@@ -10,34 +10,6 @@
 namespace io = boost::iostreams;
 namespace fs = boost::filesystem;
 
-class FileWatcher 
-{
-    public:
-        const std::string &_path;
-        std::time_t lastWriteTime;
-
-        FileWatcher( const std::string path )
-            : _path( path )
-        {
-            if (!fs::exists( _path ))
-                throw "No such file";
-            lastWriteTime = fs::last_write_time( _path );
-            std::cout << "Acces time: " << lastWriteTime << std::endl;
-        }
-
-        /// Has the file been modified since the watcher was created
-        bool modified()
-        {
-            auto previousWriteTime = lastWriteTime;
-            lastWriteTime = fs::last_write_time( _path );
-            std::cout << "New Acces time: " << lastWriteTime << std::endl;
-            std::cout << time(0) << std::endl;
-            if (lastWriteTime > previousWriteTime)
-                return true;
-            return false;
-        }
-};
-
 bool equal_file_contents( const std::string &path, 
         const std::string &other_path )
 {
@@ -58,11 +30,9 @@ TEST_CASE( "Run a short test run", "[full]" )
 {
     // Create array with all names to be watched (posterior/samples/scenarii)
     // For each do the thing below
-    auto fWatcher = FileWatcher( "../data/posterior.txt" );
-    sleep(1);
+    fs::remove( "../data/posterior.txt" );
     REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
-    sleep(1);
-    REQUIRE( fWatcher.modified() );
+    REQUIRE( fs::exists("../data/posterior.txt") );
 
     REQUIRE( equal_file_contents( 
                 "../data/posterior.txt",
