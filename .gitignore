@@ -13,3 +13,4 @@ compile_commands.json
 *.txt
 doc/
 Doxyfile
+tests/test_data/
