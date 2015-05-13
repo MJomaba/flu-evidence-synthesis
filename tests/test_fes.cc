@@ -2,6 +2,7 @@
 #include <iostream>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "catch.hpp"
 
@@ -28,13 +29,41 @@ bool equal_file_contents( const std::string &path,
 
 TEST_CASE( "Run a short test run", "[full]" ) 
 {
-    // Create array with all names to be watched (posterior/samples/scenarii)
-    // For each do the thing below
-    fs::remove( "../data/posterior.txt" );
-    REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
-    REQUIRE( fs::exists("../data/posterior.txt") );
+    // Create array with all names to be watched
+    std::vector<std::string> files;
+    files.push_back( "posterior.txt" );
 
-    REQUIRE( equal_file_contents( 
-                "../data/posterior.txt",
-                "tests/test_data/posterior.txt" ) );
+    // Add sample files to check
+    for( size_t i = 1010; i < 2001; i+= 10 )
+    {
+        files.push_back( "samples/z_hyper" 
+                + boost::lexical_cast<std::string>( i ) + ".stm" );
+    }
+
+    // Setup the scenarii for watching
+    std::string pre = "scenarii/Scenario_";
+    std::string post = "_final_size.txt";
+    files.push_back( pre + "vaccination" + post );
+    files.push_back( pre + "no_vaccination" + post );
+    for ( size_t i = 0; i<35; ++i )
+        files.push_back( pre + boost::lexical_cast<std::string>( i )
+                + post );
+
+    // Start with clean slate
+    for( auto &fname : files )
+    {
+        fs::remove( "../data/" + fname );
+    }
+
+
+    REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
+
+    for( auto &fname : files )
+    {
+        REQUIRE( fs::exists("../data/" + fname) );
+
+        REQUIRE( equal_file_contents( 
+                    "../data/" + fname,
+                    "./tests/test_data/" + fname ) );
+    }
 }
