@@ -44,8 +44,7 @@ int main(int argc, char *argv[])
     double my_acceptance_rate;
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
-    parameter_set * current_par, * proposed_par;
-    parameter_set ad_par_1, ad_par_2;
+    parameter_set current_par, proposed_par;
     FILE *log_file, *vacc_programme;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
     FILE *f_init, *f_init_cov, *f_final_cov;
@@ -140,10 +139,6 @@ int main(int argc, char *argv[])
 
 	r = gsl_rng_alloc (gsl_rng_mt19937); /*marsenne twister */
 	gsl_rng_set (r, seed);
-
-    /*initialises the addresses of the parameters used by current_par and proposed_par*/
-    current_par=&ad_par_1;
-    proposed_par=&ad_par_2;
 
     /*initialises the matrix which holds the \sum \theta \theta^t*/
     for(i=0; i<dim_par2; i++)
@@ -332,19 +327,19 @@ int main(int argc, char *argv[])
 
     save_fgets(sbuffer, 100, f_init);
     save_fgets(sbuffer, 100, f_init);
-    sscanf(sbuffer,"%lf", &current_par->init_pop);
+    sscanf(sbuffer,"%lf", &current_par.init_pop);
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
-        curr_init_inf[i]=pow(10,current_par->init_pop);
+        curr_init_inf[i]=pow(10,current_par.init_pop);
 
     save_fgets(sbuffer, 100, f_init);
     save_fgets(sbuffer, 100, f_init);
-    sscanf(sbuffer,"%lf", &current_par->transmissibility);
+    sscanf(sbuffer,"%lf", &current_par.transmissibility);
 
     save_fgets(sbuffer, 100, f_init);
     save_fgets(sbuffer, 100, f_init);
-    sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf", &current_par->susceptibility[0],&current_par->susceptibility[1],&current_par->susceptibility[2],&current_par->susceptibility[3],&current_par->susceptibility[4],&current_par->susceptibility[5],&current_par->susceptibility[6]);
+    sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf", &current_par.susceptibility[0],&current_par.susceptibility[1],&current_par.susceptibility[2],&current_par.susceptibility[3],&current_par.susceptibility[4],&current_par.susceptibility[5],&current_par.susceptibility[6]);
 
     save_fgets(sbuffer, 100, f_init);
     for(i=0;i<52;i++)
@@ -355,11 +350,11 @@ int main(int argc, char *argv[])
 
     save_fgets(sbuffer, 100, f_init);
     save_fgets(sbuffer, 100, f_init);
-    sscanf(sbuffer,"%lf %lf %lf %lf %lf", &current_par->epsilon[0],&current_par->epsilon[1],&current_par->epsilon[2],&current_par->epsilon[3],&current_par->epsilon[4]);
+    sscanf(sbuffer,"%lf %lf %lf %lf %lf", &current_par.epsilon[0],&current_par.epsilon[1],&current_par.epsilon[2],&current_par.epsilon[3],&current_par.epsilon[4]);
 
     save_fgets(sbuffer, 100, f_init);
     save_fgets(sbuffer, 100, f_init);
-	sscanf(sbuffer,"%lf", &current_par->psi);
+	sscanf(sbuffer,"%lf", &current_par.psi);
 
     save_fgets(sbuffer, 100, f_init);
 
@@ -433,13 +428,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, tl, ti, current_par->susceptibility, current_contact_regular, current_par->transmissibility, vaccine_cal, vaccine_efficacy_year);
+    one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, tl, ti, current_par.susceptibility, current_contact_regular, current_par.transmissibility, vaccine_cal, vaccine_efficacy_year);
 
     /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
     days_to_weeks_5AG(result,result_by_week);
 
     /*curr_psi=0.00001;*/
-        lv=log_likelihood_hyper_poisson(current_par->epsilon, current_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+        lv=log_likelihood_hyper_poisson(current_par.epsilon, current_par.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     printf("====%f====\n",lv);
 
@@ -471,21 +466,21 @@ int main(int argc, char *argv[])
     for(k=1; k<=mcmc_chain_length + burn_in; k++)
     {
         /*update of the variance-covariance matrix and the mean vector*/
-        update_sum_corr(sum_corr_param_matrix, current_par);
-        sum_mean_param[0]+=current_par->epsilon[0];
-        sum_mean_param[1]+=current_par->epsilon[2];
-        sum_mean_param[2]+=current_par->epsilon[4];
-        sum_mean_param[3]+=current_par->psi;
-        sum_mean_param[4]+=current_par->transmissibility;
-        sum_mean_param[5]+=current_par->susceptibility[0];
-        sum_mean_param[6]+=current_par->susceptibility[3];
-        sum_mean_param[7]+=current_par->susceptibility[6];
-        sum_mean_param[8]+=current_par->init_pop;
+        update_sum_corr(sum_corr_param_matrix, &current_par);
+        sum_mean_param[0]+=current_par.epsilon[0];
+        sum_mean_param[1]+=current_par.epsilon[2];
+        sum_mean_param[2]+=current_par.epsilon[4];
+        sum_mean_param[3]+=current_par.psi;
+        sum_mean_param[4]+=current_par.transmissibility;
+        sum_mean_param[5]+=current_par.susceptibility[0];
+        sum_mean_param[6]+=current_par.susceptibility[3];
+        sum_mean_param[7]+=current_par.susceptibility[6];
+        sum_mean_param[8]+=current_par.init_pop;
 
         if(k%thinning==0 && k>burn_in)
         {
             f_posterior=append_file(data_path + "posterior.txt");
-            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par->epsilon[0],current_par->epsilon[2],current_par->epsilon[4],current_par->psi,current_par->transmissibility,current_par->susceptibility[0],current_par->susceptibility[3],current_par->susceptibility[6],current_par->init_pop,adaptive_scaling,lv);
+            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par.epsilon[0],current_par.epsilon[2],current_par.epsilon[4],current_par.psi,current_par.transmissibility,current_par.susceptibility[0],current_par.susceptibility[3],current_par.susceptibility[6],current_par.init_pop,adaptive_scaling,lv);
             fclose(f_posterior);
         }
 
@@ -527,23 +522,23 @@ int main(int argc, char *argv[])
 
             /*calculate the current initial infected population*/
             for(i=0;i<NAG;i++)
-                curr_init_inf[i]=pow(10,current_par->init_pop);
-            one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, tl, ti, current_par->susceptibility, current_contact_regular, current_par->transmissibility, vaccine_cal, vaccine_efficacy_year);
+                curr_init_inf[i]=pow(10,current_par.init_pop);
+            one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, tl, ti, current_par.susceptibility, current_contact_regular, current_par.transmissibility, vaccine_cal, vaccine_efficacy_year);
             days_to_weeks_5AG(result,result_by_week);
-            /*lv=log_likelihood_hyper_poisson(current_par->epsilon, current_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
+            /*lv=log_likelihood_hyper_poisson(current_par.epsilon, current_par.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-            save_state((data_path + "samples/z_hyper").c_str(), k, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
-            save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, tl, ti, current_par->transmissibility, current_par->susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
+            save_state((data_path + "samples/z_hyper").c_str(), k, tl, ti, current_par.init_pop, current_par.transmissibility, current_par.susceptibility, p_ij, current_par.epsilon, current_par.psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+            save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, tl, ti, current_par.transmissibility, current_par.susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
         }
 
         /*proposal_haario(current_par,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
         // TODO: really should make sure proposed_par is equal to current_par
         // at this point (will result in test failures though)
-        proposal_haario_adapt_scale(current_par,proposed_par,chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
+        proposal_haario_adapt_scale(&current_par,&proposed_par,chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
 
         /*translate into an initial infected population*/
         for(i=0;i<NAG;i++)
-            prop_init_inf[i]=pow(10,proposed_par->init_pop);
+            prop_init_inf[i]=pow(10,proposed_par.init_pop);
 
         /*new proposed contact matrix*/
         /*start from current one*/
@@ -640,26 +635,26 @@ int main(int argc, char *argv[])
         }
 
         /*one_year_SEIR_without_vaccination(result, pop_vec, prop_init_inf, prop_tl, prop_ti, prop_s_profile, prop_contact_regular, prop_q);*/
-        one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, tl, ti, proposed_par->susceptibility, prop_contact_regular, proposed_par->transmissibility, vaccine_cal, vaccine_efficacy_year);
+        one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, tl, ti, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_cal, vaccine_efficacy_year);
 
         /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
         days_to_weeks_5AG(result,result_by_week);
 
         /*computes the associated likelihood with the proposed values*/
-        prop_likelihood=log_likelihood_hyper_poisson(proposed_par->epsilon, proposed_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+        prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
         /*Add the priors*/
 
         /*correct_prior=0;*/
 
         // TODO Edwin: reintroduce different priors
-        correct_prior=(current_par->transmissibility-proposed_par->transmissibility)*(current_par->transmissibility+proposed_par->transmissibility-0.3306366)*650.2099;
+        correct_prior=(current_par.transmissibility-proposed_par.transmissibility)*(current_par.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
         //if(env!=37)
         //{
         //    /*Prior for the transmissibility; year other than 2003/04*/
         //    /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
         //    /*prior on q*/
-        //    correct_prior=(current_par->transmissibility-proposed_par->transmissibility)*(current_par->transmissibility+proposed_par->transmissibility-0.3306366)*650.2099;
+        //    correct_prior=(current_par.transmissibility-proposed_par.transmissibility)*(current_par.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
         //}
 
 		//if(env==37)
@@ -667,29 +662,29 @@ int main(int argc, char *argv[])
         //    /*prior on the susceptibility (year 2003/04)*/
 
         //    /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
-        //    correct_prior=(current_par->susceptibility[0]-proposed_par->susceptibility[0])*(current_par->susceptibility[0]+proposed_par->susceptibility[0]-1.376)*145.1589/2;
+        //    correct_prior=(current_par.susceptibility[0]-proposed_par.susceptibility[0])*(current_par.susceptibility[0]+proposed_par.susceptibility[0]-1.376)*145.1589/2;
         //    /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
-        //    correct_prior+=(current_par->susceptibility[3]-proposed_par->susceptibility[3])*(current_par->susceptibility[3]+proposed_par->susceptibility[3]-1.058)*67.18624/2;
+        //    correct_prior+=(current_par.susceptibility[3]-proposed_par.susceptibility[3])*(current_par.susceptibility[3]+proposed_par.susceptibility[3]-1.058)*67.18624/2;
         //    /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
-        //    correct_prior+=(current_par->susceptibility[6]-proposed_par->susceptibility[6])*(current_par->susceptibility[6]+proposed_par->susceptibility[6]-1.046)*32.65306/2;
+        //    correct_prior+=(current_par.susceptibility[6]-proposed_par.susceptibility[6])*(current_par.susceptibility[6]+proposed_par.susceptibility[6]-1.046)*32.65306/2;
 		//}
 
         /*Prior for the ascertainment probabilities*/
 
         /*correct for the prior from serology season (lognormal):"0-14" lm=-4.493789, ls=0.2860455*/
-        correct_prior_con= log(current_par->epsilon[0])-log(proposed_par->epsilon[0])+(log(current_par->epsilon[0])-log(proposed_par->epsilon[0]))*(log(current_par->epsilon[0])+log(proposed_par->epsilon[0])+8.987578)*6.110824;
+        correct_prior_con= log(current_par.epsilon[0])-log(proposed_par.epsilon[0])+(log(current_par.epsilon[0])-log(proposed_par.epsilon[0]))*(log(current_par.epsilon[0])+log(proposed_par.epsilon[0])+8.987578)*6.110824;
 
         /*correct for the prior from serology season (lognormal):"15-64" lm=-4.117028, ls=0.4751615*/
-        correct_prior_con+= log(current_par->epsilon[2])-log(proposed_par->epsilon[2])+(log(current_par->epsilon[2])-log(proposed_par->epsilon[2]))*(log(current_par->epsilon[2])+log(proposed_par->epsilon[2])+8.234056)*2.21456;
+        correct_prior_con+= log(current_par.epsilon[2])-log(proposed_par.epsilon[2])+(log(current_par.epsilon[2])-log(proposed_par.epsilon[2]))*(log(current_par.epsilon[2])+log(proposed_par.epsilon[2])+8.234056)*2.21456;
 
         /*correct for the prior from serology season (lognormal):"65+" lm=-2.977965, ls=1.331832*/
-        correct_prior_con+= log(current_par->epsilon[4])-log(proposed_par->epsilon[4])+(log(current_par->epsilon[4])-log(proposed_par->epsilon[4]))*(log(current_par->epsilon[4])+log(proposed_par->epsilon[4])+5.95593)*0.2818844;
+        correct_prior_con+= log(current_par.epsilon[4])-log(proposed_par.epsilon[4])+(log(current_par.epsilon[4])-log(proposed_par.epsilon[4]))*(log(current_par.epsilon[4])+log(proposed_par.epsilon[4])+5.95593)*0.2818844;
 
 
         /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
 
         my_acceptance_rate=exp(prop_likelihood-lv+correct_prior+correct_prior_con);
-		if((proposed_par->init_pop<log(0.00001))|(proposed_par->init_pop>log(10)))  my_acceptance_rate=0.0; /* limit the number of initially infected to 10^log(0.00001)> 10^-12 */
+		if((proposed_par.init_pop<log(0.00001))|(proposed_par.init_pop>log(10)))  my_acceptance_rate=0.0; /* limit the number of initially infected to 10^log(0.00001)> 10^-12 */
 
         alea=gsl_rng_uniform (r);
 
