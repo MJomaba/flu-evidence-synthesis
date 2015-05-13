@@ -1,6 +1,11 @@
 #include "model.hh"
 
+#include "io.hh"
+
 gsl_rng * r;
+
+namespace flu 
+{
 
 void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seeding_infectious, double tlatent, double tinfectious, double *s_profile, double *contact_regular, double q, double *vaccination_calendar, double *vaccine_efficacy)
 {
@@ -1117,38 +1122,4 @@ void update_sum_corr(double * sum_corr, parameter_set * par)
     sum_corr[80]+=par->init_pop*par->init_pop;
 }
 
-FILE * read_file( const std::string pathname, const std::string filename )
-{
-    boost::filesystem::path path = pathname;
-    path /= filename;
-    if (!boost::filesystem::exists( path )) {
-        std::cerr << "File does not exist: " << path << std::endl;
-    }
-    return fopen(path.c_str(),"r");
-}
-
-FILE * write_file( const std::string filename )
-{
-    boost::filesystem::path filepath = filename;
-    boost::filesystem::path path = filename;
-    // Create directory if it doesn't exist
-    // TODO: There is probably a function to get the path without using remove_filename()
-    // If so then the copy is not needed anymore
-    boost::filesystem::create_directory( path.remove_filename() );
-    FILE * file = fopen( filepath.c_str(), "w+t" );
-    return file;
-}
-
-FILE * append_file( const std::string filename )
-{
-    boost::filesystem::path filepath = filename;
-    boost::filesystem::path path = filename;
-    // Create directory if it doesn't exist
-    // TODO: There is probably a function to get the path without using remove_filename()
-    // If so then the copy is not needed anymore
-    boost::filesystem::create_directory( path.remove_filename() );
-    if (!boost::filesystem::exists( filepath )) {
-        return fopen(filepath.c_str(), "w+t");
-    }
-    return fopen(filepath.c_str(), "a");
-}
+};

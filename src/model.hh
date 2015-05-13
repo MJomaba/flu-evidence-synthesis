@@ -6,7 +6,7 @@
 #include<iostream>
 #include<cmath>
 
-#include "boost/filesystem.hpp"
+#include "io.hh"
 
 #define NAG 7
 #define NAG2 49
@@ -23,33 +23,32 @@
 /*declaring the random number*/
 extern gsl_rng * r;
 
+namespace flu
+{
+    typedef struct {
+        int m_plus [260];
+        double epsilon[5];
+        double psi;
+        double transmissibility;
+        double susceptibility[7];
+        double init_pop;
+    } parameter_set ;
 
-typedef struct {
-    int m_plus [260];
-    double epsilon[5];
-    double psi;
-    double transmissibility;
-    double susceptibility[7];
-    double init_pop;
-} parameter_set ;
+    void one_year_SEIR_with_vaccination(double *, double *, double *, double, double, double *, double *, double, double *,double *);
+    void one_year_SEIR_without_vaccination(double *, double *, double *, double, double, double *, double *, double);
+    void days_to_weeks(double *, double *);
+    void days_to_weeks_no_class(double *, double *);
+    void days_to_weeks_5AG(double *, double *);
+    double log_likelihood_b(double *, double *, double *, double *, int *, int *, double *);
+    double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
+    double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
+    void save_state(const char *, int, double, double, double, double, double *, double *, double *, double, int *, double *, double *, double, double);
+    void save_scenarii( FILE *, FILE *, double *,  double *,  double, double, double, double *, double *, int, double **, double **, std::string, int *);
+    void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
+    void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
+    void cholevsky(double *, double *, int);
+    void update_sum_corr(double *, parameter_set *);
 
-void one_year_SEIR_with_vaccination(double *, double *, double *, double, double, double *, double *, double, double *,double *);
-void one_year_SEIR_without_vaccination(double *, double *, double *, double, double, double *, double *, double);
-void days_to_weeks(double *, double *);
-void days_to_weeks_no_class(double *, double *);
-void days_to_weeks_5AG(double *, double *);
-double log_likelihood_b(double *, double *, double *, double *, int *, int *, double *);
-double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
-double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
-void save_state(const char *, int, double, double, double, double, double *, double *, double *, double, int *, double *, double *, double, double);
-void save_scenarii( FILE *, FILE *, double *,  double *,  double, double, double, double *, double *, int, double **, double **, std::string, int *);
-void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
-void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
-void cholevsky(double *, double *, int);
-void update_sum_corr(double *, parameter_set *);
-
-FILE * read_file( const std::string path, const std::string filename );
-FILE * write_file( const std::string filename );
-FILE * append_file( const std::string filename );
+};
 
 #endif

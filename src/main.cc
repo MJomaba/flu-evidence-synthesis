@@ -1,4 +1,3 @@
-#include <cstdarg>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -13,25 +12,9 @@
 
 #include "model.hh"
 
-//! Check for return value of fgets 
-void save_fgets( char * buffer, int size, FILE * file ) 
-{
-    auto res = fgets( buffer, size, file );
-    if (!res)
-        throw "Could not read from file";
-}
+#include "io.hh"
 
-//! Check for return value of fscanf 
-void save_fscanf( FILE * stream, const char * format, ... ) 
-{
-    va_list args;
-    va_start( args, format );
-    auto res = vfscanf( stream, format, args );
-    va_end( args );
-    if (!res)
-        throw "Could not read from file";
-}
-
+using namespace flu;
 
 int main(int argc, char *argv[])
 {
