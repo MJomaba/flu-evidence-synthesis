@@ -13,17 +13,17 @@ namespace fs = boost::filesystem;
 bool equal_file_contents( const std::string &path, 
         const std::string &other_path )
 {
-            io::mapped_file_source f1( path );
-            io::mapped_file_source f2( other_path );
+    io::mapped_file_source f1( path );
+    io::mapped_file_source f2( other_path );
 
-            if ( f1.size() > 0 
-                    && f1.size() == f2.size() 
-                    && std::equal( f1.data(), 
-                        f1.data() + f1.size(), f2.data() ) 
-               ) 
-                return true;
-            else
-                return false;
+    if ( f1.size() > 0 
+            && f1.size() == f2.size() 
+            && std::equal( f1.data(), 
+                f1.data() + f1.size(), f2.data() ) 
+       ) 
+        return true;
+    else
+        return false;
 }
 
 TEST_CASE( "Run a short test run", "[full]" ) 
