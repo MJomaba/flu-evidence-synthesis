@@ -548,7 +548,7 @@ int main(int argc, char *argv[])
             /*lv=log_likelihood_hyper_poisson(current_par->epsilon, current_par->psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
             save_state((data_path + "samples/z_hyper").c_str(), k, tl, ti, current_par->init_pop, current_par->transmissibility, current_par->susceptibility, p_ij, current_par->epsilon, current_par->psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
-            save_scenarii(Scen1FS, Scen2FS, (k-burn_in)/freq_sampling, pop_vec, curr_init_inf, tl, ti, current_par->transmissibility, current_par->susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
+            save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, tl, ti, current_par->transmissibility, current_par->susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
         }
 
         /*proposal_haario(current_par,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/

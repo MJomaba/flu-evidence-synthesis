@@ -703,7 +703,7 @@ void save_state(const char *name_file, int number, double tl, double ti, double 
     fclose(save_file);
 }
 
-void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, int number, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
+void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
 {
     double result_simu[7644];
     double FinalSize[21];
