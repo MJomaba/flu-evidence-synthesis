@@ -10,7 +10,8 @@
 namespace io = boost::iostreams;
 namespace fs = boost::filesystem;
 
-class FileWatcher {
+class FileWatcher 
+{
     public:
         const std::string &_path;
         std::time_t lastWriteTime;
@@ -20,9 +21,8 @@ class FileWatcher {
         {
             if (!fs::exists( _path ))
                 throw "No such file";
-            std::cout << "Blaat" << std::endl;
-            std::cout << _path << std::endl;
             lastWriteTime = fs::last_write_time( _path );
+            std::cout << "Acces time: " << lastWriteTime << std::endl;
         }
 
         /// Has the file been modified since the watcher was created
@@ -30,6 +30,8 @@ class FileWatcher {
         {
             auto previousWriteTime = lastWriteTime;
             lastWriteTime = fs::last_write_time( _path );
+            std::cout << "New Acces time: " << lastWriteTime << std::endl;
+            std::cout << time(0) << std::endl;
             if (lastWriteTime > previousWriteTime)
                 return true;
             return false;
@@ -52,11 +54,11 @@ bool equal_file_contents( const std::string &path,
                 return false;
 }
 
-TEST_CASE( "Run a short test run", "[full]" ) {
+TEST_CASE( "Run a short test run", "[full]" ) 
+{
     auto fWatcher = FileWatcher( "../data/posterior.txt" );
     REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
     REQUIRE( fWatcher.modified() );
-    sleep(1);
 
     REQUIRE( equal_file_contents( 
                 "../data/posterior.txt",

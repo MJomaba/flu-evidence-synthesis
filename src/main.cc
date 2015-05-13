@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
         chol_emp_cov[i]=chol_ini[i];
 
     past_acceptance=acceptance=234;
-    freq_sampling=10000;
+    freq_sampling=10*thinning;
 
     conv_scaling=0.001;
     adaptive_scaling=0.3;
