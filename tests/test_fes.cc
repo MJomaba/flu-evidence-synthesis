@@ -56,11 +56,15 @@ bool equal_file_contents( const std::string &path,
 
 TEST_CASE( "Run a short test run", "[full]" ) 
 {
+    // Create array with all names to be watched (posterior/samples/scenarii)
+    // For each do the thing below
     auto fWatcher = FileWatcher( "../data/posterior.txt" );
+    sleep(1);
     REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
+    sleep(1);
     REQUIRE( fWatcher.modified() );
 
     REQUIRE( equal_file_contents( 
                 "../data/posterior.txt",
-                "tests/short_posterior_sample.txt" ) );
+                "tests/test_data/posterior.txt" ) );
 }

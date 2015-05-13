@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
         sum_mean_param[7]+=current_par->susceptibility[6];
         sum_mean_param[8]+=current_par->init_pop;
 
-        if(k%thinning==0)
+        if(k%thinning==0 && k>burn_in)
         {
             f_posterior=append_file(data_path + "posterior.txt");
             fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_par->epsilon[0],current_par->epsilon[2],current_par->epsilon[4],current_par->psi,current_par->transmissibility,current_par->susceptibility[0],current_par->susceptibility[3],current_par->susceptibility[6],current_par->init_pop,adaptive_scaling,lv);
