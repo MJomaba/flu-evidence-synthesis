@@ -8,13 +8,13 @@
 namespace flu {
 
 /// Keeps the current state of the model/mcmc
-struct State 
+struct state_t 
 {
     parameter_set parameters;
 };
 
 /// Load an (initial) state from a file
-State load_state( const std::string &file_path );
+state_t load_state( const std::string &file_path );
 
 };
 

@@ -4,10 +4,10 @@
 
 namespace flu {
 
-State load_state( const std::string &file_path )
+state_t load_state( const std::string &file_path )
 {
     auto f_init = read_file( file_path );
-    State state;
+    state_t state;
     return state;
 }
 

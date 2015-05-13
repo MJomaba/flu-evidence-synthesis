@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     } 
 
     data_path = (boost::filesystem::canonical(
-                boost::filesystem::complete( data_path ) )).native() + "/";
+                boost::filesystem3::complete( data_path ) )).native() + "/";
 
     /*opens the output log file*/
     log_file= write_file(data_path + "final.log");
