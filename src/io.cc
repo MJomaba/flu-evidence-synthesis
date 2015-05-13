@@ -16,6 +16,15 @@ namespace flu {
         return fopen(path.c_str(),"r");
     }
 
+    FILE * read_file( const std::string filename )
+    {
+        boost::filesystem::path path = filename;
+        if (!boost::filesystem::exists( path )) {
+            std::cerr << "File does not exist: " << path << std::endl;
+        }
+        return fopen(path.c_str(),"r");
+    }
+
     FILE * write_file( const std::string filename )
     {
         boost::filesystem::path filepath = filename;

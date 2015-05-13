@@ -14,6 +14,8 @@
 
 #include "io.hh"
 
+#include "state.hh"
+
 using namespace flu;
 
 int main(int argc, char *argv[])
