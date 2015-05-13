@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     double my_acceptance_rate;
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
-    parameter_set * pointer_par, * current_par, * proposed_par;
+    parameter_set * current_par, * proposed_par;
     parameter_set ad_par_1, ad_par_2;
     FILE *log_file, *vacc_programme;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
@@ -537,6 +537,8 @@ int main(int argc, char *argv[])
         }
 
         /*proposal_haario(current_par,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
+        // TODO: really should make sure proposed_par is equal to current_par
+        // at this point (will result in test failures though)
         proposal_haario_adapt_scale(current_par,proposed_par,chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
 
         /*translate into an initial infected population*/
@@ -698,9 +700,8 @@ int main(int argc, char *argv[])
             if(k>=1000)
                 adaptive_scaling+=0.766*conv_scaling;
 
-            pointer_par=current_par;
-            current_par=proposed_par;
-            proposed_par=pointer_par;
+            // TODO: Normally we don't use swap, but just set the proposal to current and then get new proposal. Ask mark about this.
+            std::swap( current_par, proposed_par );
 
             /*update current likelihood*/
             lv=prop_likelihood;
