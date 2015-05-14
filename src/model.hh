@@ -1,48 +1,27 @@
 #ifndef MODEL_HH
 #define MODEL_HH
 
-#include <gsl/gsl_rng.h>
 
 #include<iostream>
 #include<cmath>
 
+#include "state.hh"
 #include "io.hh"
-
-#define NAG 7
-#define NAG2 49
-#define length 364
-#define length_weeks 52
-#define twopi 6.283185
-#define POLY_PART 597
-#define h_step 0.25              /*integration step for the ODE system N.B. must be 1/integer and 1/h should be a multiple of 2*/
-#define d_app 2
-#define dim_par 9
-#define dim_par2 81
-#define seed 578
-
-/*declaring the random number*/
-extern gsl_rng * r;
 
 namespace flu
 {
-    typedef struct {
-        int m_plus [260];
-        double epsilon[5];
-        double psi;
-        double transmissibility;
-        double susceptibility[7];
-        double init_pop;
-    } parameter_set ;
 
-    void one_year_SEIR_with_vaccination(double *, double *, double *, double, double, double *, double *, double, double *,double *);
-    void one_year_SEIR_without_vaccination(double *, double *, double *, double, double, double *, double *, double);
+    void one_year_SEIR_with_vaccination(double *, double *, double *, const double, const double, double const*, double *, double, double *,double *);
+    void one_year_SEIR_without_vaccination(double *, double *, double *, double, double, double const*, double *, double);
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
     void days_to_weeks_5AG(double *, double *);
     double log_likelihood_b(double *, double *, double *, double *, int *, int *, double *);
     double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
     double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
-    void save_scenarii( FILE *, FILE *, double *,  double *,  double, double, double, double *, double *, int, double **, double **, std::string, int *);
+
+    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf, const state_t &state, double *contact_mat, int n_scenarii, double **vaccine_cal, double **vaccine_efficacy_year, std::string path, int * First_write );
+
     void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
     void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
     void cholevsky(double *, double *, int);

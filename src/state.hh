@@ -4,9 +4,33 @@
 #include<string>
 #include<vector>
 
-#include<model.hh>
+#include <gsl/gsl_rng.h>
 
-namespace flu {
+#define NAG 7
+#define NAG2 49
+#define length 364
+#define length_weeks 52
+#define twopi 6.283185
+#define POLY_PART 597
+#define h_step 0.25              /*integration step for the ODE system N.B. must be 1/integer and 1/h should be a multiple of 2*/
+#define d_app 2
+#define dim_par 9
+#define dim_par2 81
+#define seed 578
+
+/*declaring the random number*/
+extern gsl_rng * r;
+
+namespace flu
+{
+    typedef struct {
+        int m_plus [260];
+        double epsilon[5];
+        double psi;
+        double transmissibility;
+        double susceptibility[7];
+        double init_pop;
+    } parameter_set ;
 
 /// Keeps the current state of the model/mcmc
 struct state_t 

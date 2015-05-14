@@ -2,6 +2,8 @@
 
 #include "io.hh"
 
+gsl_rng * r;
+
 namespace flu {
 
 state_t load_state( const std::string &file_path, 

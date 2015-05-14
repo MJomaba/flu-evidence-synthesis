@@ -2,12 +2,11 @@
 
 #include "io.hh"
 
-gsl_rng * r;
 
 namespace flu 
 {
 
-void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seeding_infectious, double tlatent, double tinfectious, double *s_profile, double *contact_regular, double q, double *vaccination_calendar, double *vaccine_efficacy)
+void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const double *s_profile, double *contact_regular, double q, double *vaccination_calendar, double *vaccine_efficacy)
 {
     double transmission_regular[NAG2];
     double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -317,7 +316,7 @@ void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seed
     }
 }
 
-void one_year_SEIR_without_vaccination(double * result, double *Npop, double * seeding_infectious, double tlatent, double tinfectious, double *s_profile, double *contact_regular, double q)
+void one_year_SEIR_without_vaccination(double * result, double *Npop, double * seeding_infectious, const double tlatent, const double tinfectious, double const*s_profile, double *contact_regular, double q)
 {
     double transmission_regular[NAG2];
     double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -653,7 +652,9 @@ double log_likelihood_hyper_poisson(double* eps, double psi, double * result_sim
 }
 
 
-void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
+void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf, const state_t &state, double *contact_mat, int n_scenarii, double **vaccine_cal, double **vaccine_efficacy_year, std::string path, int * First_write ) 
+    //save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
+//void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
 {
     double result_simu[7644];
     double FinalSize[21];
@@ -662,7 +663,7 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop
     char temp_string[3];
 
     /*scenario 1*/
-    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, tl, ti, s_profile, contact_mat, q_mat, vaccine_cal[0], vaccine_efficacy_year[0]);
+    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_cal[0], vaccine_efficacy_year[0]);
 	for(j=0; j<21; j++)
 	{
 		FinalSize[j]=0.0;
@@ -681,7 +682,7 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop
     fprintf(Scen1FS,"\n");
 
     /*scenario 2*/
-    one_year_SEIR_without_vaccination(result_simu, pop_vec, prop_init_inf, tl, ti, s_profile, contact_mat, q_mat);
+    one_year_SEIR_without_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility);
     for(j=0; j<21; j++)
 	{
 		FinalSize[j]=0.0;
@@ -715,7 +716,7 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop
         }
 
 
-        one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, tl, ti, s_profile, contact_mat, q_mat, vaccine_cal[scen+1], vaccine_efficacy_year[scen+1]);
+        one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_cal[scen+1], vaccine_efficacy_year[scen+1]);
         for(j=0; j<21; j++)
         {
             FinalSize[j]=0.0;
