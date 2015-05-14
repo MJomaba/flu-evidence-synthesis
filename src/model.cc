@@ -652,61 +652,6 @@ double log_likelihood_hyper_poisson(double* eps, double psi, double * result_sim
     return(result);
 }
 
-void save_state(const char *name_file, int number, double tl, double ti, double inf_scale, double q_mat, double *s_profile, double *positivity, double *c_prop, double psi, int *bs_part, double *contact_mat, double *epi_1, double lv, double Accept_rate)
-{
-    FILE *save_file;
-    char full_name[80];
-    int i;
-
-    for(i=0;name_file[i]!=0;i++)
-        full_name[i]=name_file[i];
-
-    full_name[i]=(char)('0'+(number/1000)%10);
-    full_name[i+1]=(char)('0'+(number/100)%10);
-    full_name[i+2]=(char)('0'+(number/10)%10);
-    full_name[i+3]=(char)('0'+number%10);
-
-    full_name[i+4]='.';
-    full_name[i+4+1]='s';
-    full_name[i+4+2]='t';
-    full_name[i+4+3]='m';
-    full_name[i+4+4]=0;
-
-    save_file=write_file(full_name);
-
-    /*save the positivity data*/
-    fprintf(save_file,"#Latent and infectious period\n");
-    fprintf(save_file,"%e %e\n", tl, ti);
-    fprintf(save_file,"#Number of initial infectious starting of the epidemics\n");
-    fprintf(save_file,"%e\n", inf_scale);
-    fprintf(save_file,"#Q factor for the transmission matrix\n");
-    fprintf(save_file,"%e\n", q_mat);
-    fprintf(save_file,"#Susceptibility profile\n");
-    fprintf(save_file,"%e %e %e %e %e %e %e\n", s_profile[0],s_profile[1],s_profile[2],s_profile[3],s_profile[4],s_profile[5],s_profile[6]);
-    fprintf(save_file,"#Positivity\n");
-    for(i=0;i<52;i++)
-        fprintf(save_file,"%.15e %.15e %.15e %.15e %.15e\n",positivity[i*5],positivity[i*5+1],positivity[i*5+2],positivity[i*5+3],positivity[i*5+4]);
-    fprintf(save_file,"#Pick up by GP\n");
-    fprintf(save_file,"%e %e %e %e %e\n", c_prop[0],c_prop[1],c_prop[2],c_prop[3],c_prop[4]);
-    fprintf(save_file,"#Poisson coefficient for outside transmission\n");
-    fprintf(save_file,"%e\n",psi);
-    fprintf(save_file,"#Bootstrapped contacts\n");
-    for(i=0;i<POLY_PART;i++)
-        fprintf(save_file,"%d\n",bs_part[i]);
-    fprintf(save_file,"#Contact matrix\n");
-    for(i=0;i<7;i++)
-        fprintf(save_file,"%e %e %e %e %e %e %e\n",contact_mat[i*7],contact_mat[i*7+1],contact_mat[i*7+2],contact_mat[i*7+3],contact_mat[i*7+4],contact_mat[i*7+5],contact_mat[i*7+6]);
-    fprintf(save_file,"#Associated epidemic with vaccine\n");
-    for(i=0;i<52;i++)
-        fprintf(save_file,"%f %f %f %f %f\n",epi_1[5*i],epi_1[5*i+1],epi_1[5*i+2],epi_1[5*i+3],epi_1[5*i+4]);
-    fprintf(save_file,"#Current Likelihood\n");
-    fprintf(save_file,"%e\n", lv);
-    fprintf(save_file,"#Current acceptance rate\n");
-    fprintf(save_file,"%e\n", Accept_rate);
-
-
-    fclose(save_file);
-}
 
 void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
 {

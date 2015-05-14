@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-            save_state((data_path + "samples/z_hyper").c_str(), k, current_state.time_latent, current_state.time_infectious, current_state.parameters.init_pop, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_state.positivity_ij, current_state.parameters.epsilon, current_state.parameters.psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
             save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
         }
 
