@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
     double pop_vec[21], pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     int n_pos[260], n_samples[260], n_scenarii, ILI[260], mon_pop[260];
-    double p_ij[260];
     double lv, prop_likelihood;
     double vaccine_efficacy_year[7], vaccine_cal[2583], *VE_pro, *VCAL_pro;
     double *tab_cal[100], *tab_VE[100]; /*so far a maximum of 100 scenarios can be changed of course*/
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
     parameter_set proposed_par;
     FILE *log_file, *vacc_programme;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
-    FILE *f_init, *f_init_cov, *f_final_cov;
+    FILE *f_init_cov, *f_final_cov;
     FILE *contacts_PM, *pop_sizes, *f_pop_model;
     FILE *f_posterior;
 
@@ -112,9 +111,6 @@ int main(int argc, char *argv[])
 
     /*opens the file with the vaccine calendar*/
     vacc_programme=read_file(data_path,"vaccine_calendar.txt");
-
-    /*opens the file with the starting state of the MCMC chain*/
-    f_init=read_file(data_path,"init_MCMC.txt");
 
     /*opens the file with the starting state of the covariance matrix for the proposal*/
     f_init_cov=read_file(data_path,"init_cov_matrix.txt");
@@ -323,36 +319,8 @@ int main(int argc, char *argv[])
     *********************************************************************************************************************************************************/
 
     /*Reading the init file*/
-    current_state = load_state( data_path + "init_MCMC.txt", NAG );
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-
-    save_fgets(sbuffer, 100, f_init);
-    for(i=0;i<52;i++)
-    {
-        save_fgets(sbuffer, 150, f_init);
-        sscanf(sbuffer,"%lf %lf %lf %lf %lf",&p_ij[i*5],&p_ij[i*5+1],&p_ij[i*5+2],&p_ij[i*5+3],&p_ij[i*5+4]);
-    }
-
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-    sscanf(sbuffer,"%lf %lf %lf %lf %lf", &current_state.parameters.epsilon[0],&current_state.parameters.epsilon[1],&current_state.parameters.epsilon[2],&current_state.parameters.epsilon[3],&current_state.parameters.epsilon[4]);
-
-    save_fgets(sbuffer, 100, f_init);
-    save_fgets(sbuffer, 100, f_init);
-	sscanf(sbuffer,"%lf", &current_state.parameters.psi);
-
-    save_fgets(sbuffer, 100, f_init);
-
+    current_state = load_state( data_path + "init_MCMC.txt", 
+            NAG, POLY_PART );
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
@@ -363,8 +331,7 @@ int main(int argc, char *argv[])
     curr_nwe=0;
     for(i=0; i<POLY_PART; i++)
     {
-        save_fgets(sbuffer, 10, f_init);
-        sscanf(sbuffer,"%d",&nc);
+        nc = current_state.number_contacts[i];
 
         age_part=c_age[nc];
         curr_ni[age_part]++;
@@ -527,7 +494,7 @@ int main(int argc, char *argv[])
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-            save_state((data_path + "samples/z_hyper").c_str(), k, current_state.time_latent, current_state.time_infectious, current_state.parameters.init_pop, current_state.parameters.transmissibility, current_state.parameters.susceptibility, p_ij, current_state.parameters.epsilon, current_state.parameters.psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+            save_state((data_path + "samples/z_hyper").c_str(), k, current_state.time_latent, current_state.time_infectious, current_state.parameters.init_pop, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_state.positivity_ij, current_state.parameters.epsilon, current_state.parameters.psi, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
             save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
         }
 
@@ -764,7 +731,6 @@ int main(int argc, char *argv[])
     fclose(f_GP);
     fclose(f_mon_pop);
     fclose(f_n_sample);
-    fclose(f_init);
     fclose(f_init_cov);
     fclose(Scen1FS);
     fclose(Scen2FS);
