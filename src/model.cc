@@ -6,7 +6,7 @@
 namespace flu 
 {
 
-void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const double *s_profile, double *contact_regular, double q, double *vaccination_calendar, double *vaccine_efficacy)
+void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const double *s_profile, double *contact_regular, double q, double *vaccination_calendar, double *vaccine_efficacy)
 {
     double transmission_regular[NAG2];
     double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -316,7 +316,7 @@ void one_year_SEIR_with_vaccination(double * result, double *Npop, double * seed
     }
 }
 
-void one_year_SEIR_without_vaccination(double * result, double *Npop, double * seeding_infectious, const double tlatent, const double tinfectious, double const*s_profile, double *contact_regular, double q)
+void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, double const*s_profile, double *contact_regular, double q)
 {
     double transmission_regular[NAG2];
     double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -652,7 +652,7 @@ double log_likelihood_hyper_poisson(double* eps, double psi, double * result_sim
 }
 
 
-void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf, const state_t &state, double *contact_mat, int n_scenarii, double **vaccine_cal, double **vaccine_efficacy_year, std::string path, int * First_write ) 
+void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, double *contact_mat, int n_scenarii, double **vaccine_cal, double **vaccine_efficacy_year, std::string path, int * First_write ) 
     //save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.transmissibility, current_state.parameters.susceptibility, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
 //void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, double *pop_vec,  double *prop_init_inf,  double tl, double ti, double q_mat, double *s_profile, double *contact_mat, int n_scenarii, double **vaccine_cal,double **vaccine_efficacy_year, std::string path, int * First_write)
 {
