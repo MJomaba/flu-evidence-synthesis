@@ -72,15 +72,18 @@ namespace trace {
 	 * Returns a vector with samples
 	 *
 	 * \param tail Read the given number of samples from the end. Set to zero to read the whole file
+     * \param skip Number of lines to skip (i.e. header)
 	 */
 	std::vector<std::vector<double> > read_trace_per_sample( 
-			std::istream& infile, const size_t tail = 0 );
+			std::istream& infile, size_t skip = 0,
+            const size_t tail = 0 );
 
 	/**
 	 * \brief Read any new samples that have been appended to the trace file
+     *
 	 */
 	std::vector<std::vector<double> > follow_trace_per_sample( 
-			std::istream& infile );
+			std::istream& infile, size_t skip = 0 );
 
 	/**
 	 * \brief Returns means of the parameters in the trace

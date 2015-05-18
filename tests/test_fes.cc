@@ -7,6 +7,7 @@
 #include "catch.hpp"
 
 #include "model.hh"
+#include "trace.hh"
 
 namespace io = boost::iostreams;
 namespace fs = boost::filesystem;
@@ -99,4 +100,20 @@ TEST_CASE( "Run inference", "[full,inference]" )
                     "../data/" + fname,
                     "./tests/test_data/" + fname ) );
     }
+}
+
+TEST_CASE( "Posterior file should be readable as a trace" "[trace]" )
+{
+    std::string fName = "./tests/test_data/posterior.txt";
+
+    std::ifstream infile;
+    infile.open( fName );
+
+    std::vector<std::vector<double> > samples 
+        = flu::trace::read_trace_per_sample( infile, 1 );
+
+    REQUIRE( samples.size() == 1000 );
+    REQUIRE( samples[0].size() == 12 );
+
+    infile.close();
 }

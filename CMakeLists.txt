@@ -35,6 +35,6 @@ include(UseDoxygen)
 include_directories(tests src ${COMMON_INCLUDES})
 enable_testing(true)  # Enables unit-testing.
 
-add_executable (test_fes tests/test_fes.cc)
+add_executable (test_fes tests/test_fes.cc;${SRCS})
 target_link_libraries(test_fes ${GSL_LIBRARIES};${Boost_LIBRARIES})
 add_test( test_fes bin/test_fes )

@@ -69,10 +69,9 @@ namespace flu {
 			}
 		};
 
-
 		std::vector<double> sample_from_string( const std::string & line ) {
 			std::vector<std::string> strs;
-			boost::split( strs, line, boost::is_any_of( "\t" ) );
+			boost::split( strs, line, boost::is_any_of( " " ) );
 
 			std::vector<double> pars;
 			for ( auto & str : strs )
@@ -80,13 +79,12 @@ namespace flu {
 			return pars;
 		}
 
-
 		std::vector<std::vector<double> > read_trace_per_sample( 
-				std::istream& infile, const size_t tail ) {
+				std::istream& infile, size_t skip, const size_t tail ) {
 			if (tail != 0) {
 				move_last_lines( infile, tail );
 			}
-			return follow_trace_per_sample( infile );
+			return follow_trace_per_sample( infile, skip );
 		}
 
 		std::vector<std::vector<double> > read_trace( 
@@ -106,13 +104,15 @@ namespace flu {
 		return trace;
 	}
 
-
 	std::vector<std::vector<double> > follow_trace_per_sample(
-		std::istream& infile ) {
+		std::istream& infile, size_t skip ) {
 		std::vector<std::vector<double> > samples;
-		auto lines = get_lines_and_move( infile );
+        auto lines = get_lines_and_move( infile );
 		for ( auto & line : lines ) {
-			samples.push_back( sample_from_string( line ) );
+            if (skip <= 0)
+                samples.push_back( sample_from_string( line ) );
+            else
+                --skip;
 		}
 		return samples;
 	}
