@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
     double correct_prior, correct_prior_con;
     double alea, p_ac_mat;
-    double current_contact_regular[NAG2], prop_contact_regular[NAG2];
+    std::vector<double> prop_contact_regular(NAG2);
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     int n_pos[260], n_samples[260], n_scenarii, ILI[260], mon_pop[260];
@@ -322,49 +322,8 @@ int main(int argc, char *argv[])
         prop_cnt_number[i]=nc;
     }
 
-    /*update of the weights*/
-    for(i=0;i<7;i++)
-        w_norm[i]=0;
-
-    for(i=0;i<49;i++)
-        mij[i]=0;
-
-    for(i=0; i<POLY_PART; i++)
-    {
-        age_part=curr_age[i];
-        AG_part=curr_AG[i];
-        if(curr_we[i]==0)
-            ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*5/(POLY_PART-curr_nwe);
-        else
-            ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*2/curr_nwe;
-
-        w_norm[AG_part]+=ww[i];
-        mij[7*AG_part]+=curr_N1[i]*ww[i];
-        mij[7*AG_part+1]+=curr_N2[i]*ww[i];
-        mij[7*AG_part+2]+=curr_N3[i]*ww[i];
-        mij[7*AG_part+3]+=curr_N4[i]*ww[i];
-        mij[7*AG_part+4]+=curr_N5[i]*ww[i];
-        mij[7*AG_part+5]+=curr_N6[i]*ww[i];
-        mij[7*AG_part+6]+=curr_N7[i]*ww[i];
-    }
-
-    for(i=0; i<49; i++)
-    {
-        if(w_norm[i/7]>0)
-            mij[i]/=w_norm[i/7];
-        cij[i]=mij[i]/AG_sizes[i%7];
-    }
-
-    for(i=0; i<7; i++)
-    {
-        current_contact_regular[i*7+i]=cij[i*7+i];
-        for(j=0;j<i;j++)
-        {
-            cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
-            current_contact_regular[i*7+j]=cij_pro;
-            current_contact_regular[j*7+i]=cij_pro;
-        }
-    }
+    auto current_contact_regular = 
+        data::load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
 

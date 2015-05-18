@@ -58,7 +58,7 @@ state_t load_state( const std::string &file_path,
     return state;
 }
 
-void save_state(const std::string &file_path, const size_t k, const state_t &state, const int * curr_cnt_number, const double *contact_mat, const double * result_by_week, const double lv, const double Accept_rate) 
+void save_state(const std::string &file_path, const size_t k, const state_t &state, const int * curr_cnt_number, const std::vector<double> &contact_mat, const double * result_by_week, const double lv, const double Accept_rate) 
 {
     FILE *save_file;
 

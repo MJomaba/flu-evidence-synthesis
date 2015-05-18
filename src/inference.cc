@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
     auto pop_vec = data::load_population( data_path 
             + "age_groups_model.txt" );
 
-    double curr_init_inf[NAG];
     //double current_contact_regular[NAG2];
     
     //int n_scenarii;
@@ -87,11 +86,11 @@ int main(int argc, char *argv[])
                 + ".stm", NAG, POLY_PART );
 
         /*translate into an initial infected population*/
+        double init_inf[NAG];
         for(size_t i=0;i<NAG;i++)
-            curr_init_inf[i]=pow(10,state.parameters.init_pop);
+            init_inf[i]=pow(10,state.parameters.init_pop);
 
-        //save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, state, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
-        std::cout << k << std::endl;
+        //save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
     }
     fclose(Scen1FS);
     fclose(Scen2FS);

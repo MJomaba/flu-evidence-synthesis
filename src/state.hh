@@ -46,7 +46,7 @@ struct state_t
 state_t load_state( const std::string &file_path,
         const size_t number_age_groups, const size_t dim_poly_part );
 
-    void save_state(const std::string &file_path, const size_t k, const state_t &current_state, const int * curr_cnt_number, const double *current_contact_regular, const double * result_by_week, const double lv, const double Accept_rate);
+    void save_state(const std::string &file_path, const size_t k, const state_t &current_state, const int * curr_cnt_number, const std::vector<double> &contact_regular, const double * result_by_week, const double lv, const double Accept_rate);
 
 };
 
