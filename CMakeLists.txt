@@ -16,7 +16,7 @@ find_package(GSL REQUIRED)
 set(BOOST_LIBS filesystem program_options system iostreams) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
-set(SRCS  src/model.cc;src/io.cc;src/state.cc)
+set(SRCS  src/model.cc;src/io.cc;src/state.cc;src/trace.cc)
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 add_executable (flu-evidence-synthesis src/main.cc;${SRCS})
