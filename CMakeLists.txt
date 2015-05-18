@@ -16,11 +16,14 @@ find_package(GSL REQUIRED)
 set(BOOST_LIBS filesystem program_options system iostreams) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
-set(SRCS  src/main.cc;src/model.cc;src/io.cc;src/state.cc)
+set(SRCS  src/model.cc;src/io.cc;src/state.cc)
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-add_executable (flu-evidence-synthesis ${SRCS})
+add_executable (flu-evidence-synthesis src/main.cc;${SRCS})
 target_link_libraries(flu-evidence-synthesis ${GSL_LIBRARIES};${Boost_LIBRARIES})
+
+add_executable (inference src/inference.cc;${SRCS})
+target_link_libraries(inference ${GSL_LIBRARIES};${Boost_LIBRARIES})
 
 #Documentation
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")

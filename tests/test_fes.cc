@@ -67,3 +67,36 @@ TEST_CASE( "Run a short test run", "[full]" )
                     "./tests/test_data/" + fname ) );
     }
 }
+
+TEST_CASE( "Run inference", "[full,inference]" )
+{
+    // Create array with all names to be watched
+    std::vector<std::string> files;
+
+    // Setup the scenarii for watching
+    std::string pre = "scenarii/Scenario_";
+    std::string post = "_final_size.txt";
+    files.push_back( pre + "vaccination" + post );
+    files.push_back( pre + "no_vaccination" + post );
+    for ( size_t i = 0; i<35; ++i )
+        files.push_back( pre + boost::lexical_cast<std::string>( i )
+                + post );
+
+    // Start with clean slate
+    for( auto &fname : files )
+    {
+        fs::remove( "../data/" + fname );
+    }
+
+
+    REQUIRE( system( "bin/inference" ) == 0 );
+
+    for( auto &fname : files )
+    {
+        REQUIRE( fs::exists("../data/" + fname) );
+
+        REQUIRE( equal_file_contents( 
+                    "../data/" + fname,
+                    "./tests/test_data/" + fname ) );
+    }
+}
