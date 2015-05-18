@@ -90,7 +90,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
     }
 
 
-    REQUIRE( system( "bin/inference" ) == 0 );
+    REQUIRE( system( "bin/inference -d ../data/" ) == 0 );
 
     for( auto &fname : files )
     {

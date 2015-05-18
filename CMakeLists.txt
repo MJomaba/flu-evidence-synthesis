@@ -13,7 +13,7 @@ include_directories( "/usr/local/include" )
 
 find_package(GSL REQUIRED)
 
-set(BOOST_LIBS filesystem program_options system iostreams) 
+set(BOOST_LIBS regex filesystem program_options system iostreams) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 set(SRCS  src/model.cc;src/io.cc;src/state.cc;src/trace.cc)
