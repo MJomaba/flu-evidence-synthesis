@@ -17,12 +17,19 @@
 
 using namespace flu;
 
+struct contacts_t
+{
+    int age[POLY_PART], we[POLY_PART], N1[POLY_PART], N2[POLY_PART], N3[POLY_PART], N4[POLY_PART], N5[POLY_PART], N6[POLY_PART], N7[POLY_PART], AG[POLY_PART], ni[90], nwe;
+};
+
 int main(int argc, char *argv[])
 {
     int i, j, k, age_part,  AG_part, alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
-    int c_age[POLY_PART], c_we[POLY_PART], c_N1[POLY_PART], c_N2[POLY_PART], c_N3[POLY_PART], c_N4[POLY_PART], c_N5[POLY_PART], c_N6[POLY_PART], c_N7[POLY_PART], c_AG[POLY_PART], c_ni[90], c_nwe;
-    int prop_age[POLY_PART], prop_we[POLY_PART], prop_N1[POLY_PART], prop_N2[POLY_PART], prop_N3[POLY_PART], prop_N4[POLY_PART], prop_N5[POLY_PART], prop_N6[POLY_PART], prop_N7[POLY_PART], prop_AG[POLY_PART], prop_ni[90], prop_nwe, prop_cnt_number[POLY_PART];
-    int curr_age[POLY_PART], curr_we[POLY_PART], curr_N1[POLY_PART], curr_N2[POLY_PART], curr_N3[POLY_PART], curr_N4[POLY_PART], curr_N5[POLY_PART], curr_N6[POLY_PART], curr_N7[POLY_PART], curr_AG[POLY_PART], curr_ni[90], curr_nwe, curr_cnt_number[POLY_PART];
+    contacts_t c;
+    contacts_t curr_c;
+    contacts_t prop_c;
+    int curr_cnt_number[POLY_PART];
+    int prop_cnt_number[POLY_PART];
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
@@ -171,28 +178,28 @@ int main(int argc, char *argv[])
     pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
 
     for(i=0; i<90; i++)
-        c_ni[i]=0;
+        c.ni[i]=0;
 
-    c_nwe=0;
+    c.nwe=0;
 
     /*Loading of the participants with their number of contacts from Polymod*/
     for(i=0; i<POLY_PART; i++)
     {
-        save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c_age[i], &c_we[i], &c_N1[i], &c_N2[i], &c_N3[i], &c_N4[i], &c_N5[i], &c_N6[i], &c_N7[i]);
-        age_part=c_age[i];
-        c_ni[age_part]++;
-        if(c_we[i]>0) c_nwe++;
-        c_AG[i]=0;
-        if(age_part>0) c_AG[i]++;
-        if(age_part>4) c_AG[i]++;
-        if(age_part>14) c_AG[i]++;
-        if(age_part>24) c_AG[i]++;
-        if(age_part>44) c_AG[i]++;
-        if(age_part>64) c_AG[i]++;
+        save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c.age[i], &c.we[i], &c.N1[i], &c.N2[i], &c.N3[i], &c.N4[i], &c.N5[i], &c.N6[i], &c.N7[i]);
+        age_part=c.age[i];
+        c.ni[age_part]++;
+        if(c.we[i]>0) c.nwe++;
+        c.AG[i]=0;
+        if(age_part>0) c.AG[i]++;
+        if(age_part>4) c.AG[i]++;
+        if(age_part>14) c.AG[i]++;
+        if(age_part>24) c.AG[i]++;
+        if(age_part>44) c.AG[i]++;
+        if(age_part>64) c.AG[i]++;
     }
 
     for(i=0; i<10; i++)
-        printf("%d %d %d %d %d %d %d %d %d\n", c_age[i], c_we[i], c_N1[i], c_N2[i], c_N3[i], c_N4[i], c_N5[i], c_N6[i], c_N7[i]);
+        printf("%d %d %d %d %d %d %d %d %d\n", c.age[i], c.we[i], c.N1[i], c.N2[i], c.N3[i], c.N4[i], c.N5[i], c.N6[i], c.N7[i]);
     printf("UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
@@ -225,7 +232,7 @@ int main(int argc, char *argv[])
     save_fscanf(pop_sizes,"%d",&aux);
     AG_sizes[6]+=aux;
 
-    /*printf("Number of w/e days: %d\n",curr_nwe);*/
+    /*printf("Number of w/e days: %d\n",curr_c.nwe);*/
 
     for(i=0; i<10; i++)
         printf("%d\n",age_sizes[i]);
@@ -298,26 +305,26 @@ int main(int argc, char *argv[])
         curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
 
     for(i=0;i<90;i++)
-        curr_ni[i]=0;
-    curr_nwe=0;
+        curr_c.ni[i]=0;
+    curr_c.nwe=0;
     for(i=0; i<POLY_PART; i++)
     {
         nc = current_state.number_contacts[i];
 
-        age_part=c_age[nc];
-        curr_ni[age_part]++;
-        if(c_we[nc]>0) curr_nwe++;
+        age_part=c.age[nc];
+        curr_c.ni[age_part]++;
+        if(c.we[nc]>0) curr_c.nwe++;
 
-        curr_age[i]=c_age[nc];
-        curr_AG[i]=c_AG[nc];
-        curr_we[i]=c_we[nc];
-        curr_N1[i]=c_N1[nc];
-        curr_N2[i]=c_N2[nc];
-        curr_N3[i]=c_N3[nc];
-        curr_N4[i]=c_N4[nc];
-        curr_N5[i]=c_N5[nc];
-        curr_N6[i]=c_N6[nc];
-        curr_N7[i]=c_N7[nc];
+        curr_c.age[i]=c.age[nc];
+        curr_c.AG[i]=c.AG[nc];
+        curr_c.we[i]=c.we[nc];
+        curr_c.N1[i]=c.N1[nc];
+        curr_c.N2[i]=c.N2[nc];
+        curr_c.N3[i]=c.N3[nc];
+        curr_c.N4[i]=c.N4[nc];
+        curr_c.N5[i]=c.N5[nc];
+        curr_c.N6[i]=c.N6[nc];
+        curr_c.N7[i]=c.N7[nc];
         curr_cnt_number[i]=nc;
         prop_cnt_number[i]=nc;
     }
@@ -442,23 +449,23 @@ int main(int argc, char *argv[])
         /*start from current one*/
         for(i=0;i<POLY_PART;i++)
         {
-            prop_age[i]=curr_age[i];
-            prop_AG[i]=curr_AG[i];
-            prop_we[i]=curr_we[i];
-            prop_N1[i]=curr_N1[i];
-            prop_N2[i]=curr_N2[i];
-            prop_N3[i]=curr_N3[i];
-            prop_N4[i]=curr_N4[i];
-            prop_N5[i]=curr_N5[i];
-            prop_N6[i]=curr_N6[i];
-            prop_N7[i]=curr_N7[i];
+            prop_c.age[i]=curr_c.age[i];
+            prop_c.AG[i]=curr_c.AG[i];
+            prop_c.we[i]=curr_c.we[i];
+            prop_c.N1[i]=curr_c.N1[i];
+            prop_c.N2[i]=curr_c.N2[i];
+            prop_c.N3[i]=curr_c.N3[i];
+            prop_c.N4[i]=curr_c.N4[i];
+            prop_c.N5[i]=curr_c.N5[i];
+            prop_c.N6[i]=curr_c.N6[i];
+            prop_c.N7[i]=curr_c.N7[i];
             prop_cnt_number[i]=curr_cnt_number[i];
         }
 
         for(i=0;i<90;i++)
-            prop_ni[i]=curr_ni[i];
+            prop_c.ni[i]=curr_c.ni[i];
 
-        prop_nwe=curr_nwe;
+        prop_c.nwe=curr_c.nwe;
 
         /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
         if(gsl_rng_uniform (r)<p_ac_mat)
@@ -467,24 +474,24 @@ int main(int argc, char *argv[])
             alea1=gsl_rng_get(r)%POLY_PART;
             alea2=gsl_rng_get(r)%POLY_PART;
 
-            prop_ni[prop_age[alea1]]--;
-            if(prop_we[alea1]>0) prop_nwe--;
+            prop_c.ni[prop_c.age[alea1]]--;
+            if(prop_c.we[alea1]>0) prop_c.nwe--;
 
-            prop_age[alea1]=c_age[alea2];
-            prop_we[alea1]=c_we[alea2];
-            prop_N1[alea1]=c_N1[alea2];
-            prop_N2[alea1]=c_N2[alea2];
-            prop_N3[alea1]=c_N3[alea2];
-            prop_N4[alea1]=c_N4[alea2];
-            prop_N5[alea1]=c_N5[alea2];
-            prop_N6[alea1]=c_N6[alea2];
-            prop_N7[alea1]=c_N7[alea2];
-            prop_AG[alea1]=c_AG[alea2];
+            prop_c.age[alea1]=c.age[alea2];
+            prop_c.we[alea1]=c.we[alea2];
+            prop_c.N1[alea1]=c.N1[alea2];
+            prop_c.N2[alea1]=c.N2[alea2];
+            prop_c.N3[alea1]=c.N3[alea2];
+            prop_c.N4[alea1]=c.N4[alea2];
+            prop_c.N5[alea1]=c.N5[alea2];
+            prop_c.N6[alea1]=c.N6[alea2];
+            prop_c.N7[alea1]=c.N7[alea2];
+            prop_c.AG[alea1]=c.AG[alea2];
 
             prop_cnt_number[alea1]=alea2;
 
-            prop_ni[prop_age[alea1]]++;
-            if(prop_we[alea1]>0) prop_nwe++;
+            prop_c.ni[prop_c.age[alea1]]++;
+            if(prop_c.we[alea1]>0) prop_c.nwe++;
         }
 
         /*update of the weights*/
@@ -496,21 +503,21 @@ int main(int argc, char *argv[])
 
         for(i=0; i<POLY_PART; i++)
         {
-            age_part=prop_age[i];
-            AG_part=prop_AG[i];
-            if(prop_we[i]==0)
-                ww[i]=(double)age_sizes[age_part]/prop_ni[age_part]*5/(POLY_PART-prop_nwe);
+            age_part=prop_c.age[i];
+            AG_part=prop_c.AG[i];
+            if(prop_c.we[i]==0)
+                ww[i]=(double)age_sizes[age_part]/prop_c.ni[age_part]*5/(POLY_PART-prop_c.nwe);
             else
-                ww[i]=(double)age_sizes[age_part]/prop_ni[age_part]*2/prop_nwe;
+                ww[i]=(double)age_sizes[age_part]/prop_c.ni[age_part]*2/prop_c.nwe;
 
             w_norm[AG_part]+=ww[i];
-            mij[7*AG_part]+=prop_N1[i]*ww[i];
-            mij[7*AG_part+1]+=prop_N2[i]*ww[i];
-            mij[7*AG_part+2]+=prop_N3[i]*ww[i];
-            mij[7*AG_part+3]+=prop_N4[i]*ww[i];
-            mij[7*AG_part+4]+=prop_N5[i]*ww[i];
-            mij[7*AG_part+5]+=prop_N6[i]*ww[i];
-            mij[7*AG_part+6]+=prop_N7[i]*ww[i];
+            mij[7*AG_part]+=prop_c.N1[i]*ww[i];
+            mij[7*AG_part+1]+=prop_c.N2[i]*ww[i];
+            mij[7*AG_part+2]+=prop_c.N3[i]*ww[i];
+            mij[7*AG_part+3]+=prop_c.N4[i]*ww[i];
+            mij[7*AG_part+4]+=prop_c.N5[i]*ww[i];
+            mij[7*AG_part+5]+=prop_c.N6[i]*ww[i];
+            mij[7*AG_part+6]+=prop_c.N7[i]*ww[i];
         }
 
         /*Compute the contact matrix*/
@@ -603,23 +610,23 @@ int main(int argc, char *argv[])
             /*update*/
             for(i=0;i<POLY_PART;i++)
             {
-                curr_age[i]=prop_age[i];
-                curr_AG[i]=prop_AG[i];
-                curr_we[i]=prop_we[i];
-                curr_N1[i]=prop_N1[i];
-                curr_N2[i]=prop_N2[i];
-                curr_N3[i]=prop_N3[i];
-                curr_N4[i]=prop_N4[i];
-                curr_N5[i]=prop_N5[i];
-                curr_N6[i]=prop_N6[i];
-                curr_N7[i]=prop_N7[i];
+                curr_c.age[i]=prop_c.age[i];
+                curr_c.AG[i]=prop_c.AG[i];
+                curr_c.we[i]=prop_c.we[i];
+                curr_c.N1[i]=prop_c.N1[i];
+                curr_c.N2[i]=prop_c.N2[i];
+                curr_c.N3[i]=prop_c.N3[i];
+                curr_c.N4[i]=prop_c.N4[i];
+                curr_c.N5[i]=prop_c.N5[i];
+                curr_c.N6[i]=prop_c.N6[i];
+                curr_c.N7[i]=prop_c.N7[i];
                 curr_cnt_number[i]=prop_cnt_number[i];
             }
 
             for(i=0;i<90;i++)
-                curr_ni[i]=prop_ni[i];
+                curr_c.ni[i]=prop_c.ni[i];
 
-            curr_nwe=prop_nwe;
+            curr_c.nwe=prop_c.nwe;
 
             for(i=0;i<49;i++)
                 current_contact_regular[i]=prop_contact_regular[i];
