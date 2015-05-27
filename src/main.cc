@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     }
 
     auto current_contact_regular = 
-        load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes );
+        load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes, curr_c );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
 

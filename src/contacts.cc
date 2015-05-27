@@ -1,4 +1,4 @@
-#include "data.hh"
+#include "contacts.hh"
 
 #include <stdio.h>
 
@@ -7,7 +7,7 @@
 
 namespace flu
 {
-    std::vector<double> load_contact_regular( const std::string& contacts_filepath, const state_t &state, int *age_sizes, int *AG_sizes )
+    std::vector<double> load_contact_regular( const std::string& contacts_filepath, const state_t &state, int *age_sizes, int *AG_sizes, const contacts_t &c )
     {
         int nc, age_part, AG_part;
         double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
@@ -16,6 +16,7 @@ namespace flu
         FILE *contacts_PM;
         int c_nwe = 0;
         contacts_PM=read_file( contacts_filepath );
+
         for(size_t i=0; i<POLY_PART; i++)
         {
             save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c_age[i], &c_we[i], &c_N1[i], &c_N2[i], &c_N3[i], &c_N4[i], &c_N5[i], &c_N6[i], &c_N7[i]);
@@ -54,7 +55,6 @@ namespace flu
             curr_N6[i]=c_N6[nc];
             curr_N7[i]=c_N7[nc];
         }
-
         /*update of the weights*/
         for(size_t i=0;i<7;i++)
             w_norm[i]=0;
@@ -64,23 +64,24 @@ namespace flu
 
         for(size_t i=0; i<POLY_PART; i++)
         {
-            age_part=curr_age[i];
-            AG_part=curr_AG[i];
-            if(curr_we[i]==0)
-                ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*5/(POLY_PART-curr_nwe);
+            age_part=c.contacts[i].age;
+            AG_part=c.contacts[i].AG;
+            if(c.contacts[i].we==0)
+                ww[i]=(double)age_sizes[age_part]/c.ni[age_part]*5/(POLY_PART-c.nwe);
             else
-                ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*2/curr_nwe;
+                ww[i]=(double)age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
 
             w_norm[AG_part]+=ww[i];
-            mij[7*AG_part]+=curr_N1[i]*ww[i];
-            mij[7*AG_part+1]+=curr_N2[i]*ww[i];
-            mij[7*AG_part+2]+=curr_N3[i]*ww[i];
-            mij[7*AG_part+3]+=curr_N4[i]*ww[i];
-            mij[7*AG_part+4]+=curr_N5[i]*ww[i];
-            mij[7*AG_part+5]+=curr_N6[i]*ww[i];
-            mij[7*AG_part+6]+=curr_N7[i]*ww[i];
+            mij[7*AG_part]+=c.contacts[i].N1*ww[i];
+            mij[7*AG_part+1]+=c.contacts[i].N2*ww[i];
+            mij[7*AG_part+2]+=c.contacts[i].N3*ww[i];
+            mij[7*AG_part+3]+=c.contacts[i].N4*ww[i];
+            mij[7*AG_part+4]+=c.contacts[i].N5*ww[i];
+            mij[7*AG_part+5]+=c.contacts[i].N6*ww[i];
+            mij[7*AG_part+6]+=c.contacts[i].N7*ww[i];
         }
 
+        /*Compute the contact matrix*/
         for(size_t i=0; i<49; i++)
         {
             if(w_norm[i/7]>0)
