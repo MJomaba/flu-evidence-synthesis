@@ -14,21 +14,9 @@
 #include "io.hh"
 #include "state.hh"
 #include "data.hh"
+#include "contacts.hh"
 
 using namespace flu;
-
-// Create a contact, holding its age, and contacts (we, N1, N2, etc)..
-struct contact_t
-{
-    size_t id;
-    int age, we, N1, N2, N3, N4, N5, N6, N7, AG;
-};
-// Keep ni separate
-struct contacts_t
-{
-    std::array<contact_t,POLY_PART> contacts;
-    int ni[90], nwe;
-};
 
 int main(int argc, char *argv[])
 {
@@ -326,7 +314,7 @@ int main(int argc, char *argv[])
     }
 
     auto current_contact_regular = 
-        data::load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes );
+        load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
 
