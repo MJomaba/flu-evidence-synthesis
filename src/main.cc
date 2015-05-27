@@ -20,6 +20,7 @@ using namespace flu;
 // Create a contact, holding its age, and contacts (we, N1, N2, etc)..
 struct contact_t
 {
+    size_t id;
     int age, we, N1, N2, N3, N4, N5, N6, N7, AG;
 };
 // Keep ni separate
@@ -35,8 +36,6 @@ int main(int argc, char *argv[])
     contacts_t c;
     contacts_t curr_c;
     contacts_t prop_c;
-    int curr_cnt_number[POLY_PART];
-    int prop_cnt_number[POLY_PART];
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
@@ -203,6 +202,7 @@ int main(int argc, char *argv[])
         if(age_part>24) c.contacts[i].AG++;
         if(age_part>44) c.contacts[i].AG++;
         if(age_part>64) c.contacts[i].AG++;
+        c.contacts[i].id = i;
     }
 
     for(i=0; i<10; i++)
@@ -323,8 +323,6 @@ int main(int argc, char *argv[])
         if(c.contacts[nc].we>0) curr_c.nwe++;
 
         curr_c.contacts[i]=c.contacts[nc];
-        curr_cnt_number[i]=nc;
-        prop_cnt_number[i]=nc;
     }
 
     auto current_contact_regular = 
@@ -429,7 +427,13 @@ int main(int argc, char *argv[])
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
-            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, curr_cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
+    
+            int cnt_number[POLY_PART];
+
+            for( size_t i = 0; i < POLY_PART; ++i )
+                cnt_number[i] = curr_c.contacts[i].id;
+            
+            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
 
             save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
         }
@@ -448,7 +452,6 @@ int main(int argc, char *argv[])
         for(i=0;i<POLY_PART;i++)
         {
             prop_c.contacts[i]=curr_c.contacts[i];
-            prop_cnt_number[i]=curr_cnt_number[i];
         }
 
         for(i=0;i<90;i++)
@@ -467,8 +470,6 @@ int main(int argc, char *argv[])
             if(prop_c.contacts[alea1].we>0) prop_c.nwe--;
 
             prop_c.contacts[alea1]=c.contacts[alea2];
-
-            prop_cnt_number[alea1]=alea2;
 
             prop_c.ni[prop_c.contacts[alea1].age]++;
             if(prop_c.contacts[alea1].we>0) prop_c.nwe++;
@@ -591,7 +592,6 @@ int main(int argc, char *argv[])
             for(i=0;i<POLY_PART;i++)
             {
                 curr_c.contacts[i]=prop_c.contacts[i];
-                curr_cnt_number[i]=prop_cnt_number[i];
             }
 
             for(i=0;i<90;i++)
