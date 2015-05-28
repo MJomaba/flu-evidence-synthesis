@@ -8,7 +8,7 @@
 namespace flu
 {
     namespace contacts {
-        std::vector<double> load_contact_regular( const std::string& contacts_filepath, const state_t &state, int *age_sizes, int *AG_sizes, const contacts_t &c )
+        std::vector<double> to_symmetric_matrix( const contacts_t &c, int *age_sizes, int *AG_sizes )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
 

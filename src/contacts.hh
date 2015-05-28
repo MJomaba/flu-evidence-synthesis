@@ -25,7 +25,9 @@ namespace flu {
             int ni[90], nwe;
         };
 
-        std::vector<double> load_contact_regular( const std::string& contacts_filepath, const state_t &state, int *age_sizes, int *AG_sizes, const contacts_t &contacts );
+        std::vector<double> to_symmetric_matrix( 
+                const contacts_t &contacts, int *age_sizes, 
+                int *AG_sizes );
     };
 
 };

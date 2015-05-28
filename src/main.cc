@@ -20,7 +20,7 @@ using namespace flu;
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, age_part,  AG_part, alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
+    int i, j, k, age_part,  alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
     contacts::contacts_t c;
     contacts::contacts_t curr_c;
     contacts::contacts_t prop_c;
@@ -28,10 +28,8 @@ int main(int argc, char *argv[])
     double curr_init_inf[NAG];
     int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
     char sbuffer[300];
-    double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
     double correct_prior, correct_prior_con;
     double alea, p_ac_mat;
-    std::vector<double> prop_contact_regular(NAG2);
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     int n_pos[260], n_samples[260], n_scenarii, ILI[260], mon_pop[260];
@@ -314,7 +312,7 @@ int main(int argc, char *argv[])
     }
 
     auto current_contact_regular = 
-        contacts::load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes, curr_c );
+        contacts::to_symmetric_matrix( curr_c, age_sizes, AG_sizes );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
 
@@ -462,51 +460,8 @@ int main(int argc, char *argv[])
             prop_c.ni[prop_c.contacts[alea1].age]++;
             if(prop_c.contacts[alea1].we>0) prop_c.nwe++;
         }
-
-        /*update of the weights*/
-        for(i=0;i<7;i++)
-            w_norm[i]=0;
-
-        for(i=0;i<49;i++)
-            mij[i]=0;
-
-        for(i=0; i<POLY_PART; i++)
-        {
-            age_part=prop_c.contacts[i].age;
-            AG_part=prop_c.contacts[i].AG;
-            if(prop_c.contacts[i].we==0)
-                ww[i]=(double)age_sizes[age_part]/prop_c.ni[age_part]*5/(POLY_PART-prop_c.nwe);
-            else
-                ww[i]=(double)age_sizes[age_part]/prop_c.ni[age_part]*2/prop_c.nwe;
-
-            w_norm[AG_part]+=ww[i];
-            mij[7*AG_part]+=prop_c.contacts[i].N1*ww[i];
-            mij[7*AG_part+1]+=prop_c.contacts[i].N2*ww[i];
-            mij[7*AG_part+2]+=prop_c.contacts[i].N3*ww[i];
-            mij[7*AG_part+3]+=prop_c.contacts[i].N4*ww[i];
-            mij[7*AG_part+4]+=prop_c.contacts[i].N5*ww[i];
-            mij[7*AG_part+5]+=prop_c.contacts[i].N6*ww[i];
-            mij[7*AG_part+6]+=prop_c.contacts[i].N7*ww[i];
-        }
-
-        /*Compute the contact matrix*/
-        for(i=0; i<49; i++)
-        {
-            if(w_norm[i/7]>0)
-                mij[i]/=w_norm[i/7];
-            cij[i]=mij[i]/AG_sizes[i%7];
-        }
-
-        for(i=0; i<7; i++)
-        {
-            prop_contact_regular[i*7+i]=cij[i*7+i];
-            for(j=0;j<i;j++)
-            {
-                cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
-                prop_contact_regular[i*7+j]=cij_pro;
-                prop_contact_regular[j*7+i]=cij_pro;
-            }
-        }
+        auto prop_contact_regular = 
+            contacts::to_symmetric_matrix( prop_c, age_sizes, AG_sizes );
 
         /*one_year_SEIR_without_vaccination(result, pop_vec, prop_init_inf, prop_current_state.time_latent, prop_ti, prop_s_profile, prop_contact_regular, prop_q);*/
         one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_cal, vaccine_efficacy_year);
