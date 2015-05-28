@@ -63,9 +63,11 @@ TEST_CASE( "Run a short test run", "[full]" )
     {
         REQUIRE( fs::exists("../data/" + fname) );
 
+        auto full_path = "../data/" + fname;
+        auto test_path = "./tests/test_data/" + fname;
+
         REQUIRE( equal_file_contents( 
-                    "../data/" + fname,
-                    "./tests/test_data/" + fname ) );
+                    full_path, test_path ) );
     }
 }
 
@@ -96,9 +98,11 @@ TEST_CASE( "Run inference", "[hide]" )
     {
         REQUIRE( fs::exists("../data/" + fname) );
 
+        auto full_path = "../data/" + fname;
+        auto test_path = "./tests/test_data/" + fname;
+
         REQUIRE( equal_file_contents( 
-                    "../data/" + fname,
-                    "./tests/test_data/" + fname ) );
+                    full_path, test_path ) );
     }
 }
 

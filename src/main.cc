@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
     auto current_contact_regular = 
         contacts::to_symmetric_matrix( curr_c, age_sizes, AG_sizes );
 
-    one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
+    one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
 
     /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
     days_to_weeks_5AG(result,result_by_week);
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
             /*calculate the current initial infected population*/
             for(i=0;i<NAG;i++)
                 curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
-            one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
+            one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
             contacts::to_symmetric_matrix( prop_c, age_sizes, AG_sizes );
 
         /*one_year_SEIR_without_vaccination(result, pop_vec, prop_init_inf, prop_current_state.time_latent, prop_ti, prop_s_profile, prop_contact_regular, prop_q);*/
-        one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_cal, vaccine_efficacy_year);
+        one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_programme[0] );
 
         /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
         days_to_weeks_5AG(result,result_by_week);
