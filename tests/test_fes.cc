@@ -147,7 +147,7 @@ TEST_CASE( "Run a short test run", "[full]" )
     }
 }
 
-TEST_CASE( "Run inference", "[hide]" )
+TEST_CASE( "Run inference", "[full]" )
 {
     // Create array with all names to be watched
     std::vector<std::string> files;

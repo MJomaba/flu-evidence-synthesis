@@ -6,6 +6,7 @@
 #include<string>
 
 #include<state.hh>
+#include<data.hh>
 
 namespace flu {
 
@@ -32,8 +33,8 @@ namespace flu {
         contacts_t shuffle_by_id( const contacts_t &sorted_c, const std::vector<size_t> &ids );
 
         std::vector<double> to_symmetric_matrix( 
-                const contacts_t &contacts, int *age_sizes, 
-                int *AG_sizes );
+                const contacts_t &contacts, 
+                const data::age_data_t &age_data );
     };
 
 };

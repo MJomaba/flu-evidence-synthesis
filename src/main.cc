@@ -19,13 +19,18 @@
 
 using namespace flu;
 
+namespace flu {
+    namespace data {
+    };
+};
+
 int main(int argc, char *argv[])
 {
     int i, j, k, alea1, alea2, mcmc_chain_length, acceptance, burn_in, thinning;
     contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
-    int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
+    int step_mat, freq_sampling, First_write=1;
     char sbuffer[300];
     double correct_prior, correct_prior_con;
     double alea, p_ac_mat;
@@ -43,7 +48,6 @@ int main(int argc, char *argv[])
     FILE *log_file;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
     FILE *f_init_cov, *f_final_cov;
-    FILE *pop_sizes;
     FILE *f_posterior;
 
     state_t current_state;
@@ -104,9 +108,6 @@ int main(int argc, char *argv[])
 
     /*opens the file with the starting state of the covariance matrix for the proposal*/
     f_init_cov=read_file(data_path,"init_cov_matrix.txt");
-
-    /*opens the file with the different age sizes*/
-    pop_sizes=read_file(data_path,"age_sizes.txt");
 
     /*opens the 1st scenarioFile*/
     Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
@@ -169,39 +170,11 @@ int main(int argc, char *argv[])
     printf("UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
-    for(i=0; i<7; i++)
-        AG_sizes[i]=0;
-    for(i=0; i<85; i++)
-    {
-        save_fscanf(pop_sizes,"%d",&age_sizes[i]);
-        if(i==0)
-            AG_sizes[0]=age_sizes[0];
-        else
-            if(i<5)
-                AG_sizes[1]+=age_sizes[i];
-            else
-                if(i<15)
-                    AG_sizes[2]+=age_sizes[i];
-                else
-                    if(i<25)
-                        AG_sizes[3]+=age_sizes[i];
-                    else
-                        if(i<45)
-                            AG_sizes[4]+=age_sizes[i];
-                        else
-                            if(i<65)
-                                AG_sizes[5]+=age_sizes[i];
-                            else
-                                AG_sizes[6]+=age_sizes[i];
-    }
-    /*put the remaining (85+) in the older AG*/
-    save_fscanf(pop_sizes,"%d",&aux);
-    AG_sizes[6]+=aux;
-
+    auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
     /*printf("Number of w/e days: %d\n",curr_c.nwe);*/
 
     for(i=0; i<10; i++)
-        printf("%d\n",age_sizes[i]);
+        printf("%lu\n",age_data.age_sizes[i]);
     printf("Age sizes downloaded OK.\n");
     /*end of loading the contacts and sizes of age populations*/
 
@@ -238,7 +211,7 @@ int main(int argc, char *argv[])
             current_state.number_contacts );
 
     auto current_contact_regular = 
-        contacts::to_symmetric_matrix( curr_c, age_sizes, AG_sizes );
+        contacts::to_symmetric_matrix( curr_c, age_data );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
 
@@ -387,7 +360,7 @@ int main(int argc, char *argv[])
             if(prop_c.contacts[alea1].we>0) prop_c.nwe++;
         }
         auto prop_contact_regular = 
-            contacts::to_symmetric_matrix( prop_c, age_sizes, AG_sizes );
+            contacts::to_symmetric_matrix( prop_c, age_data );
 
         /*one_year_SEIR_without_vaccination(result, pop_vec, prop_init_inf, prop_current_state.time_latent, prop_ti, prop_s_profile, prop_contact_regular, prop_q);*/
         one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_programme[0] );
@@ -494,7 +467,6 @@ int main(int argc, char *argv[])
     Free the allocated memory and close open files
     *********************************************************************************************************************************************************/
 
-    fclose(pop_sizes);
     fclose(log_file);
     fclose(f_pos_sample);
     fclose(f_GP);

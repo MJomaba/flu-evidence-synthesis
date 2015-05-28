@@ -5,6 +5,8 @@
 #include "model.hh"
 #include "state.hh"
 #include "data.hh"
+#include "contacts.hh"
+#include "vaccine.hh"
 
 using namespace flu;
 
@@ -75,15 +77,21 @@ int main(int argc, char *argv[])
     auto pop_vec = data::load_population( data_path 
             + "age_groups_model.txt" );
 
-    //double current_contact_regular[NAG2];
-    
-    //int n_scenarii;
+    auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
 
+    //double current_contact_regular[NAG2];
+    auto c = contacts::load_contacts( 
+            data_path + "contacts_for_inference.txt" );
+    
     for( auto & k : ks ) 
     {
         auto state = load_state( data_path + "samples/z_hyper" 
                 + boost::lexical_cast<std::string>( k )
                 + ".stm", NAG, POLY_PART );
+
+        /*auto contact_matrix = contacts::to_symmetric_matrix( 
+                contacts::shuffle_by_id( c, 
+                    state.number_contacts ) );*/
 
         /*translate into an initial infected population*/
         double init_inf[NAG];

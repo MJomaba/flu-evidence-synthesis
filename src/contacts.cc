@@ -64,7 +64,8 @@ namespace flu
             return shuffled_c;
         }
 
-        std::vector<double> to_symmetric_matrix( const contacts_t &c, int *age_sizes, int *AG_sizes )
+        std::vector<double> to_symmetric_matrix( const contacts_t &c, 
+                const data::age_data_t &age_data )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
 
@@ -80,9 +81,9 @@ namespace flu
                 int age_part=c.contacts[i].age;
                 int AG_part=c.contacts[i].AG;
                 if(c.contacts[i].we==0)
-                    ww[i]=(double)age_sizes[age_part]/c.ni[age_part]*5/(POLY_PART-c.nwe);
+                    ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*5/(POLY_PART-c.nwe);
                 else
-                    ww[i]=(double)age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
+                    ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
 
                 w_norm[AG_part]+=ww[i];
                 mij[7*AG_part]+=c.contacts[i].N1*ww[i];
@@ -99,7 +100,7 @@ namespace flu
             {
                 if(w_norm[i/7]>0)
                     mij[i]/=w_norm[i/7];
-                cij[i]=mij[i]/AG_sizes[i%7];
+                cij[i]=mij[i]/age_data.age_group_sizes[i%7];
             }
 
             std::vector<double> contact_regular( NAG2 );
