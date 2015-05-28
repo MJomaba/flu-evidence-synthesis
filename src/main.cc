@@ -31,17 +31,16 @@ int main(int argc, char *argv[])
     double alea, p_ac_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
-    int n_pos[260], n_samples[260], n_scenarii, ILI[260], mon_pop[260];
+    int n_pos[260], n_samples[260], ILI[260], mon_pop[260];
     double lv, prop_likelihood;
-    double vaccine_efficacy_year[7], vaccine_cal[2583], *VE_pro, *VCAL_pro;
-    double *tab_cal[100], *tab_VE[100]; /*so far a maximum of 100 scenarios can be changed of course*/
+
     double Accept_rate, past_acceptance;
     double adaptive_scaling, conv_scaling;
     double my_acceptance_rate;
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
     parameter_set proposed_par;
-    FILE *log_file, *vacc_programme;
+    FILE *log_file;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
     FILE *f_init_cov, *f_final_cov;
     FILE *pop_sizes;
@@ -102,9 +101,6 @@ int main(int argc, char *argv[])
 
     /*opens the file with the size of the monitored population*/
     f_mon_pop=read_file(data_path,"mon_pop.txt");
-
-    /*opens the file with the vaccine calendar*/
-    vacc_programme=read_file(data_path,"vaccine_calendar.txt");
 
     /*opens the file with the starting state of the covariance matrix for the proposal*/
     f_init_cov=read_file(data_path,"init_cov_matrix.txt");
@@ -212,45 +208,6 @@ int main(int argc, char *argv[])
     /*loading parameters regarding vaccination*/
     auto vaccine_programme = vaccine::load_vaccine_programme( 
             data_path+"vaccine_calendar.txt");
-
-    save_fgets(sbuffer, 100, vacc_programme);
-    save_fgets(sbuffer, 100, vacc_programme);
-    sscanf(sbuffer,"%d",&n_scenarii);
-
-    save_fgets(sbuffer, 100, vacc_programme);
-    save_fgets(sbuffer, 100, vacc_programme);
-    save_fgets(sbuffer, 100, vacc_programme);
-    sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&vaccine_efficacy_year[0],&vaccine_efficacy_year[1],&vaccine_efficacy_year[2],&vaccine_efficacy_year[3],&vaccine_efficacy_year[4],&vaccine_efficacy_year[5],&vaccine_efficacy_year[6]);
-
-    save_fgets(sbuffer, 50, vacc_programme);
-    for(j=0;j<123;j++)
-    {
-        save_fgets(sbuffer, 300, vacc_programme);
-        sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &vaccine_cal[j*21],&vaccine_cal[j*21+1],&vaccine_cal[j*21+2],&vaccine_cal[j*21+3],&vaccine_cal[j*21+4],&vaccine_cal[j*21+5],&vaccine_cal[j*21+6],&vaccine_cal[j*21+7],&vaccine_cal[j*21+8],&vaccine_cal[j*21+9],&vaccine_cal[j*21+10],&vaccine_cal[j*21+11],&vaccine_cal[j*21+12],&vaccine_cal[j*21+13],&vaccine_cal[j*21+14],&vaccine_cal[j*21+15],&vaccine_cal[j*21+16],&vaccine_cal[j*21+17],&vaccine_cal[j*21+18],&vaccine_cal[j*21+19],&vaccine_cal[j*21+20]);
-    }
-
-    tab_cal[0]=vaccine_cal;
-    tab_VE[0]=vaccine_efficacy_year;
-
-    for(i=0;i<n_scenarii;i++)
-    {
-        VE_pro=(double *) malloc(7 * sizeof (double));
-        save_fgets(sbuffer, 100, vacc_programme);
-        save_fgets(sbuffer, 100, vacc_programme);
-        save_fgets(sbuffer, 100, vacc_programme);
-        sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&VE_pro[0],&VE_pro[1],&VE_pro[2],&VE_pro[3],&VE_pro[4],&VE_pro[5],&VE_pro[6]);
-        tab_VE[1+i]=VE_pro;
-
-        VCAL_pro=(double *) malloc(2583 * sizeof (double));
-        save_fgets(sbuffer, 100, vacc_programme);
-        for(j=0;j<123;j++)
-        {
-            save_fgets(sbuffer, 300, vacc_programme);
-            sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &VCAL_pro[j*21],&VCAL_pro[j*21+1],&VCAL_pro[j*21+2],&VCAL_pro[j*21+3],&VCAL_pro[j*21+4],&VCAL_pro[j*21+5],&VCAL_pro[j*21+6],&VCAL_pro[j*21+7],&VCAL_pro[j*21+8],&VCAL_pro[j*21+9],&VCAL_pro[j*21+10],&VCAL_pro[j*21+11],&VCAL_pro[j*21+12],&VCAL_pro[j*21+13],&VCAL_pro[j*21+14],&VCAL_pro[j*21+15],&VCAL_pro[j*21+16],&VCAL_pro[j*21+17],&VCAL_pro[j*21+18],&VCAL_pro[j*21+19],&VCAL_pro[j*21+20]);
-        }
-        tab_cal[1+i]=VCAL_pro;
-    }
-
     printf("Vaccine calendar loaded.\n");
 
     /*load the size of the monitored population by week*/
@@ -537,15 +494,8 @@ int main(int argc, char *argv[])
     Free the allocated memory and close open files
     *********************************************************************************************************************************************************/
 
-    for(i=0;i<n_scenarii;i++)
-    {
-        free(tab_cal[1+i]);
-        free(tab_VE[1+i]);
-    }
-
     fclose(pop_sizes);
     fclose(log_file);
-    fclose(vacc_programme);
     fclose(f_pos_sample);
     fclose(f_GP);
     fclose(f_mon_pop);

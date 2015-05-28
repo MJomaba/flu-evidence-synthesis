@@ -43,6 +43,7 @@ namespace flu {
 
                 programme.push_back( load_vaccine( vacc_programme ) );
             }
+            fclose(vacc_programme);
 
             return programme;
         }
