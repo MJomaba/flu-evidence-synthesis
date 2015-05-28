@@ -115,15 +115,6 @@ TEST_CASE( "Run a short test run", "[full]" )
                 + boost::lexical_cast<std::string>( i ) + ".stm" );
     }
 
-    // Setup the scenarii for watching
-    std::string pre = "scenarii/Scenario_";
-    std::string post = "_final_size.txt";
-    files.push_back( pre + "vaccination" + post );
-    files.push_back( pre + "no_vaccination" + post );
-    for ( size_t i = 0; i<35; ++i )
-        files.push_back( pre + boost::lexical_cast<std::string>( i )
-                + post );
-
     // Start with clean slate
     for( auto &fname : files )
     {
@@ -177,8 +168,31 @@ TEST_CASE( "Run inference", "[full,inference]" )
         auto full_path = "../data/" + fname;
         auto test_path = "./tests/test_data/" + fname;
 
-        INFO( "Files not equal: " << full_path << " " << test_path );
+        /*INFO( "Files not equal: " << full_path << " " << test_path );
+        std::ifstream infile;
+        infile.open( full_path );
+        auto new_scenario = flu::trace::read_trace_per_sample(infile);
+        std::ifstream infile2;
+        infile2.open( test_path );
+        auto orig_scenario = flu::trace::read_trace_per_sample(infile2);
 
+        for( size_t i = 0; i <new_scenario.size(); ++i )
+        {
+            for ( size_t j = 0; j < new_scenario[i].size(); ++j )
+            {
+                if (new_scenario[i][j] == 0)
+                    REQUIRE( orig_scenario[i][j] == 0 );
+                else {
+                    double rel_diff = std::abs(
+                            (orig_scenario[i][j]-new_scenario[i][j])
+                            /new_scenario[i][j]);
+                    std::cout << rel_diff << std::endl;
+                    REQUIRE( rel_diff <= 0.0001 );
+                }
+            }
+        }*/
+
+        INFO( "Files not equal: " << full_path << " " << test_path );
         REQUIRE( equal_file_contents( 
                     full_path, test_path ) );
     }

@@ -87,8 +87,12 @@ int main(int argc, char *argv[])
     int First_write=1;
     for( auto & k : ks ) 
     {
+        std::string kpadded = boost::lexical_cast<std::string>( k );
+        while (kpadded.size() < 4)
+            kpadded = "0" + kpadded;
+
         auto state = load_state( data_path + "samples/z_hyper" 
-                + boost::lexical_cast<std::string>( k )
+                + kpadded
                 + ".stm", NAG, POLY_PART );
 
         auto contact_matrix = contacts::to_symmetric_matrix( 

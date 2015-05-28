@@ -19,11 +19,6 @@
 
 using namespace flu;
 
-namespace flu {
-    namespace data {
-    };
-};
-
 int main(int argc, char *argv[])
 {
     int i, j, k, alea1, alea2, mcmc_chain_length, acceptance, burn_in, thinning;
@@ -314,14 +309,10 @@ int main(int argc, char *argv[])
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
             Accept_rate=(double)past_acceptance/1000;
     
-            int cnt_number[POLY_PART];
-
             for( size_t i = 0; i < POLY_PART; ++i )
-                cnt_number[i] = curr_c.contacts[i].id;
+                current_state.number_contacts[i] = curr_c.contacts[i].id;
             
-            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, cnt_number, current_contact_regular, result_by_week, lv, Accept_rate);
-
-            save_scenarii(Scen1FS, Scen2FS, pop_vec, curr_init_inf, current_state, current_contact_regular, vaccine_programme, data_path, &First_write);
+            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, lv, Accept_rate);
         }
 
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/

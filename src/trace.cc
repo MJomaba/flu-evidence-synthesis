@@ -74,8 +74,10 @@ namespace flu {
 			boost::split( strs, line, boost::is_any_of( " " ) );
 
 			std::vector<double> pars;
-			for ( auto & str : strs )
-				pars.push_back( boost::lexical_cast<double>( str ) );
+			for ( auto & str : strs ) {
+                if (str.size() > 0) // Ignore empty results
+                    pars.push_back( boost::lexical_cast<double>( str ) );
+            }
 			return pars;
 		}
 

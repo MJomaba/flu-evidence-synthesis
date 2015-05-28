@@ -58,7 +58,7 @@ state_t load_state( const std::string &file_path,
     return state;
 }
 
-void save_state(const std::string &file_path, const size_t k, const state_t &state, const int * curr_cnt_number, const std::vector<double> &contact_mat, const double * result_by_week, const double lv, const double Accept_rate) 
+void save_state(const std::string &file_path, const size_t k, const state_t &state, const std::vector<double> &contact_mat, const double * result_by_week, const double lv, const double Accept_rate) 
 {
     FILE *save_file;
 
@@ -85,8 +85,8 @@ void save_state(const std::string &file_path, const size_t k, const state_t &sta
     fprintf(save_file,"#Poisson coefficient for outside transmission\n");
     fprintf(save_file,"%e\n",state.parameters.psi);
     fprintf(save_file,"#Bootstrapped contacts\n");
-    for(size_t i=0;i<POLY_PART;i++)
-        fprintf(save_file,"%d\n",curr_cnt_number[i]);
+    for( auto & id : state.number_contacts)
+        fprintf(save_file,"%lu\n",id);
     fprintf(save_file,"#Contact matrix\n");
     for(size_t i=0;i<7;i++)
         fprintf(save_file,"%e %e %e %e %e %e %e\n",contact_mat[i*7],contact_mat[i*7+1],contact_mat[i*7+2],contact_mat[i*7+3],contact_mat[i*7+4],contact_mat[i*7+5],contact_mat[i*7+6]);
