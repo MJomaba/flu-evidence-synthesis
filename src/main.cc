@@ -21,9 +21,9 @@ using namespace flu;
 int main(int argc, char *argv[])
 {
     int i, j, k, age_part,  AG_part, alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
-    contacts_t c;
-    contacts_t curr_c;
-    contacts_t prop_c;
+    contacts::contacts_t c;
+    contacts::contacts_t curr_c;
+    contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int age_sizes[90], AG_sizes[7], aux, step_mat, freq_sampling, First_write=1;
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     }
 
     auto current_contact_regular = 
-        load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes, curr_c );
+        contacts::load_contact_regular( data_path+"contacts_for_inference.txt", current_state, age_sizes, AG_sizes, curr_c );
 
     one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_cal, vaccine_efficacy_year);
 
