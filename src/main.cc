@@ -21,7 +21,6 @@ using namespace flu;
 int main(int argc, char *argv[])
 {
     int i, j, k, age_part,  alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
-    contacts::contacts_t c;
     contacts::contacts_t curr_c;
     contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
     FILE *log_file, *vacc_programme;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
     FILE *f_init_cov, *f_final_cov;
-    FILE *contacts_PM, *pop_sizes;
+    FILE *pop_sizes;
     FILE *f_posterior;
 
     state_t current_state;
@@ -110,8 +109,6 @@ int main(int argc, char *argv[])
     /*opens the file with the starting state of the covariance matrix for the proposal*/
     f_init_cov=read_file(data_path,"init_cov_matrix.txt");
 
-    contacts_PM=read_file(data_path,"contacts_for_inference.txt");
-
     /*opens the file with the different age sizes*/
     pop_sizes=read_file(data_path,"age_sizes.txt");
 
@@ -169,27 +166,7 @@ int main(int argc, char *argv[])
     pop_RCGP[3]=pop_vec[5]+pop_vec[12]+pop_vec[19];
     pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
 
-    for(i=0; i<90; i++)
-        c.ni[i]=0;
-
-    c.nwe=0;
-
-    /*Loading of the participants with their number of contacts from Polymod*/
-    for(i=0; i<POLY_PART; i++)
-    {
-        save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c.contacts[i].age, &c.contacts[i].we, &c.contacts[i].N1, &c.contacts[i].N2, &c.contacts[i].N3, &c.contacts[i].N4, &c.contacts[i].N5, &c.contacts[i].N6, &c.contacts[i].N7);
-        age_part=c.contacts[i].age;
-        c.ni[age_part]++;
-        if(c.contacts[i].we>0) c.nwe++;
-        c.contacts[i].AG=0;
-        if(age_part>0) c.contacts[i].AG++;
-        if(age_part>4) c.contacts[i].AG++;
-        if(age_part>14) c.contacts[i].AG++;
-        if(age_part>24) c.contacts[i].AG++;
-        if(age_part>44) c.contacts[i].AG++;
-        if(age_part>64) c.contacts[i].AG++;
-        c.contacts[i].id = i;
-    }
+    auto c = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
 
     for(i=0; i<10; i++)
         printf("%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].we, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
@@ -574,7 +551,6 @@ int main(int argc, char *argv[])
         free(tab_VE[1+i]);
     }
 
-    fclose(contacts_PM);
     fclose(pop_sizes);
     fclose(log_file);
     fclose(vacc_programme);

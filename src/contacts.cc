@@ -8,6 +8,36 @@
 namespace flu
 {
     namespace contacts {
+        contacts_t load_contacts( const std::string &path )
+        {
+            auto contacts_PM = read_file( path );
+            contacts_t c;
+
+            for(size_t i=0; i<90; i++)
+                c.ni[i]=0;
+
+            c.nwe=0;
+
+            /*Loading of the participants with their number of contacts from Polymod*/
+            for(size_t i=0; i<POLY_PART; i++)
+            {
+                save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c.contacts[i].age, &c.contacts[i].we, &c.contacts[i].N1, &c.contacts[i].N2, &c.contacts[i].N3, &c.contacts[i].N4, &c.contacts[i].N5, &c.contacts[i].N6, &c.contacts[i].N7);
+                auto age_part=c.contacts[i].age;
+                c.ni[age_part]++;
+                if(c.contacts[i].we>0) c.nwe++;
+                c.contacts[i].AG=0;
+                if(age_part>0) c.contacts[i].AG++;
+                if(age_part>4) c.contacts[i].AG++;
+                if(age_part>14) c.contacts[i].AG++;
+                if(age_part>24) c.contacts[i].AG++;
+                if(age_part>44) c.contacts[i].AG++;
+                if(age_part>64) c.contacts[i].AG++;
+                c.contacts[i].id = i;
+            }
+
+            return c;
+        }
+
         std::vector<double> to_symmetric_matrix( const contacts_t &c, int *age_sizes, int *AG_sizes )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;

@@ -25,6 +25,8 @@ namespace flu {
             int ni[90], nwe;
         };
 
+        contacts_t load_contacts( const std::string &path );
+
         std::vector<double> to_symmetric_matrix( 
                 const contacts_t &contacts, int *age_sizes, 
                 int *AG_sizes );
