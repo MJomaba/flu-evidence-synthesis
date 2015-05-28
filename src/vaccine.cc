@@ -7,6 +7,7 @@ namespace flu {
             vaccine_t vacc;
             char sbuffer[300];
 
+            save_fgets(sbuffer, 100, file);
             sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&vacc.efficacy_year[0],&vacc.efficacy_year[1],&vacc.efficacy_year[2],&vacc.efficacy_year[3],&vacc.efficacy_year[4],&vacc.efficacy_year[5],&vacc.efficacy_year[6]);
 
             save_fgets(sbuffer, 50, file);
@@ -33,18 +34,15 @@ namespace flu {
 
             save_fgets(sbuffer, 100, vacc_programme);
             save_fgets(sbuffer, 100, vacc_programme);
-            save_fgets(sbuffer, 100, vacc_programme);
             programme.push_back( load_vaccine( vacc_programme ) );
 
             for(int i=0;i<n_scenarii;i++)
             {
                 save_fgets(sbuffer, 100, vacc_programme);
                 save_fgets(sbuffer, 100, vacc_programme);
-                save_fgets(sbuffer, 100, vacc_programme);
 
                 programme.push_back( load_vaccine( vacc_programme ) );
             }
-
 
             return programme;
         }

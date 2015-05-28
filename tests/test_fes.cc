@@ -8,9 +8,13 @@
 
 #include "model.hh"
 #include "trace.hh"
+#include "io.hh"
+#include "vaccine.hh"
 
 namespace io = boost::iostreams;
 namespace fs = boost::filesystem;
+
+using namespace flu;
 
 bool equal_file_contents( const std::string &path, 
         const std::string &other_path )
@@ -26,6 +30,76 @@ bool equal_file_contents( const std::string &path,
         return true;
     else
         return false;
+}
+
+TEST_CASE( "New method of loading vaccine data should give the same output",
+        "[refactor]" )
+{
+    // Old way
+    auto vacc_programme= read_file( "../data/vaccine_calendar.txt");
+    char sbuffer[300];
+    double vaccine_efficacy_year[7], vaccine_cal[2583], *VE_pro, *VCAL_pro;
+    double *tab_cal[100], *tab_VE[100]; /*so far a maximum of 100 scenarios can be changed of course*/
+    size_t i,j;
+    int n_scenarii;
+
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    sscanf(sbuffer,"%d",&n_scenarii);
+
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    save_fgets(sbuffer, 100, vacc_programme);
+    sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&vaccine_efficacy_year[0],&vaccine_efficacy_year[1],&vaccine_efficacy_year[2],&vaccine_efficacy_year[3],&vaccine_efficacy_year[4],&vaccine_efficacy_year[5],&vaccine_efficacy_year[6]);
+
+    save_fgets(sbuffer, 50, vacc_programme);
+    for(j=0;j<123;j++)
+    {
+        save_fgets(sbuffer, 300, vacc_programme);
+        sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &vaccine_cal[j*21],&vaccine_cal[j*21+1],&vaccine_cal[j*21+2],&vaccine_cal[j*21+3],&vaccine_cal[j*21+4],&vaccine_cal[j*21+5],&vaccine_cal[j*21+6],&vaccine_cal[j*21+7],&vaccine_cal[j*21+8],&vaccine_cal[j*21+9],&vaccine_cal[j*21+10],&vaccine_cal[j*21+11],&vaccine_cal[j*21+12],&vaccine_cal[j*21+13],&vaccine_cal[j*21+14],&vaccine_cal[j*21+15],&vaccine_cal[j*21+16],&vaccine_cal[j*21+17],&vaccine_cal[j*21+18],&vaccine_cal[j*21+19],&vaccine_cal[j*21+20]);
+    }
+
+    tab_cal[0]=vaccine_cal;
+    tab_VE[0]=vaccine_efficacy_year;
+
+    for(i=0;i<n_scenarii;i++)
+    {
+        VE_pro=(double *) malloc(7 * sizeof (double));
+        save_fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
+        save_fgets(sbuffer, 100, vacc_programme);
+        sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&VE_pro[0],&VE_pro[1],&VE_pro[2],&VE_pro[3],&VE_pro[4],&VE_pro[5],&VE_pro[6]);
+        tab_VE[1+i]=VE_pro;
+
+        VCAL_pro=(double *) malloc(2583 * sizeof (double));
+        save_fgets(sbuffer, 100, vacc_programme);
+        for(j=0;j<123;j++)
+        {
+            save_fgets(sbuffer, 300, vacc_programme);
+            sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &VCAL_pro[j*21],&VCAL_pro[j*21+1],&VCAL_pro[j*21+2],&VCAL_pro[j*21+3],&VCAL_pro[j*21+4],&VCAL_pro[j*21+5],&VCAL_pro[j*21+6],&VCAL_pro[j*21+7],&VCAL_pro[j*21+8],&VCAL_pro[j*21+9],&VCAL_pro[j*21+10],&VCAL_pro[j*21+11],&VCAL_pro[j*21+12],&VCAL_pro[j*21+13],&VCAL_pro[j*21+14],&VCAL_pro[j*21+15],&VCAL_pro[j*21+16],&VCAL_pro[j*21+17],&VCAL_pro[j*21+18],&VCAL_pro[j*21+19],&VCAL_pro[j*21+20]);
+        }
+        tab_cal[1+i]=VCAL_pro;
+    }
+
+    auto vaccine_programme = vaccine::load_vaccine_programme( "../data/vaccine_calendar.txt" );
+
+    for( size_t i = 0; i < vaccine_programme.size(); ++i )
+    {
+        for ( size_t j = 0; j < vaccine_programme[i].efficacy_year.size();
+                ++j )
+        {
+            INFO( "Efficacy i,j: " << i << "," << j );
+            REQUIRE( vaccine_programme[i].efficacy_year[j] ==
+                tab_VE[i][j] );
+        }
+        for ( size_t j = 0; j < vaccine_programme[i].calendar.size();
+                ++j )
+        {
+            INFO( "Calendar i,j: " << i << "," << j );
+            REQUIRE( vaccine_programme[i].calendar[j] ==
+                tab_cal[i][j] );
+        }    
+    }
 }
 
 TEST_CASE( "Run a short test run", "[full]" ) 
@@ -66,6 +140,8 @@ TEST_CASE( "Run a short test run", "[full]" )
         auto full_path = "../data/" + fname;
         auto test_path = "./tests/test_data/" + fname;
 
+        INFO( "Files not equal: " << full_path << " " << test_path );
+
         REQUIRE( equal_file_contents( 
                     full_path, test_path ) );
     }
@@ -101,6 +177,8 @@ TEST_CASE( "Run inference", "[hide]" )
         auto full_path = "../data/" + fname;
         auto test_path = "./tests/test_data/" + fname;
 
+        INFO( "Files not equal: " << full_path << " " << test_path );
+
         REQUIRE( equal_file_contents( 
                     full_path, test_path ) );
     }
@@ -121,3 +199,4 @@ TEST_CASE( "Posterior file should be readable as a trace" "[trace]" )
 
     infile.close();
 }
+
