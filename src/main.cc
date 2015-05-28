@@ -20,8 +20,7 @@ using namespace flu;
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, age_part,  alea1, alea2, mcmc_chain_length, acceptance, nc, burn_in, thinning;
-    contacts::contacts_t curr_c;
+    int i, j, k, alea1, alea2, mcmc_chain_length, acceptance, burn_in, thinning;
     contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
@@ -274,19 +273,8 @@ int main(int argc, char *argv[])
     for(i=0;i<NAG;i++)
         curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
 
-    for(i=0;i<90;i++)
-        curr_c.ni[i]=0;
-    curr_c.nwe=0;
-    for(i=0; i<POLY_PART; i++)
-    {
-        nc = current_state.number_contacts[i];
-
-        age_part=c.contacts[nc].age;
-        curr_c.ni[age_part]++;
-        if(c.contacts[nc].we>0) curr_c.nwe++;
-
-        curr_c.contacts[i]=c.contacts[nc];
-    }
+    auto curr_c = contacts::shuffle_by_id( c, 
+            current_state.number_contacts );
 
     auto current_contact_regular = 
         contacts::to_symmetric_matrix( curr_c, age_sizes, AG_sizes );

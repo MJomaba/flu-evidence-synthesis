@@ -1,6 +1,7 @@
 #include "contacts.hh"
 
 #include <stdio.h>
+#include <cassert>
 
 #include "io.hh"
 #include "state.hh"
@@ -36,6 +37,31 @@ namespace flu
             }
 
             return c;
+        }
+
+        contacts_t shuffle_by_id( const contacts_t &sorted_c, const std::vector<size_t> &ids )
+        {
+            contacts_t shuffled_c;
+
+            /*translate into an initial infected population*/
+            for(size_t i=0;i<90;i++)
+                shuffled_c.ni[i]=0;
+            shuffled_c.nwe=0;
+            for(size_t i=0; i<POLY_PART; i++)
+            {
+                auto nc = ids[i];
+
+                // Make sure that the ids are still the same
+                assert( sorted_c.contacts[nc].id == nc );
+
+                auto age_part=sorted_c.contacts[nc].age;
+                shuffled_c.ni[age_part]++;
+                if(sorted_c.contacts[nc].we>0) shuffled_c.nwe++;
+
+                shuffled_c.contacts[i]=sorted_c.contacts[nc];
+            }
+
+            return shuffled_c;
         }
 
         std::vector<double> to_symmetric_matrix( const contacts_t &c, int *age_sizes, int *AG_sizes )
