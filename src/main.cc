@@ -15,6 +15,7 @@
 #include "state.hh"
 #include "data.hh"
 #include "contacts.hh"
+#include "vaccine.hh"
 
 using namespace flu;
 
@@ -209,6 +210,9 @@ int main(int argc, char *argv[])
     /*end of loading the contacts and sizes of age populations*/
 
     /*loading parameters regarding vaccination*/
+    auto vaccine_programme = vaccine::load_vaccine_programme( 
+            data_path+"vaccine_calendar.txt");
+
     save_fgets(sbuffer, 100, vacc_programme);
     save_fgets(sbuffer, 100, vacc_programme);
     sscanf(sbuffer,"%d",&n_scenarii);
