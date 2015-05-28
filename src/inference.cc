@@ -65,8 +65,6 @@ int main(int argc, char *argv[])
 
     sort( ks.begin(), ks.end() );
 
-
-
     FILE *Scen1FS, *Scen2FS;
     Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
 
@@ -82,23 +80,27 @@ int main(int argc, char *argv[])
     //double current_contact_regular[NAG2];
     auto c = contacts::load_contacts( 
             data_path + "contacts_for_inference.txt" );
+
+    auto vaccine_programme = vaccine::load_vaccine_programme( 
+            data_path+"vaccine_calendar.txt");
     
+    int First_write=1;
     for( auto & k : ks ) 
     {
         auto state = load_state( data_path + "samples/z_hyper" 
                 + boost::lexical_cast<std::string>( k )
                 + ".stm", NAG, POLY_PART );
 
-        /*auto contact_matrix = contacts::to_symmetric_matrix( 
+        auto contact_matrix = contacts::to_symmetric_matrix( 
                 contacts::shuffle_by_id( c, 
-                    state.number_contacts ) );*/
+                    state.number_contacts ), age_data );
 
         /*translate into an initial infected population*/
         double init_inf[NAG];
         for(size_t i=0;i<NAG;i++)
             init_inf[i]=pow(10,state.parameters.init_pop);
 
-        //save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, current_contact_regular, n_scenarii, tab_cal, tab_VE, data_path, &First_write);
+        save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path, &First_write);
     }
     fclose(Scen1FS);
     fclose(Scen2FS);

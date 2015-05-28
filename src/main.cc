@@ -308,6 +308,7 @@ int main(int argc, char *argv[])
             /*calculate the current initial infected population*/
             for(i=0;i<NAG;i++)
                 curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
+
             one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/

@@ -41,11 +41,11 @@ TEST_CASE( "New method of loading vaccine data should give the same output",
     double vaccine_efficacy_year[7], vaccine_cal[2583], *VE_pro, *VCAL_pro;
     double *tab_cal[100], *tab_VE[100]; /*so far a maximum of 100 scenarios can be changed of course*/
     size_t i,j;
-    int n_scenarii;
+    size_t n_scenarii;
 
     save_fgets(sbuffer, 100, vacc_programme);
     save_fgets(sbuffer, 100, vacc_programme);
-    sscanf(sbuffer,"%d",&n_scenarii);
+    sscanf(sbuffer,"%lu",&n_scenarii);
 
     save_fgets(sbuffer, 100, vacc_programme);
     save_fgets(sbuffer, 100, vacc_programme);
@@ -147,7 +147,7 @@ TEST_CASE( "Run a short test run", "[full]" )
     }
 }
 
-TEST_CASE( "Run inference", "[full]" )
+TEST_CASE( "Run inference", "[full,inference]" )
 {
     // Create array with all names to be watched
     std::vector<std::string> files;
