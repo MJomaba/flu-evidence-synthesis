@@ -19,6 +19,153 @@
 
 using namespace flu;
 
+#include <boost/numeric/ublas/matrix.hpp>
+namespace flu {
+    /**
+     * \brief Functions to keep track of proposal distribution
+     */
+    namespace proposal {
+        namespace bu = boost::numeric::ublas;
+        struct proposal_state_t
+        {
+            //! Keep track of means of the mcmc samples
+            std::vector<double> sum_mean_param;
+            bu::matrix<double> emp_cov_matrix, sum_corr_param_matrix, chol_emp_cov, chol_ini;
+
+            double past_acceptance;
+            double conv_scaling;
+            int acceptance;
+        };
+
+        /**
+         * \brief Load proposal state from given file.
+         *
+         * \param dim Number of parameters
+         */
+        proposal_state_t load( const std::string &path, size_t dim );
+
+        bu::matrix<double> cholesky_factorization(
+                const bu::matrix<double> &A)
+        {
+            assert( A.size1() == A.size2() );
+
+            bu::matrix<double> res( A.size1(), A.size2() );
+
+            for(size_t i=0;i<A.size1();i++)
+            {
+                for(size_t j=0;j<A.size1();j++)
+                {
+                    double sum_L2=A(i,j);
+                    for(size_t k=0;k<i;k++)
+                        sum_L2-=res(i,k)*res(j,k);
+                    if(i==j)
+                        res(i,i)=sqrt(sum_L2);
+                    else
+                        res(j,i)=sum_L2/res(i,i);
+                }
+            }
+            return res;
+        }
+
+        bu::matrix<double> update_sum_corr(bu::matrix<double> &&corr, 
+                const parameter_set &par )
+        {
+            //vectorize parameters
+            std::vector<double> v = {
+                par.epsilon[0], par.epsilon[2], par.epsilon[2],
+                par.psi, par.transmissibility,
+                par.susceptibility[0], par.susceptibility[3],
+                par.susceptibility[6], par.init_pop
+            };
+
+            /*first line*/
+            for (size_t i = 0; i < corr.size1(); ++i)
+            {
+                for (size_t j = 0; j < corr.size2(); ++j )
+                {
+                    if (j>=i)
+                        corr(i,j) += v[i]*v[j];
+                    else
+                        corr(j,i) = corr(i,j);
+                }
+            }
+            return corr;
+        }
+
+
+        proposal_state_t load( const std::string &path, size_t dim )
+        {
+            proposal_state_t state;
+            state.sum_mean_param.resize( dim, 0 );
+
+            state.past_acceptance=state.acceptance=234;
+            state.conv_scaling=0.001;
+
+
+            bu::matrix<double> init_cov_matrix( dim, dim );
+            state.emp_cov_matrix.resize( dim, dim );
+            state.sum_corr_param_matrix.resize( dim, dim );
+            state.chol_emp_cov.resize( dim, dim );
+            state.chol_ini.resize( dim, dim );
+
+            char sbuffer[300];
+            auto f_init_cov=read_file(path);
+            for(size_t i=0; i<init_cov_matrix.size1(); i++)
+            {
+                save_fgets(sbuffer, 300, f_init_cov);
+                sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",&init_cov_matrix(i,0),&init_cov_matrix(i,1),&init_cov_matrix(i,2),&init_cov_matrix(i,3),&init_cov_matrix(i,4),&init_cov_matrix(i,5),&init_cov_matrix(i,6),&init_cov_matrix(i,7),&init_cov_matrix(i,8));
+            }
+            fclose( f_init_cov );
+
+            state.chol_ini = cholesky_factorization(init_cov_matrix);
+            state.chol_emp_cov = state.chol_ini;
+
+            return state;
+        }
+
+
+        proposal_state_t update( proposal_state_t&& state,
+                const parameter_set &parameters,
+                int k ) 
+        {
+            /*update of the variance-covariance matrix and the mean vector*/
+            state.sum_corr_param_matrix  = 
+                update_sum_corr(std::move(state.sum_corr_param_matrix), parameters);
+            state.sum_mean_param[0]+=parameters.epsilon[0];
+            state.sum_mean_param[1]+=parameters.epsilon[2];
+            state.sum_mean_param[2]+=parameters.epsilon[4];
+            state.sum_mean_param[3]+=parameters.psi;
+            state.sum_mean_param[4]+=parameters.transmissibility;
+            state.sum_mean_param[5]+=parameters.susceptibility[0];
+            state.sum_mean_param[6]+=parameters.susceptibility[3];
+            state.sum_mean_param[7]+=parameters.susceptibility[6];
+            state.sum_mean_param[8]+=parameters.init_pop;
+            /*adjust variance for MCMC parameters*/
+            if(k%1000==0)
+            {
+                /*update of the adaptive algorithm*/
+                for(size_t i=0;i<state.emp_cov_matrix.size1();i++)
+                {
+                    state.emp_cov_matrix(i,i)=(state.sum_corr_param_matrix(i,i)-(state.sum_mean_param[i]*state.sum_mean_param[i])/k)/(k-1);
+                    for(size_t j=0;j<i;j++)
+                    {
+                        state.emp_cov_matrix(i,j)=(state.sum_corr_param_matrix(i,j)-(state.sum_mean_param[i]*state.sum_mean_param[j])/k)/(k-1);
+                        state.emp_cov_matrix(j,i)=state.emp_cov_matrix(i,j);
+                    }
+                }
+                state.chol_emp_cov = cholesky_factorization(
+                        state.emp_cov_matrix);
+
+                state.past_acceptance=state.acceptance;
+                state.acceptance=0;
+
+                state.conv_scaling/=1.005;
+            }
+            return state;
+        }
+    };
+};
+
 int main(int argc, char *argv[])
 {
     int i, j, k, mcmc_chain_length, acceptance, burn_in, thinning;
@@ -222,8 +369,12 @@ int main(int argc, char *argv[])
     p_ac_mat=0.10;          /*prob to redraw matrices*/
 
     cholevsky(init_cov_matrix , chol_ini, 9);
+    
     for(i=0;i<81;i++)
         chol_emp_cov[i]=chol_ini[i];
+
+    auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
+            9 );
 
     past_acceptance=acceptance=234;
     freq_sampling=10*thinning;
@@ -237,6 +388,8 @@ int main(int argc, char *argv[])
 
     for(k=1; k<=mcmc_chain_length + burn_in; k++)
     {
+        proposal_state = proposal::update( std::move( proposal_state ),
+                current_state.parameters, k );
         /*update of the variance-covariance matrix and the mean vector*/
         update_sum_corr(sum_corr_param_matrix, &current_state.parameters);
         sum_mean_param[0]+=current_state.parameters.epsilon[0];
@@ -287,7 +440,7 @@ int main(int argc, char *argv[])
             conv_scaling/=1.005;
          }
 
-        /*generates a sample*/
+        /*generates a sample of current state and writes to disk*/
         if((k%freq_sampling==0)&&(k>burn_in))
         {
             fprintf(log_file,"[%d]",(k-burn_in)/freq_sampling);
