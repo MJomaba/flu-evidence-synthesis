@@ -18,8 +18,14 @@ cmake .
 make
 ```
 
-and it will build the needed executable in the bin directory:
+and it will build the needed executables in the bin directory:
+
+### Documentation
+
+If you have doxygen installed you can run:
 
 ```
-bin/flu-evidence-synthesis
+make doxygen
 ```
+
+Which will create documentation under doc/html/index.html
