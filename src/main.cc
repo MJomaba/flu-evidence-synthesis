@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
     double curr_init_inf[NAG];
     int step_mat, freq_sampling;
     char sbuffer[300];
-    double correct_prior_con;
     double alea, p_ac_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
@@ -39,7 +38,7 @@ int main(int argc, char *argv[])
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
     FILE *log_file;
-    FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
+    FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop;
     FILE *f_init_cov, *f_final_cov;
     FILE *f_posterior;
 
@@ -103,12 +102,6 @@ int main(int argc, char *argv[])
     /*opens the file with the starting state of the covariance matrix for the proposal*/
     f_init_cov=read_file(data_path,"init_cov_matrix.txt");
 
-    /*opens the 1st scenarioFile*/
-    Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
-
-    /*opens the 2nd scenarioFile*/
-    Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
-
     /*opens the file to save the posterior*/
     f_posterior=write_file( data_path + "posterior.txt" );
     fprintf(f_posterior,"k epsilon_0_14 epsilon_15_64 epsilon_65_plus psi q sigma_0_14 sigma_15_64 sigma_65_plus init_pop adaptive_scaling likelihood\n");
@@ -160,22 +153,22 @@ int main(int argc, char *argv[])
     auto c = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
 
     for(i=0; i<10; i++)
-        printf("%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].weekend, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
-    printf("UK POLYMOD contacts downloaded OK.\n");
+        fprintf(log_file,"%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].weekend, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
+    fprintf(log_file,"UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
     /*printf("Number of w/e days: %d\n",curr_c.nwe);*/
 
     for(i=0; i<10; i++)
-        printf("%lu\n",age_data.age_sizes[i]);
-    printf("Age sizes downloaded OK.\n");
+        fprintf(log_file,"%lu\n",age_data.age_sizes[i]);
+    fprintf(log_file,"Age sizes downloaded OK.\n");
     /*end of loading the contacts and sizes of age populations*/
 
     /*loading parameters regarding vaccination*/
     auto vaccine_programme = vaccine::load_vaccine_programme( 
             data_path+"vaccine_calendar.txt");
-    printf("Vaccine calendar loaded.\n");
+    fprintf(log_file,"Vaccine calendar loaded.\n");
 
     /*load the size of the monitored population by week*/
     for(i=0;i<9;i++)
@@ -183,7 +176,7 @@ int main(int argc, char *argv[])
         save_fgets(sbuffer, 300, f_init_cov);
         sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",&init_cov_matrix[i*9],&init_cov_matrix[i*9+1],&init_cov_matrix[i*9+2],&init_cov_matrix[i*9+3],&init_cov_matrix[i*9+4],&init_cov_matrix[i*9+5],&init_cov_matrix[i*9+6],&init_cov_matrix[i*9+7],&init_cov_matrix[i*9+8]);
     }
-    printf("Initial covariance matrix loaded.\n");
+    fprintf(log_file,"Initial covariance matrix loaded.\n");
 
     /*********************************************************************************************************************************************************************************
     END of Initialisation bit  LOADING DATA
@@ -215,7 +208,7 @@ int main(int argc, char *argv[])
     /*curr_psi=0.00001;*/
         lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    printf("====%f====\n",lv);
+    fprintf(log_file,"====%f====\n",lv);
 
     /********************************************************************************************************************************************************
     END initialisation point to start the MCMC
@@ -297,7 +290,7 @@ int main(int argc, char *argv[])
         /*generates a sample*/
         if((k%freq_sampling==0)&&(k>burn_in))
         {
-            printf("[%d]",(k-burn_in)/freq_sampling);
+            fprintf(log_file,"[%d]",(k-burn_in)/freq_sampling);
 
             /*calculate the current initial infected population*/
             for(i=0;i<NAG;i++)
@@ -342,42 +335,10 @@ int main(int argc, char *argv[])
         /*computes the associated likelihood with the proposed values*/
         prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-        /*Add the priors*/
-        double correct_prior = 0;
-        if (!vm.count("prior-susceptibility"))
-        {
-            /*Prior for the transmissibility; year other than 2003/04*/
-            /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
-            /*prior on q*/
-            correct_prior=(current_state.parameters.transmissibility-proposed_par.transmissibility)*(current_state.parameters.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
-        } else {
-
-            /*prior on the susceptibility (year 2003/04)*/
-
-            /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
-            correct_prior=(current_state.parameters.susceptibility[0]-proposed_par.susceptibility[0])*(current_state.parameters.susceptibility[0]+proposed_par.susceptibility[0]-1.376)*145.1589/2;
-            /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
-            correct_prior+=(current_state.parameters.susceptibility[3]-proposed_par.susceptibility[3])*(current_state.parameters.susceptibility[3]+proposed_par.susceptibility[3]-1.058)*67.18624/2;
-            /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
-            correct_prior+=(current_state.parameters.susceptibility[6]-proposed_par.susceptibility[6])*(current_state.parameters.susceptibility[6]+proposed_par.susceptibility[6]-1.046)*32.65306/2;
-        }
-
-        /*Prior for the ascertainment probabilities*/
-
-        /*correct for the prior from serology season (lognormal):"0-14" lm=-4.493789, ls=0.2860455*/
-        correct_prior_con= log(current_state.parameters.epsilon[0])-log(proposed_par.epsilon[0])+(log(current_state.parameters.epsilon[0])-log(proposed_par.epsilon[0]))*(log(current_state.parameters.epsilon[0])+log(proposed_par.epsilon[0])+8.987578)*6.110824;
-
-        /*correct for the prior from serology season (lognormal):"15-64" lm=-4.117028, ls=0.4751615*/
-        correct_prior_con+= log(current_state.parameters.epsilon[2])-log(proposed_par.epsilon[2])+(log(current_state.parameters.epsilon[2])-log(proposed_par.epsilon[2]))*(log(current_state.parameters.epsilon[2])+log(proposed_par.epsilon[2])+8.234056)*2.21456;
-
-        /*correct for the prior from serology season (lognormal):"65+" lm=-2.977965, ls=1.331832*/
-        correct_prior_con+= log(current_state.parameters.epsilon[4])-log(proposed_par.epsilon[4])+(log(current_state.parameters.epsilon[4])-log(proposed_par.epsilon[4]))*(log(current_state.parameters.epsilon[4])+log(proposed_par.epsilon[4])+5.95593)*0.2818844;
-
-
         /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
-
-        my_acceptance_rate=exp(prop_likelihood-lv+correct_prior+correct_prior_con);
-		if((proposed_par.init_pop<log(0.00001))|(proposed_par.init_pop>log(10)))  my_acceptance_rate=0.0; /* limit the number of initially infected to 10^log(0.00001)> 10^-12 */
+        // Make sure accept works with -inf prior
+        my_acceptance_rate=exp(prop_likelihood-lv+
+                log_prior(proposed_par, current_state.parameters, vm.count("prior-susceptibility") ));
 
         alea=gsl_rng_uniform (r);
 
@@ -427,8 +388,6 @@ int main(int argc, char *argv[])
     fclose(f_mon_pop);
     fclose(f_n_sample);
     fclose(f_init_cov);
-    fclose(Scen1FS);
-    fclose(Scen2FS);
     /*fclose(f_posterior);*/
 
     /********************************************************************************************************************************************************

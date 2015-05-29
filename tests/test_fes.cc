@@ -107,6 +107,7 @@ TEST_CASE( "Run a short test run", "[full]" )
     // Create array with all names to be watched
     std::vector<std::string> files;
     files.push_back( "posterior.txt" );
+    files.push_back( "final.log" );
 
     // Add sample files to check
     for( size_t i = 1010; i < 2001; i+= 10 )

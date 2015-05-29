@@ -1069,4 +1069,48 @@ void update_sum_corr(double * sum_corr, parameter_set * par)
     sum_corr[80]+=par->init_pop*par->init_pop;
 }
 
+/// Return the log prior probability of the proposed parameters - current parameters
+//
+// \param susceptibility whether to use the prior based on 2003/04
+double log_prior( const parameter_set &proposed,
+        const parameter_set &current,
+        bool susceptibility ) {
+
+
+    /* limit the number of initially infected to 10^log(0.00001)> 10^-12 */
+    if((proposed.init_pop<log(0.00001))|(proposed.init_pop>log(10)))  
+        return log(0);
+
+    double log_prior = 0;
+        if (!susceptibility)
+        {
+            /*Prior for the transmissibility; year other than 2003/04*/
+            /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
+            /*prior on q*/
+            log_prior=(current.transmissibility-proposed.transmissibility)*(current.transmissibility+proposed.transmissibility-0.3306366)*650.2099;
+        } else {
+
+            /*prior on the susceptibility (year 2003/04)*/
+
+            /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
+            log_prior=(current.susceptibility[0]-proposed.susceptibility[0])*(current.susceptibility[0]+proposed.susceptibility[0]-1.376)*145.1589/2;
+            /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
+            log_prior+=(current.susceptibility[3]-proposed.susceptibility[3])*(current.susceptibility[3]+proposed.susceptibility[3]-1.058)*67.18624/2;
+            /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
+            log_prior+=(current.susceptibility[6]-proposed.susceptibility[6])*(current.susceptibility[6]+proposed.susceptibility[6]-1.046)*32.65306/2;
+        }
+
+        /*Prior for the ascertainment probabilities*/
+
+        /*correct for the prior from serology season (lognormal):"0-14" lm=-4.493789, ls=0.2860455*/
+        log_prior += log(current.epsilon[0])-log(proposed.epsilon[0])+(log(current.epsilon[0])-log(proposed.epsilon[0]))*(log(current.epsilon[0])+log(proposed.epsilon[0])+8.987578)*6.110824;
+
+        /*correct for the prior from serology season (lognormal):"15-64" lm=-4.117028, ls=0.4751615*/
+        log_prior += log(current.epsilon[2])-log(proposed.epsilon[2])+(log(current.epsilon[2])-log(proposed.epsilon[2]))*(log(current.epsilon[2])+log(proposed.epsilon[2])+8.234056)*2.21456;
+
+        /*correct for the prior from serology season (lognormal):"65+" lm=-2.977965, ls=1.331832*/
+        log_prior += log(current.epsilon[4])-log(proposed.epsilon[4])+(log(current.epsilon[4])-log(proposed.epsilon[4]))*(log(current.epsilon[4])+log(proposed.epsilon[4])+5.95593)*0.2818844;
+        return log_prior;
+    }
+
 };

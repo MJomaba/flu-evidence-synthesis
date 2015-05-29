@@ -32,6 +32,17 @@ namespace flu
     parameter_set proposal_haario_adapt_scale(const parameter_set &current, double *, double *, int n, double, double);
     void cholevsky(double *, double *, int);
     void update_sum_corr(double *, parameter_set *);
+
+
+    /**
+     * \brief Return the log prior probability of the proposed parameters - current parameters
+     *
+     * \param susceptibility whether to use the prior based on 2003/04
+     */
+    double log_prior( const parameter_set &proposed,
+            const parameter_set &current,
+            bool susceptibility = false );
+
 };
 
 #endif
