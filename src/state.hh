@@ -24,7 +24,6 @@ extern gsl_rng * r;
 namespace flu
 {
     typedef struct {
-        int m_plus [260];
         double epsilon[5];
         double psi;
         double transmissibility;
