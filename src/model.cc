@@ -830,9 +830,11 @@ void proposal_haario(parameter_set * current, parameter_set * proposed, double *
     while(valid_flag==0);
 
 }
+    parameter_set proposal_haario_adapt_scale(const parameter_set &current, double *, double *, int n, double, double);
 
-void proposal_haario_adapt_scale(parameter_set * current, parameter_set * proposed, double * chol_de, double * chol_ini, int n, double beta, double adapt_scale)
+parameter_set proposal_haario_adapt_scale(const parameter_set &current, double * chol_de, double * chol_ini, int n, double beta, double adapt_scale)
 {
+    parameter_set proposed;
     double normal_draw[9], normal_add_draw[9], correlated_draw[9], correlated_fix[9];
     double unif1, unif2;
     int i, j, valid_flag;
@@ -882,48 +884,49 @@ void proposal_haario_adapt_scale(parameter_set * current, parameter_set * propos
                 correlated_fix[i]+=chol_ini[i*9+j]*normal_add_draw[j];
 
         /*new proposed values*/
-        proposed->epsilon[0]=current->epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
-        proposed->epsilon[1]=proposed->epsilon[0];
-        proposed->epsilon[2]=current->epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
-        proposed->epsilon[3]=proposed->epsilon[2];
-        proposed->epsilon[4]=current->epsilon[4]+un_moins_beta*correlated_draw[2]+beta*correlated_fix[2];
+        proposed.epsilon[0]=current.epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
+        proposed.epsilon[1]=proposed.epsilon[0];
+        proposed.epsilon[2]=current.epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
+        proposed.epsilon[3]=proposed.epsilon[2];
+        proposed.epsilon[4]=current.epsilon[4]+un_moins_beta*correlated_draw[2]+beta*correlated_fix[2];
 
-        proposed->psi=current->psi+un_moins_beta*correlated_draw[3]+beta*correlated_fix[3];
+        proposed.psi=current.psi+un_moins_beta*correlated_draw[3]+beta*correlated_fix[3];
 
-        proposed->transmissibility=current->transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
+        proposed.transmissibility=current.transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
 
-        proposed->susceptibility[0]=current->susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
-        proposed->susceptibility[1]=proposed->susceptibility[0];
-        proposed->susceptibility[2]=proposed->susceptibility[0];
-        proposed->susceptibility[3]=current->susceptibility[3]+un_moins_beta*correlated_draw[6]+beta*correlated_fix[6];
-        proposed->susceptibility[4]=proposed->susceptibility[3];
-        proposed->susceptibility[5]=proposed->susceptibility[3];
-        proposed->susceptibility[6]=current->susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
+        proposed.susceptibility[0]=current.susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
+        proposed.susceptibility[1]=proposed.susceptibility[0];
+        proposed.susceptibility[2]=proposed.susceptibility[0];
+        proposed.susceptibility[3]=current.susceptibility[3]+un_moins_beta*correlated_draw[6]+beta*correlated_fix[6];
+        proposed.susceptibility[4]=proposed.susceptibility[3];
+        proposed.susceptibility[5]=proposed.susceptibility[3];
+        proposed.susceptibility[6]=current.susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
 
-        proposed->init_pop=current->init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
+        proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
 
         /*checking that the generating values are ok i.e. between 0 and 1 if probabilities*/
-        if(proposed->epsilon[0] > 0)
-            if(proposed->epsilon[0] < 1)
-                if(proposed->epsilon[2] > 0)
-                    if(proposed->epsilon[2] < 1)
-                        if(proposed->epsilon[4] > 0)
-                            if(proposed->epsilon[4] < 1)
-                                if(proposed->psi >= 0)
-                                    if(proposed->psi <= 1)
-                                        if(proposed->transmissibility >= 0)
-                                            if(proposed->transmissibility <= 1)
-                                                if(proposed->susceptibility[0] >= 0)
-                                                    if(proposed->susceptibility[0] <= 1)
-                                                        if(proposed->susceptibility[3] >= 0)
-                                                            if(proposed->susceptibility[3] <= 1)
-                                                                if(proposed->susceptibility[6] >= 0)
-                                                                    if(proposed->susceptibility[6] <= 1)
-                                                                        if(proposed->init_pop<5)
+        if(proposed.epsilon[0] > 0)
+            if(proposed.epsilon[0] < 1)
+                if(proposed.epsilon[2] > 0)
+                    if(proposed.epsilon[2] < 1)
+                        if(proposed.epsilon[4] > 0)
+                            if(proposed.epsilon[4] < 1)
+                                if(proposed.psi >= 0)
+                                    if(proposed.psi <= 1)
+                                        if(proposed.transmissibility >= 0)
+                                            if(proposed.transmissibility <= 1)
+                                                if(proposed.susceptibility[0] >= 0)
+                                                    if(proposed.susceptibility[0] <= 1)
+                                                        if(proposed.susceptibility[3] >= 0)
+                                                            if(proposed.susceptibility[3] <= 1)
+                                                                if(proposed.susceptibility[6] >= 0)
+                                                                    if(proposed.susceptibility[6] <= 1)
+                                                                        if(proposed.init_pop<5)
                                                                             valid_flag=1;
     }
     while(valid_flag==0);
 
+    return proposed;
 }
 
 

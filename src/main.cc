@@ -22,7 +22,6 @@ using namespace flu;
 int main(int argc, char *argv[])
 {
     int i, j, k, mcmc_chain_length, acceptance, burn_in, thinning;
-    contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int step_mat, freq_sampling;
@@ -39,7 +38,6 @@ int main(int argc, char *argv[])
     double my_acceptance_rate;
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
-    parameter_set proposed_par;
     FILE *log_file;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop, *Scen1FS, *Scen2FS;
     FILE *f_init_cov, *f_final_cov;
@@ -295,7 +293,7 @@ int main(int argc, char *argv[])
             conv_scaling/=1.005;
          }
 
-        /*generates a sample*/ // This is inference as far as I can tell
+        /*generates a sample*/
         if((k%freq_sampling==0)&&(k>burn_in))
         {
             printf("[%d]",(k-burn_in)/freq_sampling);
@@ -316,25 +314,15 @@ int main(int argc, char *argv[])
         }
 
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
-        // TODO: really should make sure proposed_par is equal to current_state.parameters
-        // at this point (will result in test failures though)
-        proposal_haario_adapt_scale(&current_state.parameters,&proposed_par,chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
+        auto proposed_par = proposal_haario_adapt_scale(
+                current_state.parameters,
+                chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
 
         /*translate into an initial infected population*/
         for(i=0;i<NAG;i++)
             prop_init_inf[i]=pow(10,proposed_par.init_pop);
 
-        /*new proposed contact matrix*/
-        /*start from current one*/
-        for(i=0;i<POLY_PART;i++)
-        {
-            prop_c.contacts[i]=curr_c.contacts[i];
-        }
-
-        for(i=0;i<90;i++)
-            prop_c.ni[i]=curr_c.ni[i];
-
-        prop_c.nwe=curr_c.nwe;
+        auto prop_c = curr_c;
 
         /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
         if(gsl_rng_uniform (r)<p_ac_mat)
@@ -405,26 +393,15 @@ int main(int argc, char *argv[])
             if(k>=1000)
                 adaptive_scaling+=0.766*conv_scaling;
 
-            // TODO: Normally we don't use swap, but just set the proposal to current and then get new proposal. Ask mark about this.
-            std::swap( current_state.parameters, proposed_par );
+            current_state.parameters = proposed_par;
 
             /*update current likelihood*/
             lv=prop_likelihood;
 
             /*new proposed contact matrix*/
             /*update*/
-            for(i=0;i<POLY_PART;i++)
-            {
-                curr_c.contacts[i]=prop_c.contacts[i];
-            }
-
-            for(i=0;i<90;i++)
-                curr_c.ni[i]=prop_c.ni[i];
-
-            curr_c.nwe=prop_c.nwe;
-
-            for(i=0;i<49;i++)
-                current_contact_regular[i]=prop_contact_regular[i];
+            curr_c = prop_c;
+            current_contact_regular=prop_contact_regular;
         }
         else /*if reject*/
         {

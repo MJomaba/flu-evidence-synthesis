@@ -29,7 +29,7 @@ namespace flu
 
 
     void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
-    void proposal_haario_adapt_scale(parameter_set *, parameter_set *, double *, double *, int n, double, double);
+    parameter_set proposal_haario_adapt_scale(const parameter_set &current, double *, double *, int n, double, double);
     void cholevsky(double *, double *, int);
     void update_sum_corr(double *, parameter_set *);
 };
