@@ -32,9 +32,10 @@ namespace flu {
             std::vector<double> sum_mean_param;
             bu::matrix<double> emp_cov_matrix, sum_corr_param_matrix, chol_emp_cov, chol_ini;
 
-            double past_acceptance;
-            double conv_scaling;
-            int acceptance;
+            double adaptive_scaling = 0.3;
+            double past_acceptance = 234;
+            double conv_scaling = 0.001;
+            int acceptance = 234;
         };
 
         /**
@@ -97,10 +98,6 @@ namespace flu {
         {
             proposal_state_t state;
             state.sum_mean_param.resize( dim, 0 );
-
-            state.past_acceptance=state.acceptance=234;
-            state.conv_scaling=0.001;
-
 
             bu::matrix<double> init_cov_matrix( dim, dim );
             state.emp_cov_matrix.resize( dim, dim );
@@ -168,7 +165,7 @@ namespace flu {
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, mcmc_chain_length, acceptance, burn_in, thinning;
+    int i, j, k, mcmc_chain_length, burn_in, thinning;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int step_mat, freq_sampling;
@@ -179,8 +176,7 @@ int main(int argc, char *argv[])
     int n_pos[260], n_samples[260], ILI[260], mon_pop[260];
     double lv, prop_likelihood;
 
-    double Accept_rate, past_acceptance;
-    double adaptive_scaling, conv_scaling;
+    double Accept_rate;
     double my_acceptance_rate;
     double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
     double sum_mean_param[9], sum_check;
@@ -376,11 +372,8 @@ int main(int argc, char *argv[])
     auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
             9 );
 
-    past_acceptance=acceptance=234;
     freq_sampling=10*thinning;
 
-    conv_scaling=0.001;
-    adaptive_scaling=0.3;
     /*mcmc_chain_length=10000;
     acceptance=234;
     freq_sampling=100;
@@ -405,7 +398,7 @@ int main(int argc, char *argv[])
         if(k%thinning==0 && k>burn_in)
         {
             f_posterior=append_file(data_path + "posterior.txt");
-            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_state.parameters.epsilon[0],current_state.parameters.epsilon[2],current_state.parameters.epsilon[4],current_state.parameters.psi,current_state.parameters.transmissibility,current_state.parameters.susceptibility[0],current_state.parameters.susceptibility[3],current_state.parameters.susceptibility[6],current_state.parameters.init_pop,adaptive_scaling,lv);
+            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_state.parameters.epsilon[0],current_state.parameters.epsilon[2],current_state.parameters.epsilon[4],current_state.parameters.psi,current_state.parameters.transmissibility,current_state.parameters.susceptibility[0],current_state.parameters.susceptibility[3],current_state.parameters.susceptibility[6],current_state.parameters.init_pop,proposal_state.adaptive_scaling,lv);
             fclose(f_posterior);
         }
 
@@ -433,11 +426,6 @@ int main(int argc, char *argv[])
             sum_check=0;
             for(i=0; i<81; i++)
                 sum_check+=log(fabs(sum_corr_param_matrix[i]));
-
-            past_acceptance=acceptance;
-            acceptance=0;
-
-            conv_scaling/=1.005;
          }
 
         /*generates a sample of current state and writes to disk*/
@@ -452,7 +440,7 @@ int main(int argc, char *argv[])
             one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
-            Accept_rate=(double)past_acceptance/1000;
+            Accept_rate=(double)proposal_state.past_acceptance/1000;
     
             for( size_t i = 0; i < POLY_PART; ++i )
                 current_state.contact_ids[i] = curr_c.contacts[i].id;
@@ -463,7 +451,7 @@ int main(int argc, char *argv[])
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
         auto proposed_par = proposal_haario_adapt_scale(
                 current_state.parameters,
-                chol_emp_cov,chol_ini,100,0.05,adaptive_scaling);
+                chol_emp_cov,chol_ini,100,0.05,proposal_state. adaptive_scaling);
 
         /*translate into an initial infected population*/
         for(i=0;i<NAG;i++)
@@ -498,9 +486,10 @@ int main(int argc, char *argv[])
         if(alea<my_acceptance_rate) /*with prior*/
         {
             /*update the acceptance rate*/
-            acceptance++;
+            proposal_state.acceptance++;
             if(k>=1000)
-                adaptive_scaling+=0.766*conv_scaling;
+                proposal_state.adaptive_scaling
+                    += 0.766*proposal_state.conv_scaling;
 
             current_state.parameters = proposed_par;
 
@@ -515,7 +504,8 @@ int main(int argc, char *argv[])
         else /*if reject*/
         {
             if(k>=1000)
-                adaptive_scaling-=0.234*conv_scaling;
+                proposal_state.adaptive_scaling
+                    -=0.234*proposal_state.conv_scaling;
         }
 
     }
