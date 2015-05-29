@@ -39,6 +39,27 @@ namespace flu
             return c;
         }
 
+        contacts_t bootstrap_contacts( contacts_t&& bootstrap,
+                const contacts_t &original,
+                size_t no,
+                gsl_rng * rnd_gen )
+        {
+            for(size_t i=0;i<no;i++)
+            {
+                auto alea1=gsl_rng_get(rnd_gen)%POLY_PART;
+                auto alea2=gsl_rng_get(rnd_gen)%POLY_PART;
+
+                bootstrap.ni[bootstrap.contacts[alea1].age]--;
+                if(bootstrap.contacts[alea1].weekend) bootstrap.nwe--;
+
+                bootstrap.contacts[alea1]=original.contacts[alea2];
+
+                bootstrap.ni[bootstrap.contacts[alea1].age]++;
+                if(bootstrap.contacts[alea1].weekend) bootstrap.nwe++;
+            }
+            return bootstrap;
+        }
+
         contacts_t shuffle_by_id( const contacts_t &sorted_c, const std::vector<size_t> &ids )
         {
             contacts_t shuffled_c;

@@ -21,7 +21,7 @@ using namespace flu;
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, alea1, alea2, mcmc_chain_length, acceptance, burn_in, thinning;
+    int i, j, k, mcmc_chain_length, acceptance, burn_in, thinning;
     contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
@@ -338,19 +338,9 @@ int main(int argc, char *argv[])
 
         /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
         if(gsl_rng_uniform (r)<p_ac_mat)
-        for(i=0;i<step_mat;i++)
-        {
-            alea1=gsl_rng_get(r)%POLY_PART;
-            alea2=gsl_rng_get(r)%POLY_PART;
+            prop_c = contacts::bootstrap_contacts( std::move(prop_c),
+                    c, step_mat, r );
 
-            prop_c.ni[prop_c.contacts[alea1].age]--;
-            if(prop_c.contacts[alea1].weekend) prop_c.nwe--;
-
-            prop_c.contacts[alea1]=c.contacts[alea2];
-
-            prop_c.ni[prop_c.contacts[alea1].age]++;
-            if(prop_c.contacts[alea1].weekend) prop_c.nwe++;
-        }
         auto prop_contact_regular = 
             contacts::to_symmetric_matrix( prop_c, age_data );
 

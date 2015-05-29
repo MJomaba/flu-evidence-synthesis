@@ -35,7 +35,13 @@ namespace flu {
 
         contacts_t load_contacts( const std::string &path );
 
-        /**
+        /// Bootstrap the given contacts, by shuffling back the given no of contacts from the original data
+        contacts_t bootstrap_contacts( contacts_t&& bootstrap,
+                const contacts_t &original,
+                size_t no,
+                gsl_rng * rnd_gen ); 
+
+         /**
          * \brief Shuffle given contacts according to id. Assumes the given
          * contacts are already sorted
          */
