@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     contacts::contacts_t prop_c;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
-    int step_mat, freq_sampling, First_write=1;
+    int step_mat, freq_sampling;
     char sbuffer[300];
     double correct_prior, correct_prior_con;
     double alea, p_ac_mat;

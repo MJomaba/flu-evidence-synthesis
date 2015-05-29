@@ -22,7 +22,8 @@ namespace flu {
         struct contacts_t
         {
             std::array<contact_t,POLY_PART> contacts;
-            //TODO: What is ni used for
+
+            /// Total number of participants of each age group
             int ni[90];
 
             /// Total amount of contact data for weekend
