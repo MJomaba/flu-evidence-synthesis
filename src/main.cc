@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     double curr_init_inf[NAG];
     int step_mat, freq_sampling;
     char sbuffer[300];
-    double correct_prior, correct_prior_con;
+    double correct_prior_con;
     double alea, p_ac_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
         ("chain-length", po::value<int>( &mcmc_chain_length ), "Total mcmc chain length (no. of samples")
         ("burn-in", po::value<int>( &burn_in ), "MCMC burn in period")
         ("thinning", po::value<int>( &thinning ), "Thin the sample by only samples every n steps" )
+        ("prior-susceptibility", "Use the prior on susceptibility from 2003/04 data. Otherwise use more general prior on transmisibility" )
         ;
 
     po::variables_map vm;
@@ -342,30 +343,24 @@ int main(int argc, char *argv[])
         prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
         /*Add the priors*/
+        double correct_prior = 0;
+        if (!vm.count("prior-susceptibility"))
+        {
+            /*Prior for the transmissibility; year other than 2003/04*/
+            /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
+            /*prior on q*/
+            correct_prior=(current_state.parameters.transmissibility-proposed_par.transmissibility)*(current_state.parameters.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
+        } else {
 
-        /*correct_prior=0;*/
+            /*prior on the susceptibility (year 2003/04)*/
 
-        // TODO Edwin: reintroduce different priors
-        correct_prior=(current_state.parameters.transmissibility-proposed_par.transmissibility)*(current_state.parameters.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
-        //if(env!=37)
-        //{
-        //    /*Prior for the transmissibility; year other than 2003/04*/
-        //    /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
-        //    /*prior on q*/
-        //    correct_prior=(current_state.parameters.transmissibility-proposed_par.transmissibility)*(current_state.parameters.transmissibility+proposed_par.transmissibility-0.3306366)*650.2099;
-        //}
-
-		//if(env==37)
-		//{
-        //    /*prior on the susceptibility (year 2003/04)*/
-
-        //    /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
-        //    correct_prior=(current_state.parameters.susceptibility[0]-proposed_par.susceptibility[0])*(current_state.parameters.susceptibility[0]+proposed_par.susceptibility[0]-1.376)*145.1589/2;
-        //    /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
-        //    correct_prior+=(current_state.parameters.susceptibility[3]-proposed_par.susceptibility[3])*(current_state.parameters.susceptibility[3]+proposed_par.susceptibility[3]-1.058)*67.18624/2;
-        //    /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
-        //    correct_prior+=(current_state.parameters.susceptibility[6]-proposed_par.susceptibility[6])*(current_state.parameters.susceptibility[6]+proposed_par.susceptibility[6]-1.046)*32.65306/2;
-		//}
+            /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
+            correct_prior=(current_state.parameters.susceptibility[0]-proposed_par.susceptibility[0])*(current_state.parameters.susceptibility[0]+proposed_par.susceptibility[0]-1.376)*145.1589/2;
+            /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
+            correct_prior+=(current_state.parameters.susceptibility[3]-proposed_par.susceptibility[3])*(current_state.parameters.susceptibility[3]+proposed_par.susceptibility[3]-1.058)*67.18624/2;
+            /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
+            correct_prior+=(current_state.parameters.susceptibility[6]-proposed_par.susceptibility[6])*(current_state.parameters.susceptibility[6]+proposed_par.susceptibility[6]-1.046)*32.65306/2;
+        }
 
         /*Prior for the ascertainment probabilities*/
 
