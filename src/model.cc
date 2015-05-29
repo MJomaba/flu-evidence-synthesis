@@ -652,8 +652,9 @@ double log_likelihood_hyper_poisson(double* eps, double psi, double * result_sim
     return(result);
 }
 
-void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path, int * First_write )
+void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
 {
+    static bool first_write = true;
     double result_simu[7644];
     double FinalSize[21];
     FILE *ScenRest;
@@ -703,7 +704,7 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop
         sprintf(temp_string,"%lu",scen-1);
         std::string filepath = path + "scenarii/Scenario_" + temp_string +
             "_final_size.txt";
-        if(*First_write==1)
+        if(first_write)
         {
             ScenRest=write_file(filepath);
         }
@@ -732,7 +733,7 @@ void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop
         fprintf(ScenRest,"\n");
         fclose(ScenRest);
     }
-    *First_write=0;
+    first_write=false;
 }
 
 void proposal_haario(parameter_set * current, parameter_set * proposed, double * chol_de, double * chol_ini, int n, double beta)

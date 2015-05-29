@@ -84,7 +84,6 @@ int main(int argc, char *argv[])
     auto vaccine_programme = vaccine::load_vaccine_programme( 
             data_path+"vaccine_calendar.txt");
     
-    int First_write=1;
     for( auto & k : ks ) 
     {
         std::string kpadded = boost::lexical_cast<std::string>( k );
@@ -104,7 +103,7 @@ int main(int argc, char *argv[])
         for(size_t i=0;i<NAG;i++)
             init_inf[i]=pow(10,state.parameters.init_pop);
 
-        save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path, &First_write);
+        save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
     }
     fclose(Scen1FS);
     fclose(Scen2FS);

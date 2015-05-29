@@ -15,7 +15,10 @@ namespace flu {
         struct contact_t
         {
             size_t id;
-            int age, we, N1, N2, N3, N4, N5, N6, N7, AG;
+            int age, N1, N2, N3, N4, N5, N6, N7, AG;
+
+            /// Is this data from the weekend
+            bool weekend;
         };
 
         /// Struct to keep all contacts and some metadata

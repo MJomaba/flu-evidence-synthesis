@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
     auto c = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
 
     for(i=0; i<10; i++)
-        printf("%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].we, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
+        printf("%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].weekend, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
     printf("UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
@@ -344,12 +344,12 @@ int main(int argc, char *argv[])
             alea2=gsl_rng_get(r)%POLY_PART;
 
             prop_c.ni[prop_c.contacts[alea1].age]--;
-            if(prop_c.contacts[alea1].we>0) prop_c.nwe--;
+            if(prop_c.contacts[alea1].weekend) prop_c.nwe--;
 
             prop_c.contacts[alea1]=c.contacts[alea2];
 
             prop_c.ni[prop_c.contacts[alea1].age]++;
-            if(prop_c.contacts[alea1].we>0) prop_c.nwe++;
+            if(prop_c.contacts[alea1].weekend) prop_c.nwe++;
         }
         auto prop_contact_regular = 
             contacts::to_symmetric_matrix( prop_c, age_data );

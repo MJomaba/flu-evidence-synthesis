@@ -25,7 +25,7 @@ namespace flu
     double log_likelihood_hyper(double *, double *, int *, int *, int *, int *, double *);
     double log_likelihood_hyper_poisson(double *, double, double *, int *, int *, int *, int *, double *, int);
 
-    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path, int * First_write );
+    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path );
 
 
     void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
