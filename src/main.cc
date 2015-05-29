@@ -150,10 +150,10 @@ int main(int argc, char *argv[])
     pop_RCGP[3]=pop_vec[5]+pop_vec[12]+pop_vec[19];
     pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
 
-    auto c = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
+    auto contact_data = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
 
     for(i=0; i<10; i++)
-        fprintf(log_file,"%d %d %d %d %d %d %d %d %d\n", c.contacts[i].age, c.contacts[i].weekend, c.contacts[i].N1, c.contacts[i].N2, c.contacts[i].N3, c.contacts[i].N4, c.contacts[i].N5, c.contacts[i].N6, c.contacts[i].N7);
+        fprintf(log_file,"%d %d %d %d %d %d %d %d %d\n", contact_data.contacts[i].age, contact_data.contacts[i].weekend, contact_data.contacts[i].N1, contact_data.contacts[i].N2, contact_data.contacts[i].N3, contact_data.contacts[i].N4, contact_data.contacts[i].N5, contact_data.contacts[i].N6, contact_data.contacts[i].N7);
     fprintf(log_file,"UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     for(i=0;i<NAG;i++)
         curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
 
-    auto curr_c = contacts::shuffle_by_id( c, 
+    auto curr_c = contacts::shuffle_by_id( contact_data, 
             current_state.contact_ids );
 
     auto current_contact_regular = 
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
         /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
         if(gsl_rng_uniform (r)<p_ac_mat)
             prop_c = contacts::bootstrap_contacts( std::move(prop_c),
-                    c, step_mat, r );
+                    contact_data, step_mat, r );
 
         auto prop_contact_regular = 
             contacts::to_symmetric_matrix( prop_c, age_data );
