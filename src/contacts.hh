@@ -22,8 +22,11 @@ namespace flu {
         struct contacts_t
         {
             std::array<contact_t,POLY_PART> contacts;
-            //TODO: What are ni and nwe used for (nwe is not weekend?)
-            int ni[90], nwe;
+            //TODO: What is ni used for
+            int ni[90];
+
+            /// Total amount of contact data for weekend
+            size_t nwe;
         };
 
         contacts_t load_contacts( const std::string &path );
