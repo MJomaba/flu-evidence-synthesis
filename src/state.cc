@@ -52,7 +52,7 @@ state_t load_state( const std::string &file_path,
         int nc;
         save_fgets(sbuffer, 10, f_init);
         sscanf(sbuffer,"%d",&nc);
-        state.number_contacts.push_back( nc );
+        state.contact_ids.push_back( nc );
     }
 
     return state;
@@ -85,7 +85,7 @@ void save_state(const std::string &file_path, const size_t k, const state_t &sta
     fprintf(save_file,"#Poisson coefficient for outside transmission\n");
     fprintf(save_file,"%e\n",state.parameters.psi);
     fprintf(save_file,"#Bootstrapped contacts\n");
-    for( auto & id : state.number_contacts)
+    for( auto & id : state.contact_ids)
         fprintf(save_file,"%lu\n",id);
     fprintf(save_file,"#Contact matrix\n");
     for(size_t i=0;i<7;i++)

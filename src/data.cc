@@ -80,7 +80,7 @@ namespace flu
             curr_nwe=0;
             for(size_t i=0; i<POLY_PART; i++)
             {
-                nc = state.number_contacts[i];
+                nc = state.contact_ids[i];
 
                 age_part=c_age[nc];
                 curr_ni[age_part]++;

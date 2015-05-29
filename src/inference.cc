@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
         auto contact_matrix = contacts::to_symmetric_matrix( 
                 contacts::shuffle_by_id( c, 
-                    state.number_contacts ), age_data );
+                    state.contact_ids ), age_data );
 
         /*translate into an initial infected population*/
         double init_inf[NAG];

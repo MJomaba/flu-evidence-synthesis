@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
 
     auto curr_c = contacts::shuffle_by_id( c, 
-            current_state.number_contacts );
+            current_state.contact_ids );
 
     auto current_contact_regular = 
         contacts::to_symmetric_matrix( curr_c, age_data );
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
             Accept_rate=(double)past_acceptance/1000;
     
             for( size_t i = 0; i < POLY_PART; ++i )
-                current_state.number_contacts[i] = curr_c.contacts[i].id;
+                current_state.contact_ids[i] = curr_c.contacts[i].id;
             
             save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, lv, Accept_rate);
         }

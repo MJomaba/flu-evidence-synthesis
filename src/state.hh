@@ -39,7 +39,7 @@ struct state_t
     double time_infectious, time_latent;
 
     double positivity_ij[260];
-    std::vector<size_t> number_contacts;
+    std::vector<size_t> contact_ids;
 };
 
 /// Load an (initial) state from a file
