@@ -828,9 +828,7 @@ void proposal_haario(parameter_set * current, parameter_set * proposed, double *
                                                                             valid_flag=1;
     }
     while(valid_flag==0);
-
 }
-    parameter_set proposal_haario_adapt_scale(const parameter_set &current, double *, double *, int n, double, double);
 
 parameter_set proposal_haario_adapt_scale(const parameter_set &current, double * chol_de, double * chol_ini, int n, double beta, double adapt_scale)
 {

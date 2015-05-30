@@ -160,6 +160,104 @@ namespace flu {
             }
             return state;
         }
+
+parameter_set haario_adapt_scale(const parameter_set &current, 
+        const bu::matrix<double> &chol_de, const bu::matrix<double> &chol_ini, int n, double beta, double adapt_scale)
+{
+    parameter_set proposed;
+    double normal_draw[9], normal_add_draw[9], correlated_draw[9], correlated_fix[9];
+    double unif1, unif2;
+    int i, j, valid_flag;
+    double un_moins_beta;
+
+    un_moins_beta=1-beta;
+
+    valid_flag=0;
+    do
+    {
+        /*drawing of the 9 N(0,1) samples using Box-Muller*/
+        for(i=0;i<4;i++)
+        {
+            unif1=gsl_rng_uniform (r);
+            unif2=gsl_rng_uniform (r);
+            normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+            normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
+        }
+
+        unif1=gsl_rng_uniform (r);
+        unif2=gsl_rng_uniform (r);
+        normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
+        normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+
+        /*drawing of the 9 N(0,1) samples using Box-Muller*/
+        for(i=0;i<4;i++)
+        {
+            unif1=gsl_rng_uniform (r);
+            unif2=gsl_rng_uniform (r);
+            normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
+            normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+        }
+
+        /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
+        for(i=0;i<9;i++)
+            correlated_draw[i]=0;
+
+        for(i=0;i<9;i++)
+            for(j=0;j<=i;j++)
+                correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
+
+        for(i=0;i<9;i++)
+            correlated_fix[i]=0;
+
+        for(i=0;i<9;i++)
+            for(j=0;j<=i;j++)
+                correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
+
+        /*new proposed values*/
+        proposed.epsilon[0]=current.epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
+        proposed.epsilon[1]=proposed.epsilon[0];
+        proposed.epsilon[2]=current.epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
+        proposed.epsilon[3]=proposed.epsilon[2];
+        proposed.epsilon[4]=current.epsilon[4]+un_moins_beta*correlated_draw[2]+beta*correlated_fix[2];
+
+        proposed.psi=current.psi+un_moins_beta*correlated_draw[3]+beta*correlated_fix[3];
+
+        proposed.transmissibility=current.transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
+
+        proposed.susceptibility[0]=current.susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
+        proposed.susceptibility[1]=proposed.susceptibility[0];
+        proposed.susceptibility[2]=proposed.susceptibility[0];
+        proposed.susceptibility[3]=current.susceptibility[3]+un_moins_beta*correlated_draw[6]+beta*correlated_fix[6];
+        proposed.susceptibility[4]=proposed.susceptibility[3];
+        proposed.susceptibility[5]=proposed.susceptibility[3];
+        proposed.susceptibility[6]=current.susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
+
+        proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
+
+        /*checking that the generating values are ok i.e. between 0 and 1 if probabilities*/
+        if(proposed.epsilon[0] > 0)
+            if(proposed.epsilon[0] < 1)
+                if(proposed.epsilon[2] > 0)
+                    if(proposed.epsilon[2] < 1)
+                        if(proposed.epsilon[4] > 0)
+                            if(proposed.epsilon[4] < 1)
+                                if(proposed.psi >= 0)
+                                    if(proposed.psi <= 1)
+                                        if(proposed.transmissibility >= 0)
+                                            if(proposed.transmissibility <= 1)
+                                                if(proposed.susceptibility[0] >= 0)
+                                                    if(proposed.susceptibility[0] <= 1)
+                                                        if(proposed.susceptibility[3] >= 0)
+                                                            if(proposed.susceptibility[3] <= 1)
+                                                                if(proposed.susceptibility[6] >= 0)
+                                                                    if(proposed.susceptibility[6] <= 1)
+                                                                        if(proposed.init_pop<5)
+                                                                            valid_flag=1;
+    }
+    while(valid_flag==0);
+
+    return proposed;
+}
     };
 };
 
@@ -449,9 +547,11 @@ int main(int argc, char *argv[])
         }
 
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
-        auto proposed_par = proposal_haario_adapt_scale(
+        auto proposed_par = proposal::haario_adapt_scale(
                 current_state.parameters,
-                chol_emp_cov,chol_ini,100,0.05,proposal_state. adaptive_scaling);
+                proposal_state.chol_emp_cov,
+                proposal_state.chol_ini,100,0.05, 
+                proposal_state.adaptive_scaling );
 
         /*translate into an initial infected population*/
         for(i=0;i<NAG;i++)
