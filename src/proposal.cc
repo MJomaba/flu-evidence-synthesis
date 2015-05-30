@@ -42,7 +42,7 @@ namespace flu {
         {
             //vectorize parameters
             std::vector<double> v = {
-                par.epsilon[0], par.epsilon[2], par.epsilon[2],
+                par.epsilon[0], par.epsilon[2], par.epsilon[4],
                 par.psi, par.transmissibility,
                 par.susceptibility[0], par.susceptibility[3],
                 par.susceptibility[6], par.init_pop
@@ -56,7 +56,7 @@ namespace flu {
                     if (j<=i)
                         corr(i,j) += v[i]*v[j];
                     else
-                        corr(j,i) = corr(i,j);
+                        corr(i,j) = corr(j,i);
                 }
             }
             return corr;

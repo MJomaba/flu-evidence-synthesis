@@ -141,7 +141,7 @@ TEST_CASE( "New method of loading vaccine data should give the same output",
     }
 }
 
-TEST_CASE( "New cholesky should give the same output", "[refactor]" )
+TEST_CASE( "New cholesky should give the same output", "[hide]" )
 {
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution( 0, 10 );
@@ -160,10 +160,10 @@ TEST_CASE( "New cholesky should give the same output", "[refactor]" )
 
     flu::cholevsky( mat, mat2, 5 );
     auto bmat2 = flu::proposal::cholesky_factorization( bmat );
-    REQUIRE( equal_matrix_and_array( bmat2, mat2, 1e-100 ) );
+    REQUIRE( equal_matrix_and_array( bmat2, mat2, 1e-010 ) );
 }
 
-TEST_CASE( "Run a short test run", "[hide]" ) 
+TEST_CASE( "Run a short test run", "[full]" ) 
 {
     // Create array with all names to be watched
     std::vector<std::string> files;
