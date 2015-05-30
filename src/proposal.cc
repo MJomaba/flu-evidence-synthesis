@@ -12,10 +12,18 @@ namespace flu {
             assert( A.size1() == A.size2() );
 
             bu::matrix<double> res( A.size1(), A.size2() );
+            //std::fill( res.begin1(), res.end1(), 0 );
+            for(size_t i=0;i<A.size1();i++)
+            {
+                for(size_t j=0;j<A.size2();j++)
+                {
+                    res(i,j) = 0;
+                }
+            }
 
             for(size_t i=0;i<A.size1();i++)
             {
-                for(size_t j=0;j<A.size1();j++)
+                for(size_t j=i;j<A.size2();j++)
                 {
                     double sum_L2=A(i,j);
                     for(size_t k=0;k<i;k++)
@@ -45,7 +53,7 @@ namespace flu {
             {
                 for (size_t j = 0; j < corr.size2(); ++j )
                 {
-                    if (j>=i)
+                    if (j<=i)
                         corr(i,j) += v[i]*v[j];
                     else
                         corr(j,i) = corr(i,j);
