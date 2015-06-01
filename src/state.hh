@@ -6,6 +6,8 @@
 
 #include <gsl/gsl_rng.h>
 
+#include "bson/bson_stream.hh"
+
 #define NAG 7
 #define NAG2 49
 #define length 364
@@ -23,31 +25,49 @@ extern gsl_rng * r;
 
 namespace flu
 {
+
+    /// Parameters of the model
     // TODO: Add as vector option?
-    typedef struct {
-        double epsilon[5];
+    struct parameter_set {
+        std::vector<double> epsilon = std::vector<double>(5);
         double psi;
         double transmissibility;
-        double susceptibility[7];
+        std::vector<double> susceptibility = std::vector<double>(7);
         double init_pop;
-    } parameter_set ;
 
-/// Keeps the current state of the model/mcmc
-struct state_t 
-{
-    parameter_set parameters;
-    double time_infectious, time_latent;
+        /// Output parameter_set as BSON (JSON)
+        friend mongo::BSONEmitter &operator<<(
+                mongo::BSONEmitter &bbuild, const parameter_set &pars );
 
-    double positivity_ij[260];
-    std::vector<size_t> contact_ids;
-};
+        /// Turn BSON into parameter_set
+        friend void operator>>( const mongo::BSONElement &el,
+                parameter_set &pars );
+    };
 
-/// Load an (initial) state from a file
-state_t load_state( const std::string &file_path,
-        const size_t number_age_groups, const size_t dim_poly_part );
+    /// Keeps the current state of the model/mcmc
+    struct state_t 
+    {
+        parameter_set parameters;
+        double time_infectious, time_latent;
 
-    void save_state(const std::string &file_path, const size_t k, const state_t &current_state, const std::vector<double> &contact_regular, const double * result_by_week, const double lv, const double Accept_rate);
+        std::vector<double> positivity_ij = std::vector<double>(260);
+        std::vector<size_t> contact_ids;
 
+        /// Output state_t as BSON (JSON)
+        friend mongo::BSONEmitter &operator<<(
+                mongo::BSONEmitter &bbuild, const state_t &state );
+
+        /// Convert BSON into state_t
+        friend void operator>>( const mongo::BSONElement &el,
+                state_t &state );
+    };
+
+    /// Load an (initial) state from a file
+    state_t load_state_json( const std::string &file_path );
+
+    /// Save state to a file
+    void save_state_json( const state_t &state, 
+            const std::string &file_path );
 };
 
 #endif

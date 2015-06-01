@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
         while (kpadded.size() < 4)
             kpadded = "0" + kpadded;
 
-        auto state = load_state( data_path + "samples/z_hyper" 
+        auto state = load_state_json( data_path + "samples/z_hyper" 
                 + kpadded
-                + ".stm", NAG, POLY_PART );
+                + ".stm" );
 
         auto contact_matrix = contacts::to_symmetric_matrix( 
                 contacts::shuffle_by_id( c, 

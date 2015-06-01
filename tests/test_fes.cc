@@ -208,7 +208,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
         auto full_path = "../data/" + fname;
         auto test_path = "./tests/test_data/" + fname;
 
-        /*INFO( "Files not equal: " << full_path << " " << test_path );
+        INFO( "Files not equal: " << full_path << " " << test_path );
         std::ifstream infile;
         infile.open( full_path );
         auto new_scenario = flu::trace::read_trace_per_sample(infile);
@@ -216,7 +216,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
         infile2.open( test_path );
         auto orig_scenario = flu::trace::read_trace_per_sample(infile2);
 
-        for( size_t i = 0; i <new_scenario.size(); ++i )
+        /*for( size_t i = 0; i <new_scenario.size(); ++i )
         {
             for ( size_t j = 0; j < new_scenario[i].size(); ++j )
             {
@@ -227,7 +227,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
                             (orig_scenario[i][j]-new_scenario[i][j])
                             /new_scenario[i][j]);
                     std::cout << rel_diff << std::endl;
-                    REQUIRE( rel_diff <= 0.0001 );
+                    REQUIRE( rel_diff <= 0.001 );
                 }
             }
         }*/

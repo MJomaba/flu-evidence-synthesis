@@ -13,17 +13,25 @@ include_directories( "/usr/local/include" )
 
 find_package(GSL REQUIRED)
 
-set(BOOST_LIBS regex filesystem program_options system iostreams) 
+set(BOOST_LIBS regex filesystem program_options system iostreams thread) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
+
+find_library( MONGO mongoclient )
+if(NOT MONGO)
+    message( FATAL_ERROR "Could not find mongoclient library, which is needed for JSON output" )
+endif()
+include_directories( "/usr/local/include/mongo" )
+include_directories( "${CMAKE_SOURCE_DIR}/include" )
+include_directories( "${CMAKE_SOURCE_DIR}/src" )
 
 set(SRCS src/model.cc;src/io.cc;src/state.cc;src/trace.cc;src/data.cc;src/contacts.cc;src/vaccine.cc;src/proposal.cc)
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 add_executable (flu-evidence-synthesis src/main.cc;${SRCS})
-target_link_libraries(flu-evidence-synthesis ${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(flu-evidence-synthesis ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
 
 add_executable (inference src/inference.cc;${SRCS})
-target_link_libraries(inference ${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(inference ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
 
 #Documentation
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
@@ -36,5 +44,5 @@ include_directories(tests src ${COMMON_INCLUDES})
 enable_testing(true)  # Enables unit-testing.
 
 add_executable (test_fes tests/test_fes.cc;${SRCS})
-target_link_libraries(test_fes ${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(test_fes ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
 add_test( test_fes bin/test_fes )

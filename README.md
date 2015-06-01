@@ -11,6 +11,23 @@ The code is distributed under a GPLv3 license. Please remember to cite the above
 
 ## INSTALL
 
+### Dependencies
+
+The code depends on
+- GSL
+- Boost
+- Mongoclient-cxx (for JSON parsing)
+
+The first two should be readily available with any package manager. Mongoclient can be installed as follows:
+```
+git clone https://github.com/mongodb/mongo-cxx-driver.wiki.git
+cd mongo-cxx-driver
+scons build --prefix=/usr/local/
+sudo scons install --prefix=/usr/local/
+```
+
+### Compile
+
 To successfully install this you need cmake, gsl and boost installed. Then run:
 
 ```

@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
     int n_pos[260], n_samples[260], ILI[260], mon_pop[260];
     double lv, prop_likelihood;
 
-    double Accept_rate;
     double my_acceptance_rate;
     FILE *log_file;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop;
@@ -233,12 +232,16 @@ int main(int argc, char *argv[])
             one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
             days_to_weeks_5AG(result,result_by_week);
             /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
-            Accept_rate=(double)proposal_state.past_acceptance/1000;
     
             for( size_t i = 0; i < POLY_PART; ++i )
                 current_state.contact_ids[i] = curr_c.contacts[i].id;
             
-            save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, lv, Accept_rate);
+            std::string kstring = boost::lexical_cast<std::string>( k );
+            while (kstring.size()<4)
+                kstring = "0" + kstring;
+            save_state_json( current_state, data_path + "samples/z_hyper"
+                    + kstring + ".stm" );
+            //save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, lv, Accept_rate);
         }
 
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/

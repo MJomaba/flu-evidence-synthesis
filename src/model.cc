@@ -5,7 +5,7 @@
 namespace flu 
 {
 
-    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const double *s_profile, const std::vector<double> &contact_regular, double q,
+    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const std::vector<double> &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         double transmission_regular[NAG2];
@@ -316,7 +316,7 @@ namespace flu
         }
     }
 
-    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, double const*s_profile, const std::vector<double> &contact_regular, double q)
+    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> & s_profile, const std::vector<double> &contact_regular, double q)
     {
         double transmission_regular[NAG2];
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -485,7 +485,7 @@ namespace flu
             }
     }
 
-    double log_likelihood_hyper_poisson(double* eps, double psi, double * result_simu, int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, double * pop_5AG_RCGP, int depth)
+    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, double * result_simu, int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, double * pop_5AG_RCGP, int depth)
     {
         int g, i, k, k_seed, week, h, h_init, top_sum;
         int Z_in_mon, n, m, n_plus, max_m_plus, pop_mon;
