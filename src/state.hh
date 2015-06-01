@@ -23,6 +23,7 @@ extern gsl_rng * r;
 
 namespace flu
 {
+    // TODO: Add as vector option?
     typedef struct {
         double epsilon[5];
         double psi;

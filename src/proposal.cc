@@ -145,7 +145,8 @@ namespace flu {
             valid_flag=0;
             do
             {
-                // TODO use gsl normal distribution
+                // TODO create random multivariate draw and use with
+                // both chol_de and chol_ini
                 /*drawing of the 9 N(0,1) samples using Box-Muller*/
                 for(i=0;i<4;i++)
                 {
@@ -205,6 +206,7 @@ namespace flu {
 
                 proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
 
+                // TODO: This could be moved to priors
                 /*checking that the generating values are ok i.e. between 0 and 1 if probabilities*/
                 if(proposed.epsilon[0] > 0)
                     if(proposed.epsilon[0] < 1)
