@@ -141,28 +141,6 @@ TEST_CASE( "New method of loading vaccine data should give the same output",
     }
 }
 
-TEST_CASE( "New cholesky should give the same output", "[hide]" )
-{
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution( 0, 10 );
-    double mat[25];
-    double mat2[25];
-    for (size_t i=0; i<5; ++i) {
-        for (size_t j=0; j<5; ++j) {
-            if (j<=i)
-                mat[i*5+j] = distribution(generator);
-            else
-                mat[i*5+j] = mat[j*5+i];
-        }
-    }
-    auto bmat = copy_matrix( mat, 5 );
-    REQUIRE( equal_matrix_and_array( bmat, mat ) );
-
-    flu::cholevsky( mat, mat2, 5 );
-    auto bmat2 = flu::proposal::cholesky_factorization( bmat );
-    REQUIRE( equal_matrix_and_array( bmat2, mat2, 1e-010 ) );
-}
-
 TEST_CASE( "Run a short test run", "[full]" ) 
 {
     // Create array with all names to be watched

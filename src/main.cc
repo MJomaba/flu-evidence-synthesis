@@ -22,12 +22,10 @@ using namespace flu;
 
 int main(int argc, char *argv[])
 {
-    int i, j, k, mcmc_chain_length, burn_in, thinning;
+    int i, k, mcmc_chain_length, burn_in, thinning;
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
     int step_mat, freq_sampling;
-    char sbuffer[300];
-    double alea, p_ac_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     int n_pos[260], n_samples[260], ILI[260], mon_pop[260];
@@ -35,11 +33,8 @@ int main(int argc, char *argv[])
 
     double Accept_rate;
     double my_acceptance_rate;
-    double init_cov_matrix[81], emp_cov_matrix[81], sum_corr_param_matrix[81], chol_emp_cov[81], chol_ini[81];
-    double sum_mean_param[9], sum_check;
     FILE *log_file;
     FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop;
-    FILE *f_init_cov, *f_final_cov;
     FILE *f_posterior;
 
     state_t current_state;
@@ -99,9 +94,6 @@ int main(int argc, char *argv[])
     /*opens the file with the size of the monitored population*/
     f_mon_pop=read_file(data_path,"mon_pop.txt");
 
-    /*opens the file with the starting state of the covariance matrix for the proposal*/
-    f_init_cov=read_file(data_path,"init_cov_matrix.txt");
-
     /*opens the file to save the posterior*/
     f_posterior=write_file( data_path + "posterior.txt" );
     fprintf(f_posterior,"k epsilon_0_14 epsilon_15_64 epsilon_65_plus psi q sigma_0_14 sigma_15_64 sigma_65_plus init_pop adaptive_scaling likelihood\n");
@@ -113,14 +105,6 @@ int main(int argc, char *argv[])
 
 	r = gsl_rng_alloc (gsl_rng_mt19937); /*marsenne twister */
 	gsl_rng_set (r, seed);
-
-    /*initialises the matrix which holds the \sum \theta \theta^t*/
-    for(i=0; i<dim_par2; i++)
-        sum_corr_param_matrix[i]=0;
-
-    /*initialises the vector which holds the \sum \theta*/
-    for(i=0; i<dim_par; i++)
-        sum_mean_param[i]=0;
 
     /*load the positivity data*/
     for(i=0;i<52;i++)
@@ -170,14 +154,6 @@ int main(int argc, char *argv[])
             data_path+"vaccine_calendar.txt");
     fprintf(log_file,"Vaccine calendar loaded.\n");
 
-    /*load the size of the monitored population by week*/
-    for(i=0;i<9;i++)
-    {
-        save_fgets(sbuffer, 300, f_init_cov);
-        sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",&init_cov_matrix[i*9],&init_cov_matrix[i*9+1],&init_cov_matrix[i*9+2],&init_cov_matrix[i*9+3],&init_cov_matrix[i*9+4],&init_cov_matrix[i*9+5],&init_cov_matrix[i*9+6],&init_cov_matrix[i*9+7],&init_cov_matrix[i*9+8]);
-    }
-    fprintf(log_file,"Initial covariance matrix loaded.\n");
-
     /*********************************************************************************************************************************************************************************
     END of Initialisation bit  LOADING DATA
     **********************************************************************************************************************************************************************************/
@@ -208,6 +184,10 @@ int main(int argc, char *argv[])
     /*curr_psi=0.00001;*/
         lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
+    auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
+            9 );
+    fprintf(log_file,"Initial covariance matrix loaded.\n");
+
     fprintf(log_file,"====%f====\n",lv);
 
     /********************************************************************************************************************************************************
@@ -219,15 +199,7 @@ int main(int argc, char *argv[])
     **************************************************************************************************************************************************************/
 
     step_mat=1;            /*number of contacts exchanged*/
-    p_ac_mat=0.10;          /*prob to redraw matrices*/
-
-    cholevsky(init_cov_matrix , chol_ini, 9);
-    
-    for(i=0;i<81;i++)
-        chol_emp_cov[i]=chol_ini[i];
-
-    auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
-            9 );
+    double p_ac_mat=0.10;          /*prob to redraw matrices*/
 
     freq_sampling=10*thinning;
 
@@ -238,19 +210,9 @@ int main(int argc, char *argv[])
 
     for(k=1; k<=mcmc_chain_length + burn_in; k++)
     {
+        /*update of the variance-covariance matrix and the mean vector*/
         proposal_state = proposal::update( std::move( proposal_state ),
                 current_state.parameters, k );
-        /*update of the variance-covariance matrix and the mean vector*/
-        update_sum_corr(sum_corr_param_matrix, &current_state.parameters);
-        sum_mean_param[0]+=current_state.parameters.epsilon[0];
-        sum_mean_param[1]+=current_state.parameters.epsilon[2];
-        sum_mean_param[2]+=current_state.parameters.epsilon[4];
-        sum_mean_param[3]+=current_state.parameters.psi;
-        sum_mean_param[4]+=current_state.parameters.transmissibility;
-        sum_mean_param[5]+=current_state.parameters.susceptibility[0];
-        sum_mean_param[6]+=current_state.parameters.susceptibility[3];
-        sum_mean_param[7]+=current_state.parameters.susceptibility[6];
-        sum_mean_param[8]+=current_state.parameters.init_pop;
 
         if(k%thinning==0 && k>burn_in)
         {
@@ -258,32 +220,6 @@ int main(int argc, char *argv[])
             fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_state.parameters.epsilon[0],current_state.parameters.epsilon[2],current_state.parameters.epsilon[4],current_state.parameters.psi,current_state.parameters.transmissibility,current_state.parameters.susceptibility[0],current_state.parameters.susceptibility[3],current_state.parameters.susceptibility[6],current_state.parameters.init_pop,proposal_state.adaptive_scaling,lv);
             fclose(f_posterior);
         }
-
-        /*adjust variance for MCMC parameters*/
-        if(k%1000==0)
-        {
-            /*accept_adjust=1;
-            if(((double)acceptance/1000.0)>0.5) accept_adjust=2;
-            if(((double)acceptance/1000.0)<0.15) accept_adjust=0.5;*/
-
-            /*printf("[Sw %d %lf]",acceptance,accept_adjust);*/
-
-            /*update of the adaptive algorithm*/
-            for(i=0;i<9;i++)
-            {
-                emp_cov_matrix[i*9+i]=(sum_corr_param_matrix[i*9+i]-(sum_mean_param[i]*sum_mean_param[i])/k)/(k-1);
-                for(j=0;j<i;j++)
-                {
-                    emp_cov_matrix[i*9+j]=(sum_corr_param_matrix[i*9+j]-(sum_mean_param[i]*sum_mean_param[j])/k)/(k-1);
-                    emp_cov_matrix[j*9+i]=emp_cov_matrix[i*9+j];
-                }
-            }
-            cholevsky(emp_cov_matrix,chol_emp_cov,9);
-
-            sum_check=0;
-            for(i=0; i<81; i++)
-                sum_check+=log(fabs(sum_corr_param_matrix[i]));
-         }
 
         /*generates a sample of current state and writes to disk*/
         if((k%freq_sampling==0)&&(k>burn_in))
@@ -310,7 +246,7 @@ int main(int argc, char *argv[])
                 current_state.parameters,
                 proposal_state.chol_emp_cov,
                 proposal_state.chol_ini,100,0.05, 
-                proposal_state.adaptive_scaling );
+                proposal_state.adaptive_scaling, r );
 
         /*translate into an initial infected population*/
         for(i=0;i<NAG;i++)
@@ -340,7 +276,7 @@ int main(int argc, char *argv[])
         my_acceptance_rate=exp(prop_likelihood-lv+
                 log_prior(proposed_par, current_state.parameters, vm.count("prior-susceptibility") ));
 
-        alea=gsl_rng_uniform (r);
+        double alea=gsl_rng_uniform (r);
 
         if(alea<my_acceptance_rate) /*with prior*/
         {
@@ -372,14 +308,6 @@ int main(int argc, char *argv[])
     END of the MCMC
     **************************************************************************************************************************************************************/
 
-    f_final_cov=write_file(data_path + "final_cov.txt");
-    for(i=0;i<9;i++)
-    {
-        for(j=0;j<9;j++)
-            fprintf(f_final_cov,"%e ",emp_cov_matrix[i*9+j]);
-            fprintf(f_final_cov,"\n");
-    }
-    fclose(f_final_cov);
     /********************************************************************************************************************************************************
     Free the allocated memory and close open files
     *********************************************************************************************************************************************************/
@@ -389,7 +317,6 @@ int main(int argc, char *argv[])
     fclose(f_GP);
     fclose(f_mon_pop);
     fclose(f_n_sample);
-    fclose(f_init_cov);
     /*fclose(f_posterior);*/
 
     /********************************************************************************************************************************************************

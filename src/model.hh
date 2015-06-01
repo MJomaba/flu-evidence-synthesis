@@ -27,13 +27,6 @@ namespace flu
 
     void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path );
 
-
-    void proposal_haario(parameter_set *, parameter_set *, double *, double *, int , double);
-    parameter_set proposal_haario_adapt_scale(const parameter_set &current, double *, double *, int n, double, double);
-    void cholevsky(double *, double *, int);
-    void update_sum_corr(double *, parameter_set *);
-
-
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters
      *

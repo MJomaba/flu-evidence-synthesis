@@ -131,10 +131,11 @@ namespace flu {
         }
 
         parameter_set haario_adapt_scale(const parameter_set &current, 
-                const bu::matrix<double> &chol_de, const bu::matrix<double> &chol_ini, int n, double beta, double adapt_scale)
+                const bu::matrix<double> &chol_de, const bu::matrix<double> &chol_ini, int n, double beta, double adapt_scale, gsl_rng * gen)
         {
             parameter_set proposed;
-            double normal_draw[9], normal_add_draw[9], correlated_draw[9], correlated_fix[9];
+            double normal_draw[9];
+            double normal_add_draw[9], correlated_draw[9], correlated_fix[9];
             double unif1, unif2;
             int i, j, valid_flag;
             double un_moins_beta;
@@ -144,25 +145,26 @@ namespace flu {
             valid_flag=0;
             do
             {
+                // TODO use gsl normal distribution
                 /*drawing of the 9 N(0,1) samples using Box-Muller*/
                 for(i=0;i<4;i++)
                 {
-                    unif1=gsl_rng_uniform (r);
-                    unif2=gsl_rng_uniform (r);
+                    unif1=gsl_rng_uniform (gen);
+                    unif2=gsl_rng_uniform (gen);
                     normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
                     normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
                 }
 
-                unif1=gsl_rng_uniform (r);
-                unif2=gsl_rng_uniform (r);
+                unif1=gsl_rng_uniform (gen);
+                unif2=gsl_rng_uniform (gen);
                 normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
                 normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
 
                 /*drawing of the 9 N(0,1) samples using Box-Muller*/
                 for(i=0;i<4;i++)
                 {
-                    unif1=gsl_rng_uniform (r);
-                    unif2=gsl_rng_uniform (r);
+                    unif1=gsl_rng_uniform (gen);
+                    unif2=gsl_rng_uniform (gen);
                     normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
                     normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
                 }
