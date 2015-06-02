@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     mongo::BSONEmitter bbuild;
     bbuild << current_state;
     auto bobj = bbuild.obj();
-    std::cout << bobj.jsonString( mongo::Strict, 1 ) << std::endl;
+    //std::cout << bobj.jsonString( mongo::Strict, 1 ) << std::endl;
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)

@@ -68,11 +68,6 @@ namespace flu
     void save_state_json( const state_t &state, 
             const std::string &file_path );
 
-    state_t load_state( const std::string &file_path, 
-        const size_t number_age_groups, const size_t dim_poly_part );
-
-    void save_state(const std::string &file_path, const size_t k, const state_t &state, const std::vector<double> &contact_mat, const double * result_by_week, const double lv, const double Accept_rate);
-
 };
 
 #endif
