@@ -1,10 +1,8 @@
 #include<fstream>
 
-#include "client/redef_macros.h"
-#include "db/json.h"
-
 #include "io.hh"
 #include "state.hh"
+#include "json.hh"
 
 gsl_rng * r;
 
@@ -62,26 +60,21 @@ namespace flu {
 
     state_t load_state_json( const std::string &file_path ) 
     {
-        state_t state;
-
         std::ifstream ifs( file_path );
         std::string content( (std::istreambuf_iterator<char>(ifs) ),
                 (std::istreambuf_iterator<char>() ) );
 
-        mongo::BSONObj json_state = mongo::fromjson( content );
+        auto state = json::from_json_string<state_t>( content );
 
-        json_state >> state;
         return state;
     }
 
     void save_state_json( const state_t &state, 
             const std::string &file_path )
     {
-        mongo::BSONEmitter bbuild;
-        bbuild << state;
-
         std::ofstream of( file_path );
-        of << bbuild.obj().jsonString( mongo::Strict, 1 );
+        std::string json_str = json::to_json_string<state_t>( state ) ;
+        of << json_str;
         of.close();
     }
 };

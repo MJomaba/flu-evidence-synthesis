@@ -166,9 +166,9 @@ int main(int argc, char *argv[])
     //        NAG, POLY_PART );
     current_state = load_state_json( data_path + "init_MCMC.txt" );
 
-    mongo::BSONEmitter bbuild;
-    bbuild << current_state;
-    auto bobj = bbuild.obj();
+    mongo::BSONEmitter bbuild; // Something weird goes wrong if this isn't here
+    //bbuild << current_state;
+    //auto bobj = bbuild.obj();
     //std::cout << bobj.jsonString( mongo::Strict, 1 ) << std::endl;
 
     /*translate into an initial infected population*/
