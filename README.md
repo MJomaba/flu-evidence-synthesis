@@ -17,13 +17,26 @@ The code depends on
 - GSL
 - Boost
 - Mongoclient-cxx (for JSON parsing)
+- Eigen3 (for matrix mathematics/eigenvectors)
 
 The first two should be readily available with any package manager. Mongoclient can be installed as follows:
+
 ```
 git clone https://github.com/mongodb/mongo-cxx-driver.wiki.git
 cd mongo-cxx-driver
 scons build --prefix=/usr/local/
 sudo scons install --prefix=/usr/local/
+```
+
+For eigen3, download the latest stable release from: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
+Then unpack it (tar xvf), cd into the just created directory (eigen-eigene-randomno) and do:
+
+```
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
 ```
 
 ### Compile

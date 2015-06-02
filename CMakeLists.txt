@@ -16,6 +16,8 @@ find_package(GSL REQUIRED)
 set(BOOST_LIBS regex filesystem program_options system iostreams thread) 
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
 find_library( MONGO mongoclient )
 if(NOT MONGO)
     message( FATAL_ERROR "Could not find mongoclient library, which is needed for JSON output" )
@@ -26,15 +28,17 @@ include_directories( "${CMAKE_SOURCE_DIR}/src" )
 
 set(SRCS src/model.cc;src/io.cc;src/state.cc;src/trace.cc;src/data.cc;src/contacts.cc;src/vaccine.cc;src/proposal.cc)
 
+set(LIBRARIES ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
+
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 add_executable (flu-evidence-synthesis src/main.cc;${SRCS})
-target_link_libraries(flu-evidence-synthesis ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(flu-evidence-synthesis ${LIBRARIES})
 
 add_executable (inference src/inference.cc;${SRCS})
-target_link_libraries(inference ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(inference ${LIBRARIES})
 
 add_executable (contact_matrix src/contact_matrix.cc;${SRCS})
-target_link_libraries(contact_matrix ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
+target_link_libraries(contact_matrix ${LIBRARIES})
 
 #Documentation
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")

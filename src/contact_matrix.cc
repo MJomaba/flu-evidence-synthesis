@@ -3,6 +3,8 @@
 #include "boost/regex.hpp"
 #include <boost/numeric/ublas/io.hpp>
 
+#include <eigen3/Eigen/Eigenvalues>
+
 #include "model.hh"
 #include "state.hh"
 #include "data.hh"
@@ -11,6 +13,19 @@
 #include "json.hh"
 
 using namespace flu;
+
+Eigen::MatrixXd to_eigen_matrix( const bu::matrix<double> &a )
+{
+    Eigen::MatrixXd b( a.size1(), a.size2() );
+    for (size_t i = 0; i < a.size1(); ++i)
+    {
+        for (size_t j = 0; j < a.size2(); ++j)
+        {
+            b(i,j) = a(i,j);
+        }
+    }
+    return b;
+}
 
 int main(int argc, char *argv[])
 {
@@ -77,7 +92,14 @@ int main(int argc, char *argv[])
             c, age_data );
 
     std::cout << "Original matrix" << std::endl;
-    std::cout << contact_matrix << std::endl;
+    auto em = to_eigen_matrix(contact_matrix);
+    std::cout << em << std::endl;
+    Eigen::EigenSolver<Eigen::MatrixXd> es( em );
+
+    std::cout << "Eigenvalues: " << std::endl;
+    std::cout << es.eigenvalues() << std::endl;
+    std::cout << "Eigenvectors: " << std::endl;
+    std::cout << es.eigenvectors() << std::endl;
 
     for( auto & k : ks ) 
     {
@@ -95,16 +117,14 @@ int main(int argc, char *argv[])
                 contacts::shuffle_by_id( c, 
                     state.contact_ids ), age_data );
 
-        std::cout << contact_matrix << std::endl;
+        auto em = to_eigen_matrix(contact_matrix);
+        std::cout << em << std::endl;
+        Eigen::EigenSolver<Eigen::MatrixXd> es( em );
 
-/*        mongo::BSONEmitter bbuild;
-        bbuild << "bla" << contact_matrix;
-        auto bobj = bbuild.obj(); 
-        auto json_str = bobj.jsonString( mongo::Strict, 1 );*/
- 
-        //std::string json_str = json::to_json_string( contact_matrix );
-        //std::cout << json_str << std::endl;
-
+        std::cout << "Eigenvalues: " << std::endl;
+        std::cout << es.eigenvalues() << std::endl;
+        std::cout << "Eigenvectors: " << std::endl;
+        std::cout << es.eigenvectors() << std::endl;
     }
 
     return 0;
