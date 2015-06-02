@@ -1,6 +1,7 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/regex.hpp"
+#include <boost/numeric/ublas/io.hpp>
 
 #include "model.hh"
 #include "state.hh"
@@ -71,6 +72,13 @@ int main(int argc, char *argv[])
     auto c = contacts::load_contacts( 
             data_path + "contacts_for_inference.txt" );
 
+
+    auto contact_matrix = contacts::to_symmetric_matrix( 
+            c, age_data );
+
+    std::cout << "Original matrix" << std::endl;
+    std::cout << contact_matrix << std::endl;
+
     for( auto & k : ks ) 
     {
         std::string kpadded = boost::lexical_cast<std::string>( k );
@@ -83,9 +91,11 @@ int main(int argc, char *argv[])
                 + kpadded
                 + ".stm" );
 
-        auto contact_matrix = contacts::to_symmetric_matrix( 
+        contact_matrix = contacts::to_symmetric_matrix( 
                 contacts::shuffle_by_id( c, 
                     state.contact_ids ), age_data );
+
+        std::cout << contact_matrix << std::endl;
 
 /*        mongo::BSONEmitter bbuild;
         bbuild << "bla" << contact_matrix;
