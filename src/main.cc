@@ -162,11 +162,14 @@ int main(int argc, char *argv[])
     *********************************************************************************************************************************************************/
 
     /*Reading the init file*/
+    //current_state = load_state( data_path + "orig_mcmc/init_MCMC.txt",
+    //        NAG, POLY_PART );
     current_state = load_state_json( data_path + "init_MCMC.txt" );
 
     mongo::BSONEmitter bbuild;
     bbuild << current_state;
-    std::cout << bbuild.obj().jsonString( mongo::Strict, 1 ) << std::endl;
+    auto bobj = bbuild.obj();
+    std::cout << bobj.jsonString( mongo::Strict, 1 ) << std::endl;
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
