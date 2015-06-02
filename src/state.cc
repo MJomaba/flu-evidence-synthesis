@@ -44,6 +44,7 @@ namespace flu {
                 state.contact_ids.end(), conv.begin(),
                 [](size_t i) {return (int)i;} );
         bbuild << "bootstrapped_contact_ids" << conv;
+        //bbuild << "bootstrapped_contact_ids" << state.contact_ids;
         return bbuild;
     }
 

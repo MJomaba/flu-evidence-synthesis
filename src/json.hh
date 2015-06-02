@@ -9,7 +9,6 @@
  * \brief Some helper function to make converting JSON easier
  */
 namespace json {
-
     /**
      * \brief Helper function to convert type from json string
      *

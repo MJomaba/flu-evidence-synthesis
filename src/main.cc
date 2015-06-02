@@ -162,18 +162,12 @@ int main(int argc, char *argv[])
     *********************************************************************************************************************************************************/
 
     /*Reading the init file*/
-    //current_state = load_state( data_path + "orig_mcmc/init_MCMC.txt",
-    //        NAG, POLY_PART );
     current_state = load_state_json( data_path + "init_MCMC.txt" );
-
-    mongo::BSONEmitter bbuild; // Something weird goes wrong if this isn't here
-    //bbuild << current_state;
-    //auto bobj = bbuild.obj();
-    //std::cout << bobj.jsonString( mongo::Strict, 1 ) << std::endl;
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
         curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
+
 
     auto curr_c = contacts::shuffle_by_id( contact_data, 
             current_state.contact_ids );
@@ -189,8 +183,12 @@ int main(int argc, char *argv[])
     /*curr_psi=0.00001;*/
     lv = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
+    // TODO: fix this!
+    mongo::BSONEmitter bbuild; // Something weird goes wrong if this is after proposal::load or not here at all
     auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
             9 );
+
+
     fprintf(log_file,"Initial covariance matrix loaded.\n");
 
     fprintf(log_file,"====%f====\n",lv);
