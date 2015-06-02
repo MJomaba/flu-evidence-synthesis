@@ -33,6 +33,9 @@ target_link_libraries(flu-evidence-synthesis ${MONGO};${GSL_LIBRARIES};${Boost_L
 add_executable (inference src/inference.cc;${SRCS})
 target_link_libraries(inference ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
 
+add_executable (contact_matrix src/contact_matrix.cc;${SRCS})
+target_link_libraries(contact_matrix ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
+
 #Documentation
 set(DOXYFILE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
