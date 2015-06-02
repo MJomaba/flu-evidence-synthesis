@@ -183,11 +183,8 @@ int main(int argc, char *argv[])
     /*curr_psi=0.00001;*/
     lv = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    // TODO: fix this!
-    //mongo::BSONEmitter bbuild; // Something weird goes wrong if this is after proposal::load or not here at all
     auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
             9 );
-
 
     fprintf(log_file,"Initial covariance matrix loaded.\n");
 

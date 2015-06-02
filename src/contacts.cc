@@ -85,7 +85,7 @@ namespace flu
             return shuffled_c;
         }
 
-        std::vector<double> to_symmetric_matrix( const contacts_t &c, 
+        bu::matrix<double> to_symmetric_matrix( const contacts_t &c, 
                 const data::age_data_t &age_data )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
@@ -124,15 +124,15 @@ namespace flu
                 cij[i]=mij[i]/age_data.age_group_sizes[i%7];
             }
 
-            std::vector<double> contact_regular( NAG2 );
+            bu::matrix<double> contact_regular( 7, 7 );
             for(size_t i=0; i<7; i++)
             {
-                contact_regular[i*7+i]=cij[i*7+i];
+                contact_regular(i,i)=cij[i*7+i];
                 for(size_t j=0;j<i;j++)
                 {
                     cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
-                    contact_regular[i*7+j]=cij_pro;
-                    contact_regular[j*7+i]=cij_pro;
+                    contact_regular(i,j)=cij_pro;
+                    contact_regular(j,i)=cij_pro;
                 }
             }
 

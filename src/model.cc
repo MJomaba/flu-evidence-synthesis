@@ -5,7 +5,7 @@
 namespace flu 
 {
 
-    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const std::vector<double> &contact_regular, double q,
+    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const bu::matrix<double> &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         double transmission_regular[NAG2];
@@ -35,9 +35,11 @@ namespace flu
         g2=g1;
 
         /*initialisation, transmission matrix*/
-        for(i=0;i<NAG2;i++)
+        for(i=0;i<NAG;i++)
         {
-            transmission_regular[i]=q*contact_regular[i]*s_profile[i/7];
+            for(size_t j=0;j<NAG;j++) {
+                transmission_regular[i*NAG+j]=q*contact_regular(i,j)*s_profile[i];
+            }
         }
 
         /*initialisation, S,E,I,R*/
@@ -316,7 +318,7 @@ namespace flu
         }
     }
 
-    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> & s_profile, const std::vector<double> &contact_regular, double q)
+    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> & s_profile, const bu::matrix<double> &contact_regular, double q)
     {
         double transmission_regular[NAG2];
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
@@ -338,9 +340,12 @@ namespace flu
         g2=g1;
 
         /*initialisation, transmission matrix*/
-        for(i=0;i<NAG2;i++)
+        /*initialisation, transmission matrix*/
+        for(i=0;i<NAG;i++)
         {
-            transmission_regular[i]=q*contact_regular[i]*s_profile[i/7];
+            for(size_t j=0;j<NAG;j++) {
+                transmission_regular[i*NAG+j]=q*contact_regular(i,j)*s_profile[i];
+            }
         }
 
         /*initialisation, S,E,I,R*/
@@ -599,7 +604,7 @@ namespace flu
         return(result);
     }
 
-    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const std::vector<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
+    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
     {
         static bool first_write = true;
         double result_simu[7644];

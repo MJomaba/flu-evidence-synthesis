@@ -16,7 +16,7 @@
 
 namespace io = boost::iostreams;
 namespace fs = boost::filesystem;
-namespace bu = boost::numeric::ublas;
+//namespace bu = boost::numeric::ublas;
 
 using namespace flu;
 
