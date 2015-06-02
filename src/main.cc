@@ -210,6 +210,7 @@ int main(int argc, char *argv[])
     acceptance=234;
     freq_sampling=100;
     burn_in=-1;*/
+    fclose(log_file); // Write file
 
     for(k=1; k<=mcmc_chain_length + burn_in; k++)
     {
@@ -224,11 +225,17 @@ int main(int argc, char *argv[])
             fclose(f_posterior);
         }
 
+        if (k%freq_sampling == 0)
+        {
+            log_file = append_file( data_path + "final.log" );
+            fprintf(log_file,"[%d]",(k-burn_in)/freq_sampling);
+            fclose(log_file); // Write file
+        }
+
+
         /*generates a sample of current state and writes to disk*/
         if((k%freq_sampling==0)&&(k>burn_in))
         {
-            fprintf(log_file,"[%d]",(k-burn_in)/freq_sampling);
-
             /*calculate the current initial infected population*/
             for(i=0;i<NAG;i++)
                 curr_init_inf[i]=pow(10,current_state.parameters.init_pop);
@@ -319,7 +326,6 @@ int main(int argc, char *argv[])
     Free the allocated memory and close open files
     *********************************************************************************************************************************************************/
 
-    fclose(log_file);
     fclose(f_pos_sample);
     fclose(f_GP);
     fclose(f_mon_pop);
