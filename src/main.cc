@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
     lv = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     // TODO: fix this!
-    mongo::BSONEmitter bbuild; // Something weird goes wrong if this is after proposal::load or not here at all
+    //mongo::BSONEmitter bbuild; // Something weird goes wrong if this is after proposal::load or not here at all
     auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
             9 );
 
@@ -231,7 +231,6 @@ int main(int argc, char *argv[])
             fprintf(log_file,"[%d]",(k-burn_in)/freq_sampling);
             fclose(log_file); // Write file
         }
-
 
         /*generates a sample of current state and writes to disk*/
         if((k%freq_sampling==0)&&(k>burn_in))

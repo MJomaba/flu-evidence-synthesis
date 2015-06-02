@@ -70,7 +70,11 @@ namespace flu {
 
             bu::matrix<double> init_cov_matrix( dim, dim );
             state.emp_cov_matrix.resize( dim, dim );
+            std::fill( state.emp_cov_matrix.begin1(), 
+                    state.emp_cov_matrix.end1(), 0 );
             state.sum_corr_param_matrix.resize( dim, dim );
+            std::fill( state.sum_corr_param_matrix.begin1(), 
+                    state.sum_corr_param_matrix.end1(), 0 );
             state.chol_emp_cov.resize( dim, dim );
             state.chol_ini.resize( dim, dim );
 
