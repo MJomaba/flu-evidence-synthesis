@@ -22,7 +22,7 @@ The code depends on
 The first two should be readily available with any package manager. Mongoclient can be installed as follows:
 
 ```
-git clone https://github.com/mongodb/mongo-cxx-driver.wiki.git
+git clone https://github.com/mongodb/mongo-cxx-driver.git
 cd mongo-cxx-driver
 scons build --prefix=/usr/local/
 sudo scons install --prefix=/usr/local/
