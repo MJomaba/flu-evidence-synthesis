@@ -167,6 +167,7 @@ namespace flu
             std::deque<size_t> group_barriers = 
                 { 0, 4, 14, 24, 44, 64 };
 
+            // Iterate over each line
             while (infile >> pop_size)
             {
                 age_data.age_sizes.push_back(pop_size);
