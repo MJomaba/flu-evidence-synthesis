@@ -76,9 +76,6 @@ int main(int argc, char *argv[])
     auto pop_vec = 
         data::separate_into_risk_groups( age_data.age_group_sizes );
 
-    //auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
-
-    //double current_contact_regular[NAG2];
     auto c = contacts::load_contacts( 
             data_path + "contacts_for_inference.txt" );
 
