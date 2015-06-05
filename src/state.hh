@@ -9,7 +9,7 @@
 
 #define NAG 7
 #define NAG2 49
-#define length 364
+#define no_days 364
 #define length_weeks 52
 #define twopi 6.283185
 #define POLY_PART 597

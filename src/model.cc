@@ -88,7 +88,7 @@ namespace flu
             total_of_new_cases_per_day_p[i]=0;
         }
 
-        for(t=0; t<length; t+=h_step)
+        for(t=0; t<no_days; t+=h_step)
         {
             for(i=0;i<NAG;i++)
             {
@@ -375,7 +375,7 @@ namespace flu
             total_of_new_cases_per_day_p[i]=0;
         }
 
-        for(t=0; t<length; t+=h_step)
+        for(t=0; t<no_days; t+=h_step)
         {
             for(i=0;i<NAG;i++)
             {

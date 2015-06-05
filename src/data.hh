@@ -22,7 +22,7 @@ namespace flu
         struct age_data_t
         {
             /// Population per year/age
-            std::array<size_t,85> age_sizes;
+            std::vector<size_t> age_sizes;
 
             /// Population per age group
             std::array<size_t,7> age_group_sizes;

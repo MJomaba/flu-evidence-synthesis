@@ -1,6 +1,7 @@
 #include "data.hh"
 
 #include <stdio.h>
+#include <fstream>
 
 #include "io.hh"
 #include "state.hh"
@@ -154,37 +155,32 @@ namespace flu
         age_data_t load_age_data( const std::string &path )
         {
             age_data_t age_data;
-            auto pop_sizes = read_file( path );
             for(size_t i=0; i<7; i++)
                 age_data.age_group_sizes[i]=0;
-            for(size_t i=0; i<85; i++)
-            {
-                save_fscanf(pop_sizes,"%d",&age_data.age_sizes[i]);
-                if(i==0)
-                    age_data.age_group_sizes[0]=age_data.age_sizes[0];
-                else
-                    if(i<5)
-                        age_data.age_group_sizes[1]+=age_data.age_sizes[i];
-                    else
-                        if(i<15)
-                            age_data.age_group_sizes[2]+=age_data.age_sizes[i];
-                        else
-                            if(i<25)
-                                age_data.age_group_sizes[3]+=age_data.age_sizes[i];
-                            else
-                                if(i<45)
-                                    age_data.age_group_sizes[4]+=age_data.age_sizes[i];
-                                else
-                                    if(i<65)
-                                        age_data.age_group_sizes[5]+=age_data.age_sizes[i];
-                                    else
-                                        age_data.age_group_sizes[6]+=age_data.age_sizes[i];
-            }
 
-            /*put the remaining (85+) in the older AG*/
-            int aux;
-            save_fscanf(pop_sizes,"%d",&aux);
-            age_data.age_group_sizes[6]+=aux;
+            size_t current_age = 0;
+            int pop_size;
+            std::ifstream infile( path );
+
+            while (infile >> pop_size)
+            {
+                age_data.age_sizes.push_back(pop_size);
+                if(current_age==0)
+                    age_data.age_group_sizes[0]=pop_size;
+                else if(current_age<5)
+                    age_data.age_group_sizes[1]+=pop_size;
+                else if(current_age<15)
+                    age_data.age_group_sizes[2]+=pop_size;
+                else if(current_age<25)
+                    age_data.age_group_sizes[3]+=pop_size;
+                else if(current_age<45)
+                    age_data.age_group_sizes[4]+=pop_size;
+                else if(current_age<65)
+                    age_data.age_group_sizes[5]+=pop_size;
+                else
+                    age_data.age_group_sizes[6]+=pop_size;
+                ++current_age;
+            }
 
             return age_data;
         }
