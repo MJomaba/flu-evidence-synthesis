@@ -91,15 +91,19 @@ int main(int argc, char *argv[])
     auto contact_matrix = contacts::to_symmetric_matrix( 
             c, age_data );
 
-    std::cout << "Original matrix" << std::endl;
-    auto em = to_eigen_matrix(contact_matrix);
-    std::cout << em << std::endl;
-    Eigen::EigenSolver<Eigen::MatrixXd> es( em );
+    //std::cout << "Original matrix" << std::endl;
+    auto original = to_eigen_matrix(contact_matrix);
+    //std::cout << original << std::endl;
 
+    auto posterior_mean = Eigen::MatrixXd( original.rows(), original.cols() );
+    auto posterior_cv = Eigen::MatrixXd( original.rows(), original.cols() );
+    Eigen::MatrixXd posterior_pvalue( original.rows(), original.cols() );
+
+    /*Eigen::EigenSolver<Eigen::MatrixXd> es( original );
     std::cout << "Eigenvalues: " << std::endl;
     std::cout << es.eigenvalues() << std::endl;
     std::cout << "Eigenvectors: " << std::endl;
-    std::cout << es.eigenvectors() << std::endl;
+    std::cout << es.eigenvectors() << std::endl;*/
 
     for( auto & k : ks ) 
     {
@@ -107,7 +111,7 @@ int main(int argc, char *argv[])
         while (kpadded.size() < 4)
             kpadded = "0" + kpadded;
 
-        std::cout << kpadded << std::endl;
+        //std::cout << kpadded << std::endl;
 
         auto state = load_state_json( data_path + "samples/z_hyper" 
                 + kpadded
@@ -118,14 +122,48 @@ int main(int argc, char *argv[])
                     state.contact_ids ), age_data );
 
         auto em = to_eigen_matrix(contact_matrix);
-        std::cout << em << std::endl;
+
+        for ( size_t i = 0; i < em.rows(); ++i )
+        {
+            for ( size_t j = 0; j < em.cols(); ++j )
+            {
+                posterior_mean(i,j) += em(i,j);
+                posterior_cv(i,j) += pow(em(i,j),2);
+                if (em(i,j)<original(i,j))
+                    ++posterior_pvalue(i,j);
+            }
+        }
+
+        /*std::cout << em << std::endl;
         Eigen::EigenSolver<Eigen::MatrixXd> es( em );
 
         std::cout << "Eigenvalues: " << std::endl;
         std::cout << es.eigenvalues() << std::endl;
         std::cout << "Eigenvectors: " << std::endl;
-        std::cout << es.eigenvectors() << std::endl;
+        std::cout << es.eigenvectors() << std::endl;*/
     }
+
+    posterior_mean /= ks.size();
+    posterior_cv /= ks.size();
+    // Convert second moment to coefficient of variance
+    for ( size_t i = 0; i < posterior_cv.rows(); ++i )
+    {
+        for ( size_t j = 0; j < posterior_cv.cols(); ++j )
+        {
+            posterior_cv(i,j) -= pow(posterior_mean(i,j),2);
+            posterior_cv(i,j) = sqrt( posterior_cv(i,j) );
+            posterior_cv(i,j) /= posterior_mean(i,j);
+        }
+    }
+
+    std::cout << "Original contact matrix" << std::endl;
+    std::cout << original << std::endl<< std::endl;
+    std::cout << "Posterior mean contact matrix" << std::endl;
+    std::cout << posterior_mean << std::endl << std::endl;
+    std::cout << "Posterior coefficient of variation" << std::endl;
+    std::cout << posterior_cv << std::endl << std::endl;
+    std::cout << "Fraction of posterior values smaller than original (p-value)" << std::endl;
+    std::cout << posterior_pvalue/ks.size() << std::endl;
 
     return 0;
 }
