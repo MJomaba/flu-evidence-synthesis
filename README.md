@@ -48,7 +48,7 @@ cmake .
 make
 ```
 
-and it will build the needed executables in the bin directory. Functionality is divided into multiple binaries. Currently bin/flu-evidence-synthesis runs the MCMC code. And bin/inference can be used to run the different scenarios using the results from the MCMC. 
+and it will build the needed executables in the bin directory. Functionality is divided into multiple binaries. Currently bin/flu-evidence-synthesis runs the MCMC code. And bin/inference can be used to run the different vaccination scenarios using the results from the MCMC. 
 
 At the moment the data we used is not yet included in this repo. Feel free to contact us for further help/details.
 
