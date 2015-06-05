@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <fstream>
+#include <deque>
 
 #include "io.hh"
 #include "state.hh"
@@ -162,23 +163,21 @@ namespace flu
             int pop_size;
             std::ifstream infile( path );
 
+            size_t group_count = 0;
+            std::deque<size_t> group_barriers = 
+                { 0, 4, 14, 24, 44, 64 };
+
             while (infile >> pop_size)
             {
                 age_data.age_sizes.push_back(pop_size);
-                if(current_age==0)
-                    age_data.age_group_sizes[0]=pop_size;
-                else if(current_age<5)
-                    age_data.age_group_sizes[1]+=pop_size;
-                else if(current_age<15)
-                    age_data.age_group_sizes[2]+=pop_size;
-                else if(current_age<25)
-                    age_data.age_group_sizes[3]+=pop_size;
-                else if(current_age<45)
-                    age_data.age_group_sizes[4]+=pop_size;
-                else if(current_age<65)
-                    age_data.age_group_sizes[5]+=pop_size;
-                else
-                    age_data.age_group_sizes[6]+=pop_size;
+                if (group_barriers.size() != 0 &&
+                        current_age > group_barriers[0] )
+                {
+                    // Population should be added to the next age group
+                    ++group_count;
+                    group_barriers.pop_front();
+                }
+                age_data.age_group_sizes[group_count]+=pop_size;
                 ++current_age;
             }
 
