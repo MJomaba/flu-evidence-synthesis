@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 
     /*opens the file with the number of positive samples for that strain and season*/
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
-    auto pop_vec = data::load_population( age_data.age_group_sizes );
+    auto pop_vec = data::separate_into_risk_groups( age_data.age_group_sizes );
     /*pop RCGP*/
 
     pop_RCGP[0]=pop_vec[0]+pop_vec[1]+pop_vec[7]+pop_vec[8]+pop_vec[14]+pop_vec[15];

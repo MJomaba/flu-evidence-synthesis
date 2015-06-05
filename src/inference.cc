@@ -73,9 +73,8 @@ int main(int argc, char *argv[])
 
     /*load the size of the age groups for the model that year*/
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
-    auto pop_vec = data::load_population( age_data.age_group_sizes );
-    //auto pop_vec = data::load_population( data_path 
-    //        + "age_groups_model.txt" );
+    auto pop_vec = 
+        data::separate_into_risk_groups( age_data.age_group_sizes );
 
     //auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
 
