@@ -9,16 +9,20 @@ namespace flu
 {
     namespace data
     {
-        std::vector<double> load_population( const std::string &filepath )
+        std::vector<double> load_population( 
+                const std::array<size_t,7> &group_sizes )
         {
             /*opens the file with the number of positive samples for that strain and season*/
-            auto f_pop_model = read_file( filepath );
+            //auto f_pop_model = read_file( filepath );
 
             std::vector<double> pop_vec;
             pop_vec.resize( 21, 0 );
             /*load the size of the age groups for the model that year*/
             //double pop_vec[21];
-            save_fscanf(f_pop_model,"%lf %lf %lf %lf %lf %lf %lf",&pop_vec[0],&pop_vec[1],&pop_vec[2],&pop_vec[3],&pop_vec[4],&pop_vec[5],&pop_vec[6]);
+            for( size_t i=0; i < group_sizes.size(); ++i ) 
+                pop_vec[i] = group_sizes[i];
+
+            //save_fscanf(f_pop_model,"%lf %lf %lf %lf %lf %lf %lf",&pop_vec[0],&pop_vec[1],&pop_vec[2],&pop_vec[3],&pop_vec[4],&pop_vec[5],&pop_vec[6]);
             /*high risk*/
             pop_vec[7]=pop_vec[0]*0.021; /*2.1% in the <1 */
             pop_vec[8]=pop_vec[1]*0.055; /*5.5% in the 1-4 */
@@ -45,7 +49,7 @@ namespace flu
             pop_vec[4]-=pop_vec[11]+pop_vec[18];
             pop_vec[5]-=pop_vec[12];
             pop_vec[6]-=pop_vec[13];
-            fclose( f_pop_model );
+            //fclose( f_pop_model );
 
             return pop_vec;
         }

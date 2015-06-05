@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
 
 
     /*opens the file with the number of positive samples for that strain and season*/
-    auto pop_vec = data::load_population( data_path 
-            + "age_groups_model.txt" );
+    auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
+    auto pop_vec = data::load_population( age_data.age_group_sizes );
     /*pop RCGP*/
 
     pop_RCGP[0]=pop_vec[0]+pop_vec[1]+pop_vec[7]+pop_vec[8]+pop_vec[14]+pop_vec[15];
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     fprintf(log_file,"UK POLYMOD contacts downloaded OK.\n");
 
     /*definition of the age groups:  0-1 1-4 5-14 15-24 25-44 45-64 65+ */
-    auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
+    //auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
     /*printf("Number of w/e days: %d\n",curr_c.nwe);*/
 
     for(i=0; i<10; i++)

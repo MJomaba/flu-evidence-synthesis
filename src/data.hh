@@ -11,7 +11,8 @@ namespace flu
 {
     namespace data
     {
-        std::vector<double> load_population( const std::string &filename );
+        std::vector<double> load_population( const std::array<size_t,7>
+                &group_sizes );
 
         struct age_data_t
         {

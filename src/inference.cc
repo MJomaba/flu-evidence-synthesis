@@ -72,10 +72,12 @@ int main(int argc, char *argv[])
     Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
 
     /*load the size of the age groups for the model that year*/
-    auto pop_vec = data::load_population( data_path 
-            + "age_groups_model.txt" );
-
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
+    auto pop_vec = data::load_population( age_data.age_group_sizes );
+    //auto pop_vec = data::load_population( data_path 
+    //        + "age_groups_model.txt" );
+
+    //auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
 
     //double current_contact_regular[NAG2];
     auto c = contacts::load_contacts( 
