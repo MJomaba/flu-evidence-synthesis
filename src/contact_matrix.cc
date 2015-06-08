@@ -35,10 +35,12 @@ int main(int argc, char *argv[])
    	po::options_description desc( "Analyses posterior distribution of the contact matrix\nUsage: contact_matrix --data-path [DIR]" );
 
     std::string data_path = "./";
+    std::string contacts_file = "";
 
     desc.add_options()
         ("help,h", "This message.")
         ("data-path,d", po::value<std::string>( &data_path ), "Path to samples/ directory)")
+        ("contacts,c", po::value<std::string>( &contacts_file ), "Optionally give path to contact for inference file (uses data-path by default)")
         ;
 
     po::variables_map vm;
@@ -84,8 +86,10 @@ int main(int argc, char *argv[])
 
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
 
-    auto c = contacts::load_contacts( 
-            data_path + "contacts_for_inference.txt" );
+    if (!vm.count("contacts"))
+        contacts_file = data_path + "contacts_for_inference.txt";
+            
+    auto c = contacts::load_contacts( contacts_file );
 
 
     auto contact_matrix = contacts::to_symmetric_matrix( 
@@ -123,9 +127,9 @@ int main(int argc, char *argv[])
 
         auto em = to_eigen_matrix(contact_matrix);
 
-        for ( size_t i = 0; i < em.rows(); ++i )
+        for ( int i = 0; i < em.rows(); ++i )
         {
-            for ( size_t j = 0; j < em.cols(); ++j )
+            for ( int j = 0; j < em.cols(); ++j )
             {
                 posterior_mean(i,j) += em(i,j);
                 posterior_cv(i,j) += pow(em(i,j),2);
@@ -146,9 +150,9 @@ int main(int argc, char *argv[])
     posterior_mean /= ks.size();
     posterior_cv /= ks.size();
     // Convert second moment to coefficient of variance
-    for ( size_t i = 0; i < posterior_cv.rows(); ++i )
+    for ( int i = 0; i < posterior_cv.rows(); ++i )
     {
-        for ( size_t j = 0; j < posterior_cv.cols(); ++j )
+        for ( int j = 0; j < posterior_cv.cols(); ++j )
         {
             posterior_cv(i,j) -= pow(posterior_mean(i,j),2);
             posterior_cv(i,j) = sqrt( posterior_cv(i,j) );
