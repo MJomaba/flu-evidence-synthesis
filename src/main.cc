@@ -43,6 +43,9 @@ int main(int argc, char *argv[])
    	po::options_description desc( "Usage: flu-evidence-synthesis --data-path [DIR]" );
 
     std::string data_path = "./";
+    std::string contacts_file = "";
+    std::string init_file = "";
+    std::string vaccine_file = "";
 
     // MCMC variables
     mcmc_chain_length=10000000;
@@ -56,6 +59,9 @@ int main(int argc, char *argv[])
         ("burn-in", po::value<int>( &burn_in ), "MCMC burn in period")
         ("thinning", po::value<int>( &thinning ), "Thin the sample by only samples every n steps" )
         ("prior-susceptibility", "Use the prior on susceptibility from 2003/04 data. Otherwise use more general prior on transmisibility" )
+        ("init", po::value<std::string>( &init_file ), "Optionally give path to init MCMC file inference file (uses data-path by default)")
+        ("contacts", po::value<std::string>( &contacts_file ), "Optionally give path to contact for inference file (uses data-path by default)")
+        ("vaccine", po::value<std::string>( &vaccine_file ), "Optionally give path to vaccine programme (uses data-path by default)")
         ;
 
     po::variables_map vm;
@@ -133,7 +139,9 @@ int main(int argc, char *argv[])
     pop_RCGP[3]=pop_vec[5]+pop_vec[12]+pop_vec[19];
     pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
 
-    auto contact_data = contacts::load_contacts( data_path + "contacts_for_inference.txt" );
+    if (!vm.count("contacts"))
+        contacts_file = data_path + "contacts_for_inference.txt";
+    auto contact_data = contacts::load_contacts( contacts_file );
 
     for(i=0; i<10; i++)
         fprintf(log_file,"%d %d %d %d %d %d %d %d %d\n", contact_data.contacts[i].age, contact_data.contacts[i].weekend, contact_data.contacts[i].N1, contact_data.contacts[i].N2, contact_data.contacts[i].N3, contact_data.contacts[i].N4, contact_data.contacts[i].N5, contact_data.contacts[i].N6, contact_data.contacts[i].N7);
@@ -149,8 +157,10 @@ int main(int argc, char *argv[])
     /*end of loading the contacts and sizes of age populations*/
 
     /*loading parameters regarding vaccination*/
+    if (!vm.count("vaccine"))
+        vaccine_file = data_path + "vaccine_calendar.txt";
     auto vaccine_programme = vaccine::load_vaccine_programme( 
-            data_path+"vaccine_calendar.txt");
+            vaccine_file );
     fprintf(log_file,"Vaccine calendar loaded.\n");
 
     /*********************************************************************************************************************************************************************************
@@ -162,7 +172,9 @@ int main(int argc, char *argv[])
     *********************************************************************************************************************************************************/
 
     /*Reading the init file*/
-    current_state = load_state_json( data_path + "init_MCMC.txt" );
+    if (!vm.count("init"))
+        init_file = data_path + "init_MCMC.txt";
+    current_state = load_state_json( init_file );
 
     /*translate into an initial infected population*/
     for(i=0;i<NAG;i++)
