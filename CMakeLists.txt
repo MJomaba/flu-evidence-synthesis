@@ -10,6 +10,7 @@ SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} . )
 include_directories( "/usr/local/include" )
+link_directories( "/usr/local/lib" )
 
 find_package(GSL REQUIRED)
 
