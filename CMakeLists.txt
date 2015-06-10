@@ -32,11 +32,11 @@ set(SRCS src/model.cc;src/io.cc;src/state.cc;src/trace.cc;src/data.cc;src/contac
 set(LIBRARIES ${MONGO};${GSL_LIBRARIES};${Boost_LIBRARIES})
 
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-add_executable (flu-evidence-synthesis src/main.cc;${SRCS})
-target_link_libraries(flu-evidence-synthesis ${LIBRARIES})
-
 add_executable (inference src/inference.cc;${SRCS})
 target_link_libraries(inference ${LIBRARIES})
+
+add_executable (vaccine_simulation src/vaccine_simulation.cc;${SRCS})
+target_link_libraries(vaccine_simulation ${LIBRARIES})
 
 add_executable (contact_matrix src/contact_matrix.cc;${SRCS})
 target_link_libraries(contact_matrix ${LIBRARIES})

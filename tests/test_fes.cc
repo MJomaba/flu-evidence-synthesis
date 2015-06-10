@@ -162,7 +162,7 @@ TEST_CASE( "Run a short test run", "[full]" )
     }
 
 
-    REQUIRE( system( "bin/flu-evidence-synthesis -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
+    REQUIRE( system( "bin/inference -d ../data/ --burn-in 1000 --chain-length 1000 --thinning 1" ) == 0 );
 
     for( auto &fname : files )
     {
@@ -199,7 +199,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
     }
 
 
-    REQUIRE( system( "bin/inference -d ../data/" ) == 0 );
+    REQUIRE( system( "bin/vaccine_simulation -d ../data/" ) == 0 );
 
     for( auto &fname : files )
     {

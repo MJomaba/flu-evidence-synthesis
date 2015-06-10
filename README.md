@@ -32,6 +32,7 @@ If you have installed boost under /usr/local you also need to provide its path t
 
 ```
 scons build --prefix=/usr/local --cpppath=/usr/local/include --libpath=/usr/local/lib
+sudo scons install --prefix=/usr/local --cpppath=/usr/local/include --libpath=/usr/local/lib
 ```
 
 For eigen3, download the latest stable release from: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
@@ -54,7 +55,7 @@ cmake .
 make
 ```
 
-and it will build the needed executables in the bin directory. Functionality is divided into multiple binaries. Currently bin/flu-evidence-synthesis runs the MCMC code. And bin/inference can be used to run the different vaccination scenarios using the results from the MCMC. 
+and it will build the needed executables in the bin directory. Functionality is divided into multiple binaries. Currently bin/inference runs the MCMC code. And bin/vaccine_simulation can be used to run the different vaccination scenarios using the results from the MCMC. 
 
 At the moment the data we used is not yet included in this repo. Feel free to contact us for further help/details.
 
