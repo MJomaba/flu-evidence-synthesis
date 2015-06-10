@@ -28,6 +28,12 @@ scons build --prefix=/usr/local/
 sudo scons install --prefix=/usr/local/
 ```
 
+If you have installed boost under /usr/local you also need to provide its path to the scons installer as follows:
+
+```
+scons build --prefix=/usr/local --cpppath=/usr/local/include --libpath=/usr/local/lib
+```
+
 For eigen3, download the latest stable release from: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
 Then unpack it (tar xvf), cd into the just created directory (eigen-eigen-randomno) and do:
 
