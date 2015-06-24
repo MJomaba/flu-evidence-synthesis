@@ -6,6 +6,6 @@ Date: 2015-06-24
 Author: Your Name
 Maintainer: Your Name <your@email.com>
 Description: More about what it does (maybe more than one line)
-License: GPL (>= 2)
-Imports: Rcpp (>= 0.11.6)
-LinkingTo: Rcpp
+License: GPL (3)
+Imports: Rcpp (>= 0.11.6), BH, RcppEigen
+LinkingTo: Rcpp, BH, RcppEigen

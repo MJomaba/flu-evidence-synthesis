@@ -19,3 +19,5 @@ tmp/
 *.so
 *.Rcheck
 symbols.rds
+.R*
+*.tar.gz
