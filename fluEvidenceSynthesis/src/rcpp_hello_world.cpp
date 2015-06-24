@@ -28,8 +28,8 @@ Rcpp::Date getIMMDate(int mon, int year) {
 }
 
 //// [[Rcpp::plugins("cpp11")]]
-//// [[Rcpp::export]]
-//int useCpp11() {
-//    auto x = 10;
-//    return x;
-//}
+// [[Rcpp::export]]
+int useCpp11() {
+    auto x = 10;
+    return x;
+}

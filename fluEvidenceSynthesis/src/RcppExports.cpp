@@ -39,3 +39,13 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// useCpp11
+int useCpp11();
+RcppExport SEXP fluEvidenceSynthesis_useCpp11() {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    __result = Rcpp::wrap(useCpp11());
+    return __result;
+END_RCPP
+}

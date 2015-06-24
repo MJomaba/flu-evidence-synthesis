@@ -13,3 +13,7 @@ getIMMDate <- function(mon, year) {
     .Call('fluEvidenceSynthesis_getIMMDate', PACKAGE = 'fluEvidenceSynthesis', mon, year)
 }
 
+useCpp11 <- function() {
+    .Call('fluEvidenceSynthesis_useCpp11', PACKAGE = 'fluEvidenceSynthesis')
+}
+
