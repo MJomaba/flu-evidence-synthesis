@@ -15,3 +15,7 @@ doc/
 Doxyfile
 tests/test_data/
 tmp/
+*.o
+*.so
+*.Rcheck
+symbols.rds
