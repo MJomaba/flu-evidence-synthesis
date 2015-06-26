@@ -54,5 +54,34 @@ namespace flu
             return pop_vec;
         }
 
+        std::array<size_t,7> group_age_data( const 
+                std::vector<size_t> &age_sizes )
+        {
+            std::array<size_t,7> age_group_sizes;
+            for(size_t i=0; i<7; i++)
+                age_group_sizes[i]=0;
+
+            size_t current_age = 0;
+            size_t group_count = 0;
+            std::deque<size_t> group_barriers = 
+                { 0, 4, 14, 24, 44, 64 };
+
+            // Iterate over each line
+            for( auto &pop_size : age_sizes )
+            {
+                if (group_barriers.size() != 0 &&
+                        current_age > group_barriers[0] )
+                {
+                    // Population should be added to the next age group
+                    ++group_count;
+                    group_barriers.pop_front();
+                }
+                age_group_sizes[group_count]+=pop_size;
+                ++current_age;
+            }
+
+            return age_group_sizes;
+        }
+
     };
 };

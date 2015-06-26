@@ -17,3 +17,7 @@ useCpp11 <- function() {
     .Call('fluEvidenceSynthesis_useCpp11', PACKAGE = 'fluEvidenceSynthesis')
 }
 
+vaccination_scenario <- function(age_sizes) {
+    .Call('fluEvidenceSynthesis_vaccination_scenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes)
+}
+

@@ -19,6 +19,12 @@ namespace flu
         std::vector<double>  separate_into_risk_groups( 
                 const std::array<size_t,7> &group_sizes );
 
+        /**
+         * \brief Group population size according to age groups
+         */
+        std::array<size_t,7> group_age_data( const std::vector<size_t> 
+                &age_sizes );
+
         struct age_data_t
         {
             /// Population per year/age
