@@ -1,5 +1,3 @@
-HOME="/Volumes/Transcend/CEA_paper_flu_kid/R"
-
 age_group_MODEL<-c("0 - 1 y","1 - 4 y","5 - 14 y","15 - 24 y","25 - 44 y","45 - 64 y","65+ y")
 names_age_risk_group<-paste(age_group_MODEL,rep(c("LR","HR"),each=length(age_group_MODEL)))
 season.fnames<-c("199596","199697","199798","199899","199900","200001","200102","200203","200304","200405","200506","200607","200708","200809")
@@ -18,7 +16,7 @@ load.data<-function()
  
 generate.vaccine.calendar.file<-function(coverage.scenarios, efficacy,name.file="vaccine_calendar.txt")
 {
-    load(file=paste(HOME,"Rsave/vaccine_env.R",sep="/"))
+    year <- 199900
     
     n_scenarios=length(coverage.scenarios[,1])
     
@@ -33,6 +31,8 @@ generate.vaccine.calendar.file<-function(coverage.scenarios, efficacy,name.file=
     #load the coverage figures
     #cov.array.year.scen[(i-1)*(n_scenario+2)+n_s,]<-c(season.fnames[i],n_s,LR.cov/100,HR.cov/100)
     
+    write( "#Number of extra scenario to test", file=name.file )
+    write( nrow(coverage.scenarios)-1, file=name.file, append=TRUE ) 
     for(s in 1:length(coverage.scenarios[,1]))
     {
     LR.cov<-as.numeric(coverage.scenarios[s,2:8])
@@ -52,10 +52,7 @@ generate.vaccine.calendar.file<-function(coverage.scenarios, efficacy,name.file=
       new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(100-uptake.figures[i,6],6),100-uptake.figures[i,7],rep(100-uptake.figures[i,6],6),100-uptake.figures[i,7],rep(100-uptake.figures[i,6],6),100-uptake.figures[i,7])/(31*100)
     
     if(s==1)
-      app.flag=FALSE else
-        app.flag=TRUE
-    
-      write(paste("#",s," ",coverage.scenarios$name.scenario[s],sep=""),file=name.file,append=app.flag)
+      write(paste("#",s," ",coverage.scenarios$name.scenario[s],sep=""),file=name.file,append=TRUE)
       write(paste("#",s," Vaccine efficacy",sep=""),file=name.file,append=TRUE)
       
       write(paste(as.character(efficacy[s,]),collapse=' '),file=name.file,append=TRUE)
@@ -65,17 +62,4 @@ generate.vaccine.calendar.file<-function(coverage.scenarios, efficacy,name.file=
     
     #write the table containing the final coverage for each scenario, year and RAG
     #write.csv(cov.array.year.scen,file=paste(path.files,"vaccine_coverage_scenarios.csv",sep=""),row.names = FALSE)
-
-    
 }
-
-name.scenario<-c("scenario1","scenario2")
-cov<-t(matrix(c(rep(.3,6),.7,rep(.3,6),.7,rep(.5,6),.7,rep(.5,6),.7),nrow=14))
-
-coverage.scenarios<-data.frame(cbind(name.scenario,cov))
-eff.ex1=c(rep(.7,6),.5)
-eff.ex2=c(rep(.5,6),.5)
-eff.ex=rbind(eff.ex1,eff.ex2)
-
-generate.vaccine.calendar.file(coverage.scenarios,efficacy=eff.ex,name.file="vaccine_calendar_test.txt")
-
