@@ -615,7 +615,7 @@ namespace flu
         /*Write the scenarios*/
         for(size_t scen=0;scen<vaccine_scenarios.size();scen++)
         {
-            sprintf(temp_string,"%lu",scen-1);
+            sprintf(temp_string,"%lu",scen);
             std::string filepath = path + "scenarii/Scenario_" + temp_string +
                 "_final_size.txt";
             if(first_write)

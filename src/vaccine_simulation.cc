@@ -67,10 +67,13 @@ int main(int argc, char *argv[])
     sort( ks.begin(), ks.end() );
 
     FILE *Scen1FS, *Scen2FS;
-    Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
+    if (vm.count("backward-compatible"))
+    {
+        Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
 
-    /*opens the 2nd scenarioFile*/
-    Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
+        /*opens the 2nd scenarioFile*/
+        Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
+    }
 
     /*load the size of the age groups for the model that year*/
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
@@ -109,8 +112,11 @@ int main(int argc, char *argv[])
             save_scenarii(pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
         }
     }
-    fclose(Scen1FS);
-    fclose(Scen2FS);
+    if (vm.count("backward-compatible"))
+    {
+        fclose(Scen1FS);
+        fclose(Scen2FS);
+    }
 
     return 0;
 }
