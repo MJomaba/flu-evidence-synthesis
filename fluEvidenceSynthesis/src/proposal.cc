@@ -1,5 +1,5 @@
 #include "proposal.hh"
-#include <Rcpp.h>
+#include "rcppwrap.hh" // For runif
 
 #include <boost/numeric/ublas/matrix.hpp>
 namespace flu {

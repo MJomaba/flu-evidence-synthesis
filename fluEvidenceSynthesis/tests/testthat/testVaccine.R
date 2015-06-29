@@ -31,7 +31,7 @@ test_that("We can call scenario",
               data("age_sizes")
               data("vaccine_calendar")
               expect_true( 
-                vaccination_scenario( age_sizes=age_sizes[,1], 
+                vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar ) 
                 )
           }

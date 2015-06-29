@@ -17,10 +17,4 @@ namespace flu {
         };
     };
 };
-
-#include <RcppCommon.h>
-namespace Rcpp {
-    template <> flu::vaccine::vaccine_t as( SEXP rVac );
-}
-
 #endif

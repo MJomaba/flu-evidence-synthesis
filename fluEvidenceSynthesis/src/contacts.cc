@@ -1,9 +1,9 @@
 #include "contacts.hh"
 
+#include "rcppwrap.hh"
+
 #include <stdio.h>
 #include <cassert>
-
-#include <Rcpp.h>
 
 #include "state.hh"
 
