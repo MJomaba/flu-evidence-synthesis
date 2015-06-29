@@ -27,7 +27,11 @@ namespace flu
     void days_to_weeks_5AG(double *, double *);
     double log_likelihood_hyper_poisson(const std::vector<double> &, double, double *, int *, int *, int *, int *, double *, int);
 
-    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path );
+    /// 
+    void save_scenarii( const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path );
+
+    /// Always assumes first scenario is current situation
+    void save_scenarii_backward_compatible( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path );
 
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters

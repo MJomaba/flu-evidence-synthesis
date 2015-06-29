@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help,h", "This message.")
         ("data-path,d", po::value<std::string>( &data_path ), "Path to the posterior.txt file (and samples/ directory)")
+        ("backward-compatible", "Use old behaviour (DEPRECATED).")
         ;
 
     po::variables_map vm;
@@ -101,7 +102,12 @@ int main(int argc, char *argv[])
         for(size_t i=0;i<NAG;i++)
             init_inf[i]=pow(10,state.parameters.init_pop);
 
-        save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        if (vm.count("backward-compatible"))
+        {
+            save_scenarii_backward_compatible(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        } else {
+            save_scenarii(pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        }
     }
     fclose(Scen1FS);
     fclose(Scen2FS);
