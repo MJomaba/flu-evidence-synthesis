@@ -50,13 +50,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // vaccination_scenario
-bool vaccination_scenario(std::vector<size_t> age_sizes);
-RcppExport SEXP fluEvidenceSynthesis_vaccination_scenario(SEXP age_sizesSEXP) {
+bool vaccination_scenario(std::vector<size_t> age_sizes, SEXP vaccine_calendar);
+RcppExport SEXP fluEvidenceSynthesis_vaccination_scenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
-    __result = Rcpp::wrap(vaccination_scenario(age_sizes));
+    Rcpp::traits::input_parameter< SEXP >::type vaccine_calendar(vaccine_calendarSEXP);
+    __result = Rcpp::wrap(vaccination_scenario(age_sizes, vaccine_calendar));
     return __result;
 END_RCPP
 }

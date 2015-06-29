@@ -16,9 +16,23 @@ test_that("We can load contact data",
           }
 )
 
+test_that("We can load vaccine calendar",
+          {
+              data("vaccine_calendar")
+              expect_that( vaccine_calendar$efficacy[1], equals( 0.7 ) )
+              expect_that( length(vaccine_calendar$efficacy), equals( 7 ) )
+              expect_that( ncol(vaccine_calendar$calendar), equals( 21 ) )
+              expect_that( nrow(vaccine_calendar$calendar), equals( 123 ) )
+          }
+)
+
 test_that("We can call scenario",
           {
               data("age_sizes")
-              expect_true( vaccination_scenario( age_sizes=age_sizes[,1] ) )
+              data("vaccine_calendar")
+              expect_true( 
+                vaccination_scenario( age_sizes=age_sizes[,1], 
+                    vaccine_calendar=vaccine_calendar ) 
+                )
           }
 )
