@@ -199,7 +199,7 @@ TEST_CASE( "Run inference", "[full,inference]" )
     }
 
 
-    REQUIRE( system( "bin/vaccine_simulation -d ../data/" ) == 0 );
+    REQUIRE( system( "bin/vaccine_simulation --backward-compatible -d ../data/" ) == 0 );
 
     for( auto &fname : files )
     {

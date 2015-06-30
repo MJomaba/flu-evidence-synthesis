@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help,h", "This message.")
         ("data-path,d", po::value<std::string>( &data_path ), "Path to the posterior.txt file (and samples/ directory)")
+        ("backward-compatible", "Use old behaviour (DEPRECATED).")
         ;
 
     po::variables_map vm;
@@ -66,10 +67,13 @@ int main(int argc, char *argv[])
     sort( ks.begin(), ks.end() );
 
     FILE *Scen1FS, *Scen2FS;
-    Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
+    if (vm.count("backward-compatible"))
+    {
+        Scen1FS=write_file(data_path + "scenarii/Scenario_vaccination_final_size.txt");
 
-    /*opens the 2nd scenarioFile*/
-    Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
+        /*opens the 2nd scenarioFile*/
+        Scen2FS=write_file(data_path + "scenarii/Scenario_no_vaccination_final_size.txt");
+    }
 
     /*load the size of the age groups for the model that year*/
     auto age_data = data::load_age_data( data_path + "age_sizes.txt" );
@@ -101,10 +105,18 @@ int main(int argc, char *argv[])
         for(size_t i=0;i<NAG;i++)
             init_inf[i]=pow(10,state.parameters.init_pop);
 
-        save_scenarii(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        if (vm.count("backward-compatible"))
+        {
+            save_scenarii_backward_compatible(Scen1FS, Scen2FS, pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        } else {
+            save_scenarii(pop_vec, init_inf, state, contact_matrix, vaccine_programme, data_path);
+        }
     }
-    fclose(Scen1FS);
-    fclose(Scen2FS);
+    if (vm.count("backward-compatible"))
+    {
+        fclose(Scen1FS);
+        fclose(Scen2FS);
+    }
 
     return 0;
 }

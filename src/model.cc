@@ -604,7 +604,53 @@ namespace flu
         return(result);
     }
 
-    void save_scenarii( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
+    void save_scenarii( const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
+    {
+        static bool first_write = true;
+        double result_simu[7644];
+        double FinalSize[21];
+        FILE *ScenRest;
+        char temp_string[3];
+
+        /*Write the scenarios*/
+        for(size_t scen=0;scen<vaccine_scenarios.size();scen++)
+        {
+            sprintf(temp_string,"%lu",scen);
+            std::string filepath = path + "scenarii/Scenario_" + temp_string +
+                "_final_size.txt";
+            if(first_write)
+            {
+                ScenRest=write_file(filepath);
+            }
+            else
+            {
+                ScenRest=append_file(filepath);
+            }
+
+
+            one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_scenarios[scen]);
+            for(size_t j=0; j<21; j++)
+            {
+                FinalSize[j]=0.0;
+            }
+            for(size_t i=0;i<364;i++)
+            {
+                for(size_t j=0; j<21; j++)
+                {
+                    FinalSize[j]+=result_simu[21*i+j];
+                }
+            }
+            for(size_t j=0; j<21; j++)
+            {
+                fprintf(ScenRest,"%f ",FinalSize[j]);
+            }
+            fprintf(ScenRest,"\n");
+            fclose(ScenRest);
+        }
+        first_write=false;
+    }
+
+    void save_scenarii_backward_compatible( FILE *Scen1FS, FILE *Scen2FS, const std::vector<double> &pop_vec,  double *prop_init_inf, const state_t &state, const bu::matrix<double> &contact_mat, const std::vector<vaccine::vaccine_t> &vaccine_scenarios, std::string path )
     {
         static bool first_write = true;
         double result_simu[7644];

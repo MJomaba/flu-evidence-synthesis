@@ -25,7 +25,7 @@ namespace flu {
 
         /// Returns a vector with the whole vaccine programme
         /// 
-        /// First element is the real programme, rest are possible scenarios
+        /// TODO: Do not rely on number of scenarios given in the beginning 
         std::vector<vaccine_t> load_vaccine_programme( 
                 const std::string &path );
     };
