@@ -15,7 +15,7 @@
 #define d_app 2
 #define dim_par 9
 #define dim_par2 81
-#define seed 578
+//#define seed 578
 
 /*declaring the random number*/
 extern gsl_rng * r;

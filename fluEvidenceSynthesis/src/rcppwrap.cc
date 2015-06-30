@@ -20,3 +20,48 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     }
     return vac_cal;
 }
+
+/* 
+/// Parameters of the model
+struct parameter_set {
+    std::vector<double> epsilon = std::vector<double>(5);
+    double psi;
+    double transmissibility;
+    std::vector<double> susceptibility = std::vector<double>(7);
+    double init_pop;
+};*/
+template <> parameter_set Rcpp::as( SEXP rPar ) 
+{
+    flu::parameter_set pars;
+    auto rListPar = Rcpp::as<List>(rPar);
+    pars.epsilon = Rcpp::as<std::vector<double> >( rListPar["epsilon"] );
+    pars.psi = rListPar["psi"];
+    pars.transmissibility = rListPar["transmissibility"];
+    pars.susceptibility = Rcpp::as<std::vector<double> >( 
+            rListPar["susceptibility"] );
+    pars.init_pop = rListPar["init_pop"];
+    return pars;
+}
+
+/// Keeps the current state of the model/mcmc
+/*struct state_t 
+{
+    parameter_set parameters;
+    double time_infectious, time_latent;
+
+    std::vector<double> positivity_ij = std::vector<double>(260);
+    std::vector<size_t> contact_ids;
+};*/
+template <> state_t Rcpp::as( SEXP rState )
+{
+    flu::state_t state;
+    auto rListState = Rcpp::as<List>(rState);
+
+    state.parameters = Rcpp::as<parameter_set>( rListState["parameters"] );
+    state.time_infectious = rListState["time_infectious"];
+    state.time_latent = rListState["time_latent"];
+    state.contact_ids = Rcpp::as<std::vector<size_t> >( 
+            rListState["contact_ids"] );
+
+    return state;
+}
