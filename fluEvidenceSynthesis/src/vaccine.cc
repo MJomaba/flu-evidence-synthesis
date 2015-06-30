@@ -22,8 +22,6 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
     auto age_data = flu::data::group_age_data( age_sizes );
     auto pop_vec = flu::data::separate_into_risk_groups( age_data );
 
-    Rcpp::Rcout << vaccine_calendar.efficacy_year[0] << std::endl;
-    
     //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
 
     //translate into an initial infected population
