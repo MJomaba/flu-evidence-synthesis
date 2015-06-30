@@ -26,23 +26,25 @@ test_that("We can load vaccine calendar",
           }
 )
 
-test_that("We can load sample",
+test_that("We can load mcmc sample",
           {
-              data("sample")
-              expect_that( length(sample[["contact_ids"]]), equals( 597 ) )
+              data("mcmcsample")
+              expect_that( length(mcmcsample[["contact_ids"]]), equals( 597 ) )
+
           }
 )
 
 
 test_that("We can call scenario",
           {
+              skip("Not yet implemented")
               data("age_sizes")
               data("vaccine_calendar")
-              data("sample")
+              data("mcmcsample")
               expect_true( 
                 vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
-                    sample=sample ) 
+                    sample=mcmcsample ) 
                 )
           }
 )

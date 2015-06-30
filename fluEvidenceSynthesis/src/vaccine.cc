@@ -3,6 +3,7 @@
 
 #include "model.hh"
 #include "data.hh"
+#include "contacts.hh"
 
 
 /*namespace flu {
@@ -27,10 +28,13 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
     //translate into an initial infected population
     double init_inf[NAG];
     for(size_t i=0;i<NAG;i++)
-        init_inf[i]=pow(10,state.parameters.init_pop);
+        init_inf[i]=pow(10,sample.parameters.init_pop);
 
+    /*auto contact_matrix = contacts::to_symmetric_matrix( 
+            contacts::shuffle_by_id( c, 
+                sample.contact_ids ), age_data );
 
-    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_calendar);
+    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
     for(size_t j=0; j<21; j++)
     {
         FinalSize[j]=0.0;
@@ -41,7 +45,7 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
         {
             FinalSize[j]+=result_simu[21*i+j];
         }
-    }
+    }*/
 
     return true;
 }

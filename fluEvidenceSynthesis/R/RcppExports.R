@@ -13,7 +13,7 @@ summine <- function(a, b) {
     .Call('fluEvidenceSynthesis_summine', PACKAGE = 'fluEvidenceSynthesis', a, b)
 }
 
-vaccinationScenario <- function(age_sizes, vaccine_calendar, state) {
-    .Call('fluEvidenceSynthesis_vaccinationScenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, state)
+vaccinationScenario <- function(age_sizes, vaccine_calendar, sample) {
+    .Call('fluEvidenceSynthesis_vaccinationScenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, sample)
 }
 
