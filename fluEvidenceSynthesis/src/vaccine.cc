@@ -12,7 +12,7 @@
 
 // [[Rcpp::export]]
 bool vaccinationScenario( std::vector<size_t> age_sizes, 
-        vaccine_t vaccine_calendar, state_t state ) {
+        vaccine_t vaccine_calendar, state_t sample ) {
 
     double result_simu[7644];
     double FinalSize[21];
@@ -24,14 +24,13 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
     
     //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
 
-    /*
     //translate into an initial infected population
     double init_inf[NAG];
     for(size_t i=0;i<NAG;i++)
         init_inf[i]=pow(10,state.parameters.init_pop);
 
 
-    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_scenarios[scen]);
+    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, state.time_latent, state.time_infectious, state.parameters.susceptibility, contact_mat, state.parameters.transmissibility, vaccine_calendar);
     for(size_t j=0; j<21; j++)
     {
         FinalSize[j]=0.0;
@@ -42,7 +41,7 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
         {
             FinalSize[j]+=result_simu[21*i+j];
         }
-    }*/
+    }
 
     return true;
 }

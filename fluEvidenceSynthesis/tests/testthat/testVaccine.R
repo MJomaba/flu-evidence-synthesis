@@ -26,10 +26,10 @@ test_that("We can load vaccine calendar",
           }
 )
 
-test_that("We can load state",
+test_that("We can load sample",
           {
-              data("state")
-              expect_that( length(state[["contact_ids"]]), equals( 597 ) )
+              data("sample")
+              expect_that( length(sample[["contact_ids"]]), equals( 597 ) )
           }
 )
 
@@ -38,11 +38,11 @@ test_that("We can call scenario",
           {
               data("age_sizes")
               data("vaccine_calendar")
-              data("state")
+              data("sample")
               expect_true( 
                 vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
-                    state=state ) 
+                    sample=sample ) 
                 )
           }
 )
