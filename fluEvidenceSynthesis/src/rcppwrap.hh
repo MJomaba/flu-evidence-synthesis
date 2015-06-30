@@ -4,11 +4,10 @@
 #include <RcppCommon.h>
 #include "vaccine.hh"
 #include "state.hh"
+#include "contacts.hh"
 
-using namespace flu;
-using namespace flu::vaccine;
 namespace Rcpp {
-    template <> vaccine_t as( SEXP );
+    using namespace flu;
 
     template <> parameter_set as( SEXP );
     /* 
@@ -31,9 +30,16 @@ namespace Rcpp {
         std::vector<double> positivity_ij = std::vector<double>(260);
         std::vector<size_t> contact_ids;
     };*/
+
+    using namespace flu::vaccine;
+    template <> vaccine_t as( SEXP );
+
+    using namespace flu::contacts;
+    template <> contacts_t as( SEXP );
 }
 
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(BH)]]
+// [[Rcpp::depends(RcppEigen)]]
 #include<Rcpp.h>
 #endif

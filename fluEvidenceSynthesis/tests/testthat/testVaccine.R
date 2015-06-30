@@ -34,17 +34,17 @@ test_that("We can load mcmc sample",
           }
 )
 
-
 test_that("We can call scenario",
           {
-              skip("Not yet implemented")
               data("age_sizes")
               data("vaccine_calendar")
               data("mcmcsample")
+              data("polymod_uk")
               expect_true( 
                 vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
-                    sample=mcmcsample ) 
+                    sample=mcmcsample,
+                    polymod_uk=polymod_uk ) 
                 )
           }
 )

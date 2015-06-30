@@ -13,13 +13,14 @@
 
 // [[Rcpp::export]]
 bool vaccinationScenario( std::vector<size_t> age_sizes, 
-        vaccine_t vaccine_calendar, state_t sample ) {
+        flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample,
+        flu::contacts::contacts_t polymod_uk ) {
 
     double result_simu[7644];
     double FinalSize[21];
 
-    auto pop_vec = flu::data::separate_into_risk_groups( 
-                flu::data::group_age_data( age_sizes ) );
+    auto age_data = flu::data::group_age_data( age_sizes );
+    auto pop_vec = flu::data::separate_into_risk_groups( age_data );
 
     Rcpp::Rcout << vaccine_calendar.efficacy_year[0] << std::endl;
     
@@ -30,11 +31,16 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
     for(size_t i=0;i<NAG;i++)
         init_inf[i]=pow(10,sample.parameters.init_pop);
 
-    /*auto contact_matrix = contacts::to_symmetric_matrix( 
-            contacts::shuffle_by_id( c, 
-                sample.contact_ids ), age_data );
 
-    one_year_SEIR_with_vaccination(result_simu, pop_vec, prop_init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
+    flu::data::age_data_t ages;
+    ages.age_sizes = age_sizes;
+    ages.age_group_sizes = age_data;
+
+    auto contact_matrix = flu::contacts::to_symmetric_matrix( 
+            flu::contacts::shuffle_by_id( polymod_uk, 
+                sample.contact_ids ), ages );
+
+    flu::one_year_SEIR_with_vaccination(result_simu, pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
     for(size_t j=0; j<21; j++)
     {
         FinalSize[j]=0.0;
@@ -45,7 +51,7 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
         {
             FinalSize[j]+=result_simu[21*i+j];
         }
-    }*/
+    }
 
     return true;
 }

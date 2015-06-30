@@ -42,15 +42,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // vaccinationScenario
-bool vaccinationScenario(std::vector<size_t> age_sizes, vaccine_t vaccine_calendar, state_t sample);
-RcppExport SEXP fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP sampleSEXP) {
+bool vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample, flu::contacts::contacts_t polymod_uk);
+RcppExport SEXP fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP sampleSEXP, SEXP polymod_ukSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
-    Rcpp::traits::input_parameter< vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< state_t >::type sample(sampleSEXP);
-    __result = Rcpp::wrap(vaccinationScenario(age_sizes, vaccine_calendar, sample));
+    Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
+    Rcpp::traits::input_parameter< flu::state_t >::type sample(sampleSEXP);
+    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_uk(polymod_ukSEXP);
+    __result = Rcpp::wrap(vaccinationScenario(age_sizes, vaccine_calendar, sample, polymod_uk));
     return __result;
 END_RCPP
 }

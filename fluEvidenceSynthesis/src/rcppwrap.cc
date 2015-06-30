@@ -1,4 +1,5 @@
 #include "rcppwrap.hh"
+#include<RcppEigen.h>
 
 template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
 {
@@ -21,6 +22,45 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     return vac_cal;
 }
 
+template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts ) 
+{
+    auto conMatrix = Rcpp::as<Eigen::MatrixXi>( rContacts );
+
+    contacts_t c;
+
+    for(size_t i=0; i<90; i++)
+        c.ni[i]=0;
+
+    c.nwe=0;
+
+    /*Loading of the participants with their number of contacts from Polymod*/
+    for(size_t i=0; i<conMatrix.rows(); i++)
+    {
+        c.contacts[i].age = conMatrix(i,0);
+        c.contacts[i].weekend = conMatrix(i,1);
+        c.contacts[i].N1 = conMatrix(i,2);
+        c.contacts[i].N2 = conMatrix(i,3);
+        c.contacts[i].N3 = conMatrix(i,4);
+        c.contacts[i].N4 = conMatrix(i,5);
+        c.contacts[i].N5 = conMatrix(i,6);
+        c.contacts[i].N6 = conMatrix(i,7);
+        c.contacts[i].N7 = conMatrix(i,8);
+        auto age_part=c.contacts[i].age;
+        c.ni[age_part]++;
+        if(c.contacts[i].weekend) c.nwe++;
+        c.contacts[i].AG=0;
+        if(age_part>0) c.contacts[i].AG++;
+        if(age_part>4) c.contacts[i].AG++;
+        if(age_part>14) c.contacts[i].AG++;
+        if(age_part>24) c.contacts[i].AG++;
+        if(age_part>44) c.contacts[i].AG++;
+        if(age_part>64) c.contacts[i].AG++;
+        c.contacts[i].id = i;
+    }
+
+    return c;
+}
+
 /* 
 /// Parameters of the model
 struct parameter_set {
@@ -30,7 +70,7 @@ struct parameter_set {
     std::vector<double> susceptibility = std::vector<double>(7);
     double init_pop;
 };*/
-template <> parameter_set Rcpp::as( SEXP rPar ) 
+template <> flu::parameter_set Rcpp::as( SEXP rPar ) 
 {
     flu::parameter_set pars;
     auto rListPar = Rcpp::as<List>(rPar);
@@ -52,7 +92,7 @@ template <> parameter_set Rcpp::as( SEXP rPar )
     std::vector<double> positivity_ij = std::vector<double>(260);
     std::vector<size_t> contact_ids;
 };*/
-template <> state_t Rcpp::as( SEXP rState )
+template <> flu::state_t Rcpp::as( SEXP rState )
 {
     flu::state_t state;
     auto rListState = Rcpp::as<List>(rState);
