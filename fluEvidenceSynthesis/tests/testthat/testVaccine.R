@@ -40,11 +40,12 @@ test_that("We can call scenario",
               data("vaccine_calendar")
               data("mcmcsample")
               data("polymod_uk")
-              expect_true( 
+              expect_that( length(
                 vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
                     sample=mcmcsample,
-                    polymod_uk=polymod_uk ) 
+                    polymod_uk=as.matrix(polymod_uk) ) ),
+                                  equals(21)
                 )
           }
 )

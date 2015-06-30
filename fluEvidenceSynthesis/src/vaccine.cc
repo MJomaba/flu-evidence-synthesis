@@ -12,12 +12,12 @@
 };*/
 
 // [[Rcpp::export]]
-bool vaccinationScenario( std::vector<size_t> age_sizes, 
+std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample,
         flu::contacts::contacts_t polymod_uk ) {
 
     double result_simu[7644];
-    double FinalSize[21];
+    std::vector<double> final_sizes;
 
     auto age_data = flu::data::group_age_data( age_sizes );
     auto pop_vec = flu::data::separate_into_risk_groups( age_data );
@@ -43,16 +43,16 @@ bool vaccinationScenario( std::vector<size_t> age_sizes,
     flu::one_year_SEIR_with_vaccination(result_simu, pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
     for(size_t j=0; j<21; j++)
     {
-        FinalSize[j]=0.0;
+        final_sizes.push_back(0.0);
     }
     for(size_t i=0;i<364;i++)
     {
         for(size_t j=0; j<21; j++)
         {
-            FinalSize[j]+=result_simu[21*i+j];
+            final_sizes[j]+=result_simu[21*i+j];
         }
     }
 
-    return true;
+    return final_sizes;
 }
 
