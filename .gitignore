@@ -21,3 +21,4 @@ tmp/
 symbols.rds
 .R*
 *.tar.gz
+RcppExports.cpp
