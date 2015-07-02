@@ -14,7 +14,7 @@ If you haven’t done so yet, first clone this repository:
 
 ```
 git clone https://github.com/MJomaba/flu-evidence-synthesis.git
-cd flu-evidence-synthesis
+cd flu-evidence-synthesis/fluEvidenceSynthesis/
 ```
 
 If you have already cloned it then cd into the directory and update it:
@@ -31,14 +31,10 @@ install.packages(c("Rcpp", "BH", "RcppEigen"))
 Now build the R package (from the commandline):
 
 ```
-R CMD build fluEvidenceSynthesis
+./install.sh
 ```
 
-Then open R again and install the created package and its dependencies. In R run:
-
-```
-install.packages("fluEvidenceSynthesis_1.0.tar.gz",repos=NULL)
-```
+This script generates some needed source files and then installs the package in R.
 
 ## Usage examples
 
