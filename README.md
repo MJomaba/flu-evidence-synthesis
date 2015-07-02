@@ -1,5 +1,3 @@
-
-
 ## flu-evidence
 
 This repository contains the code used for flu data analysis first published in
@@ -10,61 +8,34 @@ The code is distributed under a GPLv3 license. Please remember to cite the above
 
 ## Install
 
-### Dependencies
+This code is now mainly developed as an R package and we recommend it to install it as such.
 
-The code depends on
-- cmake
-- GSL
-- Boost
-- Mongoclient-cxx (for JSON parsing)
-- Eigen3 (for matrix mathematics/eigenvectors)
-
-The first three should be readily available with any package manager. Mongoclient can be installed as follows (depends on scons):
+If you haven’t done so yet, first clone this repository:
 
 ```
-git clone https://github.com/mongodb/mongo-cxx-driver.git
-cd mongo-cxx-driver
-scons build --prefix=/usr/local/
-sudo scons install --prefix=/usr/local/
+git clone https://github.com/MJomaba/flu-evidence-synthesis.git
+cd flu-evidence-synthesis
 ```
 
-If you have installed boost under /usr/local you also need to provide its path to the scons installer as follows:
+If you have already cloned it then cd into the directory and update it:
 
 ```
-scons build --prefix=/usr/local --cpppath=/usr/local/include --libpath=/usr/local/lib
-sudo scons install --prefix=/usr/local --cpppath=/usr/local/include --libpath=/usr/local/lib
+git pull
 ```
 
-For eigen3, download the latest stable release from: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download
-Then unpack it (tar xvf), cd into the just created directory (eigen-eigen-randomno) and do:
+Now build the R package:
 
 ```
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
+R CMD build fluEvidenceSynthesis
 ```
 
-### Compile
-
-To successfully install this you need the dependencies installed. Then run:
+Then open R and install the created package and its dependencies. In R run:
 
 ```
-cmake .
-make
+install.packages(c("Rcpp", "BH", "RcppEigen"))
+install.packages("fluEvidenceSynthesis_1.0.tar.gz",repos=NULL)
 ```
 
-and it will build the needed executables in the bin directory. Functionality is divided into multiple binaries. Currently bin/inference runs the MCMC code. And bin/vaccine_simulation can be used to run the different vaccination scenarios using the results from the MCMC. 
+## Usage examples
 
-At the moment the data we used is not yet included in this repo. Feel free to contact us for further help/details.
-
-## Documentation
-
-If you have doxygen installed you can run:
-
-```
-make doxygen
-```
-
-Which will create documentation under doc/html/index.html
+Coming soon!
