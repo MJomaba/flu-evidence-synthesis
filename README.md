@@ -28,13 +28,13 @@ Install the dependencies for the package, first start R and in R run:
 install.packages(c("Rcpp", "BH", "RcppEigen"))
 ```
 
-Now build the R package:
+Now build the R package (from the commandline):
 
 ```
 R CMD build fluEvidenceSynthesis
 ```
 
-Then open R and install the created package and its dependencies. In R run:
+Then open R again and install the created package and its dependencies. In R run:
 
 ```
 install.packages("fluEvidenceSynthesis_1.0.tar.gz",repos=NULL)
