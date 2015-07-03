@@ -27,7 +27,7 @@ if command -v ${R_EXEC} 2>/dev/null; then
     echo -e "#include \"rcppwrap.hh\"\n$(cat src/RcppExports.cpp)" > src/RcppExports.cpp;
     ${R_EXEC} CMD INSTALL ../fluEvidenceSynthesis
 else
-    echo "Cannot locate the executable ${R_EXEC}. Make sure it is installed. If installed, but not in path use --path=/path/to to specify the path, i.e.:";
+    echo "Cannot locate the executable ${R_EXEC}. Make sure it is installed. If installed, but not in path use --path=/path/to to specify the path, e.g.:";
     echo ""
     echo "install.sh --path=/usr/local/bin"
     echo ""
