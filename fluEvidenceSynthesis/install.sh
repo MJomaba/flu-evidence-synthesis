@@ -16,10 +16,10 @@ esac
 done
 
 if [ -n "$R_PATH" ]; then
-    echo "R_PATH  = ${R_PATH}";
+    #echo "R_PATH  = ${R_PATH}";
     R_EXEC="${R_PATH}/${R_EXEC}"
 fi
-echo "R_EXEC = ${R_EXEC}";
+#echo "R_EXEC = ${R_EXEC}";
 
 if command -v ${R_EXEC} 2>/dev/null; then
     ${R_EXEC} -e 'Rcpp::compileAttributes(".",verbose=TRUE)';
