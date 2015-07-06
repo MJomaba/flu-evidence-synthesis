@@ -31,7 +31,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     double prop_init_inf[NAG];
     double curr_init_inf[NAG];
-    int step_mat, freq_sampling;
+    int step_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     double lv, prop_likelihood;
@@ -133,8 +133,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     step_mat=1;            /*number of contacts exchanged*/
     double p_ac_mat=0.10;          /*prob to redraw matrices*/
-
-    freq_sampling=10*thinning;
 
     /*mcmc_chain_length=10000;
     acceptance=234;
