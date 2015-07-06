@@ -27,6 +27,8 @@ namespace flu {
         
         bu::matrix<double> update_sum_corr(bu::matrix<double> &&corr, 
                 const parameter_set &par );
+
+        proposal_state_t initialize( size_t dim );
         
         proposal_state_t update( proposal_state_t&& state,
                 const parameter_set &parameters,

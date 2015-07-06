@@ -10,6 +10,7 @@ namespace Rcpp {
     using namespace flu;
 
     template <> parameter_set as( SEXP );
+    template <> SEXP wrap( const parameter_set &parameters );
     /* 
     /// Parameters of the model
     struct parameter_set {
@@ -21,6 +22,7 @@ namespace Rcpp {
     };*/
 
     template <> state_t as( SEXP );
+    template <> SEXP wrap( const state_t &sample );
     /// Keeps the current state of the model/mcmc
     /*struct state_t 
     {

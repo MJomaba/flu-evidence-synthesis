@@ -83,6 +83,17 @@ template <> flu::parameter_set Rcpp::as( SEXP rPar )
     return pars;
 }
 
+template <> SEXP Rcpp::wrap( const flu::parameter_set &parameters )
+{
+    List rPar;
+    rPar["epsilon"] = wrap(parameters.epsilon);
+    rPar["psi"] = wrap(parameters.psi);
+    rPar["transmissibility"] = wrap(parameters.transmissibility);
+    rPar["susceptibility"] = wrap(parameters.susceptibility);
+    rPar["init_pop"] = wrap(parameters.init_pop);
+    return Rcpp::wrap(rPar);
+}
+
 /// Keeps the current state of the model/mcmc
 /*struct state_t 
 {
@@ -104,4 +115,14 @@ template <> flu::state_t Rcpp::as( SEXP rState )
             rListState["contact_ids"] );
 
     return state;
+}
+
+template <> SEXP Rcpp::wrap( const flu::state_t &sample )
+{
+    List rState;
+    rState["parameters"] = wrap( sample.parameters );
+    rState["time_infectious"] = wrap( sample.time_infectious );
+    rState["time_latent"] = wrap( sample.time_latent );
+    rState["contact_ids"] = wrap( sample.contact_ids );
+    return Rcpp::wrap(rState);
 }

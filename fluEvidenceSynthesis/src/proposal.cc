@@ -62,6 +62,45 @@ namespace flu {
             }
             return corr;
         }
+        
+        proposal_state_t initialize( size_t dim )
+        {
+            proposal_state_t state;
+            state.sum_mean_param.resize( dim, 0 );
+
+            bu::matrix<double> init_cov_matrix( dim, dim );
+            std::fill( init_cov_matrix.begin1(), 
+                    init_cov_matrix.end1(), 0 );
+
+            state.emp_cov_matrix.resize( dim, dim );
+            std::fill( state.emp_cov_matrix.begin1(), 
+                    state.emp_cov_matrix.end1(), 0 );
+            state.sum_corr_param_matrix.resize( dim, dim );
+            std::fill( state.sum_corr_param_matrix.begin1(), 
+                    state.sum_corr_param_matrix.end1(), 0 );
+            state.chol_emp_cov.resize( dim, dim );
+            state.chol_ini.resize( dim, dim );
+
+            for(size_t i=0; i<init_cov_matrix.size1(); i++)
+            {
+                init_cov_matrix(i,i) = 0.0000001;
+            }
+            // Specialized case
+            if (init_cov_matrix.size1()==9)
+            {
+                init_cov_matrix(3,3) = 1e-16;
+                init_cov_matrix(4,4) = 0.000001;
+                init_cov_matrix(5,5) = 0.000007;
+                init_cov_matrix(6,6) = 0.000007;
+                init_cov_matrix(7,7) = 0.000007;
+                init_cov_matrix(8,8) = 0.00003;
+            }
+
+            state.chol_ini = cholesky_factorization(init_cov_matrix);
+            state.chol_emp_cov = state.chol_ini;
+
+            return state;
+        }
 
         proposal_state_t update( proposal_state_t&& state,
                 const parameter_set &parameters,

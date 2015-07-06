@@ -12,6 +12,9 @@
 #include "state.hh"
 #include "vaccine.hh"
 
+#include "rcppwrap.hh"
+#include<RcppEigen.h>
+
 namespace flu
 {
     namespace bu = boost::numeric::ublas;
@@ -24,7 +27,11 @@ namespace flu
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
     void days_to_weeks_5AG(double *, double *);
-    double log_likelihood_hyper_poisson(const std::vector<double> &, double, double *, int *, int *, int *, int *, double *, int);
+    double log_likelihood_hyper_poisson(const std::vector<double> &, 
+            double, double *,
+            Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
+            Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
+            double *, int);
 
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters

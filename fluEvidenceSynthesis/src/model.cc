@@ -488,7 +488,11 @@ namespace flu
             }
     }
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, double * result_simu, int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, double * pop_5AG_RCGP, int depth)
+    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, double * result_simu,
+            Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
+            Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
+            //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
+            double * pop_5AG_RCGP, int depth)
     {
         int g, i, k, k_seed, week, h, h_init, top_sum;
         int Z_in_mon, n, m, n_plus, max_m_plus, pop_mon;
@@ -501,11 +505,11 @@ namespace flu
             epsilon=eps[i];
             for(week=0;week<52;week++)
             {
-                pop_mon=mon_popu[week*5+i];
+                pop_mon=mon_pop(week,i);
                 Z_in_mon=(int)round(result_simu[week*5+i]*pop_mon/pop_5AG_RCGP[i]);
-                n=n_sampled[week*5+i];
-                n_plus=n_posi[week*5+i];
-                m=n_ILI[week*5+i];
+                n=n_samples(week,i);
+                n_plus=n_pos(week,i);
+                m=ili(week,i);
 
                 /*h.init=max(n.plus-Z.in.mon,0)*/
                 if(n_plus>Z_in_mon)
