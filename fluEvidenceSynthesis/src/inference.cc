@@ -37,50 +37,9 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     double lv, prop_likelihood;
 
     double my_acceptance_rate;
-    /*FILE *log_file;
-    FILE *f_pos_sample, *f_n_sample, *f_GP, *f_mon_pop;
-    FILE *f_posterior;*/
 
     state_t current_state = init_state;
 
-    /*int mcmc_chain_length=10000000;
-    int burn_in=1000000;
-    int thinning=1000;*/
-
-    /*opens the file with the number of positive samples for that strain and season*/
-    //f_pos_sample=read_file(data_path,"positivity.txt");
-
-    /*opens the file with the total number of samples for that strain and season*/
-    //f_n_sample=read_file(data_path,"n_samples.txt");
-
-    /*opens the file with the RCGP ILI numbers*/
-    //f_GP=read_file(data_path,"ILI.txt");
-
-    /*opens the file with the size of the monitored population*/
-    //f_mon_pop=read_file(data_path,"mon_pop.txt");
-
-    /*********************************************************************************************************************************************************************************
-    Initialisation bit LOADING DATA
-    **********************************************************************************************************************************************************************************/
-
-    /*load the positivity data*/
-    /*for(int i=0;i<52;i++)
-        save_fscanf(f_pos_sample,"%d %d %d %d %d",&n_pos[i*5],&n_pos[i*5+1],&n_pos[i*5+2],&n_pos[i*5+3],&n_pos[i*5+4]);*/
-
-    /*load the number of samples data*/
-    /*for(int i=0;i<52;i++)
-        save_fscanf(f_n_sample,"%d %d %d %d %d",&n_samples[i*5],&n_samples[i*5+1],&n_samples[i*5+2],&n_samples[i*5+3],&n_samples[i*5+4]);*/
-
-    /*load the number of GP ILI consultation data*/
-    /*for(int i=0;i<52;i++)
-        save_fscanf(f_GP,"%d %d %d %d %d",&ILI[i*5],&ILI[i*5+1],&ILI[i*5+2],&ILI[i*5+3],&ILI[i*5+4]);*/
-
-    /*load the size of the monitored population by week*/
-    /*for(int i=0;i<52;i++)
-        save_fscanf(f_mon_pop,"%d %d %d %d %d",&mon_pop[i*5],&mon_pop[i*5+1],&mon_pop[i*5+2],&mon_pop[i*5+3],&mon_pop[i*5+4]);*/
-
-
-    /*opens the file with the number of positive samples for that strain and season*/
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;
     age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
@@ -93,10 +52,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     pop_RCGP[2]=pop_vec[3]+pop_vec[4]+pop_vec[10]+pop_vec[11]+pop_vec[17]+pop_vec[18];
     pop_RCGP[3]=pop_vec[5]+pop_vec[12]+pop_vec[19];
     pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
-
-    /*********************************************************************************************************************************************************************************
-    END of Initialisation bit  LOADING DATA
-    **********************************************************************************************************************************************************************************/
 
     /********************************************************************************************************************************************************
     initialisation point to start the MCMC
@@ -123,21 +78,12 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     auto proposal_state = proposal::initialize( 9 );
 
-    /********************************************************************************************************************************************************
-    END initialisation point to start the MCMC
-    *********************************************************************************************************************************************************/
-
     /**************************************************************************************************************************************************************
     Start of the MCMC
     **************************************************************************************************************************************************************/
 
     step_mat=1;            /*number of contacts exchanged*/
     double p_ac_mat=0.10;          /*prob to redraw matrices*/
-
-    /*mcmc_chain_length=10000;
-    acceptance=234;
-    freq_sampling=100;
-    burn_in=-1;*/
 
     for(int k=1; k<=mcmc_chain_length + burn_in; k++)
     {
@@ -155,7 +101,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             results.push_back(current_state);
         }
 
-        /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
         auto proposed_par = proposal::haario_adapt_scale(
                 current_state.parameters,
                 proposal_state.chol_emp_cov,
@@ -176,7 +121,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         auto prop_contact_regular = 
             contacts::to_symmetric_matrix( prop_c, age_data );
 
-        /*one_year_SEIR_without_vaccination(result, pop_vec, prop_init_inf, prop_current_state.time_latent, prop_ti, prop_s_profile, prop_contact_regular, prop_q);*/
         one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
 
         /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
@@ -188,8 +132,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
         // Make sure accept works with -inf prior
         // MCMC-R alternative prior?
-        /*my_acceptance_rate=exp(prop_likelihood-lv+
-                log_prior(proposed_par, current_state.parameters, vm.count("prior-susceptibility") ));*/
         my_acceptance_rate=exp(prop_likelihood-lv+
                 log_prior(proposed_par, current_state.parameters, false ));
 
@@ -217,7 +159,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
                 proposal_state.adaptive_scaling
                     -=0.234*proposal_state.conv_scaling;
         }
-
     }
     return results;
 }
