@@ -3,8 +3,6 @@
 #include<string>
 #include<vector>
 
-#include <gsl/gsl_rng.h>
-
 #define NAG 7
 #define NAG2 49
 #define no_days 364
@@ -16,9 +14,6 @@
 #define dim_par 9
 #define dim_par2 81
 //#define seed 578
-
-/*declaring the random number*/
-extern gsl_rng * r;
 
 namespace flu
 {

@@ -40,8 +40,7 @@ namespace flu {
         /// Bootstrap the given contacts, by shuffling back the given no of contacts from the original data
         contacts_t bootstrap_contacts( contacts_t&& bootstrap,
                 const contacts_t &original,
-                size_t no,
-                gsl_rng * rnd_gen ); 
+                size_t no ); 
 
          /**
          * \brief Shuffle given contacts according to id. Assumes the given

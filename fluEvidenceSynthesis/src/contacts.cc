@@ -12,8 +12,7 @@ namespace flu
     namespace contacts {
         contacts_t bootstrap_contacts( contacts_t&& bootstrap,
                 const contacts_t &original,
-                size_t no,
-                gsl_rng * rnd_gen )
+                size_t no )
         {
             for(size_t i=0;i<no;i++)
             {

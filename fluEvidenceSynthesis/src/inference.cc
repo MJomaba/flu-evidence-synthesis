@@ -105,7 +105,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
                 current_state.parameters,
                 proposal_state.chol_emp_cov,
                 proposal_state.chol_ini,100,0.05, 
-                proposal_state.adaptive_scaling, r );
+                proposal_state.adaptive_scaling );
 
         /*translate into an initial infected population*/
         for(int i=0;i<NAG;i++)
@@ -116,7 +116,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
         if(R::runif(0,1) < p_ac_mat)
             prop_c = contacts::bootstrap_contacts( std::move(prop_c),
-                    polymod_data, step_mat, r );
+                    polymod_data, step_mat );
 
         auto prop_contact_regular = 
             contacts::to_symmetric_matrix( prop_c, age_data );

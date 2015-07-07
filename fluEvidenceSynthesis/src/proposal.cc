@@ -142,8 +142,10 @@ namespace flu {
             return state;
         }
 
-        parameter_set haario_adapt_scale(const parameter_set &current, 
-                const bu::matrix<double> &chol_de, const bu::matrix<double> &chol_ini, int n, double beta, double adapt_scale, gsl_rng * gen)
+        parameter_set haario_adapt_scale( const parameter_set &current, 
+                const bu::matrix<double> &chol_de, 
+                const bu::matrix<double> &chol_ini, 
+                int n, double beta, double adapt_scale )
         {
             parameter_set proposed;
             double normal_draw[9];
