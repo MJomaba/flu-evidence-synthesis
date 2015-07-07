@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
     int n_pos[260], n_samples[260], ILI[260], mon_pop[260];
-    double lv, prop_likelihood;
+    double prop_likelihood;
 
     double my_acceptance_rate;
     FILE *log_file;
@@ -193,14 +193,14 @@ int main(int argc, char *argv[])
     days_to_weeks_5AG(result,result_by_week);
 
     /*curr_psi=0.00001;*/
-    lv = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+    current_state.likelihood = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     auto proposal_state = proposal::load( data_path+"init_cov_matrix.txt",
             9 );
 
     fprintf(log_file,"Initial covariance matrix loaded.\n");
 
-    fprintf(log_file,"====%f====\n",lv);
+    fprintf(log_file,"====%f====\n",current_state.likelihood);
 
     /********************************************************************************************************************************************************
     END initialisation point to start the MCMC
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
         if(k%thinning==0 && k>burn_in)
         {
             f_posterior=append_file(data_path + "posterior.txt");
-            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_state.parameters.epsilon[0],current_state.parameters.epsilon[2],current_state.parameters.epsilon[4],current_state.parameters.psi,current_state.parameters.transmissibility,current_state.parameters.susceptibility[0],current_state.parameters.susceptibility[3],current_state.parameters.susceptibility[6],current_state.parameters.init_pop,proposal_state.adaptive_scaling,lv);
+            fprintf(f_posterior,"%d %e %e %e %e %e %e %e %e %e %e %e\n",k, current_state.parameters.epsilon[0],current_state.parameters.epsilon[2],current_state.parameters.epsilon[4],current_state.parameters.psi,current_state.parameters.transmissibility,current_state.parameters.susceptibility[0],current_state.parameters.susceptibility[3],current_state.parameters.susceptibility[6],current_state.parameters.init_pop,proposal_state.adaptive_scaling,current_state.likelihood);
             fclose(f_posterior);
         }
 
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
             one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_programme[0] );
             days_to_weeks_5AG(result,result_by_week);
-            /*lv=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
+            /*current_state.likelihood=log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ILI, mon_pop, n_pos, n_samples, pop_RCGP, d_app);*/
     
             for( size_t i = 0; i < POLY_PART; ++i )
                 current_state.contact_ids[i] = curr_c.contacts[i].id;
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
                 kstring = "0" + kstring;
             save_state_json( current_state, data_path + "samples/z_hyper"
                     + kstring + ".stm" );
-            //save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, lv, Accept_rate);
+            //save_state((data_path + "samples/z_hyper").c_str(), k, current_state, current_contact_regular, result_by_week, current_state.likelihood, Accept_rate);
         }
 
         /*proposal_haario(current_state.parameters,proposed_par,chol_emp_cov,chol_ini,100,0.05);*/
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 
         /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
         // Make sure accept works with -inf prior
-        my_acceptance_rate=exp(prop_likelihood-lv+
+        my_acceptance_rate=exp(prop_likelihood-current_state.likelihood+
                 log_prior(proposed_par, current_state.parameters, vm.count("prior-susceptibility") ));
 
         double alea=gsl_rng_uniform (r);
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
             current_state.parameters = proposed_par;
 
             /*update current likelihood*/
-            lv=prop_likelihood;
+            current_state.likelihood=prop_likelihood;
 
             /*new proposed contact matrix*/
             /*update*/
