@@ -107,57 +107,69 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
                 proposal_state.chol_ini,100,0.05, 
                 proposal_state.adaptive_scaling );
 
-        /*translate into an initial infected population*/
-        for(int i=0;i<NAG;i++)
-            prop_init_inf[i]=pow(10,proposed_par.init_pop);
+        auto prior_ratio = 
+            log_prior(proposed_par, current_state.parameters, false );
 
-        auto prop_c = curr_c;
-
-        /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
-        if(R::runif(0,1) < p_ac_mat)
-            prop_c = contacts::bootstrap_contacts( std::move(prop_c),
-                    polymod_data, step_mat );
-
-        auto prop_contact_regular = 
-            contacts::to_symmetric_matrix( prop_c, age_data );
-
-        one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
-
-        /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
-        days_to_weeks_5AG(result,result_by_week);
-
-        /*computes the associated likelihood with the proposed values*/
-        prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
-
-        /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
-        // Make sure accept works with -inf prior
-        // MCMC-R alternative prior?
-        my_acceptance_rate=exp(prop_likelihood-current_state.likelihood+
-                log_prior(proposed_par, current_state.parameters, false ));
-
-        if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
+        if (!std::isfinite(prior_ratio))
         {
-            /*update the acceptance rate*/
-            proposal_state.acceptance++;
-            if(k>=1000)
-                proposal_state.adaptive_scaling
-                    += 0.766*proposal_state.conv_scaling;
-
-            current_state.parameters = proposed_par;
-
-            /*update current likelihood*/
-            current_state.likelihood=prop_likelihood;
-
-            /*new proposed contact matrix*/
-            /*update*/
-            curr_c = prop_c;
-            current_contact_regular=prop_contact_regular;
-        }
-        else /*if reject*/
-        {
+            Rcpp::Rcout << "Invalid proposed par" << std::endl;
+            // TODO: code duplication with failure of acceptance
             if(k>=1000)
                 proposal_state.adaptive_scaling
                     -=0.234*proposal_state.conv_scaling;
+        } else {
+            /*translate into an initial infected population*/
+            for(int i=0;i<NAG;i++)
+                prop_init_inf[i]=pow(10,proposed_par.init_pop);
+
+            auto prop_c = curr_c;
+
+            /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
+            if(R::runif(0,1) < p_ac_mat)
+                prop_c = contacts::bootstrap_contacts( std::move(prop_c),
+                        polymod_data, step_mat );
+
+            auto prop_contact_regular = 
+                contacts::to_symmetric_matrix( prop_c, age_data );
+
+            one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
+
+            /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
+            days_to_weeks_5AG(result,result_by_week);
+
+            /*computes the associated likelihood with the proposed values*/
+            prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+
+            /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
+            // Make sure accept works with -inf prior
+            // MCMC-R alternative prior?
+            my_acceptance_rate=exp(prop_likelihood-current_state.likelihood+
+                    log_prior(proposed_par, current_state.parameters, false ));
+
+            if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
+            {
+                /*update the acceptance rate*/
+                proposal_state.acceptance++;
+                if(k>=1000)
+                    proposal_state.adaptive_scaling
+                        += 0.766*proposal_state.conv_scaling;
+
+                current_state.parameters = proposed_par;
+
+                /*update current likelihood*/
+                current_state.likelihood=prop_likelihood;
+
+                /*new proposed contact matrix*/
+                /*update*/
+                curr_c = prop_c;
+                current_contact_regular=prop_contact_regular;
+            }
+            else /*if reject*/
+            {
+                if(k>=1000)
+                    proposal_state.adaptive_scaling
+                        -=0.234*proposal_state.conv_scaling;
+            }
         }
     }
     return results;
