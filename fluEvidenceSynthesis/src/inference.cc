@@ -34,7 +34,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     int step_mat;
     double pop_RCGP[5];
     double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
-    double lv, prop_likelihood;
+    double prop_likelihood;
 
     double my_acceptance_rate;
 
@@ -74,7 +74,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     days_to_weeks_5AG(result,result_by_week);
 
     /*curr_psi=0.00001;*/
-    lv = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+    current_state.likelihood = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     auto proposal_state = proposal::initialize( 9 );
 
@@ -132,7 +132,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
         // Make sure accept works with -inf prior
         // MCMC-R alternative prior?
-        my_acceptance_rate=exp(prop_likelihood-lv+
+        my_acceptance_rate=exp(prop_likelihood-current_state.likelihood+
                 log_prior(proposed_par, current_state.parameters, false ));
 
         if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
@@ -146,7 +146,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             current_state.parameters = proposed_par;
 
             /*update current likelihood*/
-            lv=prop_likelihood;
+            current_state.likelihood=prop_likelihood;
 
             /*new proposed contact matrix*/
             /*update*/

@@ -113,6 +113,8 @@ template <> flu::state_t Rcpp::as( SEXP rState )
     state.time_latent = rListState["time_latent"];
     state.contact_ids = Rcpp::as<std::vector<size_t> >( 
             rListState["contact_ids"] );
+    if (rListState.containsElementNamed("likelihood"))
+        state.likelihood = rListState["likelihood"];
 
     return state;
 }
@@ -124,5 +126,6 @@ template <> SEXP Rcpp::wrap( const flu::state_t &sample )
     rState["time_infectious"] = wrap( sample.time_infectious );
     rState["time_latent"] = wrap( sample.time_latent );
     rState["contact_ids"] = wrap( sample.contact_ids );
+    rState["likelihood"] = wrap( sample.likelihood );
     return Rcpp::wrap(rState);
 }
