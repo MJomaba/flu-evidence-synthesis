@@ -157,8 +157,6 @@ namespace flu {
             un_moins_beta=1-beta;
 
             valid_flag=0;
-            do
-            {
                 // TODO create random multivariate draw and use with
                 // both chol_de and chol_ini
                 /*drawing of the 9 N(0,1) samples using Box-Muller*/
@@ -219,29 +217,6 @@ namespace flu {
                 proposed.susceptibility[6]=current.susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
 
                 proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
-
-                // TODO: This could be moved to priors
-                /*checking that the generating values are ok i.e. between 0 and 1 if probabilities*/
-                if(proposed.epsilon[0] > 0)
-                    if(proposed.epsilon[0] < 1)
-                        if(proposed.epsilon[2] > 0)
-                            if(proposed.epsilon[2] < 1)
-                                if(proposed.epsilon[4] > 0)
-                                    if(proposed.epsilon[4] < 1)
-                                        if(proposed.psi >= 0)
-                                            if(proposed.psi <= 1)
-                                                if(proposed.transmissibility >= 0)
-                                                    if(proposed.transmissibility <= 1)
-                                                        if(proposed.susceptibility[0] >= 0)
-                                                            if(proposed.susceptibility[0] <= 1)
-                                                                if(proposed.susceptibility[3] >= 0)
-                                                                    if(proposed.susceptibility[3] <= 1)
-                                                                        if(proposed.susceptibility[6] >= 0)
-                                                                            if(proposed.susceptibility[6] <= 1)
-                                                                                if(proposed.init_pop<5)
-                                                                                    valid_flag=1;
-            }
-            while(valid_flag==0);
 
             return proposed;
         }

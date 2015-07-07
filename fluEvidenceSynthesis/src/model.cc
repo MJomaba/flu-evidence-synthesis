@@ -613,9 +613,18 @@ namespace flu
             const parameter_set &current,
             bool susceptibility ) {
 
-
-        /* limit the number of initially infected to 10^log(0.00001)> 10^-12 */
-        if((proposed.init_pop<log(0.00001))|(proposed.init_pop>log(10)))  
+        // Parameters should be valid
+        if( 
+                proposed.epsilon[0] <= 0 || proposed.epsilon[0] >= 1 ||
+                proposed.epsilon[2] <= 0 || proposed.epsilon[2] >= 1 ||
+                proposed.epsilon[4] <= 0 || proposed.epsilon[4] >= 1 ||
+                proposed.psi < 0 || proposed.psi > 1 ||
+                proposed.transmissibility < 0 ||
+                proposed.susceptibility[0] < 0 || proposed.susceptibility[1] > 1 ||
+                proposed.susceptibility[3] < 0 || proposed.susceptibility[3] > 1 ||
+                proposed.susceptibility[6] < 0 || proposed.susceptibility[6] > 1 ||
+                proposed.init_pop<log(0.00001) || proposed.init_pop>log(10)
+          )
             return log(0);
 
         double log_prior = 0;
