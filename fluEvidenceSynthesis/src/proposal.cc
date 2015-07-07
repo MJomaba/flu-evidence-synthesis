@@ -151,72 +151,71 @@ namespace flu {
             double normal_draw[9];
             double normal_add_draw[9], correlated_draw[9], correlated_fix[9];
             double unif1, unif2;
-            int i, j, valid_flag;
+            int i, j;
             double un_moins_beta;
 
             un_moins_beta=1-beta;
 
-            valid_flag=0;
-                // TODO create random multivariate draw and use with
-                // both chol_de and chol_ini
-                /*drawing of the 9 N(0,1) samples using Box-Muller*/
-                for(i=0;i<4;i++)
-                {
-                    unif1=R::runif(0,1);
-                    unif2=R::runif(0,1);
-                    normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
-                    normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
-                }
-
+            // TODO create random multivariate draw and use with
+            // both chol_de and chol_ini
+            /*drawing of the 9 N(0,1) samples using Box-Muller*/
+            for(i=0;i<4;i++)
+            {
                 unif1=R::runif(0,1);
                 unif2=R::runif(0,1);
-                normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
-                normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+                normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+                normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
 
-                /*drawing of the 9 N(0,1) samples using Box-Muller*/
-                for(i=0;i<4;i++)
-                {
-                    unif1=R::runif(0,1);
-                    unif2=R::runif(0,1);
-                    normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
-                    normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
-                }
+            unif1=R::runif(0,1);
+            unif2=R::runif(0,1);
+            normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
+            normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
 
-                /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
-                for(i=0;i<9;i++)
-                    correlated_draw[i]=0;
+            /*drawing of the 9 N(0,1) samples using Box-Muller*/
+            for(i=0;i<4;i++)
+            {
+                unif1=R::runif(0,1);
+                unif2=R::runif(0,1);
+                normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
+                normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
 
-                for(i=0;i<9;i++)
-                    for(j=0;j<=i;j++)
-                        correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
+            /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
+            for(i=0;i<9;i++)
+                correlated_draw[i]=0;
 
-                for(i=0;i<9;i++)
-                    correlated_fix[i]=0;
+            for(i=0;i<9;i++)
+                for(j=0;j<=i;j++)
+                    correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
 
-                for(i=0;i<9;i++)
-                    for(j=0;j<=i;j++)
-                        correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
+            for(i=0;i<9;i++)
+                correlated_fix[i]=0;
 
-                /*new proposed values*/
-                proposed.epsilon[0]=current.epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
-                proposed.epsilon[1]=proposed.epsilon[0];
-                proposed.epsilon[2]=current.epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
-                proposed.epsilon[3]=proposed.epsilon[2];
-                proposed.epsilon[4]=current.epsilon[4]+un_moins_beta*correlated_draw[2]+beta*correlated_fix[2];
+            for(i=0;i<9;i++)
+                for(j=0;j<=i;j++)
+                    correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
 
-                proposed.psi=current.psi+un_moins_beta*correlated_draw[3]+beta*correlated_fix[3];
+            /*new proposed values*/
+            proposed.epsilon[0]=current.epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
+            proposed.epsilon[1]=proposed.epsilon[0];
+            proposed.epsilon[2]=current.epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
+            proposed.epsilon[3]=proposed.epsilon[2];
+            proposed.epsilon[4]=current.epsilon[4]+un_moins_beta*correlated_draw[2]+beta*correlated_fix[2];
 
-                proposed.transmissibility=current.transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
+            proposed.psi=current.psi+un_moins_beta*correlated_draw[3]+beta*correlated_fix[3];
 
-                proposed.susceptibility[0]=current.susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
-                proposed.susceptibility[1]=proposed.susceptibility[0];
-                proposed.susceptibility[2]=proposed.susceptibility[0];
-                proposed.susceptibility[3]=current.susceptibility[3]+un_moins_beta*correlated_draw[6]+beta*correlated_fix[6];
-                proposed.susceptibility[4]=proposed.susceptibility[3];
-                proposed.susceptibility[5]=proposed.susceptibility[3];
-                proposed.susceptibility[6]=current.susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
+            proposed.transmissibility=current.transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
 
-                proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
+            proposed.susceptibility[0]=current.susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
+            proposed.susceptibility[1]=proposed.susceptibility[0];
+            proposed.susceptibility[2]=proposed.susceptibility[0];
+            proposed.susceptibility[3]=current.susceptibility[3]+un_moins_beta*correlated_draw[6]+beta*correlated_fix[6];
+            proposed.susceptibility[4]=proposed.susceptibility[3];
+            proposed.susceptibility[5]=proposed.susceptibility[3];
+            proposed.susceptibility[6]=current.susceptibility[6]+un_moins_beta*correlated_draw[7]+beta*correlated_fix[7];
+
+            proposed.init_pop=current.init_pop+un_moins_beta*correlated_draw[8]+beta*normal_add_draw[8];
 
             return proposed;
         }
