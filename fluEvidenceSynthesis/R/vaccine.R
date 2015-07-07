@@ -21,3 +21,39 @@ vaccine.calendar <- function( coverage, efficacy, uptake )
     cal <- list( "efficacy"=efficacy, "calendar"=new.vacc.cal )
     cal
 }
+
+read.legacy.vaccine.file <- function( file )
+{
+  results <- list()
+  # fill results with vaccine_calendars, which are of type:
+  # list( "efficacy"=c(), "calendar" = matrix())
+  count <- 0
+  started <- FALSE
+  for (line in readLines(file))
+  {
+    if (count==2 & started==FALSE)
+    {
+      count <- 0
+      started <- TRUE
+    }
+    if (started)
+    {
+      if (count==2)
+      {
+        efficacy <- as.numeric(read.csv(text=line,sep=" ",header=FALSE)[1,])
+        str.calendar <- ""
+      } else if (count>3 & count<127) {
+        str.calendar <- paste(str.calendar,line,sep="\n")
+      }
+      if (count==126)
+      {
+        calendar <- as.matrix(read.csv(text=str.calendar,sep=" ",header=FALSE))
+        results[[length(results)+1]] <- list("efficacy"=efficacy,
+                                         "calendar"=calendar)
+        count <- -1
+      }
+    }
+    count <- count + 1
+  }
+  results
+}
