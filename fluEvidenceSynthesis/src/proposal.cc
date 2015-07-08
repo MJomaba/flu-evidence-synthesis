@@ -1,5 +1,6 @@
 #include "proposal.hh"
-#include "rcppwrap.hh" // For runif
+#include "rcppwrap.hh"
+#include<RcppEigen.h>
 
 #include <boost/numeric/ublas/matrix.hpp>
 namespace flu {
@@ -222,3 +223,25 @@ namespace flu {
     };
 };
 
+// [[Rcpp::export]]
+Eigen::VectorXd updateSumVector( Eigen::VectorXd sum,
+        Eigen::VectorXd v )
+{
+    return sum + v;
+}
+
+// [[Rcpp::export]]
+Eigen::VectorXd updateMeans( Eigen::VectorXd means,
+        Eigen::VectorXd v, size_t n )
+{
+    return means + 1.0/n*(v-means);
+}
+
+
+// [[Rcpp::export]]
+Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
+        Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
+{
+    return cov + (1.0/(n-1.0))*((v-means)*((v-means).transpose())) 
+        - (1.0/n)*cov;
+}
