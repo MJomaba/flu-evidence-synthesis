@@ -1,6 +1,9 @@
 #ifndef FLU_PROPOSAL_HH
 #define FLU_PROPOSAL_HH
 
+#include "rcppwrap.hh"
+#include<RcppEigen.h>
+
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "model.hh"
@@ -9,12 +12,20 @@ namespace flu {
      * \brief Functions to keep track of proposal distribution
      */
     namespace proposal {
+        Eigen::VectorXd updateMeans( const Eigen::VectorXd &means,
+                const Eigen::VectorXd &v, size_t n );
+
+        Eigen::MatrixXd updateCovariance( const Eigen::MatrixXd &cov, 
+                const Eigen::VectorXd &v, 
+                const Eigen::VectorXd &means, 
+                size_t n );
+
         namespace bu = boost::numeric::ublas;
         struct proposal_state_t
         {
             //! Keep track of means of the mcmc samples
-            std::vector<double> sum_mean_param;
-            bu::matrix<double> emp_cov_matrix, sum_corr_param_matrix, chol_emp_cov, chol_ini;
+            Eigen::VectorXd means_parameters;
+            Eigen::MatrixXd emp_cov_matrix, chol_emp_cov, chol_ini;
 
             double adaptive_scaling = 0.3;
             double past_acceptance = 234;
@@ -25,9 +36,6 @@ namespace flu {
         bu::matrix<double> cholesky_factorization(
                 const bu::matrix<double> &A);
         
-        bu::matrix<double> update_sum_corr(bu::matrix<double> &&corr, 
-                const parameter_set &par );
-
         proposal_state_t initialize( size_t dim );
         
         proposal_state_t update( proposal_state_t&& state,
@@ -35,8 +43,8 @@ namespace flu {
                 int k );
 
         parameter_set haario_adapt_scale( const parameter_set &current, 
-                const bu::matrix<double> &chol_de, 
-                const bu::matrix<double> &chol_ini, 
+                const Eigen::MatrixXd &chol_de, 
+                const Eigen::MatrixXd &chol_ini, 
                 int n, double beta, double adapt_scale );
 
     };

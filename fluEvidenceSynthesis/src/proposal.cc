@@ -1,13 +1,29 @@
 #include "proposal.hh"
-#include "rcppwrap.hh"
-#include<RcppEigen.h>
-
 #include <boost/numeric/ublas/matrix.hpp>
 namespace flu {
     /**
      * \brief Functions to keep track of proposal distribution
      */
     namespace proposal {
+        Eigen::VectorXd updateMeans( const Eigen::VectorXd &means,
+                const Eigen::VectorXd &v, size_t n )
+        {
+            if (n==1)
+                return v;
+            return means + 1.0/n*(v-means);
+        }
+
+        Eigen::MatrixXd updateCovariance( const Eigen::MatrixXd &cov, 
+                const Eigen::VectorXd &v, 
+                const Eigen::VectorXd &means, 
+                size_t n )
+        {
+            if (n==1)
+                return Eigen::MatrixXd::Zero( v.size(), v.size() );
+            return cov + (1.0/(n-1.0))*((v-means)*((v-means).transpose())) 
+                - (1.0/n)*cov;
+        }
+
         bu::matrix<double> cholesky_factorization(
                 const bu::matrix<double> &A)
         {
@@ -67,27 +83,23 @@ namespace flu {
         proposal_state_t initialize( size_t dim )
         {
             proposal_state_t state;
-            state.sum_mean_param.resize( dim, 0 );
+            state.means_parameters = Eigen::VectorXd::Zero( dim );
 
-            bu::matrix<double> init_cov_matrix( dim, dim );
-            std::fill( init_cov_matrix.begin1(), 
-                    init_cov_matrix.end1(), 0 );
+            Eigen::MatrixXd init_cov_matrix = 
+                Eigen::MatrixXd::Zero(dim,dim);
 
-            state.emp_cov_matrix.resize( dim, dim );
-            std::fill( state.emp_cov_matrix.begin1(), 
-                    state.emp_cov_matrix.end1(), 0 );
-            state.sum_corr_param_matrix.resize( dim, dim );
-            std::fill( state.sum_corr_param_matrix.begin1(), 
-                    state.sum_corr_param_matrix.end1(), 0 );
+            state.emp_cov_matrix =
+                Eigen::MatrixXd::Zero(dim,dim);
+
             state.chol_emp_cov.resize( dim, dim );
             state.chol_ini.resize( dim, dim );
 
-            for(size_t i=0; i<init_cov_matrix.size1(); i++)
+            for(size_t i=0; i<init_cov_matrix.rows(); i++)
             {
                 init_cov_matrix(i,i) = 0.0000001;
             }
             // Specialized case
-            if (init_cov_matrix.size1()==9)
+            /*if (init_cov_matrix.rows()==9)
             {
                 init_cov_matrix(3,3) = 1e-16;
                 init_cov_matrix(4,4) = 0.000001;
@@ -95,9 +107,10 @@ namespace flu {
                 init_cov_matrix(6,6) = 0.000007;
                 init_cov_matrix(7,7) = 0.000007;
                 init_cov_matrix(8,8) = 0.00003;
-            }
+            }*/
 
-            state.chol_ini = cholesky_factorization(init_cov_matrix);
+            state.chol_ini = Eigen::LLT<Eigen::MatrixXd>(
+                    init_cov_matrix).matrixL();
             state.chol_emp_cov = state.chol_ini;
 
             return state;
@@ -107,33 +120,27 @@ namespace flu {
                 const parameter_set &parameters,
                 int k ) 
         {
+            // Vectorize parameters
+            //vectorize parameters
+            Eigen::VectorXd pars_v( 9 );
+            pars_v << parameters.epsilon[0], parameters.epsilon[2],
+                   parameters.epsilon[4],
+                   parameters.psi, parameters.transmissibility,
+                   parameters.susceptibility[0], 
+                   parameters.susceptibility[3],
+                   parameters.susceptibility[6], parameters.init_pop;
+
+            
             /*update of the variance-covariance matrix and the mean vector*/
-            state.sum_corr_param_matrix  = 
-                update_sum_corr(std::move(state.sum_corr_param_matrix), parameters);
-            state.sum_mean_param[0]+=parameters.epsilon[0];
-            state.sum_mean_param[1]+=parameters.epsilon[2];
-            state.sum_mean_param[2]+=parameters.epsilon[4];
-            state.sum_mean_param[3]+=parameters.psi;
-            state.sum_mean_param[4]+=parameters.transmissibility;
-            state.sum_mean_param[5]+=parameters.susceptibility[0];
-            state.sum_mean_param[6]+=parameters.susceptibility[3];
-            state.sum_mean_param[7]+=parameters.susceptibility[6];
-            state.sum_mean_param[8]+=parameters.init_pop;
+            state.means_parameters = updateMeans( 
+                    state.means_parameters, pars_v, k );
+            state.emp_cov_matrix = updateCovariance( state.emp_cov_matrix,
+                    pars_v, state.means_parameters, k );
             /*adjust variance for MCMC parameters*/
             if(k%1000==0)
             {
-                /*update of the adaptive algorithm*/
-                for(size_t i=0;i<state.emp_cov_matrix.size1();i++)
-                {
-                    state.emp_cov_matrix(i,i)=(state.sum_corr_param_matrix(i,i)-(state.sum_mean_param[i]*state.sum_mean_param[i])/k)/(k-1);
-                    for(size_t j=0;j<i;j++)
-                    {
-                        state.emp_cov_matrix(i,j)=(state.sum_corr_param_matrix(i,j)-(state.sum_mean_param[i]*state.sum_mean_param[j])/k)/(k-1);
-                        state.emp_cov_matrix(j,i)=state.emp_cov_matrix(i,j);
-                    }
-                }
-                state.chol_emp_cov = cholesky_factorization(
-                        state.emp_cov_matrix);
+                state.chol_emp_cov = Eigen::LLT<Eigen::MatrixXd>(
+                        state.emp_cov_matrix).matrixL();
 
                 state.past_acceptance=state.acceptance;
                 state.acceptance=0;
@@ -144,8 +151,8 @@ namespace flu {
         }
 
         parameter_set haario_adapt_scale( const parameter_set &current, 
-                const bu::matrix<double> &chol_de, 
-                const bu::matrix<double> &chol_ini, 
+                const Eigen::MatrixXd &chol_de, 
+                const Eigen::MatrixXd &chol_ini, 
                 int n, double beta, double adapt_scale )
         {
             parameter_set proposed;
@@ -223,25 +230,3 @@ namespace flu {
     };
 };
 
-// [[Rcpp::export]]
-Eigen::VectorXd updateSumVector( Eigen::VectorXd sum,
-        Eigen::VectorXd v )
-{
-    return sum + v;
-}
-
-// [[Rcpp::export]]
-Eigen::VectorXd updateMeans( Eigen::VectorXd means,
-        Eigen::VectorXd v, size_t n )
-{
-    return means + 1.0/n*(v-means);
-}
-
-
-// [[Rcpp::export]]
-Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
-        Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
-{
-    return cov + (1.0/(n-1.0))*((v-means)*((v-means).transpose())) 
-        - (1.0/n)*cov;
-}

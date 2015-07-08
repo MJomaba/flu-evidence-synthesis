@@ -2,7 +2,6 @@ context("Inference")
 
 test_that("We can run inference", 
           {
-              skip( "Currently often hangs. Needs to be reenabled" )
               data("age_sizes")
               data("vaccine_calendar")
               data("polymod_uk")

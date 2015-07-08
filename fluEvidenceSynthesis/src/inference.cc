@@ -112,7 +112,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
         if (!std::isfinite(prior_ratio))
         {
-            Rcpp::Rcout << "Invalid proposed par" << std::endl;
+            //Rcpp::Rcout << "Invalid proposed par" << std::endl;
             // TODO: code duplication with failure of acceptance
             if(k>=1000)
                 proposal_state.adaptive_scaling

@@ -5,10 +5,6 @@ inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calenda
     .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_state, mcmc_chain_length, burn_in, thinning)
 }
 
-updateSumVector <- function(sum, v) {
-    .Call('fluEvidenceSynthesis_updateSumVector', PACKAGE = 'fluEvidenceSynthesis', sum, v)
-}
-
 updateMeans <- function(means, v, n) {
     .Call('fluEvidenceSynthesis_updateMeans', PACKAGE = 'fluEvidenceSynthesis', means, v, n)
 }
