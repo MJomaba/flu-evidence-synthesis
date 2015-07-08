@@ -15,6 +15,13 @@ namespace flu {
         Eigen::VectorXd updateMeans( const Eigen::VectorXd &means,
                 const Eigen::VectorXd &v, size_t n );
 
+        /**
+         * Incrementally update the covariance matrix
+         *
+         * This follows the method in:
+         * https://root.cern.ch/root/html/TPrincipal.html under AddRow
+         * i.e. refer to CERN 72-21 pp. 54-106
+         */
         Eigen::MatrixXd updateCovariance( const Eigen::MatrixXd &cov, 
                 const Eigen::VectorXd &v, 
                 const Eigen::VectorXd &means, 
