@@ -33,9 +33,6 @@ namespace flu {
             int acceptance = 234;
         };
 
-        bu::matrix<double> cholesky_factorization(
-                const bu::matrix<double> &A);
-        
         proposal_state_t initialize( size_t dim );
         
         proposal_state_t update( proposal_state_t&& state,
