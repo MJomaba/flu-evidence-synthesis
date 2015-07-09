@@ -13,6 +13,10 @@ updateCovariance <- function(cov, v, means, n) {
     .Call('fluEvidenceSynthesis_updateCovariance', PACKAGE = 'fluEvidenceSynthesis', cov, v, means, n)
 }
 
+runSEIRModel <- function(age_sizes, vaccine_calendar, polymod_data, current_state) {
+    .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state)
+}
+
 vaccinationScenario <- function(age_sizes, vaccine_calendar, sample, polymod_uk) {
     .Call('fluEvidenceSynthesis_vaccinationScenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, sample, polymod_uk)
 }
