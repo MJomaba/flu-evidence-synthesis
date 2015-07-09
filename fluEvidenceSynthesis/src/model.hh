@@ -8,6 +8,7 @@
 #include<vector>
 
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/date_time.hpp>
 
 #include "state.hh"
 #include "vaccine.hh"
@@ -18,6 +19,8 @@
 namespace flu
 {
     namespace bu = boost::numeric::ublas;
+
+    boost::posix_time::ptime getTimeFromWeekYear( int week, int year );
 
     void one_year_SEIR_with_vaccination(double *, const std::vector<double> &pop_vec, double *, const double, const double,  const std::vector<double> &, const bu::matrix<double> &contact_regular, double, 
             const vaccine::vaccine_t &vaccine_programme );

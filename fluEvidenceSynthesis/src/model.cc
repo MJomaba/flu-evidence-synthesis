@@ -2,10 +2,23 @@
 
 namespace flu 
 {
-
+    boost::posix_time::ptime getTimeFromWeekYear( int week, int year )
+    {
+        namespace bt = boost::posix_time;
+        namespace bg = boost::gregorian;
+        // Week 1 is the first week that ends in this year
+        auto firstThursday = bg::first_day_of_the_week_in_month( 
+                bg::Thursday, bg::Jan );
+        auto dateThursday = firstThursday.get_date( year );
+        auto current_time = bt::ptime(dateThursday) - bt::hours(24*3);
+        current_time += bt::hours(24*7*(week-1));
+        return current_time;
+    }
+ 
     void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const bu::matrix<double> &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
+        namespace bt = boost::posix_time;
         double transmission_regular[NAG2];
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
         double Sr[7], E1r[7], E2r[7], I1r[7], I2r[7], Rr[7];
@@ -26,6 +39,10 @@ namespace flu
         int step_rate;
 
         step_rate=(int)(1/h_step);
+        bt::time_duration dt = bt::hours( 24 * h_step );
+
+        // We start at week 35. Week 1 is the first week that ends in this year
+        auto current_time = getTimeFromWeekYear( 35, 1970 );
 
         a1=2/tlatent;
         a2=a1;
@@ -313,6 +330,7 @@ namespace flu
                 }
 
             }
+            current_time += dt;
         }
     }
 

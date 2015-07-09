@@ -1,9 +1,12 @@
+#include <boost/date_time.hpp>
+
 #include "rcppwrap.hh"
-#include<RcppEigen.h>
 
 #include "proposal.hh"
 #include "contacts.hh"
 #include "model.hh"
+
+namespace bt = boost::posix_time;
 
 /**
  * This file contains some thin wrappers around C++ code. Mostly used
@@ -27,6 +30,16 @@ Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov,
     return flu::proposal::updateCovariance( cov, v, means, n );
 }
 
+// [[Rcpp::export]]
+Rcpp::Datetime getTimeFromWeekYear( int week, int year )
+{
+    //return bt::to_iso_string(flu::getTimeFromWeekYear( week, year ));
+    return Rcpp::Datetime(
+            bt::to_iso_extended_string(flu::getTimeFromWeekYear( week, year )),
+            "%Y-%m-%dT%H:%M:%OS");
+    //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
+    //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
+}
 
 // [[Rcpp::export]]
 Rcpp::DataFrame runSEIRModel(
