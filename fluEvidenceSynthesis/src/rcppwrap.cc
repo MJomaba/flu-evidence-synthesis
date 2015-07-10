@@ -13,19 +13,27 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
 
     if (rListVac.containsElementNamed("dates")) 
     {
-        auto rDates = Rcpp::as<Rcpp::DatetimeVector>( rListVac["dates"] )
-            .getDatetimes();
+        // Ideally would work with Datetime, but automatic conversion of
+        // date vector to datetime vector seems to fail. Even though
+        // R does not seem (double check) separate datetime type
+        auto rDates = Rcpp::as<Rcpp::DateVector>( rListVac["dates"] )
+            .getDates();
 
         for( auto rDate : rDates )
         {
             vac_cal.dates.push_back(
                     boost::posix_time::ptime(
                         boost::gregorian::date( rDate.getYear(),
-                            rDate.getMonth(), rDate.getDay() ),
-                        boost::posix_time::time_duration( rDate.getHours(),
-                            rDate.getMinutes(), rDate.getSeconds() )
+                            rDate.getMonth(), rDate.getDay() )
+                        // This would be useful if we had an Rcpp::Datetime object
+                        //boost::posix_time::time_duration( rDate.getHours(),
+                        //    rDate.getMinutes(), rDate.getSeconds() )
                         )
                     );
+
+            /*Rcpp::Rcout << rDate.getYear() << " " <<
+                boost::posix_time::to_iso_string(vac_cal.dates.back()) << 
+                std::endl;*/
         }
     }
     return vac_cal;

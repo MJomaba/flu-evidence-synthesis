@@ -15,9 +15,15 @@ namespace flu {
             /// Efficacy for each year
             std::array<double, 7> efficacy_year;
 
-            /// Calendar for the programme
-            //std::array<double, 2583> calendar;
-            Eigen::MatrixXd calendar;
+            /**
+             * Calendar for the programme
+             *
+             * Using RowMajor, because access is mostly row based. In many
+             * ways it is more a vector of rows, corresponding to a vaccine
+             * programme on a certain date, than a "real" matrix
+             */
+            Eigen::Matrix<double,Eigen::Dynamic,
+                Eigen::Dynamic,Eigen::RowMajor> calendar;
 
             /**
              * \brief Holds the start date corresponding with each row in the calendar

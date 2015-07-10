@@ -43,11 +43,18 @@ namespace flu
 
         // We start at week 35. Week 1 is the first week that ends in this year
         auto current_time = getTimeFromWeekYear( 35, 1970 );
+        if (vaccine_programme.dates.size()!=0)
+            current_time = getTimeFromWeekYear( 35, 
+                    vaccine_programme.dates[0].date().year() );
 
         a1=2/tlatent;
         a2=a1;
         g1=2/tinfectious;
         g2=g1;
+
+        Eigen::VectorXd current_vaccination_rates = 
+            Eigen::VectorXd::Zero(21,0);
+        int date_id = 0;
 
         /*initialisation, transmission matrix*/
         for(i=0;i<NAG;i++)
@@ -209,57 +216,87 @@ namespace flu
             }
 
             /*Vaccine bit*/
-            if((t>=44)&(t<167))
-                for(i=0;i<NAG;i++)
+
+            // TODO instead of setting rates to zero outside of the season
+            // we could have a bool vaccination_season, this would skip the 
+            // (potentially costly) step of multiplying with zero
+            if (vaccine_programme.dates.size() > 0)
+            {
+                while (date_id < vaccine_programme.dates.size() && 
+                        current_time >= vaccine_programme.dates[date_id] )
+                {
+                    // If dates is longer than calendar, then at that date
+                    // rates are reset to zero
+                    if (date_id >= vaccine_programme.calendar.rows())
+                        current_vaccination_rates = Eigen::VectorXd::Zero(21,0);
+                    else
+                        current_vaccination_rates = vaccine_programme
+                            .calendar
+                            .row( date_id );
+                    ++date_id;
+                }
+            } else {
+                // Legacy mode
+                if((t>=44)&(t<167))
                 {
                     cal_time=(int)(t)-44;
-                    vacc_prov=Npop[i]*vaccine_programme.calendar(cal_time, i)/(SN[i]+E1N[i]+E2N[i]+I1N[i]+I2N[i]+RN[i]);
-                    /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar(cal_time,i+NAG)/(SrN[i]+E1rN[i]+E2rN[i]+I1rN[i]+I2rN[i]+RrN[i]);
-                    vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(SpN[i]+E1pN[i]+E2pN[i]+I1pN[i]+I2pN[i]+RpN[i]);*/
+                    current_vaccination_rates = vaccine_programme
+                        .calendar
+                        .row( cal_time );
+                } else if (t==167)
+                    current_vaccination_rates = Eigen::VectorXd::Zero(21,0);
+            }
+ 
+            for(i=0;i<NAG;i++)
+            {
+                cal_time=(int)(t)-44;
+                vacc_prov=Npop[i]*current_vaccination_rates(i)/(SN[i]+E1N[i]+E2N[i]+I1N[i]+I2N[i]+RN[i]);
+                /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
+                vacc_prov_r=Npop[i+NAG]*current_vaccination_rates(i+NAG)/(SrN[i]+E1rN[i]+E2rN[i]+I1rN[i]+I2rN[i]+RrN[i]);
+                vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(SpN[i]+E1pN[i]+E2pN[i]+I1pN[i]+I2pN[i]+RpN[i]);*/
 
-                    deltaS[i]+=SN[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);
-                    deltaSr[i]+=SrN[i]*vacc_prov_r*(1-vaccine_programme.efficacy_year[i]);
-                    deltaSp[i]+=SpN[i]*vacc_prov_p*(1-vaccine_programme.efficacy_year[i]);
-                    deltaSN[i]-=SN[i]*vacc_prov;
-                    deltaSrN[i]-=SrN[i]*vacc_prov_r;
-                    deltaSpN[i]-=SpN[i]*vacc_prov_p;
+                deltaS[i]+=SN[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);
+                deltaSr[i]+=SrN[i]*vacc_prov_r*(1-vaccine_programme.efficacy_year[i]);
+                deltaSp[i]+=SpN[i]*vacc_prov_p*(1-vaccine_programme.efficacy_year[i]);
+                deltaSN[i]-=SN[i]*vacc_prov;
+                deltaSrN[i]-=SrN[i]*vacc_prov_r;
+                deltaSpN[i]-=SpN[i]*vacc_prov_p;
 
-                    deltaE1[i]+=E1N[i]*vacc_prov;
-                    deltaE1r[i]+=E1rN[i]*vacc_prov_r;
-                    deltaE1p[i]+=E1pN[i]*vacc_prov_p;
-                    deltaE1N[i]-=E1N[i]*vacc_prov;
-                    deltaE1rN[i]-=E1rN[i]*vacc_prov_r;
-                    deltaE1pN[i]-=E1pN[i]*vacc_prov_p;
+                deltaE1[i]+=E1N[i]*vacc_prov;
+                deltaE1r[i]+=E1rN[i]*vacc_prov_r;
+                deltaE1p[i]+=E1pN[i]*vacc_prov_p;
+                deltaE1N[i]-=E1N[i]*vacc_prov;
+                deltaE1rN[i]-=E1rN[i]*vacc_prov_r;
+                deltaE1pN[i]-=E1pN[i]*vacc_prov_p;
 
-                    deltaE2[i]+=E2N[i]*vacc_prov;
-                    deltaE2r[i]+=E2rN[i]*vacc_prov_r;
-                    deltaE2p[i]+=E2pN[i]*vacc_prov_p;
-                    deltaE2N[i]-=E2N[i]*vacc_prov;
-                    deltaE2rN[i]-=E2rN[i]*vacc_prov_r;
-                    deltaE2pN[i]-=E2pN[i]*vacc_prov_p;
+                deltaE2[i]+=E2N[i]*vacc_prov;
+                deltaE2r[i]+=E2rN[i]*vacc_prov_r;
+                deltaE2p[i]+=E2pN[i]*vacc_prov_p;
+                deltaE2N[i]-=E2N[i]*vacc_prov;
+                deltaE2rN[i]-=E2rN[i]*vacc_prov_r;
+                deltaE2pN[i]-=E2pN[i]*vacc_prov_p;
 
-                    deltaI1[i]+=I1N[i]*vacc_prov;
-                    deltaI1r[i]+=I1rN[i]*vacc_prov_r;
-                    deltaI1p[i]+=I1pN[i]*vacc_prov_p;
-                    deltaI1N[i]-=I1N[i]*vacc_prov;
-                    deltaI1rN[i]-=I1rN[i]*vacc_prov_r;
-                    deltaI1pN[i]-=I1pN[i]*vacc_prov_p;
+                deltaI1[i]+=I1N[i]*vacc_prov;
+                deltaI1r[i]+=I1rN[i]*vacc_prov_r;
+                deltaI1p[i]+=I1pN[i]*vacc_prov_p;
+                deltaI1N[i]-=I1N[i]*vacc_prov;
+                deltaI1rN[i]-=I1rN[i]*vacc_prov_r;
+                deltaI1pN[i]-=I1pN[i]*vacc_prov_p;
 
-                    deltaI2[i]+=I2N[i]*vacc_prov;
-                    deltaI2r[i]+=I2rN[i]*vacc_prov_r;
-                    deltaI2p[i]+=I2pN[i]*vacc_prov_p;
-                    deltaI2N[i]-=I2N[i]*vacc_prov;
-                    deltaI2rN[i]-=I2rN[i]*vacc_prov_r;
-                    deltaI2pN[i]-=I2pN[i]*vacc_prov_p;
+                deltaI2[i]+=I2N[i]*vacc_prov;
+                deltaI2r[i]+=I2rN[i]*vacc_prov_r;
+                deltaI2p[i]+=I2pN[i]*vacc_prov_p;
+                deltaI2N[i]-=I2N[i]*vacc_prov;
+                deltaI2rN[i]-=I2rN[i]*vacc_prov_r;
+                deltaI2pN[i]-=I2pN[i]*vacc_prov_p;
 
-                    deltaR[i]+=RN[i]*vacc_prov+SN[i]*vacc_prov*vaccine_programme.efficacy_year[i];
-                    deltaRr[i]+=RrN[i]*vacc_prov_r+SrN[i]*vacc_prov_r*vaccine_programme.efficacy_year[i];
-                    deltaRp[i]+=RpN[i]*vacc_prov_p+SpN[i]*vacc_prov_p*vaccine_programme.efficacy_year[i];
-                    deltaRN[i]-=RN[i]*vacc_prov;
-                    deltaRrN[i]-=RrN[i]*vacc_prov_r;
-                    deltaRpN[i]-=RpN[i]*vacc_prov_p;
-                }
+                deltaR[i]+=RN[i]*vacc_prov+SN[i]*vacc_prov*vaccine_programme.efficacy_year[i];
+                deltaRr[i]+=RrN[i]*vacc_prov_r+SrN[i]*vacc_prov_r*vaccine_programme.efficacy_year[i];
+                deltaRp[i]+=RpN[i]*vacc_prov_p+SpN[i]*vacc_prov_p*vaccine_programme.efficacy_year[i];
+                deltaRN[i]-=RN[i]*vacc_prov;
+                deltaRrN[i]-=RrN[i]*vacc_prov_r;
+                deltaRpN[i]-=RpN[i]*vacc_prov_p;
+            }
 
             /*update the different classes*/
             for(i=0;i<NAG;i++)
