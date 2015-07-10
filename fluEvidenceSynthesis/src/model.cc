@@ -112,6 +112,13 @@ namespace flu
         {
             for(i=0;i<NAG;i++)
             {
+                // Could improve this by doing the 3 groups auto (not
+                // different variables for each of them)?
+                // Could also use a mapper to keep it all readable
+                //
+                // Or use a four dimensional state space, that can also be
+                // accessed via one big vector? (age, risk, seeiir, vaccinated)
+                // Using some simple regexs we could make them into maps, with "S/E1/E2/I1/I2/R", "l/r/p", "N/V" as mappings
                 /*initialisation of the different increment for the euler algorithm*/
                 deltaS[i]=0;
                 deltaE1[i]=0;
