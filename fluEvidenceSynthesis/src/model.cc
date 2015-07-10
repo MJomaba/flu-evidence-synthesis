@@ -213,9 +213,9 @@ namespace flu
                 for(i=0;i<NAG;i++)
                 {
                     cal_time=(int)(t)-44;
-                    vacc_prov=Npop[i]*vaccine_programme.calendar[cal_time*21+i]/(SN[i]+E1N[i]+E2N[i]+I1N[i]+I2N[i]+RN[i]);
+                    vacc_prov=Npop[i]*vaccine_programme.calendar(cal_time, i)/(SN[i]+E1N[i]+E2N[i]+I1N[i]+I2N[i]+RN[i]);
                     /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar[cal_time*21+i+NAG]/(SrN[i]+E1rN[i]+E2rN[i]+I1rN[i]+I2rN[i]+RrN[i]);
+                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar(cal_time,i+NAG)/(SrN[i]+E1rN[i]+E2rN[i]+I1rN[i]+I2rN[i]+RrN[i]);
                     vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(SpN[i]+E1pN[i]+E2pN[i]+I1pN[i]+I2pN[i]+RpN[i]);*/
 
                     deltaS[i]+=SN[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);

@@ -43,7 +43,7 @@ namespace Rcpp {
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppBDT)]]
+//// [[Rcpp::depends(RcppBDT)]]
 #include <RcppEigen.h>
 //#include <RcppBDT.h>
 #include<Rcpp.h>

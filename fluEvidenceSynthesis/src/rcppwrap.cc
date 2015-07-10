@@ -9,14 +9,23 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     for (size_t i = 0; i < vac_cal.efficacy_year.size(); ++i)
         vac_cal.efficacy_year[i] = eff[i];
 
-    Rcpp::DataFrame cal = Rcpp::as<DataFrame>(rListVac["calendar"]);
-    //Rcpp::Rcout << cal(0,0) << std::endl;
+    vac_cal.calendar = Rcpp::as<Eigen::MatrixXd>(rListVac["calendar"]);
 
-    for(size_t i=0;i<21;++i) {
-        for(size_t j=0;j<123;j++)
+    if (rListVac.containsElementNamed("dates")) 
+    {
+        auto rDates = Rcpp::as<Rcpp::DatetimeVector>( rListVac["dates"] )
+            .getDatetimes();
+
+        for( auto rDate : rDates )
         {
-            NumericVector column = cal[i];
-            vac_cal.calendar[j*21+i] = column[j];
+            vac_cal.dates.push_back(
+                    boost::posix_time::ptime(
+                        boost::gregorian::date( rDate.getYear(),
+                            rDate.getMonth(), rDate.getDay() ),
+                        boost::posix_time::time_duration( rDate.getHours(),
+                            rDate.getMinutes(), rDate.getSeconds() )
+                        )
+                    );
         }
     }
     return vac_cal;
