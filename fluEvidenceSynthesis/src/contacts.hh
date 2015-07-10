@@ -5,15 +5,14 @@
 #include<vector>
 #include<string>
 
-#include <boost/numeric/ublas/matrix.hpp>
-
 #include "state.hh"
 #include "data.hh"
+
+#include<Eigen/Core>
 
 namespace flu {
 
     namespace contacts {
-        namespace bu = boost::numeric::ublas;
 
         /// Create a contact, holding its age, and contacts (we, N1, N2, etc)..
         struct contact_t
@@ -48,7 +47,7 @@ namespace flu {
          */
         contacts_t shuffle_by_id( const contacts_t &sorted_c, const std::vector<size_t> &ids );
 
-        bu::matrix<double> to_symmetric_matrix( 
+        Eigen::MatrixXd to_symmetric_matrix( 
                 const contacts_t &contacts, 
                 const data::age_data_t &age_data );
     };

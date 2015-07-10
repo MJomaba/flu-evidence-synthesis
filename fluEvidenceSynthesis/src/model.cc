@@ -15,7 +15,7 @@ namespace flu
         return current_time;
     }
  
-    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const bu::matrix<double> &contact_regular, double q,
+    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const Eigen::MatrixXd &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         namespace bt = boost::posix_time;
@@ -361,7 +361,7 @@ namespace flu
         }
     }
 
-    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> & s_profile, const bu::matrix<double> &contact_regular, double q)
+    void one_year_SEIR_without_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> & s_profile, const Eigen::MatrixXd &contact_regular, double q)
     {
         double transmission_regular[NAG2];
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];

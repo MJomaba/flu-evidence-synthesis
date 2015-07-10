@@ -55,7 +55,7 @@ namespace flu
             return shuffled_c;
         }
 
-        bu::matrix<double> to_symmetric_matrix( const contacts_t &c, 
+        Eigen::MatrixXd to_symmetric_matrix( const contacts_t &c, 
                 const data::age_data_t &age_data )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
@@ -94,8 +94,8 @@ namespace flu
                 cij[i]=mij[i]/age_data.age_group_sizes[i%7];
             }
 
-            bu::matrix<double> contact_regular( 7, 7 );
-            for(size_t i=0; i<7; i++)
+            Eigen::MatrixXd contact_regular( 7, 7 );
+            for(size_t i=0; i<contact_regular.rows(); i++)
             {
                 contact_regular(i,i)=cij[i*7+i];
                 for(size_t j=0;j<i;j++)
