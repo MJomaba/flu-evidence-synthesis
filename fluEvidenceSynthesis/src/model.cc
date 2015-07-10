@@ -19,7 +19,6 @@ namespace flu
             const vaccine::vaccine_t &vaccine_programme )
     {
         namespace bt = boost::posix_time;
-        double transmission_regular[NAG2];
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
         double Sr[7], E1r[7], E2r[7], I1r[7], I2r[7], Rr[7];
         double Sp[7], E1p[7], E2p[7], I1p[7], I2p[7], Rp[7];
@@ -55,10 +54,11 @@ namespace flu
         int date_id = -1;
 
         /*initialisation, transmission matrix*/
-        for(i=0;i<NAG;i++)
+        Eigen::MatrixXd transmission_regular(contact_regular);
+        for(i=0;i<transmission_regular.rows();i++)
         {
-            for(size_t j=0;j<NAG;j++) {
-                transmission_regular[i*NAG+j]=q*contact_regular(i,j)*s_profile[i];
+            for(size_t j=0;j<transmission_regular.cols();j++) {
+                transmission_regular(i,j)*=q*s_profile[i];
             }
         }
 
@@ -164,7 +164,7 @@ namespace flu
 
                 /*rate of depletion of susceptible*/
                 for(j=0;j<NAG;j++)
-                    deltaS[i]+=transmission_regular[i*7+j]*(I1[j]+I2[j]+I1r[j]+I2r[j]+I1p[j]+I2p[j]+I1N[j]+I2N[j]+I1rN[j]+I2rN[j]+I1pN[j]+I2pN[j]);
+                    deltaS[i]+=transmission_regular(i,j)*(I1[j]+I2[j]+I1r[j]+I2r[j]+I1p[j]+I2p[j]+I1N[j]+I2N[j]+I1rN[j]+I2rN[j]+I1pN[j]+I2pN[j]);
 
                 deltaSr[i]=deltaS[i];
                 deltaSp[i]=deltaS[i];
