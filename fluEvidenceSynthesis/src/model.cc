@@ -14,11 +14,47 @@ namespace flu
         current_time += bt::hours(24*7*(week-1));
         return current_time;
     }
+
+    // Could convert this to template code if needed for performance
+    struct seir_t 
+    {
+        // Note can also be used for delta
+        Eigen::VectorXd s;
+        Eigen::VectorXd e1;
+        Eigen::VectorXd e2;
+        Eigen::VectorXd i1;
+        Eigen::VectorXd i2;
+        Eigen::VectorXd r;
+
+        seir_t() {}
+        seir_t( size_t dim )
+        {
+            s = Eigen::VectorXd::Zero( dim );
+            e1 = Eigen::VectorXd::Zero( dim );
+            e2 = Eigen::VectorXd::Zero( dim );
+            i1 = Eigen::VectorXd::Zero( dim );
+            i2 = Eigen::VectorXd::Zero( dim );
+            r = Eigen::VectorXd::Zero( dim );
+        }
+    };
+
+    enum group_type_t { LOW, HIGH, PREG,
+        VACC_LOW, VACC_HIGH, VACC_PREG };
+    std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
+        VACC_LOW, VACC_HIGH, VACC_PREG };
  
     void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const Eigen::MatrixXd &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         namespace bt = boost::posix_time;
+
+        std::map<group_type_t, seir_t> densities;
+        std::map<group_type_t, seir_t> deltas;
+        for( auto &gt : group_types ) {
+            densities[gt] = seir_t(7);
+            deltas[gt] = seir_t(7);
+        }
+
         double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
         double Sr[7], E1r[7], E2r[7], I1r[7], I2r[7], Rr[7];
         double Sp[7], E1p[7], E2p[7], I1p[7], I2p[7], Rp[7];
