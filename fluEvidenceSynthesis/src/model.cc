@@ -48,11 +48,11 @@ namespace flu
     {
         namespace bt = boost::posix_time;
 
-        std::map<group_type_t, seir_t> densities;
-        std::map<group_type_t, seir_t> deltas;
+        std::vector<seir_t> densities;
+        std::vector<seir_t> deltas;
         for( auto &gt : group_types ) {
-            densities[gt] = seir_t(7);
-            deltas[gt] = seir_t(7);
+            densities.push_back( seir_t(7) );
+            deltas.push_back( seir_t(7) );
         }
 
         double vacc_prov, vacc_prov_p, vacc_prov_r;
