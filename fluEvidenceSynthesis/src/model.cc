@@ -29,6 +29,12 @@ namespace flu
         seir_t() {}
         seir_t( size_t dim )
         {
+            /*s = Eigen::VectorXd( dim );
+            e1 = Eigen::VectorXd( dim );
+            e2 = Eigen::VectorXd( dim );
+            i1 = Eigen::VectorXd( dim );
+            i2 = Eigen::VectorXd( dim );
+            r = Eigen::VectorXd( dim );*/
             s = Eigen::VectorXd::Zero( dim );
             e1 = Eigen::VectorXd::Zero( dim );
             e2 = Eigen::VectorXd::Zero( dim );
@@ -48,11 +54,13 @@ namespace flu
     {
         namespace bt = boost::posix_time;
 
+        const size_t nag = contact_regular.rows(); // No. of age groups
+
         std::vector<seir_t> densities;
         std::vector<seir_t> deltas;
         for( auto &gt : group_types ) {
-            densities.push_back( seir_t(7) );
-            deltas.push_back( seir_t(7) );
+            densities.push_back( seir_t(nag) );
+            deltas.push_back( seir_t(nag) );
         }
 
         double vacc_prov, vacc_prov_p, vacc_prov_r;
@@ -86,31 +94,31 @@ namespace flu
         }
 
         Eigen::VectorXd total_of_new_cases_per_day = 
-            Eigen::VectorXd::Zero( 7 );
+            Eigen::VectorXd::Zero( nag );
         Eigen::VectorXd total_of_new_cases_per_day_r = 
-            Eigen::VectorXd::Zero( 7 );
+            Eigen::VectorXd::Zero( nag );
         Eigen::VectorXd total_of_new_cases_per_day_p = 
-            Eigen::VectorXd::Zero( 7 );
+            Eigen::VectorXd::Zero( nag );
 
         /*initialisation, densities[VACC_LOW].s,E,I,densities[VACC_LOW].r*/
-        for(i=0;i<NAG;i++)
+        for(i=0;i<nag;i++)
         {
-            densities[LOW].e1[i]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
-            densities[HIGH].e1[i]=seeding_infectious[i]*Npop[i+NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
-            densities[PREG].e1[i]=seeding_infectious[i]*Npop[i+2*NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
+            densities[LOW].e1[i]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+            densities[HIGH].e1[i]=seeding_infectious[i]*Npop[i+nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+            densities[PREG].e1[i]=seeding_infectious[i]*Npop[i+2*nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
 
             densities[LOW].s[i]=Npop[i]-densities[LOW].e1[i];
-            densities[HIGH].s[i]=Npop[i+NAG]-densities[HIGH].e1[i];
-            densities[PREG].s[i]=Npop[i+2*NAG]-densities[PREG].e1[i];
+            densities[HIGH].s[i]=Npop[i+nag]-densities[HIGH].e1[i];
+            densities[PREG].s[i]=Npop[i+2*nag]-densities[PREG].e1[i];
         }
 
         for(t=0; t<no_days; t+=h_step)
         {
-            for(i=0;i<NAG;i++)
+            for(i=0;i<nag;i++)
             {
                 /*rate of depletion of susceptible*/
                 deltas[VACC_LOW].s[i]=0;
-                for(j=0;j<NAG;j++)
+                for(j=0;j<nag;j++)
                     deltas[VACC_LOW].s[i]+=transmission_regular(i,j)*(densities[VACC_LOW].i1[j]+densities[VACC_LOW].i2[j]+densities[VACC_HIGH].i1[j]+densities[VACC_HIGH].i2[j]+densities[VACC_PREG].i1[j]+densities[VACC_PREG].i2[j]+densities[LOW].i1[j]+densities[LOW].i2[j]+densities[HIGH].i1[j]+densities[HIGH].i2[j]+densities[PREG].i1[j]+densities[PREG].i2[j]);
 
                 deltas[VACC_HIGH].s[i]=deltas[VACC_LOW].s[i];
@@ -155,12 +163,12 @@ namespace flu
             if (date_id >= 0 &&
                     date_id < vaccine_programme.calendar.rows() )
             {
-                for(i=0;i<NAG;i++)
+                for(i=0;i<nag;i++)
                 {
                     vacc_prov=Npop[i]*vaccine_programme.calendar(date_id,i)/(densities[LOW].s[i]+densities[LOW].e1[i]+densities[LOW].e2[i]+densities[LOW].i1[i]+densities[LOW].i2[i]+densities[LOW].r[i]);
                     /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar(date_id,i+NAG)/(densities[HIGH].s[i]+densities[HIGH].e1[i]+densities[HIGH].e2[i]+densities[HIGH].i1[i]+densities[HIGH].i2[i]+densities[HIGH].r[i]);
-                    vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(densities[PREG].s[i]+densities[PREG].e1[i]+densities[PREG].e2[i]+densities[PREG].i1[i]+densities[PREG].i2[i]+densities[PREG].r[i]);*/
+                    vacc_prov_r=Npop[i+nag]*vaccine_programme.calendar(date_id,i+nag)/(densities[HIGH].s[i]+densities[HIGH].e1[i]+densities[HIGH].e2[i]+densities[HIGH].i1[i]+densities[HIGH].i2[i]+densities[HIGH].r[i]);
+                    vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[PREG].s[i]+densities[PREG].e1[i]+densities[PREG].e2[i]+densities[PREG].i1[i]+densities[PREG].i2[i]+densities[PREG].r[i]);*/
 
                     deltas[VACC_LOW].s[i]+=densities[LOW].s[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);
                     deltas[VACC_HIGH].s[i]+=densities[HIGH].s[i]*vacc_prov_r*(1-vaccine_programme.efficacy_year[i]);
@@ -222,16 +230,16 @@ namespace flu
 
             if((((int)(t*step_rate))%step_rate)==step_rate/2)
             {
-                for(i=0;i<NAG;i++)
+                for(i=0;i<nag;i++)
                 {
-                    result[(int)t*3*NAG+i]=total_of_new_cases_per_day[i];
-                    result[(int)t*3*NAG+NAG+i]=total_of_new_cases_per_day_r[i];
-                    result[(int)t*3*NAG+2*NAG+i]=total_of_new_cases_per_day_p[i];
+                    result[(int)t*3*nag+i]=total_of_new_cases_per_day[i];
+                    result[(int)t*3*nag+nag+i]=total_of_new_cases_per_day_r[i];
+                    result[(int)t*3*nag+2*nag+i]=total_of_new_cases_per_day_p[i];
                 }
 
-                total_of_new_cases_per_day = Eigen::VectorXd::Zero( 7 );
-                total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( 7 );
-                total_of_new_cases_per_day_p = Eigen::VectorXd::Zero( 7 );
+                total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
+                total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( nag );
+                total_of_new_cases_per_day_p = Eigen::VectorXd::Zero( nag );
             }
             current_time += dt;
         }
