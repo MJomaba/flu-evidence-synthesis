@@ -38,6 +38,13 @@ namespace flu
         }
     };
 
+    struct group_seir_t
+    {
+        seir_t low;
+        seir_t high;
+        seir_t preg;
+    }
+
     enum group_type_t { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
@@ -118,53 +125,24 @@ namespace flu
                 deltas[LOW].s[i]=deltas[VACC_LOW].s[i];
                 deltas[HIGH].s[i]=deltas[VACC_LOW].s[i];
                 deltas[PREG].s[i]=deltas[VACC_LOW].s[i];
+
                 deltas[VACC_LOW].s[i]*=-densities[VACC_LOW].s[i];
                 deltas[VACC_HIGH].s[i]*=-densities[VACC_HIGH].s[i];
                 deltas[VACC_PREG].s[i]*=-densities[VACC_PREG].s[i];
                 deltas[LOW].s[i]*=-densities[LOW].s[i];
                 deltas[HIGH].s[i]*=-densities[HIGH].s[i];
                 deltas[PREG].s[i]*=-densities[PREG].s[i];
+            }
 
-                /*rate of passing between states of infection*/
-                deltas[VACC_LOW].e1[i]=-deltas[VACC_LOW].s[i]-a1*densities[VACC_LOW].e1[i];
-                deltas[VACC_HIGH].e1[i]=-deltas[VACC_HIGH].s[i]-a1*densities[VACC_HIGH].e1[i];
-                deltas[VACC_PREG].e1[i]=-deltas[VACC_PREG].s[i]-a1*densities[VACC_PREG].e1[i];
+            /*rate of passing between states of infection*/
+            for ( auto &gt : group_types)
+            {
+                deltas[gt].e1=-deltas[gt].s-a1*densities[gt].e1;
+                deltas[gt].e2=a1*densities[gt].e1-a2*densities[gt].e2;
 
-                deltas[LOW].e1[i]=-deltas[LOW].s[i]-a1*densities[LOW].e1[i];
-                deltas[HIGH].e1[i]=-deltas[HIGH].s[i]-a1*densities[HIGH].e1[i];
-                deltas[PREG].e1[i]=-deltas[PREG].s[i]-a1*densities[PREG].e1[i];
-
-                deltas[VACC_LOW].e2[i]=a1*densities[VACC_LOW].e1[i]-a2*densities[VACC_LOW].e2[i];
-                deltas[VACC_HIGH].e2[i]=a1*densities[VACC_HIGH].e1[i]-a2*densities[VACC_HIGH].e2[i];
-                deltas[VACC_PREG].e2[i]=a1*densities[VACC_PREG].e1[i]-a2*densities[VACC_PREG].e2[i];
-
-                deltas[LOW].e2[i]=a1*densities[LOW].e1[i]-a2*densities[LOW].e2[i];
-                deltas[HIGH].e2[i]=a1*densities[HIGH].e1[i]-a2*densities[HIGH].e2[i];
-                deltas[PREG].e2[i]=a1*densities[PREG].e1[i]-a2*densities[PREG].e2[i];
-
-                deltas[VACC_LOW].i1[i]=a2*densities[VACC_LOW].e2[i]-g1*densities[VACC_LOW].i1[i];
-                deltas[VACC_HIGH].i1[i]=a2*densities[VACC_HIGH].e2[i]-g1*densities[VACC_HIGH].i1[i];
-                deltas[VACC_PREG].i1[i]=a2*densities[VACC_PREG].e2[i]-g1*densities[VACC_PREG].i1[i];
-
-                deltas[LOW].i1[i]=a2*densities[LOW].e2[i]-g1*densities[LOW].i1[i];
-                deltas[HIGH].i1[i]=a2*densities[HIGH].e2[i]-g1*densities[HIGH].i1[i];
-                deltas[PREG].i1[i]=a2*densities[PREG].e2[i]-g1*densities[PREG].i1[i];
-
-                deltas[VACC_LOW].i2[i]=g1*densities[VACC_LOW].i1[i]-g2*densities[VACC_LOW].i2[i];
-                deltas[VACC_HIGH].i2[i]=g1*densities[VACC_HIGH].i1[i]-g2*densities[VACC_HIGH].i2[i];
-                deltas[VACC_PREG].i2[i]=g1*densities[VACC_PREG].i1[i]-g2*densities[VACC_PREG].i2[i];
-
-                deltas[LOW].i2[i]=g1*densities[LOW].i1[i]-g2*densities[LOW].i2[i];
-                deltas[HIGH].i2[i]=g1*densities[HIGH].i1[i]-g2*densities[HIGH].i2[i];
-                deltas[PREG].i2[i]=g1*densities[PREG].i1[i]-g2*densities[PREG].i2[i];
-
-                deltas[VACC_LOW].r[i]=g2*densities[VACC_LOW].i2[i];
-                deltas[VACC_HIGH].r[i]=g2*densities[VACC_HIGH].i2[i];
-                deltas[VACC_PREG].r[i]=g2*densities[VACC_PREG].i2[i];
-
-                deltas[LOW].r[i]=g2*densities[LOW].i2[i];
-                deltas[HIGH].r[i]=g2*densities[HIGH].i2[i];
-                deltas[PREG].r[i]=g2*densities[PREG].i2[i];
+                deltas[gt].i1=a2*densities[gt].e2-g1*densities[gt].i1;
+                deltas[gt].i2=g1*densities[gt].i1-g2*densities[gt].i2;
+                deltas[gt].r=g2*densities[gt].i2;
             }
 
             /*Vaccine bit*/
