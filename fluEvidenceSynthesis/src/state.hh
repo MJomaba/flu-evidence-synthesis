@@ -33,7 +33,6 @@ namespace flu
         parameter_set parameters;
         double time_infectious, time_latent;
 
-        std::vector<double> positivity_ij = std::vector<double>(260);
         std::vector<size_t> contact_ids;
         double likelihood;
     };
