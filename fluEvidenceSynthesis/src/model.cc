@@ -55,13 +55,6 @@ namespace flu
             deltas[gt] = seir_t(7);
         }
 
-        double S[7], E1[7], E2[7], I1[7], I2[7], R[7];
-        double Sr[7], E1r[7], E2r[7], I1r[7], I2r[7], Rr[7];
-        double Sp[7], E1p[7], E2p[7], I1p[7], I2p[7], Rp[7];
-
-        double SN[7], E1N[7], E2N[7], I1N[7], I2N[7], RN[7];
-        double SrN[7], E1rN[7], E2rN[7], I1rN[7], I2rN[7], RrN[7];
-        double SpN[7], E1pN[7], E2pN[7], I1pN[7], I2pN[7], RpN[7];
         double total_of_new_cases_per_day[7], total_of_new_cases_per_day_r[7], total_of_new_cases_per_day_p[7];
         double vacc_prov, vacc_prov_p, vacc_prov_r;
         int i, j;
@@ -93,46 +86,16 @@ namespace flu
             }
         }
 
-        /*initialisation, S,E,I,R*/
+        /*initialisation, densities[VACC_LOW].s,E,I,densities[VACC_LOW].r*/
         for(i=0;i<NAG;i++)
         {
-            E1[i]=0;
-            E1r[i]=0;
-            E1p[i]=0;
-            E2[i]=0;
-            E2r[i]=0;
-            E2p[i]=0;
-            I1[i]=0;
-            I1r[i]=0;
-            I1p[i]=0;
-            I2[i]=0;
-            I2r[i]=0;
-            I2p[i]=0;
-            R[i]=0;
-            Rr[i]=0;
-            Rp[i]=0;
-            S[i]=0;
-            Sr[i]=0;
-            Sp[i]=0;
+            densities[LOW].e1[i]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
+            densities[HIGH].e1[i]=seeding_infectious[i]*Npop[i+NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
+            densities[PREG].e1[i]=seeding_infectious[i]*Npop[i+2*NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
 
-            E1N[i]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
-            E1rN[i]=seeding_infectious[i]*Npop[i+NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
-            E1pN[i]=seeding_infectious[i]*Npop[i+2*NAG]/(Npop[i]+Npop[i+NAG]+Npop[i+2*NAG]);
-            E2N[i]=0;
-            E2rN[i]=0;
-            E2pN[i]=0;
-            I1N[i]=0;
-            I1rN[i]=0;
-            I1pN[i]=0;
-            I2N[i]=0;
-            I2rN[i]=0;
-            I2pN[i]=0;
-            RN[i]=0;
-            RrN[i]=0;
-            RpN[i]=0;
-            SN[i]=Npop[i]-E1N[i];
-            SrN[i]=Npop[i+NAG]-E1rN[i];
-            SpN[i]=Npop[i+2*NAG]-E1pN[i];
+            densities[LOW].s[i]=Npop[i]-densities[LOW].e1[i];
+            densities[HIGH].s[i]=Npop[i+NAG]-densities[HIGH].e1[i];
+            densities[PREG].s[i]=Npop[i+2*NAG]-densities[PREG].e1[i];
 
             total_of_new_cases_per_day[i]=0;
             total_of_new_cases_per_day_r[i]=0;
@@ -149,106 +112,64 @@ namespace flu
                 //
                 // Or use a four dimensional state space, that can also be
                 // accessed via one big vector? (age, risk, seeiir, vaccinated)
-                // Using some simple regexs we could make them into maps, with "S/E1/E2/I1/I2/R", "l/r/p", "N/V" as mappings
+                // Using some simple regexs we could make them into maps, with "densities[VACC_LOW].s/densities[VACC_LOW].e1/densities[VACC_LOW].e2/densities[VACC_LOW].i1/densities[VACC_LOW].i2/densities[VACC_LOW].r", "l/r/p", "N/V" as mappings
                 /*initialisation of the different increment for the euler algorithm*/
-                deltas[VACC_LOW].s[i]=0;
-                deltas[VACC_LOW].e1[i]=0;
-                deltas[VACC_LOW].e2[i]=0;
-                deltas[VACC_LOW].i1[i]=0;
-                deltas[VACC_LOW].i2[i]=0;
-                deltas[VACC_LOW].r[i]=0;
-
-                deltas[VACC_HIGH].s[i]=0;
-                deltas[VACC_HIGH].e1[i]=0;
-                deltas[VACC_HIGH].e2[i]=0;
-                deltas[VACC_HIGH].i1[i]=0;
-                deltas[VACC_HIGH].i2[i]=0;
-                deltas[VACC_HIGH].r[i]=0;
-
-                deltas[VACC_PREG].s[i]=0;
-                deltas[VACC_PREG].e1[i]=0;
-                deltas[VACC_PREG].e2[i]=0;
-                deltas[VACC_PREG].i1[i]=0;
-                deltas[VACC_PREG].i2[i]=0;
-                deltas[VACC_PREG].r[i]=0;
-
-                deltas[LOW].s[i]=0;
-                deltas[LOW].e1[i]=0;
-                deltas[LOW].e2[i]=0;
-                deltas[LOW].i1[i]=0;
-                deltas[LOW].i2[i]=0;
-                deltas[LOW].r[i]=0;
-
-                deltas[HIGH].s[i]=0;
-                deltas[HIGH].e1[i]=0;
-                deltas[HIGH].e2[i]=0;
-                deltas[HIGH].i1[i]=0;
-                deltas[HIGH].i2[i]=0;
-                deltas[HIGH].r[i]=0;
-
-                deltas[PREG].s[i]=0;
-                deltas[PREG].e1[i]=0;
-                deltas[PREG].e2[i]=0;
-                deltas[PREG].i1[i]=0;
-                deltas[PREG].i2[i]=0;
-                deltas[PREG].r[i]=0;
-
                 /*rate of depletion of susceptible*/
                 for(j=0;j<NAG;j++)
-                    deltas[VACC_LOW].s[i]+=transmission_regular(i,j)*(I1[j]+I2[j]+I1r[j]+I2r[j]+I1p[j]+I2p[j]+I1N[j]+I2N[j]+I1rN[j]+I2rN[j]+I1pN[j]+I2pN[j]);
+                    deltas[VACC_LOW].s[i]+=transmission_regular(i,j)*(densities[VACC_LOW].i1[j]+densities[VACC_LOW].i2[j]+densities[VACC_HIGH].i1[j]+densities[VACC_HIGH].i2[j]+densities[VACC_PREG].i1[j]+densities[VACC_PREG].i2[j]+densities[LOW].i1[j]+densities[LOW].i2[j]+densities[HIGH].i1[j]+densities[HIGH].i2[j]+densities[PREG].i1[j]+densities[PREG].i2[j]);
 
                 deltas[VACC_HIGH].s[i]=deltas[VACC_LOW].s[i];
                 deltas[VACC_PREG].s[i]=deltas[VACC_LOW].s[i];
                 deltas[LOW].s[i]=deltas[VACC_LOW].s[i];
                 deltas[HIGH].s[i]=deltas[VACC_LOW].s[i];
                 deltas[PREG].s[i]=deltas[VACC_LOW].s[i];
-                deltas[VACC_LOW].s[i]*=-S[i];
-                deltas[VACC_HIGH].s[i]*=-Sr[i];
-                deltas[VACC_PREG].s[i]*=-Sp[i];
-                deltas[LOW].s[i]*=-SN[i];
-                deltas[HIGH].s[i]*=-SrN[i];
-                deltas[PREG].s[i]*=-SpN[i];
+                deltas[VACC_LOW].s[i]*=-densities[VACC_LOW].s[i];
+                deltas[VACC_HIGH].s[i]*=-densities[VACC_HIGH].s[i];
+                deltas[VACC_PREG].s[i]*=-densities[VACC_PREG].s[i];
+                deltas[LOW].s[i]*=-densities[LOW].s[i];
+                deltas[HIGH].s[i]*=-densities[HIGH].s[i];
+                deltas[PREG].s[i]*=-densities[PREG].s[i];
 
                 /*rate of passing between states of infection*/
-                deltas[VACC_LOW].e1[i]=-deltas[VACC_LOW].s[i]-a1*E1[i];
-                deltas[VACC_HIGH].e1[i]=-deltas[VACC_HIGH].s[i]-a1*E1r[i];
-                deltas[VACC_PREG].e1[i]=-deltas[VACC_PREG].s[i]-a1*E1p[i];
+                deltas[VACC_LOW].e1[i]=-deltas[VACC_LOW].s[i]-a1*densities[VACC_LOW].e1[i];
+                deltas[VACC_HIGH].e1[i]=-deltas[VACC_HIGH].s[i]-a1*densities[VACC_HIGH].e1[i];
+                deltas[VACC_PREG].e1[i]=-deltas[VACC_PREG].s[i]-a1*densities[VACC_PREG].e1[i];
 
-                deltas[LOW].e1[i]=-deltas[LOW].s[i]-a1*E1N[i];
-                deltas[HIGH].e1[i]=-deltas[HIGH].s[i]-a1*E1rN[i];
-                deltas[PREG].e1[i]=-deltas[PREG].s[i]-a1*E1pN[i];
+                deltas[LOW].e1[i]=-deltas[LOW].s[i]-a1*densities[LOW].e1[i];
+                deltas[HIGH].e1[i]=-deltas[HIGH].s[i]-a1*densities[HIGH].e1[i];
+                deltas[PREG].e1[i]=-deltas[PREG].s[i]-a1*densities[PREG].e1[i];
 
-                deltas[VACC_LOW].e2[i]=a1*E1[i]-a2*E2[i];
-                deltas[VACC_HIGH].e2[i]=a1*E1r[i]-a2*E2r[i];
-                deltas[VACC_PREG].e2[i]=a1*E1p[i]-a2*E2p[i];
+                deltas[VACC_LOW].e2[i]=a1*densities[VACC_LOW].e1[i]-a2*densities[VACC_LOW].e2[i];
+                deltas[VACC_HIGH].e2[i]=a1*densities[VACC_HIGH].e1[i]-a2*densities[VACC_HIGH].e2[i];
+                deltas[VACC_PREG].e2[i]=a1*densities[VACC_PREG].e1[i]-a2*densities[VACC_PREG].e2[i];
 
-                deltas[LOW].e2[i]=a1*E1N[i]-a2*E2N[i];
-                deltas[HIGH].e2[i]=a1*E1rN[i]-a2*E2rN[i];
-                deltas[PREG].e2[i]=a1*E1pN[i]-a2*E2pN[i];
+                deltas[LOW].e2[i]=a1*densities[LOW].e1[i]-a2*densities[LOW].e2[i];
+                deltas[HIGH].e2[i]=a1*densities[HIGH].e1[i]-a2*densities[HIGH].e2[i];
+                deltas[PREG].e2[i]=a1*densities[PREG].e1[i]-a2*densities[PREG].e2[i];
 
-                deltas[VACC_LOW].i1[i]=a2*E2[i]-g1*I1[i];
-                deltas[VACC_HIGH].i1[i]=a2*E2r[i]-g1*I1r[i];
-                deltas[VACC_PREG].i1[i]=a2*E2p[i]-g1*I1p[i];
+                deltas[VACC_LOW].i1[i]=a2*densities[VACC_LOW].e2[i]-g1*densities[VACC_LOW].i1[i];
+                deltas[VACC_HIGH].i1[i]=a2*densities[VACC_HIGH].e2[i]-g1*densities[VACC_HIGH].i1[i];
+                deltas[VACC_PREG].i1[i]=a2*densities[VACC_PREG].e2[i]-g1*densities[VACC_PREG].i1[i];
 
-                deltas[LOW].i1[i]=a2*E2N[i]-g1*I1N[i];
-                deltas[HIGH].i1[i]=a2*E2rN[i]-g1*I1rN[i];
-                deltas[PREG].i1[i]=a2*E2pN[i]-g1*I1pN[i];
+                deltas[LOW].i1[i]=a2*densities[LOW].e2[i]-g1*densities[LOW].i1[i];
+                deltas[HIGH].i1[i]=a2*densities[HIGH].e2[i]-g1*densities[HIGH].i1[i];
+                deltas[PREG].i1[i]=a2*densities[PREG].e2[i]-g1*densities[PREG].i1[i];
 
-                deltas[VACC_LOW].i2[i]=g1*I1[i]-g2*I2[i];
-                deltas[VACC_HIGH].i2[i]=g1*I1r[i]-g2*I2r[i];
-                deltas[VACC_PREG].i2[i]=g1*I1p[i]-g2*I2p[i];
+                deltas[VACC_LOW].i2[i]=g1*densities[VACC_LOW].i1[i]-g2*densities[VACC_LOW].i2[i];
+                deltas[VACC_HIGH].i2[i]=g1*densities[VACC_HIGH].i1[i]-g2*densities[VACC_HIGH].i2[i];
+                deltas[VACC_PREG].i2[i]=g1*densities[VACC_PREG].i1[i]-g2*densities[VACC_PREG].i2[i];
 
-                deltas[LOW].i2[i]=g1*I1N[i]-g2*I2N[i];
-                deltas[HIGH].i2[i]=g1*I1rN[i]-g2*I2rN[i];
-                deltas[PREG].i2[i]=g1*I1pN[i]-g2*I2pN[i];
+                deltas[LOW].i2[i]=g1*densities[LOW].i1[i]-g2*densities[LOW].i2[i];
+                deltas[HIGH].i2[i]=g1*densities[HIGH].i1[i]-g2*densities[HIGH].i2[i];
+                deltas[PREG].i2[i]=g1*densities[PREG].i1[i]-g2*densities[PREG].i2[i];
 
-                deltas[VACC_LOW].r[i]=g2*I2[i];
-                deltas[VACC_HIGH].r[i]=g2*I2r[i];
-                deltas[VACC_PREG].r[i]=g2*I2p[i];
+                deltas[VACC_LOW].r[i]=g2*densities[VACC_LOW].i2[i];
+                deltas[VACC_HIGH].r[i]=g2*densities[VACC_HIGH].i2[i];
+                deltas[VACC_PREG].r[i]=g2*densities[VACC_PREG].i2[i];
 
-                deltas[LOW].r[i]=g2*I2N[i];
-                deltas[HIGH].r[i]=g2*I2rN[i];
-                deltas[PREG].r[i]=g2*I2pN[i];
+                deltas[LOW].r[i]=g2*densities[LOW].i2[i];
+                deltas[HIGH].r[i]=g2*densities[HIGH].i2[i];
+                deltas[PREG].r[i]=g2*densities[PREG].i2[i];
             }
 
             /*Vaccine bit*/
@@ -270,109 +191,109 @@ namespace flu
             {
                 for(i=0;i<NAG;i++)
                 {
-                    vacc_prov=Npop[i]*vaccine_programme.calendar(date_id,i)/(SN[i]+E1N[i]+E2N[i]+I1N[i]+I2N[i]+RN[i]);
+                    vacc_prov=Npop[i]*vaccine_programme.calendar(date_id,i)/(densities[LOW].s[i]+densities[LOW].e1[i]+densities[LOW].e2[i]+densities[LOW].i1[i]+densities[LOW].i2[i]+densities[LOW].r[i]);
                     /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar(date_id,i+NAG)/(SrN[i]+E1rN[i]+E2rN[i]+I1rN[i]+I2rN[i]+RrN[i]);
-                    vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(SpN[i]+E1pN[i]+E2pN[i]+I1pN[i]+I2pN[i]+RpN[i]);*/
+                    vacc_prov_r=Npop[i+NAG]*vaccine_programme.calendar(date_id,i+NAG)/(densities[HIGH].s[i]+densities[HIGH].e1[i]+densities[HIGH].e2[i]+densities[HIGH].i1[i]+densities[HIGH].i2[i]+densities[HIGH].r[i]);
+                    vacc_prov_p=0; /*Npop[i+2*NAG]*vaccination_calendar[cal_time*21+i+2*NAG]/(densities[PREG].s[i]+densities[PREG].e1[i]+densities[PREG].e2[i]+densities[PREG].i1[i]+densities[PREG].i2[i]+densities[PREG].r[i]);*/
 
-                    deltas[VACC_LOW].s[i]+=SN[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);
-                    deltas[VACC_HIGH].s[i]+=SrN[i]*vacc_prov_r*(1-vaccine_programme.efficacy_year[i]);
-                    deltas[VACC_PREG].s[i]+=SpN[i]*vacc_prov_p*(1-vaccine_programme.efficacy_year[i]);
-                    deltas[LOW].s[i]-=SN[i]*vacc_prov;
-                    deltas[HIGH].s[i]-=SrN[i]*vacc_prov_r;
-                    deltas[PREG].s[i]-=SpN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].s[i]+=densities[LOW].s[i]*vacc_prov*(1-vaccine_programme.efficacy_year[i]);
+                    deltas[VACC_HIGH].s[i]+=densities[HIGH].s[i]*vacc_prov_r*(1-vaccine_programme.efficacy_year[i]);
+                    deltas[VACC_PREG].s[i]+=densities[PREG].s[i]*vacc_prov_p*(1-vaccine_programme.efficacy_year[i]);
+                    deltas[LOW].s[i]-=densities[LOW].s[i]*vacc_prov;
+                    deltas[HIGH].s[i]-=densities[HIGH].s[i]*vacc_prov_r;
+                    deltas[PREG].s[i]-=densities[PREG].s[i]*vacc_prov_p;
 
-                    deltas[VACC_LOW].e1[i]+=E1N[i]*vacc_prov;
-                    deltas[VACC_HIGH].e1[i]+=E1rN[i]*vacc_prov_r;
-                    deltas[VACC_PREG].e1[i]+=E1pN[i]*vacc_prov_p;
-                    deltas[LOW].e1[i]-=E1N[i]*vacc_prov;
-                    deltas[HIGH].e1[i]-=E1rN[i]*vacc_prov_r;
-                    deltas[PREG].e1[i]-=E1pN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].e1[i]+=densities[LOW].e1[i]*vacc_prov;
+                    deltas[VACC_HIGH].e1[i]+=densities[HIGH].e1[i]*vacc_prov_r;
+                    deltas[VACC_PREG].e1[i]+=densities[PREG].e1[i]*vacc_prov_p;
+                    deltas[LOW].e1[i]-=densities[LOW].e1[i]*vacc_prov;
+                    deltas[HIGH].e1[i]-=densities[HIGH].e1[i]*vacc_prov_r;
+                    deltas[PREG].e1[i]-=densities[PREG].e1[i]*vacc_prov_p;
 
-                    deltas[VACC_LOW].e2[i]+=E2N[i]*vacc_prov;
-                    deltas[VACC_HIGH].e2[i]+=E2rN[i]*vacc_prov_r;
-                    deltas[VACC_PREG].e2[i]+=E2pN[i]*vacc_prov_p;
-                    deltas[LOW].e2[i]-=E2N[i]*vacc_prov;
-                    deltas[HIGH].e2[i]-=E2rN[i]*vacc_prov_r;
-                    deltas[PREG].e2[i]-=E2pN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].e2[i]+=densities[LOW].e2[i]*vacc_prov;
+                    deltas[VACC_HIGH].e2[i]+=densities[HIGH].e2[i]*vacc_prov_r;
+                    deltas[VACC_PREG].e2[i]+=densities[PREG].e2[i]*vacc_prov_p;
+                    deltas[LOW].e2[i]-=densities[LOW].e2[i]*vacc_prov;
+                    deltas[HIGH].e2[i]-=densities[HIGH].e2[i]*vacc_prov_r;
+                    deltas[PREG].e2[i]-=densities[PREG].e2[i]*vacc_prov_p;
 
-                    deltas[VACC_LOW].i1[i]+=I1N[i]*vacc_prov;
-                    deltas[VACC_HIGH].i1[i]+=I1rN[i]*vacc_prov_r;
-                    deltas[VACC_PREG].i1[i]+=I1pN[i]*vacc_prov_p;
-                    deltas[LOW].i1[i]-=I1N[i]*vacc_prov;
-                    deltas[HIGH].i1[i]-=I1rN[i]*vacc_prov_r;
-                    deltas[PREG].i1[i]-=I1pN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].i1[i]+=densities[LOW].i1[i]*vacc_prov;
+                    deltas[VACC_HIGH].i1[i]+=densities[HIGH].i1[i]*vacc_prov_r;
+                    deltas[VACC_PREG].i1[i]+=densities[PREG].i1[i]*vacc_prov_p;
+                    deltas[LOW].i1[i]-=densities[LOW].i1[i]*vacc_prov;
+                    deltas[HIGH].i1[i]-=densities[HIGH].i1[i]*vacc_prov_r;
+                    deltas[PREG].i1[i]-=densities[PREG].i1[i]*vacc_prov_p;
 
-                    deltas[VACC_LOW].i2[i]+=I2N[i]*vacc_prov;
-                    deltas[VACC_HIGH].i2[i]+=I2rN[i]*vacc_prov_r;
-                    deltas[VACC_PREG].i2[i]+=I2pN[i]*vacc_prov_p;
-                    deltas[LOW].i2[i]-=I2N[i]*vacc_prov;
-                    deltas[HIGH].i2[i]-=I2rN[i]*vacc_prov_r;
-                    deltas[PREG].i2[i]-=I2pN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].i2[i]+=densities[LOW].i2[i]*vacc_prov;
+                    deltas[VACC_HIGH].i2[i]+=densities[HIGH].i2[i]*vacc_prov_r;
+                    deltas[VACC_PREG].i2[i]+=densities[PREG].i2[i]*vacc_prov_p;
+                    deltas[LOW].i2[i]-=densities[LOW].i2[i]*vacc_prov;
+                    deltas[HIGH].i2[i]-=densities[HIGH].i2[i]*vacc_prov_r;
+                    deltas[PREG].i2[i]-=densities[PREG].i2[i]*vacc_prov_p;
 
-                    deltas[VACC_LOW].r[i]+=RN[i]*vacc_prov+SN[i]*vacc_prov*vaccine_programme.efficacy_year[i];
-                    deltas[VACC_HIGH].r[i]+=RrN[i]*vacc_prov_r+SrN[i]*vacc_prov_r*vaccine_programme.efficacy_year[i];
-                    deltas[VACC_PREG].r[i]+=RpN[i]*vacc_prov_p+SpN[i]*vacc_prov_p*vaccine_programme.efficacy_year[i];
-                    deltas[LOW].r[i]-=RN[i]*vacc_prov;
-                    deltas[HIGH].r[i]-=RrN[i]*vacc_prov_r;
-                    deltas[PREG].r[i]-=RpN[i]*vacc_prov_p;
+                    deltas[VACC_LOW].r[i]+=densities[LOW].r[i]*vacc_prov+densities[LOW].s[i]*vacc_prov*vaccine_programme.efficacy_year[i];
+                    deltas[VACC_HIGH].r[i]+=densities[HIGH].r[i]*vacc_prov_r+densities[HIGH].s[i]*vacc_prov_r*vaccine_programme.efficacy_year[i];
+                    deltas[VACC_PREG].r[i]+=densities[PREG].r[i]*vacc_prov_p+densities[PREG].s[i]*vacc_prov_p*vaccine_programme.efficacy_year[i];
+                    deltas[LOW].r[i]-=densities[LOW].r[i]*vacc_prov;
+                    deltas[HIGH].r[i]-=densities[HIGH].r[i]*vacc_prov_r;
+                    deltas[PREG].r[i]-=densities[PREG].r[i]*vacc_prov_p;
                 }
             }
 
             /*update the different classes*/
             for(i=0;i<NAG;i++)
             {
-                S[i]+=h_step*deltas[VACC_LOW].s[i];
-                Sr[i]+=h_step*deltas[VACC_HIGH].s[i];
-                Sp[i]+=h_step*deltas[VACC_PREG].s[i];
+                densities[VACC_LOW].s[i]+=h_step*deltas[VACC_LOW].s[i];
+                densities[VACC_HIGH].s[i]+=h_step*deltas[VACC_HIGH].s[i];
+                densities[VACC_PREG].s[i]+=h_step*deltas[VACC_PREG].s[i];
 
-                SN[i]+=h_step*deltas[LOW].s[i];
-                SrN[i]+=h_step*deltas[HIGH].s[i];
-                SpN[i]+=h_step*deltas[PREG].s[i];
+                densities[LOW].s[i]+=h_step*deltas[LOW].s[i];
+                densities[HIGH].s[i]+=h_step*deltas[HIGH].s[i];
+                densities[PREG].s[i]+=h_step*deltas[PREG].s[i];
 
-                E1[i]+=h_step*deltas[VACC_LOW].e1[i];
-                E1r[i]+=h_step*deltas[VACC_HIGH].e1[i];
-                E1p[i]+=h_step*deltas[VACC_PREG].e1[i];
+                densities[VACC_LOW].e1[i]+=h_step*deltas[VACC_LOW].e1[i];
+                densities[VACC_HIGH].e1[i]+=h_step*deltas[VACC_HIGH].e1[i];
+                densities[VACC_PREG].e1[i]+=h_step*deltas[VACC_PREG].e1[i];
 
-                E1N[i]+=h_step*deltas[LOW].e1[i];
-                E1rN[i]+=h_step*deltas[HIGH].e1[i];
-                E1pN[i]+=h_step*deltas[PREG].e1[i];
+                densities[LOW].e1[i]+=h_step*deltas[LOW].e1[i];
+                densities[HIGH].e1[i]+=h_step*deltas[HIGH].e1[i];
+                densities[PREG].e1[i]+=h_step*deltas[PREG].e1[i];
 
-                E2[i]+=h_step*deltas[VACC_LOW].e2[i];
-                E2r[i]+=h_step*deltas[VACC_HIGH].e2[i];
-                E2p[i]+=h_step*deltas[VACC_PREG].e2[i];
+                densities[VACC_LOW].e2[i]+=h_step*deltas[VACC_LOW].e2[i];
+                densities[VACC_HIGH].e2[i]+=h_step*deltas[VACC_HIGH].e2[i];
+                densities[VACC_PREG].e2[i]+=h_step*deltas[VACC_PREG].e2[i];
 
-                E2N[i]+=h_step*deltas[LOW].e2[i];
-                E2rN[i]+=h_step*deltas[HIGH].e2[i];
-                E2pN[i]+=h_step*deltas[PREG].e2[i];
+                densities[LOW].e2[i]+=h_step*deltas[LOW].e2[i];
+                densities[HIGH].e2[i]+=h_step*deltas[HIGH].e2[i];
+                densities[PREG].e2[i]+=h_step*deltas[PREG].e2[i];
 
-                I1[i]+=h_step*deltas[VACC_LOW].i1[i];
-                I1r[i]+=h_step*deltas[VACC_HIGH].i1[i];
-                I1p[i]+=h_step*deltas[VACC_PREG].i1[i];
+                densities[VACC_LOW].i1[i]+=h_step*deltas[VACC_LOW].i1[i];
+                densities[VACC_HIGH].i1[i]+=h_step*deltas[VACC_HIGH].i1[i];
+                densities[VACC_PREG].i1[i]+=h_step*deltas[VACC_PREG].i1[i];
 
-                I1N[i]+=h_step*deltas[LOW].i1[i];
-                I1rN[i]+=h_step*deltas[HIGH].i1[i];
-                I1pN[i]+=h_step*deltas[PREG].i1[i];
+                densities[LOW].i1[i]+=h_step*deltas[LOW].i1[i];
+                densities[HIGH].i1[i]+=h_step*deltas[HIGH].i1[i];
+                densities[PREG].i1[i]+=h_step*deltas[PREG].i1[i];
 
-                I2[i]+=h_step*deltas[VACC_LOW].i2[i];
-                I2r[i]+=h_step*deltas[VACC_HIGH].i2[i];
-                I2p[i]+=h_step*deltas[VACC_PREG].i2[i];
+                densities[VACC_LOW].i2[i]+=h_step*deltas[VACC_LOW].i2[i];
+                densities[VACC_HIGH].i2[i]+=h_step*deltas[VACC_HIGH].i2[i];
+                densities[VACC_PREG].i2[i]+=h_step*deltas[VACC_PREG].i2[i];
 
-                I2N[i]+=h_step*deltas[LOW].i2[i];
-                I2rN[i]+=h_step*deltas[HIGH].i2[i];
-                I2pN[i]+=h_step*deltas[PREG].i2[i];
+                densities[LOW].i2[i]+=h_step*deltas[LOW].i2[i];
+                densities[HIGH].i2[i]+=h_step*deltas[HIGH].i2[i];
+                densities[PREG].i2[i]+=h_step*deltas[PREG].i2[i];
 
-                R[i]+=h_step*deltas[VACC_LOW].r[i];
-                Rr[i]+=h_step*deltas[VACC_HIGH].r[i];
-                Rp[i]+=h_step*deltas[VACC_PREG].r[i];
+                densities[VACC_LOW].r[i]+=h_step*deltas[VACC_LOW].r[i];
+                densities[VACC_HIGH].r[i]+=h_step*deltas[VACC_HIGH].r[i];
+                densities[VACC_PREG].r[i]+=h_step*deltas[VACC_PREG].r[i];
 
-                RN[i]+=h_step*deltas[LOW].r[i];
-                RrN[i]+=h_step*deltas[HIGH].r[i];
-                RpN[i]+=h_step*deltas[PREG].r[i];
+                densities[LOW].r[i]+=h_step*deltas[LOW].r[i];
+                densities[HIGH].r[i]+=h_step*deltas[HIGH].r[i];
+                densities[PREG].r[i]+=h_step*deltas[PREG].r[i];
 
-                total_of_new_cases_per_day[i]+=a2*(E2[i]+E2N[i])*h_step;
-                total_of_new_cases_per_day_r[i]+=a2*(E2r[i]+E2rN[i])*h_step;
-                total_of_new_cases_per_day_p[i]+=a2*(E2p[i]+E2pN[i])*h_step;
+                total_of_new_cases_per_day[i]+=a2*(densities[VACC_LOW].e2[i]+densities[LOW].e2[i])*h_step;
+                total_of_new_cases_per_day_r[i]+=a2*(densities[VACC_HIGH].e2[i]+densities[HIGH].e2[i])*h_step;
+                total_of_new_cases_per_day_p[i]+=a2*(densities[VACC_PREG].e2[i]+densities[PREG].e2[i])*h_step;
             }
 
             if((((int)(t*step_rate))%step_rate)==step_rate/2)
