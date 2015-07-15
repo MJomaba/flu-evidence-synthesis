@@ -38,13 +38,6 @@ namespace flu
         }
     };
 
-    struct group_seir_t
-    {
-        seir_t low;
-        seir_t high;
-        seir_t preg;
-    }
-
     enum group_type_t { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
