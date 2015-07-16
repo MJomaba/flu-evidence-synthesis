@@ -1,9 +1,6 @@
 #ifndef MODEL_HH
 #define MODEL_HH
 
-#define EIGEN_NO_AUTOMATIC_RESIZING
-#define EIGEN_NO_DEBUG
-#define EIGEN_FAST_MATH
 
 #include<iostream>
 #include<cmath>

@@ -1,4 +1,5 @@
 #include "model.hh"
+
 namespace flu 
 {
     boost::posix_time::ptime getTimeFromWeekYear( int week, int year )
@@ -41,24 +42,6 @@ namespace flu
             i2 = Eigen::VectorXd::Zero( dim );
             r = Eigen::VectorXd::Zero( dim );
         }
-
-        void setToZero()
-        {
-            for (size_t i = 0; i < s.size(); ++i) {
-                s[i] = 0;
-                e1[i] = 0;
-                e2[i] = 0;
-                i1[i] = 0;
-                i2[i] = 0;
-                r[i] = 0;
-            }
-            /*s = Eigen::VectorXd::Constant(s.size(), 0);
-            e1 = Eigen::VectorXd::Zero( e1.size() );
-            e2 = Eigen::VectorXd::Zero( e2.size() );
-            i1 = Eigen::VectorXd::Zero( i1.size() );
-            i2 = Eigen::VectorXd::Zero( i2.size() );
-            r = Eigen::VectorXd::Zero( r.size() );*/
-         }
     };
 
     enum group_type_t { LOW, HIGH, PREG,
@@ -73,19 +56,11 @@ namespace flu
 
         const size_t nag = contact_regular.rows(); // No. of age groups
 
-        static std::vector<seir_t> densities;
-        static std::vector<seir_t> deltas;
-        if (densities.size() == 0)
-        {
-            for( auto &gt : group_types ) {
-                densities.push_back( seir_t(nag) );
-                deltas.push_back( seir_t(nag) );
-            }
-        } else {
-            for( auto &gt : group_types ) {
-                densities[gt].setToZero();
-                deltas[gt].setToZero();
-            }
+        std::vector<seir_t> densities;
+        std::vector<seir_t> deltas;
+        for( auto &gt : group_types ) {
+            densities.push_back( seir_t(nag) );
+            deltas.push_back( seir_t(nag) );
         }
 
         double vacc_prov, vacc_prov_p, vacc_prov_r;
