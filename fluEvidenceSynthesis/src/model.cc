@@ -257,8 +257,9 @@ namespace flu
         return cases;
     }
 
-    Eigen::MatrixXd days_to_weeks_5AG(const Eigen::MatrixXd &result_days)
+    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
     {
+        auto result_days = simulation.cases;
         /*initialisation*/
         Eigen::MatrixXd result_weeks = 
             Eigen::MatrixXd::Zero( result_days.rows()/7, 5 );

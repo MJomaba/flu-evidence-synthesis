@@ -69,11 +69,11 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     auto result = one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
 
-    /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
-    auto result_by_week = days_to_weeks_5AG( result.cases );
-
     /*curr_psi=0.00001;*/
-    current_state.likelihood = log_likelihood_hyper_poisson(current_state.parameters.epsilon, current_state.parameters.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+    current_state.likelihood = log_likelihood_hyper_poisson(
+            current_state.parameters.epsilon, current_state.parameters.psi, 
+            days_to_weeks_5AG( result ), 
+            ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     auto proposal_state = proposal::initialize( 9 );
 
@@ -133,11 +133,11 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
             result = one_year_SEIR_with_vaccination(pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
 
-            /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
-            result_by_week = days_to_weeks_5AG(result.cases);
-
             /*computes the associated likelihood with the proposed values*/
-            prop_likelihood=log_likelihood_hyper_poisson(proposed_par.epsilon, proposed_par.psi, result_by_week, ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
+            prop_likelihood=log_likelihood_hyper_poisson(
+                    proposed_par.epsilon, proposed_par.psi, 
+                    days_to_weeks_5AG(result), ili, mon_pop, 
+                    n_pos, n_samples, pop_RCGP, d_app);
 
             /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
             // Make sure accept works with -inf prior
