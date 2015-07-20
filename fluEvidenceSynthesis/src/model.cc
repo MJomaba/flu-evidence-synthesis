@@ -49,7 +49,7 @@ namespace flu
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
  
-    void one_year_SEIR_with_vaccination(double * result, const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const Eigen::MatrixXd &contact_regular, double q,
+    Eigen::MatrixXd one_year_SEIR_with_vaccination(const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const Eigen::MatrixXd &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         namespace bt = boost::posix_time;
@@ -111,6 +111,9 @@ namespace flu
             densities[HIGH].s[i]=Npop[i+nag]-densities[HIGH].e1[i];
             densities[PREG].s[i]=Npop[i+2*nag]-densities[PREG].e1[i];
         }
+
+        Eigen::MatrixXd result( 
+                no_days, contact_regular.cols()*group_types.size()/2);
 
         for(t=0; t<no_days; t+=h_step)
         {
@@ -232,9 +235,9 @@ namespace flu
             {
                 for(i=0;i<nag;i++)
                 {
-                    result[(int)t*3*nag+i]=total_of_new_cases_per_day[i];
-                    result[(int)t*3*nag+nag+i]=total_of_new_cases_per_day_r[i];
-                    result[(int)t*3*nag+2*nag+i]=total_of_new_cases_per_day_p[i];
+                    result((int)t,i)=total_of_new_cases_per_day[i];
+                    result((int)t,nag+i)=total_of_new_cases_per_day_r[i];
+                    result((int)t,2*nag+i)=total_of_new_cases_per_day_p[i];
                 }
 
                 total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
@@ -243,9 +246,11 @@ namespace flu
             }
             current_time += dt;
         }
+        return result;
     }
 
-    void days_to_weeks_5AG(double *result_days, double *result_weeks)
+    void days_to_weeks_5AG(const Eigen::MatrixXd &result_days, 
+            double *result_weeks)
     {
         int i,j;
 
@@ -256,11 +261,11 @@ namespace flu
         for(i=0; i<length_weeks; i++)
             for(j=0;j<7;j++)
             {
-                result_weeks[i*5]+=result_days[(7*i+j)*NAG*3]+result_days[(7*i+j)*NAG*3+1]+result_days[(7*i+j)*NAG*3+7]+result_days[(7*i+j)*NAG*3+8]+result_days[(7*i+j)*NAG*3+14]+result_days[(7*i+j)*NAG*3+15];
-                result_weeks[i*5+1]+=result_days[(7*i+j)*NAG*3+2]+result_days[(7*i+j)*NAG*3+9]+result_days[(7*i+j)*NAG*3+16];
-                result_weeks[i*5+2]+=result_days[(7*i+j)*NAG*3+3]+result_days[(7*i+j)*NAG*3+4]+result_days[(7*i+j)*NAG*3+10]+result_days[(7*i+j)*NAG*3+11]+result_days[(7*i+j)*NAG*3+17]+result_days[(7*i+j)*NAG*3+18];
-                result_weeks[i*5+3]+=result_days[(7*i+j)*NAG*3+5]+result_days[(7*i+j)*NAG*3+12]+result_days[(7*i+j)*NAG*3+19];
-                result_weeks[i*5+4]+=result_days[(7*i+j)*NAG*3+6]+result_days[(7*i+j)*NAG*3+13]+result_days[(7*i+j)*NAG*3+20];
+                result_weeks[i*5]+=result_days((7*i+j),0)+result_days((7*i+j),1)+result_days((7*i+j),7)+result_days((7*i+j),8)+result_days((7*i+j),14)+result_days((7*i+j),15);
+                result_weeks[i*5+1]+=result_days((7*i+j),2)+result_days((7*i+j),9)+result_days((7*i+j),16);
+                result_weeks[i*5+2]+=result_days((7*i+j),3)+result_days((7*i+j),4)+result_days((7*i+j),10)+result_days((7*i+j),11)+result_days((7*i+j),17)+result_days((7*i+j),18);
+                result_weeks[i*5+3]+=result_days((7*i+j),5)+result_days((7*i+j),12)+result_days((7*i+j),19);
+                result_weeks[i*5+4]+=result_days((7*i+j),6)+result_days((7*i+j),13)+result_days((7*i+j),20);
             }
     }
 

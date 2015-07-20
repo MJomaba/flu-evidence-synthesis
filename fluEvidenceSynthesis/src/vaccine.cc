@@ -16,7 +16,6 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
         flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample,
         flu::contacts::contacts_t polymod_uk ) {
 
-    double result_simu[7644];
     std::vector<double> final_sizes;
 
     auto age_data = flu::data::group_age_data( age_sizes );
@@ -38,7 +37,7 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
             flu::contacts::shuffle_by_id( polymod_uk, 
                 sample.contact_ids ), ages );
 
-    flu::one_year_SEIR_with_vaccination(result_simu, pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
+    auto result_simu = flu::one_year_SEIR_with_vaccination(pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar);
     for(size_t j=0; j<21; j++)
     {
         final_sizes.push_back(0.0);
@@ -47,7 +46,7 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
     {
         for(size_t j=0; j<21; j++)
         {
-            final_sizes[j]+=result_simu[21*i+j];
+            final_sizes[j]+=result_simu(i,j);
         }
     }
 

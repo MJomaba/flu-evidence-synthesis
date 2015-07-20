@@ -33,7 +33,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     double curr_init_inf[NAG];
     int step_mat;
     double pop_RCGP[5];
-    double result[7644], result_by_week[260]; /*21*52 number of new cases per week*/
+    double result_by_week[260]; /*21*52 number of new cases per week*/
     double prop_likelihood;
 
     double my_acceptance_rate;
@@ -68,7 +68,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     auto current_contact_regular = 
         contacts::to_symmetric_matrix( curr_c, age_data );
 
-    one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
+    auto result = one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
 
     /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
     days_to_weeks_5AG(result,result_by_week);
@@ -132,7 +132,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             auto prop_contact_regular = 
                 contacts::to_symmetric_matrix( prop_c, age_data );
 
-            one_year_SEIR_with_vaccination(result, pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
+            result = one_year_SEIR_with_vaccination(pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar );
 
             /*transforms the 21 classes dailys epidemics in weekly 5 AG ones to match RCGP data*/
             days_to_weeks_5AG(result,result_by_week);

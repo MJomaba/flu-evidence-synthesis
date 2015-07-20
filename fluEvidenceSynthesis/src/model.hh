@@ -19,12 +19,12 @@ namespace flu
 {
     boost::posix_time::ptime getTimeFromWeekYear( int week, int year );
 
-    void one_year_SEIR_with_vaccination(double *, const std::vector<double> &pop_vec, double *, const double, const double,  const std::vector<double> &, const Eigen::MatrixXd &contact_regular, double, 
+    Eigen::MatrixXd one_year_SEIR_with_vaccination(const std::vector<double> &pop_vec, double *, const double, const double,  const std::vector<double> &, const Eigen::MatrixXd &contact_regular, double, 
             const vaccine::vaccine_t &vaccine_programme );
 
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
-    void days_to_weeks_5AG(double *, double *);
+    void days_to_weeks_5AG(const Eigen::MatrixXd &results, double *);
     double log_likelihood_hyper_poisson(const std::vector<double> &, 
             double, double *,
             Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 

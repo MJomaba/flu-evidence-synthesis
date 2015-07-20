@@ -49,8 +49,6 @@ Rcpp::DataFrame runSEIRModel(
         flu::state_t current_state )
 {
 
-    double result[7644];
-
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;
     age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
@@ -68,20 +66,9 @@ Rcpp::DataFrame runSEIRModel(
     auto current_contact_regular = 
         flu::contacts::to_symmetric_matrix( curr_c, age_data );
 
-    flu::one_year_SEIR_with_vaccination(result, pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
+    auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
 
-    //if((((int)(t*step_rate))%step_rate)==step_rate/2)
-    auto resultMatrix = Eigen::MatrixXd( 7644/21, 21 );
-    for(size_t t = 0; t<resultMatrix.rows(); ++t)
-    {
-        for(size_t i=0;i<NAG;i++)
-        {
-            resultMatrix(t, i) = result[t*3*NAG+i];
-            resultMatrix(t, i+NAG) = result[t*3*NAG+NAG+i];
-            resultMatrix(t, i+2*NAG) = result[t*3*NAG+2*NAG+i];
-        }
-    }
-    Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( resultMatrix );
+    Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result );
     return densities;
     //return resultMatrix;
 }
