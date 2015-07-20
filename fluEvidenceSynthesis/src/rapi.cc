@@ -68,7 +68,33 @@ Rcpp::DataFrame runSEIRModel(
 
     auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
 
-    Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
-    return densities;
+    Rcpp::List resultList( result.cases.cols() + 1 );
+    Rcpp::CharacterVector columnNames;
+
+    //Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
+    // Convert times
+    auto times = Rcpp::DatetimeVector(result.times.size());
+    for ( size_t i = 0; i < result.times.size(); ++i )
+    {
+        times[i] = 
+                Rcpp::Datetime(
+            bt::to_iso_extended_string( result.times[i] ),
+            "%Y-%m-%dT%H:%M:%OS");
+    }
+
+    columnNames.push_back( "Time" );
+    resultList[0] = times;
+
+    for (int i=0; i<result.cases.cols(); ++i)
+    {
+        resultList[i+1] = Eigen::VectorXd(result.cases.col(i));
+        columnNames.push_back( 
+                "V" + boost::lexical_cast<std::string>( i+1 ) );
+    }
+
+    resultList.attr("names") = columnNames;
+
+    return Rcpp::DataFrame(resultList);
+    //return densities;
     //return resultMatrix;
 }
