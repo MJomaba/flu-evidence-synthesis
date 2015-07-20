@@ -120,6 +120,7 @@ namespace flu
 
         cases.cases = Eigen::MatrixXd( no_days, 
                 contact_regular.cols()*group_types.size()/2);
+        cases.times.resize( no_days );
 
         for(t=0; t<no_days; t+=h_step)
         {
@@ -245,7 +246,7 @@ namespace flu
                     cases.cases((int)t,nag+i)=total_of_new_cases_per_day_r[i];
                     cases.cases((int)t,2*nag+i)=total_of_new_cases_per_day_p[i];
                 }
-                cases.times.push_back( current_time );
+                cases.times[(int)t] = current_time;
 
                 total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
                 total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( nag );
