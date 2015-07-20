@@ -257,27 +257,26 @@ namespace flu
         return cases;
     }
 
-    void days_to_weeks_5AG(const Eigen::MatrixXd &result_days, 
-            double *result_weeks)
+    Eigen::MatrixXd days_to_weeks_5AG(const Eigen::MatrixXd &result_days)
     {
-        int i,j;
-
         /*initialisation*/
-        for(i=0; i<length_weeks*5; i++)
-            result_weeks[i]=0;
+        Eigen::MatrixXd result_weeks = 
+            Eigen::MatrixXd::Zero( result_days.rows()/7, 5 );
 
-        for(i=0; i<length_weeks; i++)
-            for(j=0;j<7;j++)
+        for(size_t i=0; i<length_weeks; i++)
+            for(size_t j=0;j<7;j++)
             {
-                result_weeks[i*5]+=result_days((7*i+j),0)+result_days((7*i+j),1)+result_days((7*i+j),7)+result_days((7*i+j),8)+result_days((7*i+j),14)+result_days((7*i+j),15);
-                result_weeks[i*5+1]+=result_days((7*i+j),2)+result_days((7*i+j),9)+result_days((7*i+j),16);
-                result_weeks[i*5+2]+=result_days((7*i+j),3)+result_days((7*i+j),4)+result_days((7*i+j),10)+result_days((7*i+j),11)+result_days((7*i+j),17)+result_days((7*i+j),18);
-                result_weeks[i*5+3]+=result_days((7*i+j),5)+result_days((7*i+j),12)+result_days((7*i+j),19);
-                result_weeks[i*5+4]+=result_days((7*i+j),6)+result_days((7*i+j),13)+result_days((7*i+j),20);
+                result_weeks(i,0)+=result_days((7*i+j),0)+result_days((7*i+j),1)+result_days((7*i+j),7)+result_days((7*i+j),8)+result_days((7*i+j),14)+result_days((7*i+j),15);
+                result_weeks(i,1)+=result_days((7*i+j),2)+result_days((7*i+j),9)+result_days((7*i+j),16);
+                result_weeks(i,2)+=result_days((7*i+j),3)+result_days((7*i+j),4)+result_days((7*i+j),10)+result_days((7*i+j),11)+result_days((7*i+j),17)+result_days((7*i+j),18);
+                result_weeks(i,3)+=result_days((7*i+j),5)+result_days((7*i+j),12)+result_days((7*i+j),19);
+                result_weeks(i,4)+=result_days((7*i+j),6)+result_days((7*i+j),13)+result_days((7*i+j),20);
             }
+
+        return result_weeks;
     }
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, double * result_simu,
+    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, const Eigen::MatrixXd &result_by_week,
             Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
             Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
             //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
@@ -292,10 +291,10 @@ namespace flu
         for(i=0;i<5;i++)
         {
             epsilon=eps[i];
-            for(week=0;week<52;week++)
+            for(week=0;week<result_by_week.rows();week++)
             {
                 pop_mon=mon_pop(week,i);
-                Z_in_mon=(int)round(result_simu[week*5+i]*pop_mon/pop_5AG_RCGP[i]);
+                Z_in_mon=(int)round(result_by_week(week,i)*pop_mon/pop_5AG_RCGP[i]);
                 n=n_samples(week,i);
                 n_plus=n_pos(week,i);
                 m=ili(week,i);

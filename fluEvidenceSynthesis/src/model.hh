@@ -38,10 +38,10 @@ namespace flu
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
 
-    void days_to_weeks_5AG(const Eigen::MatrixXd &results, double *);
+    Eigen::MatrixXd days_to_weeks_5AG(const Eigen::MatrixXd &result_days);
 
     double log_likelihood_hyper_poisson(const std::vector<double> &, 
-            double, double *,
+            double, const Eigen::MatrixXd &result_by_week,
             Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
             Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
             double *, int);
