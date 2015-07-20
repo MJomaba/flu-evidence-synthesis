@@ -22,8 +22,6 @@ namespace flu
     void one_year_SEIR_with_vaccination(double *, const std::vector<double> &pop_vec, double *, const double, const double,  const std::vector<double> &, const Eigen::MatrixXd &contact_regular, double, 
             const vaccine::vaccine_t &vaccine_programme );
 
-    void one_year_SEIR_without_vaccination(double *, const std::vector<double> &pop_vec, double *, double, double, const std::vector<double> &, const Eigen::MatrixXd &contact_regular, double);
-
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
     void days_to_weeks_5AG(double *, double *);
