@@ -259,20 +259,29 @@ namespace flu
 
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
     {
+
+        size_t weeks =  (simulation.times.back() - simulation.times.front())
+            .hours()/(24*7) + 1;
         auto result_days = simulation.cases;
         /*initialisation*/
         Eigen::MatrixXd result_weeks = 
-            Eigen::MatrixXd::Zero( result_days.rows()/7, 5 );
+            Eigen::MatrixXd::Zero( weeks, 5 );
 
-        for(size_t i=0; i<length_weeks; i++)
-            for(size_t j=0;j<7;j++)
+        size_t j = 0;
+        for(size_t i=0; i<weeks; i++)
+        {
+            auto startWeek = simulation.times[j];
+            while( j < simulation.times.size() &&
+                    (simulation.times[j]-startWeek).hours()/(24.0)<7.0 )
             {
-                result_weeks(i,0)+=result_days((7*i+j),0)+result_days((7*i+j),1)+result_days((7*i+j),7)+result_days((7*i+j),8)+result_days((7*i+j),14)+result_days((7*i+j),15);
-                result_weeks(i,1)+=result_days((7*i+j),2)+result_days((7*i+j),9)+result_days((7*i+j),16);
-                result_weeks(i,2)+=result_days((7*i+j),3)+result_days((7*i+j),4)+result_days((7*i+j),10)+result_days((7*i+j),11)+result_days((7*i+j),17)+result_days((7*i+j),18);
-                result_weeks(i,3)+=result_days((7*i+j),5)+result_days((7*i+j),12)+result_days((7*i+j),19);
-                result_weeks(i,4)+=result_days((7*i+j),6)+result_days((7*i+j),13)+result_days((7*i+j),20);
+                result_weeks(i,0)+=result_days(j,0)+result_days(j,1)+result_days(j,7)+result_days(j,8)+result_days(j,14)+result_days(j,15);
+                result_weeks(i,1)+=result_days(j,2)+result_days(j,9)+result_days(j,16);
+                result_weeks(i,2)+=result_days(j,3)+result_days(j,4)+result_days(j,10)+result_days(j,11)+result_days(j,17)+result_days(j,18);
+                result_weeks(i,3)+=result_days(j,5)+result_days(j,12)+result_days(j,19);
+                result_weeks(i,4)+=result_days(j,6)+result_days(j,13)+result_days(j,20);
+                ++j;
             }
+        }
 
         return result_weeks;
     }
