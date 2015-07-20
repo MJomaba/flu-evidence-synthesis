@@ -68,7 +68,7 @@ Rcpp::DataFrame runSEIRModel(
 
     auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
 
-    Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result );
+    Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
     return densities;
     //return resultMatrix;
 }

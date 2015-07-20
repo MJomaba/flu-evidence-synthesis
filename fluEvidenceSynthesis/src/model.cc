@@ -49,7 +49,11 @@ namespace flu
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
  
-    Eigen::MatrixXd one_year_SEIR_with_vaccination(const std::vector<double> &Npop, double * seeding_infectious, const double tlatent, const double tinfectious, const std::vector<double> &s_profile, const Eigen::MatrixXd &contact_regular, double q,
+    cases_t one_year_SEIR_with_vaccination(
+            const std::vector<double> &Npop, double * seeding_infectious, 
+            const double tlatent, const double tinfectious, 
+            const std::vector<double> &s_profile, 
+            const Eigen::MatrixXd &contact_regular, double q,
             const vaccine::vaccine_t &vaccine_programme )
     {
         namespace bt = boost::posix_time;
@@ -112,8 +116,10 @@ namespace flu
             densities[PREG].s[i]=Npop[i+2*nag]-densities[PREG].e1[i];
         }
 
-        Eigen::MatrixXd result( 
-                no_days, contact_regular.cols()*group_types.size()/2);
+        cases_t cases;
+
+        cases.cases = Eigen::MatrixXd( no_days, 
+                contact_regular.cols()*group_types.size()/2);
 
         for(t=0; t<no_days; t+=h_step)
         {
@@ -235,10 +241,11 @@ namespace flu
             {
                 for(i=0;i<nag;i++)
                 {
-                    result((int)t,i)=total_of_new_cases_per_day[i];
-                    result((int)t,nag+i)=total_of_new_cases_per_day_r[i];
-                    result((int)t,2*nag+i)=total_of_new_cases_per_day_p[i];
+                    cases.cases((int)t,i)=total_of_new_cases_per_day[i];
+                    cases.cases((int)t,nag+i)=total_of_new_cases_per_day_r[i];
+                    cases.cases((int)t,2*nag+i)=total_of_new_cases_per_day_p[i];
                 }
+                cases.times.push_back( current_time );
 
                 total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
                 total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( nag );
@@ -246,7 +253,7 @@ namespace flu
             }
             current_time += dt;
         }
-        return result;
+        return cases;
     }
 
     void days_to_weeks_5AG(const Eigen::MatrixXd &result_days, 
