@@ -40,11 +40,11 @@ namespace flu
 
     Eigen::MatrixXd days_to_weeks_5AG(const Eigen::MatrixXd &result_days);
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &, 
-            double, const Eigen::MatrixXd &result_by_week,
-            Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
-            Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
-            double *, int);
+    double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
+            double psi, const Eigen::MatrixXd &result_by_week,
+            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
+            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
+            double * pop_5AG_RCGP, int depth);
 
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters

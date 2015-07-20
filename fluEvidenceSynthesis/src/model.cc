@@ -276,9 +276,10 @@ namespace flu
         return result_weeks;
     }
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &eps, double psi, const Eigen::MatrixXd &result_by_week,
-            Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
-            Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
+    double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
+            double psi, const Eigen::MatrixXd &result_by_week,
+            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
+            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
             //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
             double * pop_5AG_RCGP, int depth)
     {
