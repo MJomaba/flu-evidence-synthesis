@@ -28,12 +28,18 @@ namespace flu
         std::vector<boost::posix_time::ptime> times;
     };
 
+    /**
+     * \brief Run the model for a year
+     *
+     * @minimal_resolution gives the time resolution (precision) of the returned simulation (in hours)
+     */
     cases_t one_year_SEIR_with_vaccination(
             const std::vector<double> &pop_vec, 
             double *, const double, const double,  
             const std::vector<double> &, 
             const Eigen::MatrixXd &contact_regular, double, 
-            const vaccine::vaccine_t &vaccine_programme );
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution = 24 );
 
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);

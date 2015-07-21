@@ -54,7 +54,8 @@ namespace flu
             const double tlatent, const double tinfectious, 
             const std::vector<double> &s_profile, 
             const Eigen::MatrixXd &contact_regular, double q,
-            const vaccine::vaccine_t &vaccine_programme )
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution )
     {
         namespace bt = boost::posix_time;
 
@@ -69,7 +70,7 @@ namespace flu
 
         double vacc_prov, vacc_prov_p, vacc_prov_r;
         int i, j;
-        double a1, a2, g1, g2, t /*, surv[7]={0,0,0,0,0,0,0}*/;
+        double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
         int step_rate;
 
         step_rate=(int)(1/h_step);
@@ -80,6 +81,11 @@ namespace flu
         if (vaccine_programme.dates.size()!=0)
             current_time = getTimeFromWeekYear( 35, 
                     vaccine_programme.dates[0].date().year() );
+
+        auto start_time = current_time;
+        auto end_time = current_time + bt::hours(364*24);
+        auto last_recorded = current_time;
+        size_t step_count = 0;
 
         a1=2/tlatent;
         a2=a1;
@@ -122,8 +128,26 @@ namespace flu
                 contact_regular.cols()*group_types.size()/2);
         cases.times.resize( no_days );
 
-        for(t=0; t<no_days; t+=h_step)
+        for(; current_time <= end_time; current_time += dt)
         {
+            if((current_time - last_recorded).hours()>=24)
+            {
+                for(i=0;i<nag;i++)
+                {
+                    cases.cases(step_count,i)=total_of_new_cases_per_day[i];
+                    cases.cases(step_count,nag+i)=total_of_new_cases_per_day_r[i];
+                    cases.cases(step_count,2*nag+i)=total_of_new_cases_per_day_p[i];
+                }
+                cases.times[step_count] = current_time;
+                last_recorded = current_time;
+                //cases.times[(int)t] = dt;
+
+                total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
+                total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( nag );
+                total_of_new_cases_per_day_p = Eigen::VectorXd::Zero( nag );
+                ++step_count;
+            }
+            
             for(i=0;i<nag;i++)
             {
                 /*rate of depletion of susceptible*/
@@ -167,7 +191,7 @@ namespace flu
                 }
             } else {
                 // Legacy mode
-                date_id=(int)(t)-44;
+                date_id=floor((current_time-start_time).hours()/24.0-44);
             }
 
             if (date_id >= 0 &&
@@ -237,22 +261,6 @@ namespace flu
             total_of_new_cases_per_day += a2*(densities[VACC_LOW].e2+densities[LOW].e2)*h_step;
             total_of_new_cases_per_day_r += a2*(densities[VACC_HIGH].e2+densities[HIGH].e2)*h_step;
             total_of_new_cases_per_day_p += a2*(densities[VACC_PREG].e2+densities[PREG].e2)*h_step;
-
-            if((((int)(t*step_rate))%step_rate)==step_rate/2)
-            {
-                for(i=0;i<nag;i++)
-                {
-                    cases.cases((int)t,i)=total_of_new_cases_per_day[i];
-                    cases.cases((int)t,nag+i)=total_of_new_cases_per_day_r[i];
-                    cases.cases((int)t,2*nag+i)=total_of_new_cases_per_day_p[i];
-                }
-                cases.times[(int)t] = current_time;
-
-                total_of_new_cases_per_day = Eigen::VectorXd::Zero( nag );
-                total_of_new_cases_per_day_r = Eigen::VectorXd::Zero( nag );
-                total_of_new_cases_per_day_p = Eigen::VectorXd::Zero( nag );
-            }
-            current_time += dt;
         }
         return cases;
     }
