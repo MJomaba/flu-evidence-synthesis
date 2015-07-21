@@ -48,8 +48,281 @@ namespace flu
         VACC_LOW, VACC_HIGH, VACC_PREG };
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
- 
+
+    Eigen::VectorXd new_cases( 
+            std::vector<seir_t> &densities,
+            const boost::posix_time::ptime &start_time,
+            const boost::posix_time::ptime &end_time, 
+            const boost::posix_time::time_duration &dt,
+            const std::vector<double> &Npop,
+            const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
+            const std::array<double,7> &vaccine_efficacy_year,
+            const Eigen::MatrixXd &transmission_regular,
+            double a1, double a2, double g1, double g2
+            )
+    {
+        namespace bt = boost::posix_time;
+
+        double h_step = dt.hours()/24.0;
+
+        auto nag = transmission_regular.cols();
+        Eigen::VectorXd results = Eigen::VectorXd::Zero(nag*3);
+
+        std::vector<seir_t> deltas;
+        for( auto &gt : group_types ) {
+            deltas.push_back( seir_t(nag) );
+        }
+
+        for(bt::ptime current_time = start_time; 
+                current_time < end_time;)
+        {
+            current_time += dt;
+            if ((current_time > end_time))
+            {
+                h_step = (current_time - end_time).hours()/24.0;
+                current_time = end_time;
+            }
+
+            for(size_t i=0;i<nag;i++)
+            {
+                /*rate of depletion of susceptible*/
+                deltas[VACC_LOW].s[i]=0;
+                for(size_t j=0;j<nag;j++)
+                    deltas[VACC_LOW].s[i]+=transmission_regular(i,j)*(densities[VACC_LOW].i1[j]+densities[VACC_LOW].i2[j]+densities[VACC_HIGH].i1[j]+densities[VACC_HIGH].i2[j]+densities[VACC_PREG].i1[j]+densities[VACC_PREG].i2[j]+densities[LOW].i1[j]+densities[LOW].i2[j]+densities[HIGH].i1[j]+densities[HIGH].i2[j]+densities[PREG].i1[j]+densities[PREG].i2[j]);
+
+                deltas[VACC_HIGH].s[i]=deltas[VACC_LOW].s[i];
+                deltas[VACC_PREG].s[i]=deltas[VACC_LOW].s[i];
+                deltas[LOW].s[i]=deltas[VACC_LOW].s[i];
+                deltas[HIGH].s[i]=deltas[VACC_LOW].s[i];
+                deltas[PREG].s[i]=deltas[VACC_LOW].s[i];
+
+                deltas[VACC_LOW].s[i]*=-densities[VACC_LOW].s[i];
+                deltas[VACC_HIGH].s[i]*=-densities[VACC_HIGH].s[i];
+                deltas[VACC_PREG].s[i]*=-densities[VACC_PREG].s[i];
+                deltas[LOW].s[i]*=-densities[LOW].s[i];
+                deltas[HIGH].s[i]*=-densities[HIGH].s[i];
+                deltas[PREG].s[i]*=-densities[PREG].s[i];
+            }
+
+            /*rate of passing between states of infection*/
+            for ( auto &gt : group_types)
+            {
+                deltas[gt].e1=-deltas[gt].s-a1*densities[gt].e1;
+                deltas[gt].e2=a1*densities[gt].e1-a2*densities[gt].e2;
+
+                deltas[gt].i1=a2*densities[gt].e2-g1*densities[gt].i1;
+                deltas[gt].i2=g1*densities[gt].i1-g2*densities[gt].i2;
+                deltas[gt].r=g2*densities[gt].i2;
+            }
+
+            /*Vaccine bit*/
+
+            if ( vaccine_rates.size() > 0 )
+            {
+                for(size_t i=0;i<nag;i++)
+                {
+                    double vacc_prov=Npop[i]*vaccine_rates(i)/(densities[LOW].s[i]+densities[LOW].e1[i]+densities[LOW].e2[i]+densities[LOW].i1[i]+densities[LOW].i2[i]+densities[LOW].r[i]);
+                    /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
+                    double vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[HIGH].s[i]+densities[HIGH].e1[i]+densities[HIGH].e2[i]+densities[HIGH].i1[i]+densities[HIGH].i2[i]+densities[HIGH].r[i]);
+                    double vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[PREG].s[i]+densities[PREG].e1[i]+densities[PREG].e2[i]+densities[PREG].i1[i]+densities[PREG].i2[i]+densities[PREG].r[i]);*/
+
+                    deltas[VACC_LOW].s[i]+=densities[LOW].s[i]*vacc_prov*(1-vaccine_efficacy_year[i]);
+                    deltas[VACC_HIGH].s[i]+=densities[HIGH].s[i]*vacc_prov_r*(1-vaccine_efficacy_year[i]);
+                    deltas[VACC_PREG].s[i]+=densities[PREG].s[i]*vacc_prov_p*(1-vaccine_efficacy_year[i]);
+                    deltas[LOW].s[i]-=densities[LOW].s[i]*vacc_prov;
+                    deltas[HIGH].s[i]-=densities[HIGH].s[i]*vacc_prov_r;
+                    deltas[PREG].s[i]-=densities[PREG].s[i]*vacc_prov_p;
+
+                    deltas[VACC_LOW].e1[i]+=densities[LOW].e1[i]*vacc_prov;
+                    deltas[VACC_HIGH].e1[i]+=densities[HIGH].e1[i]*vacc_prov_r;
+                    deltas[VACC_PREG].e1[i]+=densities[PREG].e1[i]*vacc_prov_p;
+                    deltas[LOW].e1[i]-=densities[LOW].e1[i]*vacc_prov;
+                    deltas[HIGH].e1[i]-=densities[HIGH].e1[i]*vacc_prov_r;
+                    deltas[PREG].e1[i]-=densities[PREG].e1[i]*vacc_prov_p;
+
+                    deltas[VACC_LOW].e2[i]+=densities[LOW].e2[i]*vacc_prov;
+                    deltas[VACC_HIGH].e2[i]+=densities[HIGH].e2[i]*vacc_prov_r;
+                    deltas[VACC_PREG].e2[i]+=densities[PREG].e2[i]*vacc_prov_p;
+                    deltas[LOW].e2[i]-=densities[LOW].e2[i]*vacc_prov;
+                    deltas[HIGH].e2[i]-=densities[HIGH].e2[i]*vacc_prov_r;
+                    deltas[PREG].e2[i]-=densities[PREG].e2[i]*vacc_prov_p;
+
+                    deltas[VACC_LOW].i1[i]+=densities[LOW].i1[i]*vacc_prov;
+                    deltas[VACC_HIGH].i1[i]+=densities[HIGH].i1[i]*vacc_prov_r;
+                    deltas[VACC_PREG].i1[i]+=densities[PREG].i1[i]*vacc_prov_p;
+                    deltas[LOW].i1[i]-=densities[LOW].i1[i]*vacc_prov;
+                    deltas[HIGH].i1[i]-=densities[HIGH].i1[i]*vacc_prov_r;
+                    deltas[PREG].i1[i]-=densities[PREG].i1[i]*vacc_prov_p;
+
+                    deltas[VACC_LOW].i2[i]+=densities[LOW].i2[i]*vacc_prov;
+                    deltas[VACC_HIGH].i2[i]+=densities[HIGH].i2[i]*vacc_prov_r;
+                    deltas[VACC_PREG].i2[i]+=densities[PREG].i2[i]*vacc_prov_p;
+                    deltas[LOW].i2[i]-=densities[LOW].i2[i]*vacc_prov;
+                    deltas[HIGH].i2[i]-=densities[HIGH].i2[i]*vacc_prov_r;
+                    deltas[PREG].i2[i]-=densities[PREG].i2[i]*vacc_prov_p;
+
+                    deltas[VACC_LOW].r[i]+=densities[LOW].r[i]*vacc_prov+densities[LOW].s[i]*vacc_prov*vaccine_efficacy_year[i];
+                    deltas[VACC_HIGH].r[i]+=densities[HIGH].r[i]*vacc_prov_r+densities[HIGH].s[i]*vacc_prov_r*vaccine_efficacy_year[i];
+                    deltas[VACC_PREG].r[i]+=densities[PREG].r[i]*vacc_prov_p+densities[PREG].s[i]*vacc_prov_p*vaccine_efficacy_year[i];
+                    deltas[LOW].r[i]-=densities[LOW].r[i]*vacc_prov;
+                    deltas[HIGH].r[i]-=densities[HIGH].r[i]*vacc_prov_r;
+                    deltas[PREG].r[i]-=densities[PREG].r[i]*vacc_prov_p;
+                }
+            }
+
+            /*update the different classes*/
+            for( auto &gt : group_types ) {
+                densities[gt].s += h_step * deltas[gt].s; 
+                densities[gt].e1 += h_step * deltas[gt].e1; 
+                densities[gt].e2 += h_step * deltas[gt].e2; 
+                densities[gt].i1 += h_step * deltas[gt].i1; 
+                densities[gt].i2 += h_step * deltas[gt].i2; 
+                densities[gt].r += h_step * deltas[gt].r; 
+            }
+
+            results.block( 0, 0, nag, 1 ) += a2*(densities[VACC_LOW].e2+densities[LOW].e2)*h_step;
+            results.block( nag, 0, nag, 1 ) += a2*(densities[VACC_HIGH].e2+densities[HIGH].e2)*h_step;
+            results.block( 2*nag, 0, nag, 1 ) += a2*(densities[VACC_PREG].e2+densities[PREG].e2)*h_step;
+        }
+        return results;
+    }
+
     cases_t one_year_SEIR_with_vaccination(
+            const std::vector<double> &Npop, double * seeding_infectious, 
+            const double tlatent, const double tinfectious, 
+            const std::vector<double> &s_profile, 
+            const Eigen::MatrixXd &contact_regular, double q,
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution )
+    {
+        namespace bt = boost::posix_time;
+
+        const size_t nag = contact_regular.rows(); // No. of age groups
+
+        std::vector<seir_t> densities;
+        std::vector<seir_t> deltas;
+        for( auto &gt : group_types ) {
+            densities.push_back( seir_t(nag) );
+            deltas.push_back( seir_t(nag) );
+        }
+
+        double vacc_prov, vacc_prov_p, vacc_prov_r;
+        double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
+
+        // We start at week 35. Week 1 is the first week that ends in this year
+        auto current_time = getTimeFromWeekYear( 35, 1970 );
+        if (vaccine_programme.dates.size()!=0)
+            current_time = getTimeFromWeekYear( 35, 
+                    vaccine_programme.dates[0].date().year() );
+
+        auto start_time = current_time;
+        auto end_time = current_time + bt::hours(364*24);
+        size_t step_count = 0;
+
+        a1=2/tlatent;
+        a2=a1;
+        g1=2/tinfectious;
+        g2=g1;
+
+        int date_id = -1;
+
+        /*initialisation, transmission matrix*/
+        Eigen::MatrixXd transmission_regular(contact_regular);
+        for(size_t i=0;i<transmission_regular.rows();i++)
+        {
+            for(size_t j=0;j<transmission_regular.cols();j++) {
+                transmission_regular(i,j)*=q*s_profile[i];
+            }
+        }
+
+        /*initialisation, densities[VACC_LOW].s,E,I,densities[VACC_LOW].r*/
+        for(size_t i=0;i<nag;i++)
+        {
+            densities[LOW].e1[i]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+            densities[HIGH].e1[i]=seeding_infectious[i]*Npop[i+nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+            densities[PREG].e1[i]=seeding_infectious[i]*Npop[i+2*nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+
+            densities[LOW].s[i]=Npop[i]-densities[LOW].e1[i];
+            densities[HIGH].s[i]=Npop[i+nag]-densities[HIGH].e1[i];
+            densities[PREG].s[i]=Npop[i+2*nag]-densities[PREG].e1[i];
+        }
+
+        cases_t cases;
+
+        cases.cases = Eigen::MatrixXd::Zero( (end_time-start_time).hours()
+                /minimal_resolution, 
+                contact_regular.cols()*group_types.size()/2);
+        cases.times.reserve( (end_time-start_time).hours()
+                /minimal_resolution );
+
+        /*Eigen::VectorXd new_cases( 
+            std::vector<seir_t> &densities,
+            const boost::posix_time::ptime &start_time,
+            const boost::posix_time::ptime &end_time, 
+            const boost::posix_time::time_duration &dt,
+            const std::vector<double> &Npop,
+            const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
+            const Eigen::VectorXd &vaccine_efficacy_year,
+            const Eigen::MatrixXd &transmission_regular,
+            double a1, double a2, double g1, double g2
+            )*/
+
+        while (current_time < end_time)
+        {
+            bt::time_duration dt = bt::hours( 6 );
+            auto next_time = current_time + bt::hours( minimal_resolution );
+
+            bool time_changed_for_vacc = false;
+            if (date_id < ((int)vaccine_programme.dates.size())-1 && 
+                        date_id >= -1 && 
+                    next_time > vaccine_programme.dates[date_id+1] )
+            {
+                next_time = 
+                    vaccine_programme.dates[date_id+1];
+                dt = next_time - current_time;
+                time_changed_for_vacc = true;
+            }
+
+            Eigen::VectorXd vacc_rates;
+            if (vaccine_programme.dates.size() > 0)
+            {
+                while (date_id < ((int)vaccine_programme.dates.size())-1 && 
+                        current_time == vaccine_programme.dates[date_id+1] )
+                {
+                    ++date_id;
+                }
+            } else {
+                // Legacy mode
+                date_id=floor((current_time-start_time).hours()/24.0-44);
+            }
+
+            if (date_id >= 0 &&
+                    date_id < vaccine_programme.calendar.rows() )
+                vacc_rates = vaccine_programme.calendar.row(date_id); 
+
+            auto n_cases = new_cases( densities, current_time,
+                    next_time, dt,
+                    Npop,
+                    vacc_rates,
+                    vaccine_programme.efficacy_year,
+                    transmission_regular,
+                    a1, a2, g1, g2 );
+            current_time = next_time;
+
+            assert(step_count < cases.cases.rows());
+
+            for (size_t i = 0; i < n_cases.size(); ++i)
+                cases.cases(step_count, i) += n_cases[i];
+            if (!time_changed_for_vacc) 
+            {
+                ++step_count;
+                cases.times.push_back( current_time );
+            }
+        }
+       
+        return cases;
+    } 
+    cases_t one_year_SEIR_with_vaccination2(
             const std::vector<double> &Npop, double * seeding_infectious, 
             const double tlatent, const double tinfectious, 
             const std::vector<double> &s_profile, 
