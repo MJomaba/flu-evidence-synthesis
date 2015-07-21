@@ -73,7 +73,6 @@ namespace flu
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
 
         double h_step = 0.25;
-        int step_rate=(int)(1/h_step);
         bt::time_duration dt = bt::hours( 24 * h_step );
 
         // We start at week 35. Week 1 is the first week that ends in this year
@@ -149,6 +148,8 @@ namespace flu
                     vaccine_programme.dates[date_id+1];
                 h_step = (dt-(current_time-new_current_time)).hours()/24.0;
                 current_time = new_current_time;
+            } else {
+                h_step = dt.hours()/24.0;
             }
 
             if((current_time - last_recorded).hours()==minimal_resolution)
