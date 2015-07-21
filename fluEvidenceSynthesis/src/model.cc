@@ -71,9 +71,9 @@ namespace flu
         double vacc_prov, vacc_prov_p, vacc_prov_r;
         int i, j;
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
-        int step_rate;
 
-        step_rate=(int)(1/h_step);
+        double h_step = 0.25;
+        int step_rate=(int)(1/h_step);
         bt::time_duration dt = bt::hours( 24 * h_step );
 
         // We start at week 35. Week 1 is the first week that ends in this year
@@ -124,13 +124,34 @@ namespace flu
 
         cases_t cases;
 
-        cases.cases = Eigen::MatrixXd( no_days, 
+        cases.cases = Eigen::MatrixXd( (end_time-start_time).hours()
+                /minimal_resolution, 
                 contact_regular.cols()*group_types.size()/2);
-        cases.times.resize( no_days );
+        cases.times.resize( (end_time-start_time).hours()
+                /minimal_resolution );
 
         for(; current_time <= end_time; current_time += dt)
         {
-            if((current_time - last_recorded).hours()>=24)
+            // Check we don't overstep, either vaccine calendar next date
+            // or minimal_resolution
+            if ((current_time - last_recorded).hours()>minimal_resolution)
+            {
+                auto new_current_time = 
+                    last_recorded + bt::hours(minimal_resolution);
+                h_step = (dt-(current_time-new_current_time)).hours()/24.0;
+                current_time = new_current_time;
+            }
+            if (date_id < ((int)vaccine_programme.dates.size())-1 && 
+                        date_id >= -1 && 
+                    current_time > vaccine_programme.dates[date_id+1] )
+            {
+                auto new_current_time = 
+                    vaccine_programme.dates[date_id+1];
+                h_step = (dt-(current_time-new_current_time)).hours()/24.0;
+                current_time = new_current_time;
+            }
+
+            if((current_time - last_recorded).hours()==minimal_resolution)
             {
                 for(i=0;i<nag;i++)
                 {
@@ -185,7 +206,7 @@ namespace flu
             if (vaccine_programme.dates.size() > 0)
             {
                 while (date_id < ((int)vaccine_programme.dates.size())-1 && 
-                        current_time >= vaccine_programme.dates[date_id+1] )
+                        current_time == vaccine_programme.dates[date_id+1] )
                 {
                     ++date_id;
                 }

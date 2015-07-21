@@ -9,7 +9,6 @@
 #define length_weeks 52
 #define twopi 6.283185
 #define POLY_PART 597
-#define h_step 0.25              /*integration step for the ODE system N.B. must be 1/integer and 1/h should be a multiple of 2*/
 #define d_app 2
 #define dim_par 9
 #define dim_par2 81
