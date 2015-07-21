@@ -49,7 +49,7 @@ namespace flu
     std::vector<group_type_t> group_types = { LOW, HIGH, PREG,
         VACC_LOW, VACC_HIGH, VACC_PREG };
 
-    Eigen::VectorXd new_cases( 
+    inline Eigen::VectorXd new_cases( 
             std::vector<seir_t> &densities,
             const boost::posix_time::ptime &start_time,
             const boost::posix_time::ptime &end_time, 
@@ -206,7 +206,6 @@ namespace flu
             deltas.push_back( seir_t(nag) );
         }
 
-        double vacc_prov, vacc_prov_p, vacc_prov_r;
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
 
         // We start at week 35. Week 1 is the first week that ends in this year
