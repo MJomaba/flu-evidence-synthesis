@@ -311,8 +311,7 @@ namespace flu
 
             assert(step_count < cases.cases.rows());
 
-            for (size_t i = 0; i < n_cases.size(); ++i)
-                cases.cases(step_count, i) += n_cases[i];
+            cases.cases.row(step_count) += n_cases;
             if (!time_changed_for_vacc) 
             {
                 ++step_count;
