@@ -200,10 +200,9 @@ namespace flu
         const size_t nag = contact_regular.rows(); // No. of age groups
 
         std::vector<seir_t> densities;
-        std::vector<seir_t> deltas;
+
         for( auto &gt : group_types ) {
             densities.push_back( seir_t(nag) );
-            deltas.push_back( seir_t(nag) );
         }
 
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
