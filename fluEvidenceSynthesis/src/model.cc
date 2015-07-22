@@ -65,7 +65,7 @@ namespace flu
 
         double h_step = dt.hours()/24.0;
 
-        auto nag = transmission_regular.cols();
+        const size_t nag = transmission_regular.cols();
         Eigen::VectorXd results = Eigen::VectorXd::Zero(nag*3);
 
         std::vector<seir_t> deltas;
@@ -79,7 +79,7 @@ namespace flu
             current_time += dt;
             if ((current_time > end_time))
             {
-                h_step = (current_time - end_time).hours()/24.0;
+                h_step -= (current_time-end_time).hours()/24.0;
                 current_time = end_time;
             }
 
