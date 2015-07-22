@@ -68,9 +68,12 @@ namespace flu
         const size_t nag = transmission_regular.cols();
         Eigen::VectorXd results = Eigen::VectorXd::Zero(nag*3);
 
-        std::vector<seir_t> deltas;
-        for( auto &gt : group_types ) {
-            deltas.push_back( seir_t(nag) );
+        static std::vector<seir_t> deltas;
+        if (deltas.size() < group_types.size())
+        {
+            for( auto &gt : group_types ) {
+                deltas.push_back( seir_t(nag) );
+            }
         }
 
         for(bt::ptime current_time = start_time; 
