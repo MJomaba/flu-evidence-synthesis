@@ -1,3 +1,12 @@
+
+#' Number of people of each age for the UK in 1999
+#'
+"age_sizes"
+
+#' MCMC Result produced by the inference function
+#'
+"mcmcsample"
+
 #' Function to create a vaccine calendar object
 vaccine.calendar <- function( coverage, efficacy, uptake )
 {
@@ -59,3 +68,4 @@ read.legacy.vaccine.file <- function( file )
   }
   results
 }
+
