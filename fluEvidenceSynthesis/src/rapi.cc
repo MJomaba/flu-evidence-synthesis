@@ -16,6 +16,7 @@ namespace bt = boost::posix_time;
  * by const reference, which is impossible in a function called from R
  */
 
+//' Update means when a new posterior sample is calculated
 // [[Rcpp::export]]
 Eigen::VectorXd updateMeans( Eigen::VectorXd means,
         Eigen::VectorXd v, size_t n )
@@ -23,6 +24,9 @@ Eigen::VectorXd updateMeans( Eigen::VectorXd means,
     return flu::proposal::updateMeans( means, v, n );
 }
 
+//' Update covariance matrix of posterior parameters
+//'
+//' Used to enable faster mixing of the mcmc chain
 // [[Rcpp::export]]
 Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
         Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
@@ -30,6 +34,7 @@ Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov,
     return flu::proposal::updateCovariance( cov, v, means, n );
 }
 
+//' Convert given week in given year into an exact date corresponding to the Monday of that week
 // [[Rcpp::export]]
 Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 {
@@ -41,6 +46,7 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
     //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
 }
 
+//' Run the SEIR model for the given parameters
 // [[Rcpp::export]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 

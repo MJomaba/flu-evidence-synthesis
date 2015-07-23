@@ -1,3 +1,4 @@
+#' Function to create a vaccine calendar object
 vaccine.calendar <- function( coverage, efficacy, uptake )
 {
     new.vacc.cal<-matrix(rep(0,123*21),ncol=21)
@@ -22,6 +23,7 @@ vaccine.calendar <- function( coverage, efficacy, uptake )
     cal
 }
 
+#' Function to read legacy file format for vaccines
 read.legacy.vaccine.file <- function( file )
 {
   results <- list()

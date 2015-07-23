@@ -17,6 +17,7 @@
 
 using namespace flu;
 
+//' MCMC based inference of the parameter values given the different data sets
 // [[Rcpp::export]]
 std::vector<state_t> inference( std::vector<size_t> age_sizes, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 

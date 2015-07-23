@@ -22,6 +22,7 @@ fi
 #echo "R_EXEC = ${R_EXEC}";
 
 if command -v ${R_EXEC} 2>/dev/null; then
+    ${R_EXEC} -e 'library(devtools);devtools::document()';
     ${R_EXEC} -e 'Rcpp::compileAttributes(".",verbose=TRUE)';
     # Should actually move needed header in inst/include/fluEvidenceSynthesis.h insted of using echo
     echo -e "#include \"rcppwrap.hh\"\n$(cat src/RcppExports.cpp)" > src/RcppExports.cpp;

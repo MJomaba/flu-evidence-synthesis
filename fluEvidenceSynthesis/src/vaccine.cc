@@ -11,6 +11,7 @@ namespace flu {
     };
 };*/
 
+//' Calculate number of influenza cases given a vaccination strategy
 // [[Rcpp::export]]
 std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample,
