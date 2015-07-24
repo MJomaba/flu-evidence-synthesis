@@ -18,13 +18,27 @@
 using namespace flu;
 
 //' MCMC based inference of the parameter values given the different data sets
+//'
+//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param ili The number of Influenza-like illness cases per week
+//' @param mon_pop The number of people monitored for ili
+//' @param n_pos The number of positive samples for the given strain (per week)
+//' @param n_samples The total number of samples tested 
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param init_sample The initial parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)
+//' @param mcmc_chain_length The number of MCMC steps to sample from
+//' @param thinning Keep every so many samples
+//' @param burn_in The number of initial samples to skip
+//' @return A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})
+//'
 // [[Rcpp::export]]
 std::vector<state_t> inference( std::vector<size_t> age_sizes, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
         flu::contacts::contacts_t polymod_data,
-        flu::state_t init_state, 
+        flu::state_t init_sample, 
         int mcmc_chain_length = 100000, 
         int burn_in = 10000, int thinning = 100 )
 {
@@ -38,7 +52,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     double my_acceptance_rate;
 
-    state_t current_state = init_state;
+    state_t current_state = init_sample;
 
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;

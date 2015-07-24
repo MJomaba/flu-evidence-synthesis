@@ -43,6 +43,12 @@
 "vaccine_calendar"
 
 #' Function to create a vaccine calendar object
+#'
+#' @param coverage A vector containing the total coverage for the vaccine for each age/risk group
+#' @param efficacy The efficacy of the vaccine for that year (subdivided by each age group)
+#' @param uptake The uptake of the vaccine over different time periods
+#' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
+#' 
 vaccine.calendar <- function( coverage, efficacy, uptake )
 {
     new.vacc.cal<-matrix(rep(0,123*21),ncol=21)
@@ -68,6 +74,10 @@ vaccine.calendar <- function( coverage, efficacy, uptake )
 }
 
 #' Function to read legacy file format for vaccines
+#'
+#' @param file The file to load
+#' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
+#'
 read.legacy.vaccine.file <- function( file )
 {
   results <- list()

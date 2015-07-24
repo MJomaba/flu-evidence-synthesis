@@ -12,10 +12,18 @@ namespace flu {
 };*/
 
 //' Calculate number of influenza cases given a vaccination strategy
+//'
+//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param sample The parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)
+//' @return A data frame with the total number of influenza cases in that year
+//'
 // [[Rcpp::export]]
 std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes, 
-        flu::vaccine::vaccine_t vaccine_calendar, flu::state_t sample,
-        flu::contacts::contacts_t polymod_uk ) {
+        flu::vaccine::vaccine_t vaccine_calendar,
+        flu::contacts::contacts_t polymod_data,
+        flu::state_t sample ) {
 
     auto age_data = flu::data::group_age_data( age_sizes );
     auto pop_vec = flu::data::separate_into_risk_groups( age_data );
@@ -33,7 +41,7 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
     ages.age_group_sizes = age_data;
 
     auto contact_matrix = flu::contacts::to_symmetric_matrix( 
-            flu::contacts::shuffle_by_id( polymod_uk, 
+            flu::contacts::shuffle_by_id( polymod_data, 
                 sample.contact_ids ), ages );
 
     auto result_simu = flu::one_year_SEIR_with_vaccination(pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar)

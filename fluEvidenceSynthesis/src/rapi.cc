@@ -17,6 +17,12 @@ namespace bt = boost::posix_time;
  */
 
 //' Update means when a new posterior sample is calculated
+//'
+//' @param means the current means of the parameters
+//' @param v the new parameter values
+//' @param n The number of posterior (mcmc) samples taken till now
+//' @return The updated means given the new parameter sample
+//'
 // [[Rcpp::export]]
 Eigen::VectorXd updateMeans( Eigen::VectorXd means,
         Eigen::VectorXd v, size_t n )
@@ -27,6 +33,12 @@ Eigen::VectorXd updateMeans( Eigen::VectorXd means,
 //' Update covariance matrix of posterior parameters
 //'
 //' Used to enable faster mixing of the mcmc chain
+//' @param cov The current covariance matrix
+//' @param v the new parameter values
+//' @param means the current means of the parameters
+//' @param n The number of posterior (mcmc) samples taken till now
+//' @return The updated covariance matrix given the new parameter sample
+//'
 // [[Rcpp::export]]
 Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
         Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
@@ -35,6 +47,11 @@ Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov,
 }
 
 //' Convert given week in given year into an exact date corresponding to the Monday of that week
+//'
+//' @param week The number of the week we need the date of
+//' @param year The year
+//' @return The date of the Monday in that week 
+//'
 // [[Rcpp::export]]
 Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 {
@@ -47,6 +64,13 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 }
 
 //' Run the SEIR model for the given parameters
+//'
+//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param current_state The parameters needed to run the ODE model
+//' @return A data frame with number of new cases at each day during the year
+//'
 // [[Rcpp::export]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
