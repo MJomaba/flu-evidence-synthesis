@@ -9,6 +9,7 @@ Description: Package to synthesise the multiplicity of surveillance datasets in 
 License: GPL (3)
 Imports: Rcpp (>= 0.11.6), BH, RcppEigen
 LinkingTo: Rcpp, BH, RcppEigen
+Depends: R, Rcpp
 Suggests: testthat, rjson
 SystemRequirements: C++11
 LazyData: true
