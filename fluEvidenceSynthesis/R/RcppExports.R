@@ -16,6 +16,7 @@
 #' @param burn_in The number of initial samples to skip
 #' @return A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})
 #'
+#'
 inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_sample, mcmc_chain_length = 100000L, burn_in = 10000L, thinning = 100L) {
     .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_sample, mcmc_chain_length, burn_in, thinning)
 }
@@ -27,7 +28,7 @@ inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calenda
 #' @param n The number of posterior (mcmc) samples taken till now
 #' @return The updated means given the new parameter sample
 #'
-updateMeans <- function(means, v, n) {
+.updateMeans <- function(means, v, n) {
     .Call('fluEvidenceSynthesis_updateMeans', PACKAGE = 'fluEvidenceSynthesis', means, v, n)
 }
 
@@ -40,7 +41,7 @@ updateMeans <- function(means, v, n) {
 #' @param n The number of posterior (mcmc) samples taken till now
 #' @return The updated covariance matrix given the new parameter sample
 #'
-updateCovariance <- function(cov, v, means, n) {
+.updateCovariance <- function(cov, v, means, n) {
     .Call('fluEvidenceSynthesis_updateCovariance', PACKAGE = 'fluEvidenceSynthesis', cov, v, means, n)
 }
 
@@ -62,7 +63,7 @@ getTimeFromWeekYear <- function(week, year) {
 #' @param current_state The parameters needed to run the ODE model
 #' @return A data frame with number of new cases at each day during the year
 #'
-runSEIRModel <- function(age_sizes, vaccine_calendar, polymod_data, current_state) {
+.runSEIRModel <- function(age_sizes, vaccine_calendar, polymod_data, current_state) {
     .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state)
 }
 

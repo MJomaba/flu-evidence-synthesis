@@ -23,7 +23,7 @@ namespace bt = boost::posix_time;
 //' @param n The number of posterior (mcmc) samples taken till now
 //' @return The updated means given the new parameter sample
 //'
-// [[Rcpp::export]]
+// [[Rcpp::export(name=".updateMeans")]]
 Eigen::VectorXd updateMeans( Eigen::VectorXd means,
         Eigen::VectorXd v, size_t n )
 {
@@ -39,7 +39,7 @@ Eigen::VectorXd updateMeans( Eigen::VectorXd means,
 //' @param n The number of posterior (mcmc) samples taken till now
 //' @return The updated covariance matrix given the new parameter sample
 //'
-// [[Rcpp::export]]
+// [[Rcpp::export(name=".updateCovariance")]]
 Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
         Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
 {
@@ -71,7 +71,7 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 //' @param current_state The parameters needed to run the ODE model
 //' @return A data frame with number of new cases at each day during the year
 //'
-// [[Rcpp::export]]
+// [[Rcpp::export(name=".runSEIRModel")]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,

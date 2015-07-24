@@ -32,6 +32,7 @@ using namespace flu;
 //' @param burn_in The number of initial samples to skip
 //' @return A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})
 //'
+//'
 // [[Rcpp::export]]
 std::vector<state_t> inference( std::vector<size_t> age_sizes, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
