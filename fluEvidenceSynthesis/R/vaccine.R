@@ -1,4 +1,13 @@
 
+#' Number of Influenza-like illness cases per week
+#'
+#' @format A list with both the number of cases and the total number of monitored people
+#' \describe{
+#'   \item{ili}{Matrix with total number of cases per week (row) and age group (column)}
+#'   \item{total.monitored}{The number of people monitored over the same time/age group}
+#' }
+"ili"
+
 #' Number of people of each age for the UK in 1999
 #'
 "age_sizes"

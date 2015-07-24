@@ -11,12 +11,12 @@ test_that("We can run inference",
       data("confirmation")
 
       set.seed(100)
-      results <- inference( age_sizes=age_sizes[,1],
+      results <- inference( age_sizes=age_sizes$V1,
                            vaccine_calendar=vaccine_calendar,
                            polymod_data=as.matrix(polymod_uk),
                            init_state=mcmcsample, 
-                           ili=as.matrix(ili),
-                           mon_pop=as.matrix(mon_pop),
+                           ili=ili$ili,
+                           mon_pop=ili$total.monitored,
                            n_pos=as.matrix(n_pos),
                            n_samples=as.matrix(n_samples),
                            mcmc_chain_length=1000,
