@@ -6,10 +6,10 @@ Date: 2015-06-24
 Author: Marc Baguelin, Edwin van Leeuwen
 Maintainer: Edwin van Leeuwen <edwinvanl@gmail.com>
 Description: Package to synthesise the multiplicity of surveillance datasets in order to evaluate how changing target populations in the seasonal vaccination programme would affect infection rate and mortality. Mainly meant for Influenza modelling, but can be used more generally.
-License: GPL (3)
+License: GPL-3
 Imports: Rcpp (>= 0.11.6), BH, RcppEigen
 LinkingTo: Rcpp, BH, RcppEigen
-Depends: R, Rcpp
+Depends: R (>= 2.10), Rcpp
 Suggests: testthat, rjson
 SystemRequirements: C++11
 LazyData: true
