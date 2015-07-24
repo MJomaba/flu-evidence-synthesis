@@ -8,7 +8,7 @@ test_that("We can run inference",
       data("polymod_uk")
       data("mcmcsample")
       data("ili")
-      data("confirmation")
+      data("confirmed.samples")
 
       set.seed(100)
       results <- inference( age_sizes=age_sizes$V1,
@@ -17,8 +17,8 @@ test_that("We can run inference",
                            init_state=mcmcsample, 
                            ili=ili$ili,
                            mon_pop=ili$total.monitored,
-                           n_pos=as.matrix(n_pos),
-                           n_samples=as.matrix(n_samples),
+                           n_pos=confirmed.samples$positive,
+                           n_samples=confirmed.samples$total.samples,
                            mcmc_chain_length=1000,
                            burn_in=1000, thinning=1 )
 

@@ -1,4 +1,3 @@
-
 #' Number of Influenza-like illness cases per week
 #'
 #' @format A list with both the number of cases and the total number of monitored people
@@ -7,6 +6,17 @@
 #'   \item{total.monitored}{The number of people monitored over the same time/age group}
 #' }
 "ili"
+
+#' Number of confirmed positive samples per week
+#'
+#' Generally only for a fraction of the Influenza-like illness cases an actual (blood) sample is taken to confirm whether/which strain the subject is infected with.
+#'
+#' @format A list with both the number of positive samples and the total number samples taken
+#' \describe{
+#'   \item{positive}{Matrix with total number of positive samples per week (row) and age group (column)}
+#'   \item{total.samples}{The total number of samples tested over the same time/age group}
+#' }
+"confirmed.samples"
 
 #' Number of people of each age for the UK in 1999
 #'
