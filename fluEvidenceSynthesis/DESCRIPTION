@@ -11,3 +11,4 @@ Imports: Rcpp (>= 0.11.6), BH, RcppEigen
 LinkingTo: Rcpp, BH, RcppEigen
 Suggests: testthat, rjson
 SystemRequirements: C++11
+LazyData: true
