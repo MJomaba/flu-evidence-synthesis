@@ -22,7 +22,7 @@ The DESCRIPTION file:
 Maintainer: \packageMaintainer{fluEvidenceSynthesis}
 }
 \references{
-Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Miller, and W. John Edmunds. \emph{Assessing Optimal Target Populations for Influenza Vaccination Programmes: An Evidence Synthesis and Modelling Studyr}. PLoS Med 10, no. 10 (8 October 2013): e1001527. doi:10.1371/journal.pmed.1001527.
+Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Miller, and W. John Edmunds. \emph{Assessing Optimal Target Populations for Influenza Vaccination Programmes: An Evidence Synthesis and Modelling Study}. PLoS Med 10, no. 10 (8 October 2013): e1001527. doi:10.1371/journal.pmed.1001527.
 }
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
 %~~ the R documentation directory ~~
