@@ -1,11 +1,11 @@
-#include "contacts.hh"
+#include "contacts.h"
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 
 #include <stdio.h>
 #include <cassert>
 
-#include "state.hh"
+#include "state.h"
 
 namespace flu
 {

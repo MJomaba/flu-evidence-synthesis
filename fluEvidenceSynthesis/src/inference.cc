@@ -5,14 +5,14 @@
 
 #include <iostream>
 
-#include "model.hh"
-#include "state.hh"
-#include "data.hh"
-#include "contacts.hh"
-#include "vaccine.hh"
-#include "proposal.hh"
+#include "model.h"
+#include "state.h"
+#include "data.h"
+#include "contacts.h"
+#include "vaccine.h"
+#include "proposal.h"
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 #include<RcppEigen.h>
 
 using namespace flu;

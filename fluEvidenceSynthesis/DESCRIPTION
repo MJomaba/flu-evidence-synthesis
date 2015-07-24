@@ -10,6 +10,6 @@ License: GPL-3
 Imports: Rcpp (>= 0.11.6), BH, RcppEigen
 LinkingTo: Rcpp, BH, RcppEigen
 Depends: R (>= 2.10), Rcpp
-Suggests: testthat, rjson
+Suggests: testthat, rjson, MASS
 SystemRequirements: C++11
 LazyData: true

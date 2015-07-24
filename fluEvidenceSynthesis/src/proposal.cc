@@ -1,4 +1,4 @@
-#include "proposal.hh"
+#include "proposal.h"
 #include <boost/numeric/ublas/matrix.hpp>
 namespace flu {
     /**

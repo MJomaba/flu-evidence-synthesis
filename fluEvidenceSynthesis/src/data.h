@@ -5,7 +5,7 @@
 #include<vector>
 #include<array>
 
-#include "state.hh"
+#include "state.h"
 
 namespace flu
 {

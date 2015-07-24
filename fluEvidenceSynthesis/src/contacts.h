@@ -5,8 +5,8 @@
 #include<vector>
 #include<string>
 
-#include "state.hh"
-#include "data.hh"
+#include "state.h"
+#include "data.h"
 
 #include<Eigen/Core>
 

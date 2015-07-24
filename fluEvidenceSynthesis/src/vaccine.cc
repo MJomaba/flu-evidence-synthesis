@@ -1,9 +1,9 @@
-#include "rcppwrap.hh"
-#include "vaccine.hh"
+#include "rcppwrap.h"
+#include "vaccine.h"
 
-#include "model.hh"
-#include "data.hh"
-#include "contacts.hh"
+#include "model.h"
+#include "data.h"
+#include "contacts.h"
 
 /*
 namespace flu {

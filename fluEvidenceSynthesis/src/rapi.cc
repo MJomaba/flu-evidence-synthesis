@@ -1,10 +1,10 @@
 #include <boost/date_time.hpp>
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 
-#include "proposal.hh"
-#include "contacts.hh"
-#include "model.hh"
+#include "proposal.h"
+#include "contacts.h"
+#include "model.h"
 
 namespace bt = boost::posix_time;
 

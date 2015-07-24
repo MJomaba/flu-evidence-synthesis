@@ -9,10 +9,10 @@
 
 #include <boost/date_time.hpp>
 
-#include "state.hh"
-#include "vaccine.hh"
+#include "state.h"
+#include "vaccine.h"
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 #include<RcppEigen.h>
 
 namespace flu

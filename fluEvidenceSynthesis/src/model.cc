@@ -1,4 +1,4 @@
-#include "model.hh"
+#include "model.h"
 
 namespace flu 
 {

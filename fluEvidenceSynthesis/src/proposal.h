@@ -1,12 +1,12 @@
 #ifndef FLU_PROPOSAL_HH
 #define FLU_PROPOSAL_HH
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 #include<RcppEigen.h>
 
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include "model.hh"
+#include "model.h"
 namespace flu {
     /**
      * \brief Functions to keep track of proposal distribution
