@@ -27,10 +27,10 @@ Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Mille
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
 %~~ the R documentation directory ~~
 \keyword{ package }
-\seealso{
+%\seealso{
 %~~ Optional links to other man pages, e.g. ~~
 %~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
+%}
+%\examples{
 %~~ simple examples of the most important functions ~~
-}
+%}
