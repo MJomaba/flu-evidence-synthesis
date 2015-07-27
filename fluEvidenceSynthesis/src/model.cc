@@ -15,35 +15,6 @@ namespace flu
         return current_time;
     }
 
-    // Could convert this to template code if needed for performance
-    struct seir_t 
-    {
-        // Note can also be used for delta
-        Eigen::VectorXd s;
-        Eigen::VectorXd e1;
-        Eigen::VectorXd e2;
-        Eigen::VectorXd i1;
-        Eigen::VectorXd i2;
-        Eigen::VectorXd r;
-
-        seir_t() {}
-        seir_t( size_t dim )
-        {
-            /*s = Eigen::VectorXd( dim );
-            e1 = Eigen::VectorXd( dim );
-            e2 = Eigen::VectorXd( dim );
-            i1 = Eigen::VectorXd( dim );
-            i2 = Eigen::VectorXd( dim );
-            r = Eigen::VectorXd( dim );*/
-            s = Eigen::VectorXd::Zero( dim );
-            e1 = Eigen::VectorXd::Zero( dim );
-            e2 = Eigen::VectorXd::Zero( dim );
-            i1 = Eigen::VectorXd::Zero( dim );
-            i2 = Eigen::VectorXd::Zero( dim );
-            r = Eigen::VectorXd::Zero( dim );
-        }
-    };
-
     enum seir_type_t { S = 0, E1 = 1, E2 = 2, I1 = 3, I2 = 4, R = 5 };
     const std::vector<seir_type_t> seir_types = 
         { S, E1, E2, I1, I2, R };
