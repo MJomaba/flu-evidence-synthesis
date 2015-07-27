@@ -174,7 +174,7 @@ namespace flu
         {
 
             densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, 0, time_left );
+                        h_step, 0, time_left, 1 );
             time_left -= h_step;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*h_step;
