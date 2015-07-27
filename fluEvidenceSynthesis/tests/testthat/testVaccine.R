@@ -44,7 +44,7 @@ test_that("We can call scenario",
               total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
                     sample=mcmcsample,
-                    polymod_uk=as.matrix(polymod_uk) )
+                    polymod_data=as.matrix(polymod_uk) )
 
               expect_equal( total_size,
                            c( 119474.807, 636440.213, 1469251.696, 2881440.126, 4408817.625, 2796622.448, 498176.149, 2541.504, 36427.619, 155706.821, 264664.169, 416935.424, 530054.119, 359250.707, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 )

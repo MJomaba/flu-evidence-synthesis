@@ -1,10 +1,10 @@
-#include "data.hh"
+#include "data.h"
 
 #include <stdio.h>
 #include <fstream>
 #include <deque>
 
-#include "state.hh"
+#include "state.h"
 
 namespace flu
 {

@@ -1,10 +1,10 @@
 #include <boost/date_time.hpp>
 
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 
-#include "proposal.hh"
-#include "contacts.hh"
-#include "model.hh"
+#include "proposal.h"
+#include "contacts.h"
+#include "model.h"
 
 namespace bt = boost::posix_time;
 
@@ -16,20 +16,42 @@ namespace bt = boost::posix_time;
  * by const reference, which is impossible in a function called from R
  */
 
-// [[Rcpp::export]]
+//' Update means when a new posterior sample is calculated
+//'
+//' @param means the current means of the parameters
+//' @param v the new parameter values
+//' @param n The number of posterior (mcmc) samples taken till now
+//' @return The updated means given the new parameter sample
+//'
+// [[Rcpp::export(name=".updateMeans")]]
 Eigen::VectorXd updateMeans( Eigen::VectorXd means,
         Eigen::VectorXd v, size_t n )
 {
     return flu::proposal::updateMeans( means, v, n );
 }
 
-// [[Rcpp::export]]
+//' Update covariance matrix of posterior parameters
+//'
+//' Used to enable faster mixing of the mcmc chain
+//' @param cov The current covariance matrix
+//' @param v the new parameter values
+//' @param means the current means of the parameters
+//' @param n The number of posterior (mcmc) samples taken till now
+//' @return The updated covariance matrix given the new parameter sample
+//'
+// [[Rcpp::export(name=".updateCovariance")]]
 Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov, 
         Eigen::VectorXd v, Eigen::VectorXd means, size_t n )
 {
     return flu::proposal::updateCovariance( cov, v, means, n );
 }
 
+//' Convert given week in given year into an exact date corresponding to the Monday of that week
+//'
+//' @param week The number of the week we need the date of
+//' @param year The year
+//' @return The date of the Monday in that week 
+//'
 // [[Rcpp::export]]
 Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 {
@@ -41,7 +63,15 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
     //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
 }
 
-// [[Rcpp::export]]
+//' Run the SEIR model for the given parameters
+//'
+//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param current_state The parameters needed to run the ODE model
+//' @return A data frame with number of new cases at each day during the year
+//'
+// [[Rcpp::export(name=".runSEIRModel")]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,

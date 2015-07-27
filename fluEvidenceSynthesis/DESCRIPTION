@@ -1,13 +1,14 @@
 Package: fluEvidenceSynthesis
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Flu Evidence Synthesis: analysing effectiveness of vaccine strategies
+Version: 0.5.0
 Date: 2015-06-24
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: More about what it does (maybe more than one line)
-License: GPL (3)
-Imports: Rcpp (>= 0.11.6), BH, RcppEigen
+Author: Marc Baguelin, Edwin van Leeuwen
+Maintainer: Edwin van Leeuwen <edwinvanl@gmail.com>
+Description: Package to synthesise the multiplicity of surveillance datasets in order to evaluate how changing target populations in the seasonal vaccination programme would affect infection rate and mortality. Mainly meant for Influenza modelling, but can be used more generally.
+License: GPL-3
 LinkingTo: Rcpp, BH, RcppEigen
-Suggests: testthat
+Depends: R (>= 2.10), Rcpp (>= 0.11.6)
+Suggests: testthat, rjson, MASS
 SystemRequirements: C++11
+LazyData: true

@@ -2,9 +2,9 @@
 #define RCPP_WRAP_HH
 
 #include <RcppCommon.h>
-#include "vaccine.hh"
-#include "state.hh"
-#include "contacts.hh"
+#include "vaccine.h"
+#include "state.h"
+#include "contacts.h"
 
 namespace Rcpp {
     using namespace flu;

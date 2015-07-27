@@ -1,4 +1,4 @@
-#include "rcppwrap.hh"
+#include "rcppwrap.h"
 #include<RcppEigen.h>
 
 template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )

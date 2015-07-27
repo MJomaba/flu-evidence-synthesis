@@ -1,6 +1,6 @@
 #include<fstream>
 
-#include "state.hh"
+#include "state.h"
 
 namespace flu {
 };
