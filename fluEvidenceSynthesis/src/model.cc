@@ -39,6 +39,104 @@ namespace flu
         + st*nag + i;
     }
 
+    inline Eigen::VectorXd flu_ode( Eigen::VectorXd &&deltas,
+            const Eigen::VectorXd &densities, double h_step,
+            const std::vector<double> &Npop,
+            const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
+            const std::array<double,7> &vaccine_efficacy_year,
+            const Eigen::MatrixXd &transmission_regular,
+            double a1, double a2, double g1, double g2 )
+    {
+        const size_t nag = transmission_regular.cols();
+        for(size_t i=0;i<nag;i++)
+        {
+            /*rate of depletion of susceptible*/
+            deltas[ode_id(nag,VACC_LOW,S,i)]=0;
+            for(size_t j=0;j<nag;j++)
+                deltas[ode_id(nag,VACC_LOW,S,i)]+=transmission_regular(i,j)*(densities[ode_id(nag,VACC_LOW,I1,j)]+densities[ode_id(nag,VACC_LOW,I2,j)]+densities[ode_id(nag,VACC_HIGH,I1,j)]+densities[ode_id(nag,VACC_HIGH,I2,j)]+densities[ode_id(nag,VACC_PREG,I1,j)]+densities[ode_id(nag,VACC_PREG,I2,j)]+densities[ode_id(nag,LOW,I1,j)]+densities[ode_id(nag,LOW,I2,j)]+densities[ode_id(nag,HIGH,I1,j)]+densities[ode_id(nag,HIGH,I2,j)]+densities[ode_id(nag,PREG,I1,j)]+densities[ode_id(nag,PREG,I2,j)]);
+
+            deltas[ode_id(nag,VACC_HIGH,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
+            deltas[ode_id(nag,VACC_PREG,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
+            deltas[ode_id(nag,LOW,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
+            deltas[ode_id(nag,HIGH,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
+            deltas[ode_id(nag,PREG,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
+
+            deltas[ode_id(nag,VACC_LOW,S,i)]*=-densities[ode_id(nag,VACC_LOW,S,i)];
+            deltas[ode_id(nag,VACC_HIGH,S,i)]*=-densities[ode_id(nag,VACC_HIGH,S,i)];
+            deltas[ode_id(nag,VACC_PREG,S,i)]*=-densities[ode_id(nag,VACC_PREG,S,i)];
+            deltas[ode_id(nag,LOW,S,i)]*=-densities[ode_id(nag,LOW,S,i)];
+            deltas[ode_id(nag,HIGH,S,i)]*=-densities[ode_id(nag,HIGH,S,i)];
+            deltas[ode_id(nag,PREG,S,i)]*=-densities[ode_id(nag,PREG,S,i)];
+        }
+
+        /*rate of passing between states of infection*/
+        for ( auto &gt : group_types)
+        {
+            deltas.segment(ode_id(nag,gt,E1),nag)=-deltas.segment(ode_id(nag,gt,S),nag)-a1*densities.segment(ode_id(nag,gt,E1),nag);
+            deltas.segment(ode_id(nag,gt,E2),nag)=a1*densities.segment(ode_id(nag,gt,E1),nag)-a2*densities.segment(ode_id(nag,gt,E2),nag);
+
+            deltas.segment(ode_id(nag,gt,I1),nag)=a2*densities.segment(ode_id(nag,gt,E2),nag)-g1*densities.segment(ode_id(nag,gt,I1),nag);
+            deltas.segment(ode_id(nag,gt,I2),nag)=g1*densities.segment(ode_id(nag,gt,I1),nag)-g2*densities.segment(ode_id(nag,gt,I2),nag);
+            deltas.segment(ode_id(nag,gt,R),nag)=g2*densities.segment(ode_id(nag,gt,I2),nag);
+        }
+
+        /*Vaccine bit*/
+
+        if ( vaccine_rates.size() > 0 )
+        {
+            for(size_t i=0;i<nag;i++)
+            {
+                double vacc_prov=Npop[i]*vaccine_rates(i)/(densities[ode_id(nag,LOW,S,i)]+densities[ode_id(nag,LOW,E1,i)]+densities[ode_id(nag,LOW,E2,i)]+densities[ode_id(nag,LOW,I1,i)]+densities[ode_id(nag,LOW,I2,i)]+densities[ode_id(nag,LOW,R,i)]);
+                /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
+                double vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[ode_id(nag,HIGH,S,i)]+densities[ode_id(nag,HIGH,E1,i)]+densities[ode_id(nag,HIGH,E2,i)]+densities[ode_id(nag,HIGH,I1,i)]+densities[ode_id(nag,HIGH,I2,i)]+densities[ode_id(nag,HIGH,R,i)]);
+                double vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[ode_id(nag,PREG,S,i)]+densities[ode_id(nag,PREG,E1,i)]+densities[ode_id(nag,PREG,E2,i)]+densities[ode_id(nag,PREG,I1,i)]+densities[ode_id(nag,PREG,I2,i)]+densities[ode_id(nag,PREG,R,i)]);*/
+
+                deltas[ode_id(nag,VACC_LOW,S,i)]+=densities[ode_id(nag,LOW,S,i)]*vacc_prov*(1-vaccine_efficacy_year[i]);
+                deltas[ode_id(nag,VACC_HIGH,S,i)]+=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*(1-vaccine_efficacy_year[i]);
+                deltas[ode_id(nag,VACC_PREG,S,i)]+=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*(1-vaccine_efficacy_year[i]);
+                deltas[ode_id(nag,LOW,S,i)]-=densities[ode_id(nag,LOW,S,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,S,i)]-=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,S,i)]-=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p;
+
+                deltas[ode_id(nag,VACC_LOW,E1,i)]+=densities[ode_id(nag,LOW,E1,i)]*vacc_prov;
+                deltas[ode_id(nag,VACC_HIGH,E1,i)]+=densities[ode_id(nag,HIGH,E1,i)]*vacc_prov_r;
+                deltas[ode_id(nag,VACC_PREG,E1,i)]+=densities[ode_id(nag,PREG,E1,i)]*vacc_prov_p;
+                deltas[ode_id(nag,LOW,E1,i)]-=densities[ode_id(nag,LOW,E1,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,E1,i)]-=densities[ode_id(nag,HIGH,E1,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,E1,i)]-=densities[ode_id(nag,PREG,E1,i)]*vacc_prov_p;
+
+                deltas[ode_id(nag,VACC_LOW,E2,i)]+=densities[ode_id(nag,LOW,E2,i)]*vacc_prov;
+                deltas[ode_id(nag,VACC_HIGH,E2,i)]+=densities[ode_id(nag,HIGH,E2,i)]*vacc_prov_r;
+                deltas[ode_id(nag,VACC_PREG,E2,i)]+=densities[ode_id(nag,PREG,E2,i)]*vacc_prov_p;
+                deltas[ode_id(nag,LOW,E2,i)]-=densities[ode_id(nag,LOW,E2,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,E2,i)]-=densities[ode_id(nag,HIGH,E2,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,E2,i)]-=densities[ode_id(nag,PREG,E2,i)]*vacc_prov_p;
+
+                deltas[ode_id(nag,VACC_LOW,I1,i)]+=densities[ode_id(nag,LOW,I1,i)]*vacc_prov;
+                deltas[ode_id(nag,VACC_HIGH,I1,i)]+=densities[ode_id(nag,HIGH,I1,i)]*vacc_prov_r;
+                deltas[ode_id(nag,VACC_PREG,I1,i)]+=densities[ode_id(nag,PREG,I1,i)]*vacc_prov_p;
+                deltas[ode_id(nag,LOW,I1,i)]-=densities[ode_id(nag,LOW,I1,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,I1,i)]-=densities[ode_id(nag,HIGH,I1,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,I1,i)]-=densities[ode_id(nag,PREG,I1,i)]*vacc_prov_p;
+
+                deltas[ode_id(nag,VACC_LOW,I2,i)]+=densities[ode_id(nag,LOW,I2,i)]*vacc_prov;
+                deltas[ode_id(nag,VACC_HIGH,I2,i)]+=densities[ode_id(nag,HIGH,I2,i)]*vacc_prov_r;
+                deltas[ode_id(nag,VACC_PREG,I2,i)]+=densities[ode_id(nag,PREG,I2,i)]*vacc_prov_p;
+                deltas[ode_id(nag,LOW,I2,i)]-=densities[ode_id(nag,LOW,I2,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,I2,i)]-=densities[ode_id(nag,HIGH,I2,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,I2,i)]-=densities[ode_id(nag,PREG,I2,i)]*vacc_prov_p;
+
+                deltas[ode_id(nag,VACC_LOW,R,i)]+=densities[ode_id(nag,LOW,R,i)]*vacc_prov+densities[ode_id(nag,LOW,S,i)]*vacc_prov*vaccine_efficacy_year[i];
+                deltas[ode_id(nag,VACC_HIGH,R,i)]+=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r+densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*vaccine_efficacy_year[i];
+                deltas[ode_id(nag,VACC_PREG,R,i)]+=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p+densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*vaccine_efficacy_year[i];
+                deltas[ode_id(nag,LOW,R,i)]-=densities[ode_id(nag,LOW,R,i)]*vacc_prov;
+                deltas[ode_id(nag,HIGH,R,i)]-=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r;
+                deltas[ode_id(nag,PREG,R,i)]-=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p;
+            }
+        }
+        return deltas*h_step;
+    }
+
     inline Eigen::VectorXd new_cases( 
             Eigen::VectorXd &densities,
             const boost::posix_time::ptime &start_time,
@@ -71,95 +169,9 @@ namespace flu
                 current_time = end_time;
             }
 
-            for(size_t i=0;i<nag;i++)
-            {
-                /*rate of depletion of susceptible*/
-                deltas[ode_id(nag,VACC_LOW,S,i)]=0;
-                for(size_t j=0;j<nag;j++)
-                    deltas[ode_id(nag,VACC_LOW,S,i)]+=transmission_regular(i,j)*(densities[ode_id(nag,VACC_LOW,I1,j)]+densities[ode_id(nag,VACC_LOW,I2,j)]+densities[ode_id(nag,VACC_HIGH,I1,j)]+densities[ode_id(nag,VACC_HIGH,I2,j)]+densities[ode_id(nag,VACC_PREG,I1,j)]+densities[ode_id(nag,VACC_PREG,I2,j)]+densities[ode_id(nag,LOW,I1,j)]+densities[ode_id(nag,LOW,I2,j)]+densities[ode_id(nag,HIGH,I1,j)]+densities[ode_id(nag,HIGH,I2,j)]+densities[ode_id(nag,PREG,I1,j)]+densities[ode_id(nag,PREG,I2,j)]);
-
-                deltas[ode_id(nag,VACC_HIGH,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
-                deltas[ode_id(nag,VACC_PREG,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
-                deltas[ode_id(nag,LOW,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
-                deltas[ode_id(nag,HIGH,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
-                deltas[ode_id(nag,PREG,S,i)]=deltas[ode_id(nag,VACC_LOW,S,i)];
-
-                deltas[ode_id(nag,VACC_LOW,S,i)]*=-densities[ode_id(nag,VACC_LOW,S,i)];
-                deltas[ode_id(nag,VACC_HIGH,S,i)]*=-densities[ode_id(nag,VACC_HIGH,S,i)];
-                deltas[ode_id(nag,VACC_PREG,S,i)]*=-densities[ode_id(nag,VACC_PREG,S,i)];
-                deltas[ode_id(nag,LOW,S,i)]*=-densities[ode_id(nag,LOW,S,i)];
-                deltas[ode_id(nag,HIGH,S,i)]*=-densities[ode_id(nag,HIGH,S,i)];
-                deltas[ode_id(nag,PREG,S,i)]*=-densities[ode_id(nag,PREG,S,i)];
-            }
-
-            /*rate of passing between states of infection*/
-            for ( auto &gt : group_types)
-            {
-                deltas.segment(ode_id(nag,gt,E1),nag)=-deltas.segment(ode_id(nag,gt,S),nag)-a1*densities.segment(ode_id(nag,gt,E1),nag);
-                deltas.segment(ode_id(nag,gt,E2),nag)=a1*densities.segment(ode_id(nag,gt,E1),nag)-a2*densities.segment(ode_id(nag,gt,E2),nag);
-
-                deltas.segment(ode_id(nag,gt,I1),nag)=a2*densities.segment(ode_id(nag,gt,E2),nag)-g1*densities.segment(ode_id(nag,gt,I1),nag);
-                deltas.segment(ode_id(nag,gt,I2),nag)=g1*densities.segment(ode_id(nag,gt,I1),nag)-g2*densities.segment(ode_id(nag,gt,I2),nag);
-                deltas.segment(ode_id(nag,gt,R),nag)=g2*densities.segment(ode_id(nag,gt,I2),nag);
-            }
-
-            /*Vaccine bit*/
-
-            if ( vaccine_rates.size() > 0 )
-            {
-                for(size_t i=0;i<nag;i++)
-                {
-                    double vacc_prov=Npop[i]*vaccine_rates(i)/(densities[ode_id(nag,LOW,S,i)]+densities[ode_id(nag,LOW,E1,i)]+densities[ode_id(nag,LOW,E2,i)]+densities[ode_id(nag,LOW,I1,i)]+densities[ode_id(nag,LOW,I2,i)]+densities[ode_id(nag,LOW,R,i)]);
-                    /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                    double vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[ode_id(nag,HIGH,S,i)]+densities[ode_id(nag,HIGH,E1,i)]+densities[ode_id(nag,HIGH,E2,i)]+densities[ode_id(nag,HIGH,I1,i)]+densities[ode_id(nag,HIGH,I2,i)]+densities[ode_id(nag,HIGH,R,i)]);
-                    double vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[ode_id(nag,PREG,S,i)]+densities[ode_id(nag,PREG,E1,i)]+densities[ode_id(nag,PREG,E2,i)]+densities[ode_id(nag,PREG,I1,i)]+densities[ode_id(nag,PREG,I2,i)]+densities[ode_id(nag,PREG,R,i)]);*/
-
-                    deltas[ode_id(nag,VACC_LOW,S,i)]+=densities[ode_id(nag,LOW,S,i)]*vacc_prov*(1-vaccine_efficacy_year[i]);
-                    deltas[ode_id(nag,VACC_HIGH,S,i)]+=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*(1-vaccine_efficacy_year[i]);
-                    deltas[ode_id(nag,VACC_PREG,S,i)]+=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*(1-vaccine_efficacy_year[i]);
-                    deltas[ode_id(nag,LOW,S,i)]-=densities[ode_id(nag,LOW,S,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,S,i)]-=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,S,i)]-=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p;
-
-                    deltas[ode_id(nag,VACC_LOW,E1,i)]+=densities[ode_id(nag,LOW,E1,i)]*vacc_prov;
-                    deltas[ode_id(nag,VACC_HIGH,E1,i)]+=densities[ode_id(nag,HIGH,E1,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,VACC_PREG,E1,i)]+=densities[ode_id(nag,PREG,E1,i)]*vacc_prov_p;
-                    deltas[ode_id(nag,LOW,E1,i)]-=densities[ode_id(nag,LOW,E1,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,E1,i)]-=densities[ode_id(nag,HIGH,E1,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,E1,i)]-=densities[ode_id(nag,PREG,E1,i)]*vacc_prov_p;
-
-                    deltas[ode_id(nag,VACC_LOW,E2,i)]+=densities[ode_id(nag,LOW,E2,i)]*vacc_prov;
-                    deltas[ode_id(nag,VACC_HIGH,E2,i)]+=densities[ode_id(nag,HIGH,E2,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,VACC_PREG,E2,i)]+=densities[ode_id(nag,PREG,E2,i)]*vacc_prov_p;
-                    deltas[ode_id(nag,LOW,E2,i)]-=densities[ode_id(nag,LOW,E2,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,E2,i)]-=densities[ode_id(nag,HIGH,E2,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,E2,i)]-=densities[ode_id(nag,PREG,E2,i)]*vacc_prov_p;
-
-                    deltas[ode_id(nag,VACC_LOW,I1,i)]+=densities[ode_id(nag,LOW,I1,i)]*vacc_prov;
-                    deltas[ode_id(nag,VACC_HIGH,I1,i)]+=densities[ode_id(nag,HIGH,I1,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,VACC_PREG,I1,i)]+=densities[ode_id(nag,PREG,I1,i)]*vacc_prov_p;
-                    deltas[ode_id(nag,LOW,I1,i)]-=densities[ode_id(nag,LOW,I1,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,I1,i)]-=densities[ode_id(nag,HIGH,I1,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,I1,i)]-=densities[ode_id(nag,PREG,I1,i)]*vacc_prov_p;
-
-                    deltas[ode_id(nag,VACC_LOW,I2,i)]+=densities[ode_id(nag,LOW,I2,i)]*vacc_prov;
-                    deltas[ode_id(nag,VACC_HIGH,I2,i)]+=densities[ode_id(nag,HIGH,I2,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,VACC_PREG,I2,i)]+=densities[ode_id(nag,PREG,I2,i)]*vacc_prov_p;
-                    deltas[ode_id(nag,LOW,I2,i)]-=densities[ode_id(nag,LOW,I2,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,I2,i)]-=densities[ode_id(nag,HIGH,I2,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,I2,i)]-=densities[ode_id(nag,PREG,I2,i)]*vacc_prov_p;
-
-                    deltas[ode_id(nag,VACC_LOW,R,i)]+=densities[ode_id(nag,LOW,R,i)]*vacc_prov+densities[ode_id(nag,LOW,S,i)]*vacc_prov*vaccine_efficacy_year[i];
-                    deltas[ode_id(nag,VACC_HIGH,R,i)]+=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r+densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*vaccine_efficacy_year[i];
-                    deltas[ode_id(nag,VACC_PREG,R,i)]+=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p+densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*vaccine_efficacy_year[i];
-                    deltas[ode_id(nag,LOW,R,i)]-=densities[ode_id(nag,LOW,R,i)]*vacc_prov;
-                    deltas[ode_id(nag,HIGH,R,i)]-=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r;
-                    deltas[ode_id(nag,PREG,R,i)]-=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p;
-                }
-            }
-
-            /*update the different classes*/
-            densities += h_step * deltas; 
+            densities += flu_ode( std::move(deltas), densities, 
+                    h_step, Npop, vaccine_rates, vaccine_efficacy_year,
+                    transmission_regular, a1, a2, g1, g2 );
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*h_step;
             results.block( nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_HIGH,E2),nag)+densities.segment(ode_id(nag,HIGH,E2),nag))*h_step;
