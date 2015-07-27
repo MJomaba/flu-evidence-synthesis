@@ -1,5 +1,7 @@
 #include "model.h"
 
+#include "ode.h"
+
 namespace flu 
 {
     boost::posix_time::ptime getTimeFromWeekYear( int week, int year )
@@ -159,19 +161,21 @@ namespace flu
         static Eigen::VectorXd deltas( nag*group_types.size()*
                 seir_types.size() );
 
-        for(bt::ptime current_time = start_time; 
-                current_time < end_time;)
-        {
-            current_time += dt;
-            if ((current_time > end_time))
-            {
-                h_step -= (current_time-end_time).hours()/24.0;
-                current_time = end_time;
-            }
+        auto time_left = (end_time-start_time).hours()/24.0;
 
-            densities += h_step*flu_ode( deltas, densities, 
+        auto ode_func = [&]( const Eigen::VectorXd &y, const double dummy )
+        {
+            return flu_ode( deltas, y, 
                     Npop, vaccine_rates, vaccine_efficacy_year,
                     transmission_regular, a1, a2, g1, g2 );
+        };
+
+        while (time_left > 0)
+        {
+
+            densities = ode::step( std::move(densities), ode_func,
+                        h_step, 0, time_left );
+            time_left -= h_step;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*h_step;
             results.block( nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_HIGH,E2),nag)+densities.segment(ode_id(nag,HIGH,E2),nag))*h_step;
