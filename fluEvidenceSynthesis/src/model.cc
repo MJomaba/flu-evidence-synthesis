@@ -40,7 +40,7 @@ namespace flu
     }
 
     inline Eigen::VectorXd flu_ode( Eigen::VectorXd &deltas,
-            const Eigen::VectorXd &densities, double h_step,
+            const Eigen::VectorXd &densities,
             const std::vector<double> &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
             const std::array<double,7> &vaccine_efficacy_year,
@@ -134,7 +134,7 @@ namespace flu
                 deltas[ode_id(nag,PREG,R,i)]-=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p;
             }
         }
-        return deltas*h_step;
+        return deltas;
     }
 
     inline Eigen::VectorXd new_cases( 
@@ -169,8 +169,8 @@ namespace flu
                 current_time = end_time;
             }
 
-            densities += flu_ode( deltas, densities, 
-                    h_step, Npop, vaccine_rates, vaccine_efficacy_year,
+            densities += h_step*flu_ode( deltas, densities, 
+                    Npop, vaccine_rates, vaccine_efficacy_year,
                     transmission_regular, a1, a2, g1, g2 );
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*h_step;
