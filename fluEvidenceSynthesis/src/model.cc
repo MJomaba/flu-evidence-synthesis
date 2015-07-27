@@ -39,7 +39,7 @@ namespace flu
         + st*nag + i;
     }
 
-    inline Eigen::VectorXd flu_ode( Eigen::VectorXd &&deltas,
+    inline Eigen::VectorXd flu_ode( Eigen::VectorXd &deltas,
             const Eigen::VectorXd &densities, double h_step,
             const std::vector<double> &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
@@ -169,7 +169,7 @@ namespace flu
                 current_time = end_time;
             }
 
-            densities += flu_ode( std::move(deltas), densities, 
+            densities += flu_ode( deltas, densities, 
                     h_step, Npop, vaccine_rates, vaccine_efficacy_year,
                     transmission_regular, a1, a2, g1, g2 );
 
