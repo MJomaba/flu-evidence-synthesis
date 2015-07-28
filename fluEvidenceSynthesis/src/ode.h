@@ -1,6 +1,7 @@
 #ifndef FLU_ODE_H
 #define FLU_ODE_H
 
+//#include "rcppwrap.h"
 #include<Eigen/Core>
 
 namespace ode {
@@ -10,8 +11,9 @@ namespace ode {
                 const double max_time )
         {
             auto dt = std::min( step_size, max_time - current_time );
+            y = y + dt*ode_func( y, current_time );
             current_time += dt;
-            return y + dt*ode_func( y, current_time );
+            return y;
         }
 
     template<typename ODE_FUNC>
@@ -23,7 +25,9 @@ namespace ode {
             Eigen::VectorXd k1, k2, k3, k4, k5, k6;
 
 
-            auto dt = std::min( step_size, max_time - current_time );
+            auto max_step = max_time - current_time;
+
+            auto dt = std::min( step_size, max_step );
 
             bool adapted = true;
             while( adapted )
@@ -56,18 +60,18 @@ namespace ode {
                             0.25)
                         , 5.0 );
 
-                if ((s > 2 || s < 0.5))
+                if ((s > 2 || s < 0.5) && dt < max_step)
                 {
-                    if ( dt < max_time-current_time )
-                    {
-                        step_size = dt; // Only permanently change if due to
-                                        // s, not due to overflow of time
-                    }
-                    dt = std::min( s*dt, max_time - current_time );
+                    step_size = s*dt; 
+                    dt = std::min( step_size, max_step );
                 } else {
                     adapted = false;
                 }
             }
+
+            current_time += dt;
+
+            //Rcpp::cout << dt << ", " << step_size << ", " << current_time << std::endl;
 
             return y + 25.0/216*k1+1408.0/2565*k3+2197.0/4101*k4-
                 1.0/5*k5;

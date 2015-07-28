@@ -81,7 +81,7 @@ getTimeFromWeekYear <- function(week, year) {
 #' @param step_size The size of the step between returned time points
 #' @param h_step The starting integration delta size
 #'
-.runStep <- function(step_size = 0.1, h_step = 0.0001) {
+.runStep <- function(step_size = 0.1, h_step = 1e-5) {
     .Call('fluEvidenceSynthesis_runPredatorPreySimple', PACKAGE = 'fluEvidenceSynthesis', step_size, h_step)
 }
 

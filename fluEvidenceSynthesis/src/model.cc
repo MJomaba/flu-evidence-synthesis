@@ -171,20 +171,19 @@ namespace flu
         };
 
         auto t = 0.0;
-        auto prev_t = 0.0;
+        auto prev_t = t;
 
         while (t < time_left)
         {
-
+            prev_t = t;
             /*densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, 0, time_left, 1.0e-2 );*/
+                        h_step, t, time_left, 1.0 );*/
             densities = ode::step( std::move(densities), ode_func,
                         h_step, t, time_left );
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*(t-prev_t);
             results.block( nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_HIGH,E2),nag)+densities.segment(ode_id(nag,HIGH,E2),nag))*(t-prev_t);
             results.block( 2*nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_PREG,E2),nag)+densities.segment(ode_id(nag,PREG,E2),nag))*(t-prev_t);
-            prev_t = t;
         }
         return results;
     }

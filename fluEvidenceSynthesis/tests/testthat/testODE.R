@@ -8,15 +8,15 @@ test_that("We correctly convert week and year into a date", {
     expect_that(as.character(getTimeFromWeekYear( 3, 1972 )), equals("1972-01-17"))
 })
 
-#test_that("Runge Kutta ode solver works correctly",
-#{
-#    if (!exists(".runRKF"))
-#    {
-#        # In certain situation this function is hidden 
-#        # (i.e. for devtools::check(), but not for devtools::test()
-#
-#        skip(".runRKF not available (hidden)")
-#    }
+test_that("Runge Kutta ode solver works correctly",
+{
+    if (!exists(".runRKF"))
+    {
+        # In certain situation this function is hidden 
+        # (i.e. for devtools::check(), but not for devtools::test()
+
+        skip(".runRKF not available (hidden)")
+    }
     #library("deSolve")
     #predprey <- function(t,y,prs) 
     #{
@@ -29,24 +29,24 @@ test_that("We correctly convert week and year into a date", {
     #yini <- c(10,5)
     #sol <- deSolve::ode(y=yini, times=seq(0,20,0.1),func=predprey,parms=c())
 
-#   sol <- .runStep()
-#    rkf <- .runRKF(step_size=0.1)
-#    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
-#})
+    sol <- .runStep()
+    rkf <- .runRKF(step_size=0.1)
+    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+})
 
-#test_that("Runge Kutta ode solver works with a large initial integration dt",
-#{
-#    if (!exists(".runRKF"))
-#    {
-#        # In certain situation this function is hidden 
-#        # (i.e. for devtools::check(), but not for devtools::test()
-#
-#        skip(".runRKF not available (hidden)")
-#    }
-#    sol <- .runStep(step_size=0.1,h_step=0.0001)
-#    rkf <- .runRKF(step_size=0.1,h_step=1.0)
-#    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
-#})
+test_that("Runge Kutta ode solver works with a large initial integration dt",
+{
+    if (!exists(".runRKF"))
+    {
+        # In certain situation this function is hidden 
+        # (i.e. for devtools::check(), but not for devtools::test()
+
+        skip(".runRKF not available (hidden)")
+    }
+    sol <- .runStep(step_size=0.1)
+    rkf <- .runRKF(step_size=0.1,h_step=1.0)
+    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+})
 
 test_that("Return the correct ODE results", {
     if (!exists(".runSEIRModel"))

@@ -172,7 +172,7 @@ Eigen::MatrixXd runPredatorPrey(double step_size = 0.1, double h_step=0.01)
 //' @param h_step The starting integration delta size
 //'
 // [[Rcpp::export(name=".runStep")]]
-Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=0.0001)
+Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5)
 {
     Eigen::MatrixXd result(201,3);
     double ct = 0;
