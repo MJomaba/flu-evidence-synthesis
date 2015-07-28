@@ -22,7 +22,19 @@ namespace ode {
                 double &step_size, double &current_time, 
                 const double max_time, const double tol = 1e-2 )
         {
-            static Eigen::VectorXd k1, k2, k3, k4, k5, k6, err;
+            static const std::array<double, 4> tscale = 
+                { 1.0/4, 3.0/8.0, 12.0/13.0, 1.0/2.0 };
+            static const std::array<double, 2> k3scale = { 3.0/32, 9.0/32 };
+            static const std::array<double, 3> k4scale = 
+                { 1932.0/2197, 7200.0/2197,7296.0/2197 };
+            static const std::array<double, 4> k5scale = 
+                { 439.0/216, 8.0, 3680.0/513, 845.0/4104 };
+            static const std::array<double, 5> k6scale = 
+                { 8.0/27, 2.0, 3544.0/2565, 1859.0/4104,11.0/40 };
+            static const std::array<double, 5> errscale = 
+                { 1.0/360, 128.0/4275, 2197.0/75240, 1.0/50, 2.0/55 };
+
+            static Eigen::VectorXd k1, k2, k3, k4, k5, k6, err, y5;
 
             if (k1.size() != y.size())
             {
@@ -33,6 +45,7 @@ namespace ode {
                 k5 = k1;
                 k6 = k1;
                 err = k1;
+                y5 = k1;
             }
 
             auto max_step = max_time - current_time;
@@ -45,24 +58,25 @@ namespace ode {
 
                 k1 = dt*ode_func(y, current_time);
                 k2 = dt*ode_func(
-                        y + 1.0/4.0*k1, 
-                        current_time + 1.0/4.0*dt);
+                        y + tscale[0]*k1, 
+                        current_time + tscale[0]*dt);
                 k3 = dt*ode_func(
-                        y + 3.0/32*k1+9.0/32*k2, 
-                        current_time + 3.0/8.0*dt);
+                        y + k3scale[0]*k1+k3scale[1]*k2, 
+                        current_time + tscale[1]*dt);
                 k4 = dt*ode_func(
-                        y + 1932.0/2197*k1-7200.0/2197*k2+7296.0/2197*k3, 
-                        current_time + 12.0/13.0*dt);
+                        y + k4scale[0]*k1-k4scale[1]*k2+k4scale[2]*k3, 
+                        current_time + tscale[2]*dt);
                 k5 = dt*ode_func(
-                        y + 439.0/216*k1-8*k2+3680.0/513*k3-845.0/4104*k4, 
+                        y + k5scale[0]*k1-k5scale[1]*k2+k5scale[2]*k3-
+                        k5scale[3]*k4, 
                         current_time + dt);
                 k6 = dt*ode_func(
-                        y - 8.0/27*k1+2.0*k2-3544.0/2565*k3+1859.0/4104*k4
-                        -11.0/40*k5, 
-                        current_time + 1.0/2.0*dt);
+                        y - k6scale[0]*k1+k6scale[1]*k2-k6scale[2]*k3+
+                        k6scale[3]*k4-k6scale[4]*k5, 
+                        current_time + tscale[3]*dt);
 
-                err = ( 1.0/360*k1-128.0/4275*k3-2197.0/75240*k4
-                        +1.0/50*k5+2.0/55*k6 );
+                err = ( errscale[0]*k1-errscale[1]*k3-errscale[2]*k4
+                        +errscale[3]*k5+errscale[4]*k6 );
 
                 auto s = std::min(
                         std::max(
