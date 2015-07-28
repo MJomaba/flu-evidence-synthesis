@@ -33,6 +33,8 @@ namespace ode {
                 { 8.0/27, 2.0, 3544.0/2565, 1859.0/4104,11.0/40 };
             static const std::array<double, 5> errscale = 
                 { 1.0/360, 128.0/4275, 2197.0/75240, 1.0/50, 2.0/55 };
+            static const std::array<double, 4> yscale =
+                {25.0/216, 1408.0/2565, 2197.0/4101, 1.0/5};
 
             static Eigen::VectorXd k1, k2, k3, k4, k5, k6, err, y5;
 
@@ -75,7 +77,7 @@ namespace ode {
                         k6scale[3]*k4-k6scale[4]*k5, 
                         current_time + tscale[3]*dt);
 
-                err = dt*( errscale[0]*k1-errscale[1]*k3-errscale[2]*k4
+                err = ( errscale[0]*k1-errscale[1]*k3-errscale[2]*k4
                         +errscale[3]*k5+errscale[4]*k6 );
 
                 auto s = std::min(
@@ -97,8 +99,8 @@ namespace ode {
 
             //Rcpp::cout << dt << ", " << step_size << ", " << current_time << std::endl;
 
-            return y + 25.0/216*k1+1408.0/2565*k3+2197.0/4101*k4-
-                1.0/5*k5;
+            return y + yscale[0]*k1+yscale[1]*k3+yscale[2]*k4-
+                yscale[3]*k5;
         }
 };
 
