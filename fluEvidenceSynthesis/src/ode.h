@@ -75,7 +75,7 @@ namespace ode {
                         k6scale[3]*k4-k6scale[4]*k5, 
                         current_time + tscale[3]*dt);
 
-                err = ( errscale[0]*k1-errscale[1]*k3-errscale[2]*k4
+                err = dt*( errscale[0]*k1-errscale[1]*k3-errscale[2]*k4
                         +errscale[3]*k5+errscale[4]*k6 );
 
                 auto s = std::min(
