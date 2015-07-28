@@ -22,8 +22,18 @@ namespace ode {
                 double &step_size, double &current_time, 
                 const double max_time, const double tol = 1e-2 )
         {
-            Eigen::VectorXd k1, k2, k3, k4, k5, k6;
+            static Eigen::VectorXd k1, k2, k3, k4, k5, k6, err;
 
+            if (k1.size() != y.size())
+            {
+                k1 = Eigen::VectorXd( y.size() );
+                k2 = k1;
+                k3 = k1;
+                k4 = k1;
+                k5 = k1;
+                k6 = k1;
+                err = k1;
+            }
 
             auto max_step = max_time - current_time;
 
@@ -51,7 +61,7 @@ namespace ode {
                         -11.0/40*k5, 
                         current_time + 1.0/2.0*dt);
 
-                auto err = ( 1.0/360*k1-128.0/4275*k3-2197.0/75240*k4
+                err = ( 1.0/360*k1-128.0/4275*k3-2197.0/75240*k4
                         +1.0/50*k5+2.0/55*k6 );
 
                 auto s = std::min(
