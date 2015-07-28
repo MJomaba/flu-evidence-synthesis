@@ -8,30 +8,45 @@ test_that("We correctly convert week and year into a date", {
     expect_that(as.character(getTimeFromWeekYear( 3, 1972 )), equals("1972-01-17"))
 })
 
-test_that("Runge Kutta ode solver works correctly")
-{
-    if (!exists(".runRKF"))
-    {
-        # In certain situation this function is hidden 
-        # (i.e. for devtools::check(), but not for devtools::test()
+#test_that("Runge Kutta ode solver works correctly",
+#{
+#    if (!exists(".runRKF"))
+#    {
+#        # In certain situation this function is hidden 
+#        # (i.e. for devtools::check(), but not for devtools::test()
+#
+#        skip(".runRKF not available (hidden)")
+#    }
+    #library("deSolve")
+    #predprey <- function(t,y,prs) 
+    #{
+    #  r <- 1.5
+    #  a <- 1
+    #  g <- 1
+    #  m <- 3
+    #  list(c(r*y[1]-a*y[1]*y[2],g*y[1]*y[2]-m*y[2]))
+    #}
+    #yini <- c(10,5)
+    #sol <- deSolve::ode(y=yini, times=seq(0,20,0.1),func=predprey,parms=c())
 
-        skip(".runRKF not available (hidden)")
-    }
-    library(deSolve)
-    predprey <- function(t,y,prs) 
-    {
-      r <- 1.5
-      a <- 1
-      g <- 1
-      m <- 3
-      list(c(r*y[1]-a*y[1]*y[2],g*y[1]*y[2]-m*y[2]))
-    }
+#   sol <- .runStep()
+#    rkf <- .runRKF(step_size=0.1)
+#    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+#})
 
-    yini <- c(10,5)
-    sol <- ode(y=yini, times=seq(0,20,0.1),func=predprey,parms=c(),method="ode45")
-    rkf <- runRKF()
-    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
-}
+#test_that("Runge Kutta ode solver works with a large initial integration dt",
+#{
+#    if (!exists(".runRKF"))
+#    {
+#        # In certain situation this function is hidden 
+#        # (i.e. for devtools::check(), but not for devtools::test()
+#
+#        skip(".runRKF not available (hidden)")
+#    }
+#    sol <- .runStep(step_size=0.1,h_step=0.0001)
+#    rkf <- .runRKF(step_size=0.1,h_step=1.0)
+#    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+#})
 
 test_that("Return the correct ODE results", {
     if (!exists(".runSEIRModel"))

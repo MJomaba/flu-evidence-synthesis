@@ -132,12 +132,14 @@ Rcpp::DataFrame runSEIRModel(
 
 //' Run an ODE model with the runge-kutta solver for testing purposes
 //'
+//' @param step_size The size of the step between returned time points
+//' @param h_step The starting integration delta size
+//'
 // [[Rcpp::export(name=".runRKF")]]
-Eigen::MatrixXd runPredatorPrey()
+Eigen::MatrixXd runPredatorPrey(double step_size = 0.1, double h_step=0.01)
 {
     Eigen::MatrixXd result(201,3);
     double ct = 0;
-    double h_step = 0.01;
     Eigen::VectorXd y(2); y[0] = 10.0; y[1] = 5.0;
     size_t row_count = 0;
     while( ct <= 20.01 )
@@ -145,8 +147,8 @@ Eigen::MatrixXd runPredatorPrey()
         result( row_count, 0 ) = ct;
         result( row_count, 1 ) = y[0];
         result( row_count, 2 ) = y[1];
-        double time_left = 0.1;
-        while (time_left > 0)
+        double t = 0;
+        while (t < step_size)
         {
             auto ode_func = []( const Eigen::VectorXd &y, const double ct )
             {
@@ -156,12 +158,45 @@ Eigen::MatrixXd runPredatorPrey()
                 return dy;
             };
             y = ode::rkf45_astep( std::move(y), ode_func,
-                        h_step, 0, time_left, 1.0e-12 );
-            /*densities = ode::step( std::move(densities), ode_func,
-                        h_step, 0, time_left );*/
-            time_left -= h_step;
+                        h_step, t, step_size, 1.0e-12 );
         }
-        ct += 0.1;
+        ct += step_size;
+        ++row_count;
+    }
+    return result;
+}
+
+//' Run an ODE model with the simple step wise solver for testing purposes
+//'
+//' @param step_size The size of the step between returned time points
+//' @param h_step The starting integration delta size
+//'
+// [[Rcpp::export(name=".runStep")]]
+Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=0.0001)
+{
+    Eigen::MatrixXd result(201,3);
+    double ct = 0;
+    Eigen::VectorXd y(2); y[0] = 10.0; y[1] = 5.0;
+    size_t row_count = 0;
+    while( ct <= 20.01 )
+    {
+        result( row_count, 0 ) = ct;
+        result( row_count, 1 ) = y[0];
+        result( row_count, 2 ) = y[1];
+        double t = 0;
+        while (t < step_size)
+        {
+            auto ode_func = []( const Eigen::VectorXd &y, const double ct )
+            {
+                Eigen::VectorXd dy(2);
+                dy[0] = 1.5*y[0]-1.0*y[0]*y[1];
+                dy[1] = 1.0*y[0]*y[1]-3.0*y[1];
+                return dy;
+            };
+            y = ode::step( std::move(y), ode_func,
+                        h_step, t, step_size );
+        }
+        ct += step_size;
         ++row_count;
     }
     return result;

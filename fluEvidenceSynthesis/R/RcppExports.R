@@ -69,8 +69,20 @@ getTimeFromWeekYear <- function(week, year) {
 
 #' Run an ODE model with the runge-kutta solver for testing purposes
 #'
-.runRKF <- function() {
-    .Call('fluEvidenceSynthesis_runPredatorPrey', PACKAGE = 'fluEvidenceSynthesis')
+#' @param step_size The size of the step between returned time points
+#' @param h_step The starting integration delta size
+#'
+.runRKF <- function(step_size = 0.1, h_step = 0.01) {
+    .Call('fluEvidenceSynthesis_runPredatorPrey', PACKAGE = 'fluEvidenceSynthesis', step_size, h_step)
+}
+
+#' Run an ODE model with the simple step wise solver for testing purposes
+#'
+#' @param step_size The size of the step between returned time points
+#' @param h_step The starting integration delta size
+#'
+.runStep <- function(step_size = 0.1, h_step = 0.0001) {
+    .Call('fluEvidenceSynthesis_runPredatorPreySimple', PACKAGE = 'fluEvidenceSynthesis', step_size, h_step)
 }
 
 #' Calculate number of influenza cases given a vaccination strategy
