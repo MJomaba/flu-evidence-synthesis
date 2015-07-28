@@ -5,6 +5,7 @@
 #include "proposal.h"
 #include "contacts.h"
 #include "model.h"
+#include "ode.h"
 
 namespace bt = boost::posix_time;
 
@@ -127,4 +128,41 @@ Rcpp::DataFrame runSEIRModel(
     return Rcpp::DataFrame(resultList);
     //return densities;
     //return resultMatrix;
+}
+
+//' Run an ODE model with the runge-kutta solver for testing purposes
+//'
+// [[Rcpp::export(name=".runRKF")]]
+Eigen::MatrixXd runPredatorPrey()
+{
+    Eigen::MatrixXd result(201,3);
+    double ct = 0;
+    double h_step = 0.01;
+    Eigen::VectorXd y(2); y[0] = 10.0; y[1] = 5.0;
+    size_t row_count = 0;
+    while( ct <= 20.01 )
+    {
+        result( row_count, 0 ) = ct;
+        result( row_count, 1 ) = y[0];
+        result( row_count, 2 ) = y[1];
+        double time_left = 0.1;
+        while (time_left > 0)
+        {
+            auto ode_func = []( const Eigen::VectorXd &y, const double ct )
+            {
+                Eigen::VectorXd dy(2);
+                dy[0] = 1.5*y[0]-1.0*y[0]*y[1];
+                dy[1] = 1.0*y[0]*y[1]-3.0*y[1];
+                return dy;
+            };
+            y = ode::rkf45_astep( std::move(y), ode_func,
+                        h_step, 0, time_left, 1.0e-12 );
+            /*densities = ode::step( std::move(densities), ode_func,
+                        h_step, 0, time_left );*/
+            time_left -= h_step;
+        }
+        ct += 0.1;
+        ++row_count;
+    }
+    return result;
 }

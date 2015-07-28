@@ -173,8 +173,10 @@ namespace flu
         while (time_left > 0)
         {
 
-            densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, 0, time_left, 1 );
+            /*densities = ode::rkf45_astep( std::move(densities), ode_func,
+                        h_step, 0, time_left, 1.0e-2 );*/
+            densities = ode::step( std::move(densities), ode_func,
+                        h_step, 0, time_left );
             time_left -= h_step;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*h_step;
@@ -250,7 +252,7 @@ namespace flu
 
         while (current_time < end_time)
         {
-            bt::time_duration dt = bt::hours( 24 );
+            bt::time_duration dt = bt::hours( 6 );
             auto next_time = current_time + bt::hours( minimal_resolution );
 
             bool time_changed_for_vacc = false;
@@ -260,7 +262,7 @@ namespace flu
             {
                 next_time = 
                     vaccine_programme.dates[date_id+1];
-                //dt = next_time - current_time;
+                dt = next_time - current_time;
                 time_changed_for_vacc = true;
             }
 

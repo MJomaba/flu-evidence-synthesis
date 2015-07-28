@@ -67,6 +67,12 @@ getTimeFromWeekYear <- function(week, year) {
     .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state)
 }
 
+#' Run an ODE model with the runge-kutta solver for testing purposes
+#'
+.runRKF <- function() {
+    .Call('fluEvidenceSynthesis_runPredatorPrey', PACKAGE = 'fluEvidenceSynthesis')
+}
+
 #' Calculate number of influenza cases given a vaccination strategy
 #'
 #' @param age_sizes A vector with the population size by each age {1,2,..}
