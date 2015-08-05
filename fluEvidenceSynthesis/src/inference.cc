@@ -83,7 +83,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     auto current_contact_regular = 
         contacts::to_symmetric_matrix( curr_c, age_data );
 
-    auto result = one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar, 3.5*24 );
+    auto result = one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar, 7*24 );
 
     /*curr_psi=0.00001;*/
     current_state.likelihood = log_likelihood_hyper_poisson(
@@ -147,7 +147,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             auto prop_contact_regular = 
                 contacts::to_symmetric_matrix( prop_c, age_data );
 
-            result = one_year_SEIR_with_vaccination(pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar, 3.5*24 );
+            result = one_year_SEIR_with_vaccination(pop_vec, prop_init_inf, current_state.time_latent, current_state.time_infectious, proposed_par.susceptibility, prop_contact_regular, proposed_par.transmissibility, vaccine_calendar, 7*24 );
 
             /*computes the associated likelihood with the proposed values*/
             prop_likelihood=log_likelihood_hyper_poisson(
