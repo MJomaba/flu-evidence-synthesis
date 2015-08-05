@@ -86,16 +86,20 @@ namespace ode {
                             0.25)
                         , 5.0 );
 
-                if ((s > 2 || s < 0.5) && dt < max_step)
+                if ((s > 1.5 || s < 0.9) && dt < max_step)
                 {
-                    step_size = s*dt; 
+                    step_size = 0.9*s*dt; 
                     dt = std::min( step_size, max_step );
                 } else {
                     adapted = false;
                 }
             }
 
-            current_time += dt;
+            // Solving some numerical problems
+            if ( dt == max_step )
+                current_time = max_time;
+            else 
+                current_time += dt;
 
             //Rcpp::cout << dt << ", " << step_size << ", " << current_time << std::endl;
 
