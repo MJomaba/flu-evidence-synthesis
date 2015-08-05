@@ -46,8 +46,16 @@ test_that("We can call scenario",
                     sample=mcmcsample,
                     polymod_data=as.matrix(polymod_uk) )
 
-              expect_equal( total_size,
-                           c( 119474.807, 636440.213, 1469251.696, 2881440.126, 4408817.625, 2796622.448, 498176.149, 2541.504, 36427.619, 155706.821, 264664.169, 416935.424, 530054.119, 359250.707, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 )
-                           )
-          }
-)
+              exp.total.size <- c( 119474.807, 636440.213, 1469251.696, 2881440.126, 4408817.625, 2796622.448, 498176.149, 2541.504, 36427.619, 155706.821, 264664.169, 416935.424, 530054.119, 359250.707, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 )
+              for( i in 1:length(total_size) )
+              {
+                  if (total_size[i] == 0)
+                      expect_that( exp.total.size[i], equals(total_size[i]) )
+                  else
+                  {
+                      ratio <- exp.total.size[i]/total_size[i]
+                      expect_less_than( ratio, 1.03 )
+                      expect_more_than( ratio, 0.97 )
+                  }
+              }
+          })
