@@ -143,7 +143,7 @@ namespace flu
             Eigen::VectorXd &densities,
             const boost::posix_time::ptime &start_time,
             const boost::posix_time::ptime &end_time, 
-            const boost::posix_time::time_duration &dt,
+            boost::posix_time::time_duration &dt,
             const std::vector<double> &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
             const std::array<double,7> &vaccine_efficacy_year,
@@ -177,7 +177,7 @@ namespace flu
         {
             prev_t = t;
             densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, t, time_left, 1000.0 );
+                        h_step, t, time_left );
             /*densities = ode::step( std::move(densities), ode_func,
                         h_step, t, time_left );*/
 
@@ -252,9 +252,9 @@ namespace flu
         cases.times.reserve( (end_time-start_time).hours()
                 /minimal_resolution );
 
+        static bt::time_duration dt = bt::hours( 6 );
         while (current_time < end_time)
         {
-            bt::time_duration dt = bt::hours( 6 );
             auto next_time = current_time + bt::hours( minimal_resolution );
 
             bool time_changed_for_vacc = false;
@@ -264,7 +264,6 @@ namespace flu
             {
                 next_time = 
                     vaccine_programme.dates[date_id+1];
-                dt = next_time - current_time;
                 time_changed_for_vacc = true;
             }
 
