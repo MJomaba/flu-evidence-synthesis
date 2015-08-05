@@ -177,9 +177,10 @@ namespace flu
         {
             prev_t = t;
             densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, t, time_left );
+                        h_step, t, time_left, 10 );
             /*densities = ode::step( std::move(densities), ode_func,
                         h_step, t, time_left );*/
+            //Rcpp::Rcout << h_step << std::endl;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*(t-prev_t);
             results.block( nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_HIGH,E2),nag)+densities.segment(ode_id(nag,HIGH,E2),nag))*(t-prev_t);
