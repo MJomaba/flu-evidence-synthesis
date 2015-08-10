@@ -346,7 +346,7 @@ namespace flu
         int g, i, k, k_seed, week, h, h_init, top_sum;
         int Z_in_mon, n, m, n_plus, max_m_plus, pop_mon;
         double result, epsilon;
-        long double aij, aij_seed, likelihood_AG_week;
+        long double aij, aij_seed;
 
         result=0.0;
         for(i=0;i<5;i++)
@@ -398,7 +398,7 @@ namespace flu
                 aij_seed=aij;
                 k_seed=n_plus;
 
-                likelihood_AG_week=aij;
+                auto likelihood_AG_week=aij;
 
                 /*Calculation of the first line*/
                 if(Z_in_mon+h_init>m-n+n_plus)
@@ -450,7 +450,13 @@ namespace flu
 
                 auto ll = log(likelihood_AG_week);
                 if (!std::isfinite(ll))
+                {
+                    /*Rcpp::Rcerr << "Numerical error detected for week " 
+                        << week << " and age group " << i << std::endl;
+                    Rcpp::Rcerr << "Predicted number of cases is: "
+                        << result_by_week(week,i) << std::endl;*/
                     ll = -10000;
+                }
 
                 result+=ll;
             }
