@@ -158,8 +158,12 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
             // Make sure accept works with -inf prior
             // MCMC-R alternative prior?
-            my_acceptance_rate=exp(prop_likelihood-current_state.likelihood+
-                    log_prior(proposed_par, current_state.parameters, false ));
+            if (std::isinf(prop_likelihood) && std::isinf(current_state.likelihood) )
+                my_acceptance_rate = exp(prior_ratio); // We want to explore and find a non infinite likelihood
+            else 
+                my_acceptance_rate=
+                    exp(prop_likelihood-current_state.likelihood+
+                    prior_ratio);
 
             if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
             {
