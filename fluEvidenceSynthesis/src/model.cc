@@ -176,10 +176,10 @@ namespace flu
         while (t < time_left)
         {
             prev_t = t;
-            densities = ode::rkf45_astep( std::move(densities), ode_func,
-                        h_step, t, time_left, 5 );
-            /*densities = ode::step( std::move(densities), ode_func,
-                        h_step, t, time_left );*/
+            /*densities = ode::rkf45_astep( std::move(densities), ode_func,
+                        h_step, t, time_left, 5 );*/
+            densities = ode::step( std::move(densities), ode_func,
+                        h_step, t, time_left );
             //Rcpp::Rcout << h_step << std::endl;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*(t-prev_t);
@@ -367,7 +367,7 @@ namespace flu
                     h_init=0;
 
                 if(h_init>depth)
-                    return(-10000);
+                    return(-10000*pow(10,h_init-depth));
 
                 /*define the first aij*/
                 aij=pow(epsilon,n_plus)*exp(-psi*pop_mon*epsilon);
@@ -448,7 +448,11 @@ namespace flu
                             }
                     }
 
-                result+=log(likelihood_AG_week);
+                auto ll = log(likelihood_AG_week);
+                if (!std::isfinite(ll))
+                    ll = -10000;
+
+                result+=ll;
             }
         }
 

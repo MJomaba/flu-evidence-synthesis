@@ -9,7 +9,6 @@
 #define length_weeks 52
 #define twopi 6.283185
 #define POLY_PART 597
-#define d_app 2
 #define dim_par 9
 #define dim_par2 81
 //#define seed 578

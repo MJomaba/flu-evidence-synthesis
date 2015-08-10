@@ -86,6 +86,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     auto result = one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar, 7*24 );
 
     /*curr_psi=0.00001;*/
+    auto d_app = 3;
     current_state.likelihood = log_likelihood_hyper_poisson(
             current_state.parameters.epsilon, current_state.parameters.psi, 
             days_to_weeks_5AG( result ), 
