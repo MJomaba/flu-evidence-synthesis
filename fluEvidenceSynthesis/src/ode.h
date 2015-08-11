@@ -6,7 +6,7 @@
 
 namespace ode {
     template<typename ODE_FUNC>
-        Eigen::VectorXd step( Eigen::VectorXd &&y, ODE_FUNC &ode_func,
+        inline Eigen::VectorXd step( Eigen::VectorXd &&y, ODE_FUNC &ode_func,
                 double &step_size, double &current_time, 
                 const double max_time )
         {
@@ -17,7 +17,7 @@ namespace ode {
         }
 
     template<typename ODE_FUNC>
-        Eigen::VectorXd rkf45_astep( Eigen::VectorXd &&y, 
+        inline Eigen::VectorXd rkf45_astep( Eigen::VectorXd &&y, 
                 ODE_FUNC &ode_func,
                 double &step_size, double &current_time, 
                 const double max_time, const double tol = 1e-2 )
