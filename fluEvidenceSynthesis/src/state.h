@@ -34,6 +34,6 @@ namespace flu
         std::vector<size_t> contact_ids;
         double likelihood;
     };
-};
+}
 
 #endif

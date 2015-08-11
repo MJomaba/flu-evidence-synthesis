@@ -106,6 +106,6 @@ namespace ode {
             return y + yscale[0]*k1+yscale[1]*k3+yscale[2]*k4-
                 yscale[3]*k5;
         }
-};
+}
 
 #endif

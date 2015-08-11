@@ -3,4 +3,4 @@
 #include "state.h"
 
 namespace flu {
-};
+}

@@ -226,9 +226,9 @@ namespace flu
 
         /*initialisation, transmission matrix*/
         Eigen::MatrixXd transmission_regular(contact_regular);
-        for(size_t i=0;i<transmission_regular.rows();i++)
+        for(int i=0;i<transmission_regular.rows();i++)
         {
-            for(size_t j=0;j<transmission_regular.cols();j++) {
+            for(int j=0;j<transmission_regular.cols();j++) {
                 transmission_regular(i,j)*=q*s_profile[i];
             }
         }
@@ -518,4 +518,4 @@ namespace flu
         return log_prior;
     }
 
-};
+}

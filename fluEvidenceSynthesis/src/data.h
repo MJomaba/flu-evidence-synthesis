@@ -33,7 +33,7 @@ namespace flu
             /// Population per age group
             std::array<size_t,7> age_group_sizes;
         };
-    };
-};
+    }
+}
 
 #endif

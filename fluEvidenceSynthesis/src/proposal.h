@@ -51,8 +51,8 @@ namespace flu {
                 const Eigen::MatrixXd &chol_ini, 
                 int n, double beta, double adapt_scale );
 
-    };
-};
+    }
+}
 #endif
 
  

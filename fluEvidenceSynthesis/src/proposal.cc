@@ -38,7 +38,7 @@ namespace flu {
             state.chol_emp_cov.resize( dim, dim );
             state.chol_ini.resize( dim, dim );
 
-            for(size_t i=0; i<init_cov_matrix.rows(); i++)
+            for(int i=0; i<init_cov_matrix.rows(); i++)
             {
                 init_cov_matrix(i,i) = 0.0000001;
             }
@@ -171,6 +171,6 @@ namespace flu {
 
             return proposed;
         }
-    };
-};
+    }
+}
 

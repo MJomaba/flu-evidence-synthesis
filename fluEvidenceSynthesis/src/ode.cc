@@ -9,4 +9,4 @@ namespace ode {
             step_size = std::min( step_size, max_time - start_time );
             return y + step_size*ode_func( y, start_time );
         }*/
-};
+}

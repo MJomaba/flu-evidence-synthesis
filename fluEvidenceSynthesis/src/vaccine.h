@@ -38,6 +38,6 @@ namespace flu {
              */
             std::vector<boost::posix_time::ptime> dates;
         };
-    };
-};
+    }
+}
 #endif

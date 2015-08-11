@@ -95,10 +95,10 @@ namespace flu
             }
 
             Eigen::MatrixXd contact_regular( 7, 7 );
-            for(size_t i=0; i<contact_regular.rows(); i++)
+            for(int i=0; i<contact_regular.rows(); i++)
             {
                 contact_regular(i,i)=cij[i*7+i];
-                for(size_t j=0;j<i;j++)
+                for(int j=0;j<i;j++)
                 {
                     cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
                     contact_regular(i,j)=cij_pro;
@@ -108,5 +108,5 @@ namespace flu
 
             return contact_regular;
         }
-    };
-};
+    }
+}

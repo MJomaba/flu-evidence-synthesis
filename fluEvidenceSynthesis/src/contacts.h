@@ -50,8 +50,8 @@ namespace flu {
         Eigen::MatrixXd to_symmetric_matrix( 
                 const contacts_t &contacts, 
                 const data::age_data_t &age_data );
-    };
+    }
 
-};
+}
 #endif
 

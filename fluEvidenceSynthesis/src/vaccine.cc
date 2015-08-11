@@ -49,9 +49,9 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
 
     auto final_sizes = std::vector<double>( result_simu.cols(), 0.0 ); 
 
-    for(size_t i=0;i<result_simu.rows();i++)
+    for(int i=0;i<result_simu.rows();i++)
     {
-        for(size_t j=0; j<result_simu.cols(); j++)
+        for(int j=0; j<result_simu.cols(); j++)
         {
             final_sizes[j]+=result_simu(i,j);
         }

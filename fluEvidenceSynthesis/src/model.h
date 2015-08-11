@@ -61,6 +61,6 @@ namespace flu
             const parameter_set &current,
             bool susceptibility = false );
 
-};
+}
 
 #endif

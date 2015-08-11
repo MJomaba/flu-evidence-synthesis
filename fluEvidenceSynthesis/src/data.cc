@@ -83,5 +83,5 @@ namespace flu
             return age_group_sizes;
         }
 
-    };
-};
+    }
+}
