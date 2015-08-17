@@ -70,14 +70,15 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 //' @param vaccine_calendar A vaccine calendar valid for that year
 //' @param polymod_data Contact data for different age groups
 //' @param current_state The parameters needed to run the ODE model
-//' @return A data frame with number of new cases at each day during the year
+//' @param interval Interval (in days) between data points
+//' @return A data frame with number of new cases after each interval during the year
 //'
-// [[Rcpp::export(name=".runSEIRModel")]]
+// [[Rcpp::export(name="infection.model")]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,
         flu::contacts::contacts_t polymod_data,
-        flu::state_t current_state )
+        flu::state_t current_state, size_t interval = 1 )
 {
 
     flu::data::age_data_t age_data;
@@ -97,7 +98,7 @@ Rcpp::DataFrame runSEIRModel(
     auto current_contact_regular = 
         flu::contacts::to_symmetric_matrix( curr_c, age_data );
 
-    auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar );
+    auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, current_state.time_latent, current_state.time_infectious, current_state.parameters.susceptibility, current_contact_regular, current_state.parameters.transmissibility, vaccine_calendar, interval*24 );
 
     Rcpp::List resultList( result.cases.cols() + 1 );
     Rcpp::CharacterVector columnNames;

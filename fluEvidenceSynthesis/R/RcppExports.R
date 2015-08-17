@@ -61,10 +61,11 @@ getTimeFromWeekYear <- function(week, year) {
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
 #' @param current_state The parameters needed to run the ODE model
-#' @return A data frame with number of new cases at each day during the year
+#' @param interval Interval (in days) between data points
+#' @return A data frame with number of new cases after each interval during the year
 #'
-.runSEIRModel <- function(age_sizes, vaccine_calendar, polymod_data, current_state) {
-    .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state)
+infection.model <- function(age_sizes, vaccine_calendar, polymod_data, current_state, interval = 1L) {
+    .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state, interval)
 }
 
 #' Run an ODE model with the runge-kutta solver for testing purposes
