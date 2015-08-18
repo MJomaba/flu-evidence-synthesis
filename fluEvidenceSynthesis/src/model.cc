@@ -254,19 +254,9 @@ namespace flu
                 /minimal_resolution );
 
         static bt::time_duration dt = bt::hours( 6 );
-        while (current_time < end_time)
+        while (cases.times.size()<cases.cases.rows())
         {
             auto next_time = current_time + bt::hours( minimal_resolution );
-
-            bool time_changed_for_vacc = false;
-            if (date_id < ((int)vaccine_programme.dates.size())-1 && 
-                        date_id >= -1 && 
-                    next_time > vaccine_programme.dates[date_id+1] )
-            {
-                next_time = 
-                    vaccine_programme.dates[date_id+1];
-                time_changed_for_vacc = true;
-            }
 
             Eigen::VectorXd vacc_rates;
             if (vaccine_programme.dates.size() > 0)
@@ -279,6 +269,16 @@ namespace flu
             } else {
                 // Legacy mode
                 date_id=floor((current_time-start_time).hours()/24.0-44);
+            }
+
+            bool time_changed_for_vacc = false;
+            if (date_id < ((int)vaccine_programme.dates.size())-1 && 
+                        date_id >= -1 && 
+                    next_time > vaccine_programme.dates[date_id+1] )
+            {
+                next_time = 
+                    vaccine_programme.dates[date_id+1];
+                time_changed_for_vacc = true;
             }
 
             if (date_id >= 0 &&
