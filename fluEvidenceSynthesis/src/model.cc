@@ -367,7 +367,10 @@ namespace flu
                     h_init=0;
 
                 if(h_init>depth)
-                    return(-10000*pow(10,h_init-depth));
+                {
+                    result -= (h_init-depth)*
+                        std::numeric_limits<double>::max()/1e6;
+                }
 
                 /*define the first aij*/
                 aij=pow(epsilon,n_plus)*exp(-psi*pop_mon*epsilon);
@@ -455,7 +458,7 @@ namespace flu
                         << week << " and age group " << i << std::endl;
                     Rcpp::Rcerr << "Predicted number of cases is: "
                         << result_by_week(week,i) << std::endl;*/
-                    ll = -10000;
+                    ll = -std::numeric_limits<double>::max()/1e7;
                 }
 
                 result+=ll;
