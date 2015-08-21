@@ -35,7 +35,7 @@ test_that("We can run inference",
       expect_more_than(m2, 0.9 )
       m3 <- moment(sapply(results, function(x) x$likelihood),central=TRUE,3)
       expect_less_than(m3, -1.0 )
-      expect_more_than(m3, -4.0 )
+      expect_more_than(m3, -5.0 )
   }
 )
  
