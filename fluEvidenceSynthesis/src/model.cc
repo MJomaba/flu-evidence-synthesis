@@ -336,12 +336,11 @@ namespace flu
         return result_weeks;
     }
 
-    inline
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,
             int confirmed_positive, int confirmed_samples, 
-            int depth = 2 )
+            int depth )
     {
         int Z_in_mon=(int)round(predicted*ili_monitored/population_size);
         int n=confirmed_samples;

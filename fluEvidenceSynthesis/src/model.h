@@ -46,6 +46,13 @@ namespace flu
 
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation);
 
+    /// Returns log likelihood of one prediction
+    long double log_likelihood( double epsilon, double psi, 
+            size_t predicted, double population_size, 
+            int ili_cases, int ili_monitored,
+            int confirmed_positive, int confirmed_samples, 
+            int depth = 2 );
+
     double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
             double psi, const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 

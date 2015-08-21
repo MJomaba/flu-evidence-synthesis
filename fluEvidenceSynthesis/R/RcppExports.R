@@ -68,6 +68,23 @@ infection.model <- function(age_sizes, vaccine_calendar, polymod_data, current_s
     .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state, interval)
 }
 
+#' Returns log likelihood of the predicted number of cases given the data for that week
+#'
+#' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.
+#'
+#' @param epsilon Parameter for the probability distribution
+#' @param psi Parameter for the probability distribution
+#' @param predicted Number of cases predicted by your model
+#' @param population_size The total population size in the relevant age group
+#' @param ili_cases The number of Influenza Like Illness cases
+#' @param ili_monitored The size of the population monitored for ILI
+#' @param confirmed_positive The number of samples positive for the Influenza strain
+#' @param confirmed_samples Number of samples tested for the Influenza strain
+#'
+llikelihood.cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples) {
+    .Call('fluEvidenceSynthesis_log_likelihood', PACKAGE = 'fluEvidenceSynthesis', epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples)
+}
+
 #' Run an ODE model with the runge-kutta solver for testing purposes
 #'
 #' @param step_size The size of the step between returned time points
