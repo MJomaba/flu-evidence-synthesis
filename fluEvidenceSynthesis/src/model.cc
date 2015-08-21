@@ -337,7 +337,7 @@ namespace flu
     }
 
     inline
-    double log_likelihood( double epsilon, double psi, 
+    long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,
             int confirmed_positive, int confirmed_samples, 
