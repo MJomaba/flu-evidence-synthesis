@@ -336,6 +336,123 @@ namespace flu
         return result_weeks;
     }
 
+    inline
+    double log_likelihood( double epsilon, double psi, 
+            size_t predicted, double population_size, 
+            int ili_cases, int ili_monitored,
+            int confirmed_positive, int confirmed_samples, 
+            int depth = 2 )
+    {
+        int Z_in_mon=(int)round(predicted*ili_monitored/population_size);
+        int n=confirmed_samples;
+        int m=ili_cases;
+
+        /*h.init=max(n.plus-Z.in.mon,0)*/
+        int h_init;
+        if(confirmed_positive>Z_in_mon)
+            h_init=confirmed_positive-Z_in_mon;
+        else
+            h_init=0;
+
+        if(h_init>depth)
+        {
+            return -(h_init-depth)*
+                std::numeric_limits<double>::max()/1e6;
+        }
+
+        /*define the first aij*/
+        long double aij=pow(epsilon,confirmed_positive)*exp(-psi*ili_monitored*epsilon);
+
+        if(confirmed_positive<n)
+            for(int g=confirmed_positive; g<n; g++)
+                aij*=m-g;
+
+        if((Z_in_mon==confirmed_positive)&&(Z_in_mon>0))
+            for(int g=1; g<=confirmed_positive;g++)
+                aij*=g;
+
+        if((confirmed_positive>0)&&(confirmed_positive<Z_in_mon))
+            for(int g=0;g<confirmed_positive;g++)
+                aij*=Z_in_mon-g;
+
+        if((Z_in_mon>0)&&(confirmed_positive>Z_in_mon))
+            for(int g=0; g<Z_in_mon;g++)
+                aij*=confirmed_positive-g;
+
+        if(confirmed_positive>Z_in_mon)
+            aij*=pow(psi*ili_monitored,confirmed_positive-Z_in_mon);
+
+        if(confirmed_positive<Z_in_mon)
+            aij*=pow(1-epsilon,Z_in_mon-confirmed_positive);
+
+        /*store the values of the first aij on the current line*/
+        long double aij_seed=aij;
+        int k_seed=confirmed_positive;
+
+        auto likelihood_AG_week=aij;
+
+        /*Calculation of the first line*/
+        int max_m_plus;
+        if(Z_in_mon+h_init>m-n+confirmed_positive)
+            max_m_plus=m-n+confirmed_positive;
+        else
+            max_m_plus=Z_in_mon+h_init;
+
+        if(max_m_plus>confirmed_positive)
+            for(int k=confirmed_positive+1;k<=max_m_plus;k++)
+            {
+                aij*=(k*(m-k-n+confirmed_positive+1)*(Z_in_mon-k+h_init+1)*epsilon)/((m-k+1)*(k-confirmed_positive)*(k-h_init)*(1-epsilon));
+                likelihood_AG_week+=aij;
+            }
+
+        /*top_sum=min(depth,m-n+confirmed_positive)*/
+        int top_sum;
+        if(depth<m-n+confirmed_positive)
+            top_sum=depth;
+        else
+            top_sum=m-n+confirmed_positive;
+
+        if(h_init<top_sum)
+            for(int h=h_init+1;h<=top_sum;h++)
+            {
+                if(h>confirmed_positive) /*diagonal increment*/
+                {
+                    k_seed++;
+                    aij_seed*=(k_seed*(m-k_seed-n+confirmed_positive+1)*psi*epsilon*ili_monitored)/((m-k_seed+1)*(k_seed-confirmed_positive)*h);
+                }
+
+                if(h<=confirmed_positive) /*vertical increment*/
+                    aij_seed*=((k_seed-h+1)*psi*ili_monitored*(1-epsilon))/((Z_in_mon-k_seed+h)*h);
+
+                aij=aij_seed;
+                likelihood_AG_week+=aij;
+
+                /*calculation of the line*/
+                if(Z_in_mon+h>m-n+confirmed_positive)
+                    max_m_plus=m-n+confirmed_positive;
+                else
+                    max_m_plus=Z_in_mon+h;
+
+                if(max_m_plus>k_seed)
+                    for(int k=k_seed+1;k<=max_m_plus;k++)
+                    {
+                        aij*=(k*(m-k-n+confirmed_positive+1)*(Z_in_mon-k+h+1)*epsilon)/((m-k+1)*(k-confirmed_positive)*(k-h)*(1-epsilon));
+                        likelihood_AG_week+=aij;
+                    }
+            }
+
+        auto ll = log(likelihood_AG_week);
+        if (!std::isfinite(ll))
+        {
+            /*Rcpp::Rcerr << "Numerical error detected for week " 
+              << week << " and age group " << i << std::endl;
+              Rcpp::Rcerr << "Predicted number of cases is: "
+              << result_by_week(week,i) << std::endl;*/
+            ll = -std::numeric_limits<double>::max()/1e7;
+        }
+        return ll;
+    }
+
     double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
             double psi, const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
@@ -345,126 +462,20 @@ namespace flu
     {
         int g, i, k, k_seed, week, h, h_init, top_sum;
         int Z_in_mon, n, m, n_plus, max_m_plus, pop_mon;
-        double result, epsilon;
-        long double aij, aij_seed;
 
-        result=0.0;
-        for(i=0;i<5;i++)
+        long double result=0.0;
+        for(int i=0;i<5;i++)
         {
-            epsilon=eps[i];
-            for(week=0;week<result_by_week.rows();week++)
+            auto epsilon=eps[i];
+            for(int week=0;week<result_by_week.rows();week++)
             {
-                pop_mon=mon_pop(week,i);
-                Z_in_mon=(int)round(result_by_week(week,i)*pop_mon/pop_5AG_RCGP[i]);
-                n=n_samples(week,i);
-                n_plus=n_pos(week,i);
-                m=ili(week,i);
-
-                /*h.init=max(n.plus-Z.in.mon,0)*/
-                if(n_plus>Z_in_mon)
-                    h_init=n_plus-Z_in_mon;
-                else
-                    h_init=0;
-
-                if(h_init>depth)
-                {
-                    result -= (h_init-depth)*
-                        std::numeric_limits<double>::max()/1e6;
-                }
-
-                /*define the first aij*/
-                aij=pow(epsilon,n_plus)*exp(-psi*pop_mon*epsilon);
-
-                if(n_plus<n)
-                    for(g=n_plus; g<n; g++)
-                        aij*=m-g;
-
-                if((Z_in_mon==n_plus)&&(Z_in_mon>0))
-                    for(g=1; g<=n_plus;g++)
-                        aij*=g;
-
-                if((n_plus>0)&&(n_plus<Z_in_mon))
-                    for(g=0;g<n_plus;g++)
-                        aij*=Z_in_mon-g;
-
-                if((Z_in_mon>0)&&(n_plus>Z_in_mon))
-                    for(g=0; g<Z_in_mon;g++)
-                        aij*=n_plus-g;
-
-                if(n_plus>Z_in_mon)
-                    aij*=pow(psi*pop_mon,n_plus-Z_in_mon);
-
-                if(n_plus<Z_in_mon)
-                    aij*=pow(1-epsilon,Z_in_mon-n_plus);
-
-                /*store the values of the first aij on the current line*/
-                aij_seed=aij;
-                k_seed=n_plus;
-
-                auto likelihood_AG_week=aij;
-
-                /*Calculation of the first line*/
-                if(Z_in_mon+h_init>m-n+n_plus)
-                    max_m_plus=m-n+n_plus;
-                else
-                    max_m_plus=Z_in_mon+h_init;
-
-                if(max_m_plus>n_plus)
-                    for(k=n_plus+1;k<=max_m_plus;k++)
-                    {
-                        aij*=(k*(m-k-n+n_plus+1)*(Z_in_mon-k+h_init+1)*epsilon)/((m-k+1)*(k-n_plus)*(k-h_init)*(1-epsilon));
-                        likelihood_AG_week+=aij;
-                    }
-
-                /*top_sum=min(depth,m-n+n_plus)*/
-                if(depth<m-n+n_plus)
-                    top_sum=depth;
-                else
-                    top_sum=m-n+n_plus;
-
-                if(h_init<top_sum)
-                    for(h=h_init+1;h<=top_sum;h++)
-                    {
-                        if(h>n_plus) /*diagonal increment*/
-                        {
-                            k_seed++;
-                            aij_seed*=(k_seed*(m-k_seed-n+n_plus+1)*psi*epsilon*pop_mon)/((m-k_seed+1)*(k_seed-n_plus)*h);
-                        }
-
-                        if(h<=n_plus) /*vertical increment*/
-                            aij_seed*=((k_seed-h+1)*psi*pop_mon*(1-epsilon))/((Z_in_mon-k_seed+h)*h);
-
-                        aij=aij_seed;
-                        likelihood_AG_week+=aij;
-
-                        /*calculation of the line*/
-                        if(Z_in_mon+h>m-n+n_plus)
-                            max_m_plus=m-n+n_plus;
-                        else
-                            max_m_plus=Z_in_mon+h;
-
-                        if(max_m_plus>k_seed)
-                            for(k=k_seed+1;k<=max_m_plus;k++)
-                            {
-                                aij*=(k*(m-k-n+n_plus+1)*(Z_in_mon-k+h+1)*epsilon)/((m-k+1)*(k-n_plus)*(k-h)*(1-epsilon));
-                                likelihood_AG_week+=aij;
-                            }
-                    }
-
-                auto ll = log(likelihood_AG_week);
-                if (!std::isfinite(ll))
-                {
-                    /*Rcpp::Rcerr << "Numerical error detected for week " 
-                        << week << " and age group " << i << std::endl;
-                    Rcpp::Rcerr << "Predicted number of cases is: "
-                        << result_by_week(week,i) << std::endl;*/
-                    ll = -std::numeric_limits<double>::max()/1e7;
-                }
-
-                result+=ll;
+                result += log_likelihood( epsilon, psi, 
+                        result_by_week(week,i), pop_5AG_RCGP[i],
+                        ili(week,i), mon_pop(week,i),
+                        n_pos(week,i), n_samples(week,i), depth );
             }
+            
         }
-
         return(result);
     }
 
