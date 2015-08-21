@@ -459,9 +459,6 @@ namespace flu
             //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
             double * pop_5AG_RCGP, int depth)
     {
-        int g, i, k, k_seed, week, h, h_init, top_sum;
-        int Z_in_mon, n, m, n_plus, max_m_plus, pop_mon;
-
         long double result=0.0;
         for(int i=0;i<5;i++)
         {
