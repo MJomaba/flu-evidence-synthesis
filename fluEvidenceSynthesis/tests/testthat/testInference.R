@@ -38,4 +38,37 @@ test_that("We can run inference",
       expect_more_than(m3, -5.0 )
   }
 )
+
+test_that("Likelihood function returns the correct value",
+  {
+      data("age_sizes")
+      data("vaccine_calendar")
+      data("polymod_uk")
+      data("mcmcsample")
+      data("ili")
+      data("confirmed.samples")
+
+      plot(ili$ili[,1]/ili$total.monitored[,1])
+      plot(confirmed.samples$positive[,1]/confirmed.samples$total.samples[,1])
+      week <- 18
+      age.group <- 3
+      population <- sum(age_sizes$V1[16:45]) # age group 3 is from 16 to 45
+
+      inf.model <- infection.model(age_sizes$V1,vaccine_calendar,as.matrix(polymod_uk),mcmcsample,7)
+
+      # Convert results that are 7 groups to age group 3 (out of 5),
+      # i.e group 4 and 5 is equal to group 3
+      predicted <- rowSums(inf.model[week,5:6])+rowSums(inf.model[week,12:13])
+
+      ll <- llikelihood.cases(mcmcsample$parameters$epsilon[age.group],
+                              mcmcsample$parameters$psi,
+                              predicted, population,
+                              ili$ili[week,age.group],
+                              ili$total.monitored[week,age.group],
+                              confirmed.samples$positive[week,age.group],
+                              confirmed.samples$total.samples[week,age.group])
+      expect_less_than(ll, 121.9881)
+      expect_more_than(ll, 120.9881)
+  }
+)
  
