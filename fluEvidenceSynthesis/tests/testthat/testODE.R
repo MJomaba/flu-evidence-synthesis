@@ -1,11 +1,11 @@
 context("ODE")
 
 test_that("We correctly convert week and year into a date", {
-    expect_that(as.character(getTimeFromWeekYear( 35, 1974 )), equals("1974-08-26"))
-    expect_that(as.character(getTimeFromWeekYear( 3, 1973 )), equals("1973-01-15"))
-    expect_that(as.character(getTimeFromWeekYear( 53, 1973 )), equals("1973-12-31"))
+    expect_that(as.character(getTimeFromWeekYear( 35, 1974 )), equals("1974-08-26 12:00:00"))
+    expect_that(as.character(getTimeFromWeekYear( 3, 1973 )), equals("1973-01-15 12:00:00"))
+    expect_that(as.character(getTimeFromWeekYear( 53, 1973 )), equals("1973-12-31 12:00:00"))
     expect_that(as.character(getTimeFromWeekYear( 53, 1973 )), equals(as.character(getTimeFromWeekYear( 1, 1974 ))))
-    expect_that(as.character(getTimeFromWeekYear( 3, 1972 )), equals("1972-01-17"))
+    expect_that(as.character(getTimeFromWeekYear( 3, 1972 )), equals("1972-01-17 12:00:00"))
 })
 
 test_that("Runge Kutta ode solver works correctly",

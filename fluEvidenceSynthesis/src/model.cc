@@ -13,7 +13,7 @@ namespace flu
                 bg::Thursday, bg::Jan );
         auto dateThursday = firstThursday.get_date( year );
         auto current_time = bt::ptime(dateThursday) - bt::hours(24*3);
-        current_time += bt::hours(24*7*(week-1));
+        current_time += bt::hours(24*7*(week-1)+12); // Return midday of monday
         return current_time;
     }
 
