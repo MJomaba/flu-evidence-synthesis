@@ -48,8 +48,6 @@ test_that("Likelihood function returns the correct value",
       data("ili")
       data("confirmed.samples")
 
-      plot(ili$ili[,1]/ili$total.monitored[,1])
-      plot(confirmed.samples$positive[,1]/confirmed.samples$total.samples[,1])
       week <- 18
       age.group <- 3
       population <- sum(age_sizes$V1[16:45]) # age group 3 is from 16 to 45
