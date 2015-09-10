@@ -24,3 +24,4 @@ symbols.rds
 RcppExports.cpp
 *.Rd
 *.pdf
+*.html
