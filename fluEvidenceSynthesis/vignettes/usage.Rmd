@@ -11,7 +11,7 @@ vignette: >
 
 Fitting the model to the data can be done using the inference function:
 
-```{r}
+```r
 library(fluEvidenceSynthesis)
 data("age_sizes")
 data("vaccine_calendar")
