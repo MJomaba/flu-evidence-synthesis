@@ -3,6 +3,8 @@
 
 #include "proposal.h"
 
+namespace flu {
+
 struct mcmc_result_t
 {
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
@@ -10,8 +12,8 @@ struct mcmc_result_t
     Eigen::VectorXd llikelihoods;
 };
 
-template<typename Func>
-mcmc_result_t adaptiveMCMC( const Func &lprior, const Func &llikelihood,
+template<typename Func1, typename Func2>
+mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         size_t nburn,
         const Eigen::VectorXd &initial, 
         size_t nbatch, size_t blen = 1 )
@@ -83,5 +85,5 @@ mcmc_result_t adaptiveMCMC( const Func &lprior, const Func &llikelihood,
     }
     return result;
 }
-
+}
 #endif

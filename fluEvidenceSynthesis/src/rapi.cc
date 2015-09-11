@@ -2,6 +2,8 @@
 
 #include "rcppwrap.h"
 
+#include "mcmc.h"
+
 #include "proposal.h"
 #include "contacts.h"
 #include "model.h"
@@ -228,4 +230,28 @@ Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5
         ++row_count;
     }
     return result;
+}
+
+// [[Rcpp::export(name="adaptive.MCMC")]]
+Rcpp::List adaptiveMCMCR( 
+        Rcpp::Function lprior, Rcpp::Function llikelihood,
+        size_t nburn,
+        Eigen::VectorXd initial, 
+        size_t nbatch, size_t blen = 1 )
+{
+    auto cppLprior = [&lprior]( const Eigen::VectorXd &pars ) {
+        double lPrior = Rcpp::as<double>(lprior( pars ));
+        return lPrior;
+    };
+
+    auto cppLlikelihood = [&llikelihood]( const Eigen::VectorXd &pars ) {
+        double ll = Rcpp::as<double>(llikelihood( pars ));
+        return ll;
+    };
+
+    auto mcmcResult = flu::adaptiveMCMC( cppLprior, cppLlikelihood, nburn, initial, nbatch, blen );
+    Rcpp::List rState;
+    rState["batch"] = Rcpp::wrap( mcmcResult.batch );
+    rState["llikelihoods"] = Rcpp::wrap( mcmcResult.llikelihoods );
+    return rState;
 }

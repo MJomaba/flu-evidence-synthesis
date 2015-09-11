@@ -103,6 +103,10 @@ llikelihood.cases <- function(epsilon, psi, predicted, population_size, ili_case
     .Call('fluEvidenceSynthesis_runPredatorPreySimple', PACKAGE = 'fluEvidenceSynthesis', step_size, h_step)
 }
 
+adaptive.MCMC <- function(lprior, llikelihood, nburn, initial, nbatch, blen = 1L) {
+    .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, nburn, initial, nbatch, blen)
+}
+
 #' Calculate number of influenza cases given a vaccination strategy
 #'
 #' @param age_sizes A vector with the population size by each age {1,2,..}
