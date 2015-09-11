@@ -28,7 +28,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     auto adapt_rate = 100;
     auto proposal_state = proposal::initialize( initial.size() );
 
-    auto mcmc_chain_length = nbatch*blen;
+    auto mcmc_chain_length = (nbatch-1)*blen;
     for(int k=1; k<=mcmc_chain_length + nburn; k++)
     {
 
