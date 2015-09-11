@@ -111,49 +111,36 @@ namespace flu {
             auto correlated_draw = Eigen::VectorXd( current.size() );
             auto correlated_fix = Eigen::VectorXd( current.size() );
             double unif1, unif2;
-            int i, j;
             double un_moins_beta;
-
             un_moins_beta=1-beta;
 
             // TODO create random multivariate draw and use with
             // both chol_de and chol_ini
-            /*drawing of the 9 N(0,1) samples using Box-Muller*/
-            for(i=0;i<4;i++)
+            /*drawing of the needed N(0,1) samples using Box-Muller*/
+            for(size_t i=0;i<current.size();i++)
             {
                 unif1=R::runif(0,1);
                 unif2=R::runif(0,1);
-                normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
-                normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
-            }
-
-            unif1=R::runif(0,1);
-            unif2=R::runif(0,1);
-            normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
-            normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
-
-            /*drawing of the 9 N(0,1) samples using Box-Muller*/
-            for(i=0;i<4;i++)
-            {
-                unif1=R::runif(0,1);
-                unif2=R::runif(0,1);
-                normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
-                normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+                normal_draw[i]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+                /*drawing of the needed N(0,1) samples using Box-Muller*/
+                normal_add_draw[i]=sqrt(-2*log(unif1))*cos(twopi*unif2);
             }
 
             /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
-            for(i=0;i<9;i++)
+            // TODO use vector::zero
+            for(size_t i=0;i<current.size();i++)
                 correlated_draw[i]=0;
 
-            for(i=0;i<9;i++)
-                for(j=0;j<=i;j++)
+            for(size_t i=0;i<current.size();i++)
+                for(size_t j=0;j<=i;j++)
                     correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
 
-            for(i=0;i<9;i++)
+            // TODO use vector::zero
+            for(size_t i=0;i<current.size();i++)
                 correlated_fix[i]=0;
 
-            for(i=0;i<9;i++)
-                for(j=0;j<=i;j++)
+            for(size_t i=0;i<current.size();i++)
+                for(size_t j=0;j<=i;j++)
                     correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
 
             /*new proposed values*/

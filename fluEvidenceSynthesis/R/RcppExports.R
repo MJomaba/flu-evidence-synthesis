@@ -103,7 +103,7 @@ llikelihood.cases <- function(epsilon, psi, predicted, population_size, ili_case
     .Call('fluEvidenceSynthesis_runPredatorPreySimple', PACKAGE = 'fluEvidenceSynthesis', step_size, h_step)
 }
 
-adaptive.MCMC <- function(lprior, llikelihood, nburn, initial, nbatch, blen = 1L) {
+adaptive.mcmc <- function(lprior, llikelihood, nburn, initial, nbatch, blen = 1L) {
     .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, nburn, initial, nbatch, blen)
 }
 

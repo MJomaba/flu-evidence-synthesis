@@ -32,7 +32,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     for(int k=1; k<=mcmc_chain_length + nburn; k++)
     {
 
-        /*update of the variance-covariance matrix and the mean vector*/
+        //update of the variance-covariance matrix and the mean vector
         proposal_state = proposal::update( std::move( proposal_state ),
                 curr_parameters, k );
 
@@ -55,9 +55,9 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 exp(prop_llikelihood-curr_llikelihood+
                         prop_lprior - curr_lprior);
 
-        if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
+        if(R::runif(0,1)<my_acceptance_rate) //with prior
         {
-            /*update the acceptance rate*/
+            //update the acceptance rate
             proposal_state.acceptance++;
             if(k>=adapt_rate)
                 proposal_state.adaptive_scaling
@@ -65,16 +65,17 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
 
             curr_parameters = prop_parameters;
 
-            /*update current likelihood*/
+            //update current likelihood
             curr_llikelihood=prop_llikelihood;
             curr_lprior=prop_lprior;
         }
-        else /*if reject*/
+        else //if reject
         {
             if(k>=adapt_rate)
                 proposal_state.adaptive_scaling
                     -=0.234*proposal_state.conv_scaling;
         }
+
         if(k%blen==0 && k>=nburn)
         {
             // Add results

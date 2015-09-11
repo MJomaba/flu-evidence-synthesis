@@ -232,7 +232,7 @@ Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5
     return result;
 }
 
-// [[Rcpp::export(name="adaptive.MCMC")]]
+// [[Rcpp::export(name="adaptive.mcmc")]]
 Rcpp::List adaptiveMCMCR( 
         Rcpp::Function lprior, Rcpp::Function llikelihood,
         size_t nburn,
