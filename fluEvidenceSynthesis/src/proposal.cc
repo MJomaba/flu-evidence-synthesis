@@ -61,25 +61,14 @@ namespace flu {
         }
 
         proposal_state_t update( proposal_state_t&& state,
-                const parameter_set &parameters,
-                int k ) 
+                const Eigen::VectorXd &parameters,
+                int k )
         {
-            // Vectorize parameters
-            //vectorize parameters
-            Eigen::VectorXd pars_v( 9 );
-            pars_v << parameters.epsilon[0], parameters.epsilon[2],
-                   parameters.epsilon[4],
-                   parameters.psi, parameters.transmissibility,
-                   parameters.susceptibility[0], 
-                   parameters.susceptibility[3],
-                   parameters.susceptibility[6], parameters.init_pop;
-
-            
             /*update of the variance-covariance matrix and the mean vector*/
             state.means_parameters = updateMeans( 
-                    state.means_parameters, pars_v, k );
+                    state.means_parameters, parameters, k );
             state.emp_cov_matrix = updateCovariance( state.emp_cov_matrix,
-                    pars_v, state.means_parameters, k );
+                    parameters, state.means_parameters, k );
             /*adjust variance for MCMC parameters*/
             if(k%1000==0)
             {
@@ -93,6 +82,86 @@ namespace flu {
             }
             return state;
         }
+
+        proposal_state_t update( proposal_state_t&& state,
+                const parameter_set &parameters,
+                int k ) 
+        {
+            // Vectorize parameters
+            //vectorize parameters
+            Eigen::VectorXd pars_v( 9 );
+            pars_v << parameters.epsilon[0], parameters.epsilon[2],
+                   parameters.epsilon[4],
+                   parameters.psi, parameters.transmissibility,
+                   parameters.susceptibility[0], 
+                   parameters.susceptibility[3],
+                   parameters.susceptibility[6], parameters.init_pop;
+
+            return update( std::move(state), pars_v, k );
+        }
+
+         Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
+                const Eigen::MatrixXd &chol_de, 
+                const Eigen::MatrixXd &chol_ini, 
+                int n, double beta, double adapt_scale )
+        {
+            auto proposed = Eigen::VectorXd( current.size() );
+            auto normal_draw = Eigen::VectorXd( current.size() );
+            auto normal_add_draw = Eigen::VectorXd( current.size() );
+            auto correlated_draw = Eigen::VectorXd( current.size() );
+            auto correlated_fix = Eigen::VectorXd( current.size() );
+            double unif1, unif2;
+            int i, j;
+            double un_moins_beta;
+
+            un_moins_beta=1-beta;
+
+            // TODO create random multivariate draw and use with
+            // both chol_de and chol_ini
+            /*drawing of the 9 N(0,1) samples using Box-Muller*/
+            for(i=0;i<4;i++)
+            {
+                unif1=R::runif(0,1);
+                unif2=R::runif(0,1);
+                normal_draw[i*2]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+                normal_draw[i*2+1]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
+
+            unif1=R::runif(0,1);
+            unif2=R::runif(0,1);
+            normal_draw[8]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2);
+            normal_add_draw[8]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+
+            /*drawing of the 9 N(0,1) samples using Box-Muller*/
+            for(i=0;i<4;i++)
+            {
+                unif1=R::runif(0,1);
+                unif2=R::runif(0,1);
+                normal_add_draw[i*2]=sqrt(-2*log(unif1))*sin(twopi*unif2);
+                normal_add_draw[i*2+1]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
+
+            /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
+            for(i=0;i<9;i++)
+                correlated_draw[i]=0;
+
+            for(i=0;i<9;i++)
+                for(j=0;j<=i;j++)
+                    correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
+
+            for(i=0;i<9;i++)
+                correlated_fix[i]=0;
+
+            for(i=0;i<9;i++)
+                for(j=0;j<=i;j++)
+                    correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
+
+            /*new proposed values*/
+            proposed = current + un_moins_beta*correlated_draw + beta*correlated_fix;
+
+            return proposed;
+        }
+
 
         parameter_set haario_adapt_scale( const parameter_set &current, 
                 const Eigen::MatrixXd &chol_de, 
