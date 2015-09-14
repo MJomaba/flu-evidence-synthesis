@@ -141,6 +141,9 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             auto prop_c = curr_c;
 
             /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
+            // TODO/WARN Need to draw this before hand and pass it as data to
+            // likelihood function... Even when doing that we still need to know k,
+            // so might as well make the likelihood function increase k when called
             if(R::runif(0,1) < p_ac_mat)
                 prop_c = contacts::bootstrap_contacts( std::move(prop_c),
                         polymod_data, step_mat );
