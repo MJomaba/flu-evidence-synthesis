@@ -193,7 +193,7 @@ namespace flu
             const std::vector<double> &Npop, double * seeding_infectious, 
             const double tlatent, const double tinfectious, 
             const std::vector<double> &s_profile, 
-            const Eigen::MatrixXd &contact_regular, double q,
+            const Eigen::MatrixXd &contact_regular, double transmissibility,
             const vaccine::vaccine_t &vaccine_programme,
             size_t minimal_resolution )
     {
@@ -229,7 +229,7 @@ namespace flu
         for(int i=0;i<transmission_regular.rows();i++)
         {
             for(int j=0;j<transmission_regular.cols();j++) {
-                transmission_regular(i,j)*=q*s_profile[i];
+                transmission_regular(i,j)*=transmissibility*s_profile[i];
             }
         }
 
