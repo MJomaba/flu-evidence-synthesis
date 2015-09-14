@@ -195,7 +195,8 @@ namespace flu
             const std::vector<double> &s_profile, 
             const Eigen::MatrixXd &contact_regular, double transmissibility,
             const vaccine::vaccine_t &vaccine_programme,
-            size_t minimal_resolution )
+            size_t minimal_resolution, 
+            const boost::posix_time::ptime &starting_time )
     {
         namespace bt = boost::posix_time;
 
@@ -208,8 +209,9 @@ namespace flu
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
 
         // We start at week 35. Week 1 is the first week that ends in this year
-        auto current_time = getTimeFromWeekYear( 35, 1970 );
-        if (vaccine_programme.dates.size()!=0)
+        auto current_time = starting_time;
+        if (to_tm(current_time).tm_year==1970 && 
+                vaccine_programme.dates.size()!=0)
             current_time = getTimeFromWeekYear( 35, 
                     vaccine_programme.dates[0].date().year() );
 
