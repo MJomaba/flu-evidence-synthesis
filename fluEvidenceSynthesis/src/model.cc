@@ -208,7 +208,6 @@ namespace flu
 
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
 
-        // We start at week 35. Week 1 is the first week that ends in this year
         auto current_time = starting_time;
         if (to_tm(current_time).tm_year==1970 && 
                 vaccine_programme.dates.size()!=0)
