@@ -1,17 +1,32 @@
 ---
-title: "Using fluEvidenceSynthesis to fit Influenza based data"
+title: "Using fluEvidenceSynthesis to infer epidemological parameters."
 author: "Edwin van Leeuwen"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Basic Usage}
+  %\VignetteIndexEntry{Parameter inference}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-Fitting the model to the data can be done using the inference function:
+# Introduction
 
-```r
+This package implements all the tools needed to analyse and compare the effectiveness of different Influenza vaccine programs (see Baguelin et al. (2013) for more details). This analysis has two main steps.
+
+#. Parameter inference using existing model
+#. Simulation of different possible vaccine programs based using the inferred parameters
+
+This vignette will focus on how the fluEvidenceSythesis package can be used to perform the first step of parameter inference.
+
+TODO: Say something about the general approach
+
+# Examples
+
+## Simple example
+
+The example below shows an example for the case where your data is comparable in structure to the data gathered in the UK. In such a case one loads the data and then runs the inference function which will return the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
+
+```{r, eval=FALSE}
 library(fluEvidenceSynthesis)
 data("age_sizes")
 data("vaccine_calendar")
@@ -20,7 +35,6 @@ data("mcmcsample")
 data("ili")
 data("confirmed.samples")
 
-set.seed(100)
 results <- inference( age_sizes=age_sizes$V1,
                       vaccine_calendar=vaccine_calendar,
                       polymod_data=as.matrix(polymod_uk),
@@ -32,3 +46,128 @@ results <- inference( age_sizes=age_sizes$V1,
                       mcmc_chain_length=1000,
                       burn_in=1000, thinning=1 )
 ```
+
+The data used for the inference is:
+
+age_sizes
+  ~ Vector of population sizes of a certain age. First element is everyone below 1, second every below 2 etc. The final entry will be interpreted as everyone of that age or higher (needs to be higher than 65).
+  
+vaccine_calendar
+  ~ Object representing the vaccine program applied that year. In short this contains the fraction of population, in a certain age and risk group, vaccinated within a given week.
+  
+polymod_data
+  ~ Data gathered by the POLYMOD study on contacts of subjects with the different age groups. This data will be resampled during inference to use as a prior distribution on contacts.
+
+mcmcsample
+  ~ The initial state of the MCMC chain.
+  
+ili
+  ~ The number of people with Influenza Like Illness in each week
+
+mon_pop
+  ~ The total number of people monitored for ILI. For the UK this is defined as the number of visitors to the General Practitioner (GP; Doctor).
+  
+n_pos
+  ~ The number of samples positive for a given Influenza strain
+  
+n_samples
+  ~ The number of total samples tested. This is assumed to be a strict subset of the number of ILI cases
+  
+For more details on the data format used `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
+  
+## More in depth example
+
+Above we used the general `inference` function to perform parameter inference using the data. In this section we will implement this function in R, which will allow people to adjust the inference process in case they have access to slightly different data or maybe want to adjust things like the number of age groups. This method will give you more control, but it will be slower than calling the `inference` function directly.
+
+TODO: Say something about the general form.. Lots of data, different age groups, complicated.
+
+```{r, eval=FALSE}
+library(fluEvidenceSynthesis)
+
+# Build a log likelihood function given the data
+build.llikelihood <- function()
+{
+  # Load all the data
+  data("age_sizes")
+  data("vaccine_calendar")
+  data("polymod_uk")
+  #data("mcmcsample")
+  data("ili")
+  data("confirmed.samples")
+  
+  # Sum all populations with a certain age into their corresponding age group
+  age.group.sizes.5 <- rep(0,5)
+  count <- 1
+  ag.limits <- c(5,15,45,65)
+  for (i in seq(0,nrow(age_sizes)-1))
+  {
+    if (count <= length(ag.limits))
+    {
+      if (i>=ag.limits[count])
+        count <- count + 1
+    }
+    age.group.sizes.5[count] <- age.group.sizes.5[count] + age_sizes[i+1,1]
+  }
+  
+  # This is to keep track of the bootstrapped contact results
+  current.contact.ids <- seq(1,nrow(polymod_uk))
+  llikelihood.f <- function( pars )
+  {
+    # Resample contact ids. This is actually not ideal, because we should not accept
+    # the resampling if new pars are not accepted
+    # Possible solution: a parameter that (rounded) represents the number of steps from start. Cache all steps (which entry to replace with which number) and the last version (and its step number. Build function that (if current step smaller than last step -> rebuilds using inital state, else applies further steps to current state) 
+    if (runif(1,0,1)<0.1) {
+      rs <- round(runif(2,1,length(current.contact.ids)))
+      current.contact.ids[rs[1]] <- rs[2]
+    }
+    contacts <- polymod_uk[current.contact.ids,]
+    
+    # Run simulation
+    # TODO Now: infection.model should take susceptibality and transmission and delay pars
+    odes <- infection.model( age_sizes[,1], vaccine_calendar, 
+                             as.matrix(contacts), 
+                             c(pars[6],pars[6],pars[6],pars[7],pars[7],pars[7],pars[8]),
+                             transmissibility=pars[5], init_pop=pars[9], 
+                             infection_delays=c(0.8, 1.8)
+                             interval=7 )
+    
+    # Convert the 7 age groups for each risk group to 5 groups
+    converted.odes[,1] <- rowSums(odes[,c(1,2,8,9,15,16)]
+    converted.odes[,2] <- rowSums(odes[,c(3,10,17)]
+    converted.odes[,3] <- rowSums(odes[,c(4,5,11,12,18,19)]
+    converted.odes[,4] <- rowSums(odes[,c(6,13,20)]
+    converted.odes[,5] <- rowSums(odes[,c(7,14,21)]
+    
+    # For each week and each group sum llikelyhood (provided by package)
+    epsilons <- c( pars[1], pars[1], pars[2], pars[2], pars[3])
+    ll <- sum(
+      sapply( seq(1,nrow(converted.odes)), function(week)
+        sapply( seq(1,ncol(converted.odes)), function(ag)
+          llikelihood.cases(
+            epsilons[ag],pars[4], converted.odes[week,ag]
+            age.group.sizes.5[ag], ili$ili[week,ag], ili$total.monitored[week,ag],
+            confirmed.samples$positive[week,ag], confirmed.samples$total.samples[week,ag] )
+        )
+      )
+    )
+    return(ll)
+  }
+  return(llikelihood.f)
+}
+
+llprior( pars ) <- function( pars )
+{
+  # TODO: Now
+  return(-Inf)
+}
+
+# Run adaptive.mcmc
+adaptive.mcmc( llprior, build.llikelihood,
+               1000, c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
+                       0.3855279, 0.9269811, 0.5710709, -0.1543508)
+               ), 1000, 10 )
+```
+
+# References
+
+Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Miller, and W. John Edmunds. ‘Assessing Optimal Target Populations for Influenza Vaccination Programmes: An Evidence Synthesis and Modelling Study.’ PLoS Med 10, no. 10 (2013): e1001527. doi:10.1371/journal.pmed.1001527.
