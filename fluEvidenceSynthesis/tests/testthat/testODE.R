@@ -54,10 +54,12 @@ test_that("Return the correct ODE results", {
     data("polymod_uk")
     data("mcmcsample")
     odes <- infection.model( age_sizes[,1],
-                  vaccine_calendar,
-                  as.matrix(polymod_uk),
-                  mcmcsample )
-
+                            vaccine_calendar,
+                            as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
+                            mcmcsample$parameters$susceptibility,
+                            mcmcsample$parameters$transmissibility,
+                            mcmcsample$parameters$init_pop,
+                            c(0.8,1.8) )
     # Check all sums
     sums <- c(119002.481089555, 633877.330662713, 1463334.37622813, 2870258.66403954, 4391396.3601774, 2786119.98841863, 496487.103476314, 2531.54735113481, 36283.6707667877, 155096.824666694, 263690.71146717, 415426.823720658, 528526.506836539, 358207.414064678)
     odeSums <- colSums(odes[,2:15])
@@ -93,9 +95,13 @@ test_that("Return the correct ODE results, when using a different interval", {
     data("polymod_uk")
     data("mcmcsample")
     odes <- infection.model( age_sizes[,1],
-                  vaccine_calendar,
-                  as.matrix(polymod_uk),
-                  mcmcsample, 7 )
+                            vaccine_calendar,
+                            as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
+                            mcmcsample$parameters$susceptibility,
+                            mcmcsample$parameters$transmissibility,
+                            mcmcsample$parameters$init_pop,
+                            c(0.8,1.8),
+                  7 )
 
     # Check all sums
     sums <- c(119002.481089555, 633877.330662713, 1463334.37622813, 2870258.66403954, 4391396.3601774, 2786119.98841863, 496487.103476314, 2531.54735113481, 36283.6707667877, 155096.824666694, 263690.71146717, 415426.823720658, 528526.506836539, 358207.414064678)
@@ -145,9 +151,12 @@ test_that("ODE works correctly with the new vaccine date vector", {
                                        test.vac[["calendar"]][62,],
                                        test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
     odes <- infection.model( age_sizes[,1],
-                  test.vac,
-                  as.matrix(polymod_uk),
-                  mcmcsample )
+                            test.vac,
+                            as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
+                            mcmcsample$parameters$susceptibility,
+                            mcmcsample$parameters$transmissibility,
+                            mcmcsample$parameters$init_pop,
+                            c(0.8,1.8) )
 
     # Check all sums
     sums <- c(119002.481089555, 633877.330662713, 1463334.37622813, 2870258.66403954, 4391396.3601774, 2786119.98841863, 496487.103476314, 2531.54735113481, 36283.6707667877, 155096.824666694, 263690.71146717, 415426.823720658, 528526.506836539, 358207.414064678)
