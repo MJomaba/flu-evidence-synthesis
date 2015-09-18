@@ -182,7 +182,7 @@ init.pars <- c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
 llikelihood <- build.llikelihood()
 
 # Run adaptive.mcmc
-mcmc.result <- adaptive.mcmc.cpp( lprior=llprior, llikelihood=llikelihood,
+mcmc.result <- adaptive.mcmc( lprior=llprior, llikelihood=llikelihood,
                nburn=1000, 
                initial=init.pars,
                nbatch=1000, blen=10 )

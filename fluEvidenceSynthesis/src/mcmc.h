@@ -43,14 +43,14 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 proposal_state.adaptive_scaling );
 
         auto prop_lprior = 
-            lprior(curr_parameters);
+            lprior(prop_parameters);
 
         auto prop_llikelihood = llikelihood( prop_parameters );
 
         auto my_acceptance_rate = 0.0;
         if (std::isinf(prop_llikelihood) && std::isinf(curr_llikelihood) )
             my_acceptance_rate = exp(prop_lprior-curr_lprior); // We want to explore and find a non infinite likelihood
-        else 
+        else
             my_acceptance_rate=
                 exp(prop_llikelihood-curr_llikelihood+
                         prop_lprior - curr_lprior);
