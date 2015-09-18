@@ -18,7 +18,7 @@ This package implements all the tools needed to analyse and compare the effectiv
 
 This vignette will focus on how the fluEvidenceSythesis package can be used to perform the first step of parameter inference.
 
-TODO: Say something about the general approach
+The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to get the posterior distribution of the parameters of an epidemiological model. In this vignette we give practical examples on the required data and how to use the package to perform the MCMC fitting. Further details of the underlying model and techniques can be found in Baguelin et al. (2013). The methods are computationally intensive and fitting the model can easily take a couple of hours on a powerfull machine.
 
 # Examples
 
@@ -111,6 +111,8 @@ build.llikelihood <- function()
   
   # This is to keep track of the bootstrapped contact results
   current.contact.ids <- seq(1,nrow(polymod_uk))
+  
+  # Define the actual log likelihood function
   llikelihood.f <- function( pars )
   {
     # Resample contact ids. This is actually not ideal, because we should not accept
@@ -167,6 +169,10 @@ adaptive.mcmc( llprior, build.llikelihood,
                        0.3855279, 0.9269811, 0.5710709, -0.1543508)
                ), 1000, 10 )
 ```
+
+# Analysing the results
+
+(For this I need the plotting commands Marc has)
 
 # References
 
