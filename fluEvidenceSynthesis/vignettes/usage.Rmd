@@ -125,20 +125,26 @@ build.llikelihood <- function()
     contacts <- polymod_uk[current.contact.ids,]
     
     # Run simulation
-    # TODO Now: infection.model should take susceptibality and transmission and delay pars
+    # Note that to reduce complexity 
+    # we are using the same susceptibility parameter for multiple age groups
     odes <- infection.model( age_sizes[,1], vaccine_calendar, 
                              as.matrix(contacts), 
                              c(pars[6],pars[6],pars[6],pars[7],pars[7],pars[7],pars[8]),
                              transmissibility=pars[5], init_pop=pars[9], 
-                             infection_delays=c(0.8, 1.8)
+                             infection_delays=c(0.8, 1.8),
                              interval=7 )
     
+    # Ignore times row
+    odes <- odes[,2:22]
+    
     # Convert the 7 age groups for each risk group to 5 groups
-    converted.odes[,1] <- rowSums(odes[,c(1,2,8,9,15,16)]
-    converted.odes[,2] <- rowSums(odes[,c(3,10,17)]
-    converted.odes[,3] <- rowSums(odes[,c(4,5,11,12,18,19)]
-    converted.odes[,4] <- rowSums(odes[,c(6,13,20)]
-    converted.odes[,5] <- rowSums(odes[,c(7,14,21)]
+    converted.odes <- odes
+    converted.odes[,1] <- rowSums(odes[,c(1,2,8,9,15,16)])
+    converted.odes[,2] <- rowSums(odes[,c(3,10,17)])
+    converted.odes[,3] <- rowSums(odes[,c(4,5,11,12,18,19)])
+    converted.odes[,4] <- rowSums(odes[,c(6,13,20)])
+    converted.odes[,5] <- rowSums(odes[,c(7,14,21)])
+    converted.odes <- converted.odes[,1:5]
     
     # For each week and each group sum llikelyhood (provided by package)
     epsilons <- c( pars[1], pars[1], pars[2], pars[2], pars[3])
@@ -146,7 +152,7 @@ build.llikelihood <- function()
       sapply( seq(1,nrow(converted.odes)), function(week)
         sapply( seq(1,ncol(converted.odes)), function(ag)
           llikelihood.cases(
-            epsilons[ag],pars[4], converted.odes[week,ag]
+            epsilons[ag],pars[4], converted.odes[week,ag],
             age.group.sizes.5[ag], ili$ili[week,ag], ili$total.monitored[week,ag],
             confirmed.samples$positive[week,ag], confirmed.samples$total.samples[week,ag] )
         )
@@ -157,17 +163,21 @@ build.llikelihood <- function()
   return(llikelihood.f)
 }
 
-llprior( pars ) <- function( pars )
+llprior <- function( pars )
 {
   # TODO: Now
-  return(-Inf)
+  return(1)
 }
 
-# Run adaptive.mcmc
-adaptive.mcmc( llprior, build.llikelihood,
-               1000, c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
+init.pars <- c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
                        0.3855279, 0.9269811, 0.5710709, -0.1543508)
-               ), 1000, 10 )
+llikelihood <- build.llikelihood()
+
+# Run adaptive.mcmc
+adaptive.mcmc.cpp( lprior=llprior, llikelihood=llikelihood,
+               nburn=1000, 
+               initial=init.pars,
+               nbatch=1000, blen=10 )
 ```
 
 # Analysing the results
