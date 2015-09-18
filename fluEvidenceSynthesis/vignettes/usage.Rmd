@@ -35,7 +35,7 @@ data("mcmcsample")
 data("ili")
 data("confirmed.samples")
 
-results <- inference( age_sizes=age_sizes$V1,
+inference.results <- inference( age_sizes=age_sizes$V1,
                       vaccine_calendar=vaccine_calendar,
                       polymod_data=as.matrix(polymod_uk),
                       init_sample=mcmcsample,
@@ -44,7 +44,7 @@ results <- inference( age_sizes=age_sizes$V1,
                       n_pos=confirmed.samples$positive,
                       n_samples=confirmed.samples$total.samples,
                       mcmc_chain_length=1000,
-                      burn_in=1000, thinning=1 )
+                      burn_in=1000, thinning=10 )
 ```
 
 The data used for the inference is:
@@ -165,8 +165,16 @@ build.llikelihood <- function()
 
 llprior <- function( pars )
 {
-  # TODO: Now
-  return(1)
+  if (any(pars[1:8]<0) || any(pars[1:4]>1) || any(pars[6:8]>1)
+      || pars[9] < log(0.00001) || pars[9] > log(10) )
+    return(-Inf)
+  
+  lprob <- dnorm(pars[5],0.1653183,0.02773053,1)
+  lprob <- lprob + dlnorm(pars[1],-4.493789,0.2860455,1)
+  lprob <- lprob + dlnorm(pars[2],-4.117028,0.4751615,1)
+  lprob <- lprob + dlnorm(pars[3],-2.977965,1.331832,1)
+  
+  return(lprob)
 }
 
 init.pars <- c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
@@ -174,7 +182,7 @@ init.pars <- c(0.01188150,0.01831852,0.05434378,1.049317e-05,0.1657944,
 llikelihood <- build.llikelihood()
 
 # Run adaptive.mcmc
-adaptive.mcmc.cpp( lprior=llprior, llikelihood=llikelihood,
+mcmc.result <- adaptive.mcmc.cpp( lprior=llprior, llikelihood=llikelihood,
                nburn=1000, 
                initial=init.pars,
                nbatch=1000, blen=10 )
