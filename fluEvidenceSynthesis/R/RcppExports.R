@@ -60,12 +60,15 @@ getTimeFromWeekYear <- function(week, year) {
 #' @param age_sizes A vector with the population size by each age {1,2,..}
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
-#' @param current_state The parameters needed to run the ODE model
+#' @param susceptibility Vector with susceptibilities of each age group
+#' @param transmissibility The transmissibility of the strain
+#' @param init_pop The (log of) initial infected population
+#' @param infection_delays Vector with the time of latent infection and time infectious
 #' @param interval Interval (in days) between data points
 #' @return A data frame with number of new cases after each interval during the year
 #'
-infection.model <- function(age_sizes, vaccine_calendar, polymod_data, current_state, interval = 1L) {
-    .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, current_state, interval)
+infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval = 1L) {
+    .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval)
 }
 
 #' Returns log likelihood of the predicted number of cases given the data for that week

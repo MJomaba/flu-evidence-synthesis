@@ -94,7 +94,7 @@ template <> flu::parameter_set Rcpp::as( SEXP rPar )
     pars.epsilon = Rcpp::as<std::vector<double> >( rListPar["epsilon"] );
     pars.psi = rListPar["psi"];
     pars.transmissibility = rListPar["transmissibility"];
-    pars.susceptibility = Rcpp::as<std::vector<double> >( 
+    pars.susceptibility = Rcpp::as<Eigen::VectorXd>( 
             rListPar["susceptibility"] );
     pars.init_pop = rListPar["init_pop"];
     return pars;

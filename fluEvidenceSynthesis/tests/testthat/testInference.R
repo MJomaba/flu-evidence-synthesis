@@ -52,7 +52,13 @@ test_that("Likelihood function returns the correct value",
       age.group <- 3
       population <- sum(age_sizes$V1[16:45]) # age group 3 is from 16 to 45
 
-      inf.model <- infection.model(age_sizes$V1,vaccine_calendar,as.matrix(polymod_uk),mcmcsample,7)
+      inf.model <- infection.model(age_sizes$V1,vaccine_calendar,
+                                   as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
+                                   mcmcsample$parameters$susceptibility,
+                                   mcmcsample$parameters$transmissibility,
+                                   mcmcsample$parameters$init_pop,
+                                   c(0.8,1.8),
+                                   7)
 
       # Convert results that are 7 groups to age group 3 (out of 5),
       # i.e group 4 and 5 is equal to group 3

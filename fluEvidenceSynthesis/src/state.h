@@ -3,6 +3,8 @@
 #include<string>
 #include<vector>
 
+#include<Eigen/Core>
+
 #define NAG 7
 #define NAG2 49
 #define no_days 364
@@ -21,7 +23,7 @@ namespace flu
         std::vector<double> epsilon = std::vector<double>(5);
         double psi;
         double transmissibility;
-        std::vector<double> susceptibility = std::vector<double>(7);
+        Eigen::VectorXd susceptibility = Eigen::VectorXd(7);
         double init_pop;
     };
 
