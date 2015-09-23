@@ -1,0 +1,23 @@
+---
+title: "Using fluEvidenceSynthesis to predict efficacy of different vaccination scenarios"
+author: "Edwin van Leeuwen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vaccination scenario}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+General flow
+
+Setup vaccination scenario
+
+Run vaccination scenario (with one mcmcsample)
+
+Notes on doing for whole posterior output
+
+# References
+
+Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Miller, and W. John Edmunds. ‘Assessing Optimal Target Populations for Influenza Vaccination Programmes: An Evidence Synthesis and Modelling Study.’ PLoS Med 10, no. 10 (2013): e1001527. doi:10.1371/journal.pmed.1001527.
+

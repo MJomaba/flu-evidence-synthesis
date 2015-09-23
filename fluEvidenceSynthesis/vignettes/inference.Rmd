@@ -79,12 +79,18 @@ For more details on the data format used `?data_name`, e.g. `?polymod_uk` will g
 
 Above we used the general `inference` function to perform parameter inference using the data. In this section we will implement this function in R, which will allow people to adjust the inference process in case they have access to slightly different data or maybe want to adjust things like the number of age groups. This method will give you more control, but it will be slower than calling the `inference` function directly.
 
-TODO: Say something about the general form.. Lots of data, different age groups, complicated.
+To perform parameter inference we need to define a function that returns the (log) likelihood for given parameter values, as dependent on the data and a function which returns the log prior probability of the parameters. These functions will then be passed to `adaptive.mcmc` which will return a posterior sample for the parameter values. We are combining a number of data sources, making the likelihood function relatively complex. The likelihood function needs to perform the following steps (for full details see Baguelin et al., 2013):
+
+- Bootstrap the polymod data
+- Run the model given the parameters
+    - Note that we model 7 separate age groups, divided into low risk, high risk and pregnant women
+- Our ILI data and confirmation data is subdivided into 5 age groups, so we need to convert the model results from 7 age groups to the 5 age
+- Finally calculate the likelihood of the converted model results given the ILI and confirmation data
 
 ```{r, eval=FALSE}
 library(fluEvidenceSynthesis)
 
-# Build a log likelihood function given the data
+# Load the data and return the log likelihood function given the data
 build.llikelihood <- function()
 {
   # Load all the data
@@ -117,7 +123,7 @@ build.llikelihood <- function()
   {
     # Resample contact ids. This is actually not ideal, because we should not accept
     # the resampling if new pars are not accepted
-    # Possible solution: a parameter that (rounded) represents the number of steps from start. Cache all steps (which entry to replace with which number) and the last version (and its step number. Build function that (if current step smaller than last step -> rebuilds using inital state, else applies further steps to current state) 
+    # Possible solution: a parameter that (rounded) represents the number of steps from start. 
     if (runif(1,0,1)<0.1) {
       rs <- round(runif(2,1,length(current.contact.ids)))
       current.contact.ids[rs[1]] <- rs[2]
@@ -146,7 +152,7 @@ build.llikelihood <- function()
     converted.odes[,5] <- rowSums(odes[,c(7,14,21)])
     converted.odes <- converted.odes[,1:5]
     
-    # For each week and each group sum llikelyhood (provided by package)
+    # For each week and each group sum log likelihood
     epsilons <- c( pars[1], pars[1], pars[2], pars[2], pars[3])
     ll <- sum(
       sapply( seq(1,nrow(converted.odes)), function(week)
