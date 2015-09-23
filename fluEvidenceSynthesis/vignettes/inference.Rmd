@@ -14,7 +14,7 @@ vignette: >
 This package implements all the tools needed to analyse and compare the effectiveness of different Influenza vaccine programs (see Baguelin et al. (2013) for more details). This analysis has two main steps.
 
 #. Parameter inference using existing model
-#. Simulation of different possible vaccine programs based using the inferred parameters
+#. Simulation of different possible vaccination strategies using the inferred parameters
 
 This vignette will focus on how the fluEvidenceSythesis package can be used to perform the first step of parameter inference.
 
