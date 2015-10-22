@@ -28,9 +28,12 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     auto adapt_rate = 100;
     auto proposal_state = proposal::initialize( initial.size() );
 
-    auto mcmc_chain_length = (nbatch-1)*blen;
-    for(int k=1; k<=mcmc_chain_length + nburn; k++)
+
+    size_t sampleCount = 0;
+    int k = 0;
+    while(sampleCount<nbatch)
     {
+        ++k;
 
         //update of the variance-covariance matrix and the mean vector
         proposal_state = proposal::update( std::move( proposal_state ),
@@ -79,9 +82,9 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         if(k%blen==0 && k>=nburn)
         {
             // Add results
-            size_t i = (k-nburn)/blen;
-            result.llikelihoods[i] = curr_llikelihood;
-            result.batch.row( i ) = curr_parameters;
+            result.llikelihoods[sampleCount] = curr_llikelihood;
+            result.batch.row( sampleCount ) = curr_parameters;
+            ++sampleCount;
         }
     }
     return result;

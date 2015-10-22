@@ -26,6 +26,20 @@ To test the efficacy of different vaccination scenarios you first need to create
 library("fluEvidenceSynthesis")
 
 # Create vaccination scenario
+vaccine_calendar <- list(
+  "efficacy" = c(0.7,0.7,0.7,0.7,0.7,0.7,0.3),
+  "calendar" = matrix(rep(0,21*3),ncol=21),
+  "dates" =  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
+               as.Date("2010-12-01"), as.Date("2010-01-01"))
+)
+
+# Set rate of vaccine uptake for different dates/age groups
+vaccine_calendar$calendar[1,c(7,14,21)] <- 0.02
+vaccine_calendar$calendar[2,c(7,14,21)] <- 0.005
+vaccine_calendar$calendar[3,c(7,14,21)] <- 0.005
+
+# Set daily uptake for first month, for high risk young children
+vaccine_calendar$calendar[1,c(8,9)] <- 0.02
 
 # Load needed data
 data("age_sizes")
@@ -36,10 +50,12 @@ data("polymod_uk")
 # posterior (mcmc) sample
 vaccinationScenario( age_sizes=age_sizes[,1], vaccine_calendar=vaccine_calendar,
   sample=mcmcsample, 
-  polymod_uk=as.matrix(polymod_uk) )
+  polymod_data=as.matrix(polymod_uk) )
 ```
 
 The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
+
+The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With efficacy a vector defining the efficacy of the vaccine for each of the 7 age groups. The calendar a matrix holding daily uptakes rates. The first 7 columns are low risk age groups, second the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero.
 
 # References
 
