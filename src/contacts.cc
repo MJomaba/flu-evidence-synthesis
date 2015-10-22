@@ -1,53 +1,23 @@
-#include "contacts.hh"
+#include "contacts.h"
+
+#include "rcppwrap.h"
 
 #include <stdio.h>
 #include <cassert>
 
-#include "io.hh"
-#include "state.hh"
+#include "state.h"
 
 namespace flu
 {
     namespace contacts {
-        contacts_t load_contacts( const std::string &path )
-        {
-            auto contacts_PM = read_file( path );
-            contacts_t c;
-
-            for(size_t i=0; i<90; i++)
-                c.ni[i]=0;
-
-            c.nwe=0;
-
-            /*Loading of the participants with their number of contacts from Polymod*/
-            for(size_t i=0; i<POLY_PART; i++)
-            {
-                save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c.contacts[i].age, &c.contacts[i].weekend, &c.contacts[i].N1, &c.contacts[i].N2, &c.contacts[i].N3, &c.contacts[i].N4, &c.contacts[i].N5, &c.contacts[i].N6, &c.contacts[i].N7);
-                auto age_part=c.contacts[i].age;
-                c.ni[age_part]++;
-                if(c.contacts[i].weekend) c.nwe++;
-                c.contacts[i].AG=0;
-                if(age_part>0) c.contacts[i].AG++;
-                if(age_part>4) c.contacts[i].AG++;
-                if(age_part>14) c.contacts[i].AG++;
-                if(age_part>24) c.contacts[i].AG++;
-                if(age_part>44) c.contacts[i].AG++;
-                if(age_part>64) c.contacts[i].AG++;
-                c.contacts[i].id = i;
-            }
-
-            return c;
-        }
-
         contacts_t bootstrap_contacts( contacts_t&& bootstrap,
                 const contacts_t &original,
-                size_t no,
-                gsl_rng * rnd_gen )
+                size_t no )
         {
             for(size_t i=0;i<no;i++)
             {
-                auto alea1=gsl_rng_get(rnd_gen)%POLY_PART;
-                auto alea2=gsl_rng_get(rnd_gen)%POLY_PART;
+                auto alea1=(size_t) R::runif(0,POLY_PART);
+                auto alea2=(size_t) R::runif(0,POLY_PART);
 
                 bootstrap.ni[bootstrap.contacts[alea1].age]--;
                 if(bootstrap.contacts[alea1].weekend) bootstrap.nwe--;
@@ -85,7 +55,7 @@ namespace flu
             return shuffled_c;
         }
 
-        bu::matrix<double> to_symmetric_matrix( const contacts_t &c, 
+        Eigen::MatrixXd to_symmetric_matrix( const contacts_t &c, 
                 const data::age_data_t &age_data )
         {
             double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
@@ -124,11 +94,11 @@ namespace flu
                 cij[i]=mij[i]/age_data.age_group_sizes[i%7];
             }
 
-            bu::matrix<double> contact_regular( 7, 7 );
-            for(size_t i=0; i<7; i++)
+            Eigen::MatrixXd contact_regular( 7, 7 );
+            for(int i=0; i<contact_regular.rows(); i++)
             {
                 contact_regular(i,i)=cij[i*7+i];
-                for(size_t j=0;j<i;j++)
+                for(int j=0;j<i;j++)
                 {
                     cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
                     contact_regular(i,j)=cij_pro;
@@ -138,5 +108,5 @@ namespace flu
 
             return contact_regular;
         }
-    };
-};
+    }
+}

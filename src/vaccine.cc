@@ -1,52 +1,62 @@
-#include "vaccine.hh"
+#include "rcppwrap.h"
+#include "vaccine.h"
 
+#include "model.h"
+#include "data.h"
+#include "contacts.h"
+
+/*
 namespace flu {
     namespace vaccine {
-        vaccine_t load_vaccine( FILE *file )
-        {
-            vaccine_t vacc;
-            char sbuffer[300];
-
-            save_fgets(sbuffer, 100, file);
-            sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf",&vacc.efficacy_year[0],&vacc.efficacy_year[1],&vacc.efficacy_year[2],&vacc.efficacy_year[3],&vacc.efficacy_year[4],&vacc.efficacy_year[5],&vacc.efficacy_year[6]);
-
-            save_fgets(sbuffer, 50, file);
-            for(size_t j=0;j<123;j++)
-            {
-                save_fgets(sbuffer, 300, file);
-                sscanf(sbuffer,"%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &vacc.calendar[j*21],&vacc.calendar[j*21+1],&vacc.calendar[j*21+2],&vacc.calendar[j*21+3],&vacc.calendar[j*21+4],&vacc.calendar[j*21+5],&vacc.calendar[j*21+6],&vacc.calendar[j*21+7],&vacc.calendar[j*21+8],&vacc.calendar[j*21+9],&vacc.calendar[j*21+10],&vacc.calendar[j*21+11],&vacc.calendar[j*21+12],&vacc.calendar[j*21+13],&vacc.calendar[j*21+14],&vacc.calendar[j*21+15],&vacc.calendar[j*21+16],&vacc.calendar[j*21+17],&vacc.calendar[j*21+18],&vacc.calendar[j*21+19],&vacc.calendar[j*21+20]);
-            }
-            return vacc;
-        }
-
-        std::vector<vaccine_t> load_vaccine_programme( 
-                const std::string &path ) 
-        {
-            auto vacc_programme = read_file( path );
-            std::vector<vaccine_t> programme;
-
-            char sbuffer[300];
-            save_fgets(sbuffer, 100, vacc_programme);
-            save_fgets(sbuffer, 100, vacc_programme);
-
-            int n_scenarii;
-            sscanf(sbuffer,"%d",&n_scenarii);
-
-            save_fgets(sbuffer, 100, vacc_programme);
-            save_fgets(sbuffer, 100, vacc_programme);
-            programme.push_back( load_vaccine( vacc_programme ) );
-
-            for(int i=0;i<n_scenarii;i++)
-            {
-                save_fgets(sbuffer, 100, vacc_programme);
-                save_fgets(sbuffer, 100, vacc_programme);
-
-                programme.push_back( load_vaccine( vacc_programme ) );
-            }
-            fclose(vacc_programme);
-
-            return programme;
-        }
-
     };
-};
+};*/
+
+//' Calculate number of influenza cases given a vaccination strategy
+//'
+//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param sample The parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)
+//' @return A data frame with the total number of influenza cases in that year
+//'
+// [[Rcpp::export]]
+std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes, 
+        flu::vaccine::vaccine_t vaccine_calendar,
+        flu::contacts::contacts_t polymod_data,
+        flu::state_t sample ) {
+
+    auto age_data = flu::data::group_age_data( age_sizes );
+    auto pop_vec = flu::data::separate_into_risk_groups( age_data );
+
+    //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
+
+    //translate into an initial infected population
+    double init_inf[NAG];
+    for(size_t i=0;i<NAG;i++)
+        init_inf[i]=pow(10,sample.parameters.init_pop);
+
+
+    flu::data::age_data_t ages;
+    ages.age_sizes = age_sizes;
+    ages.age_group_sizes = age_data;
+
+    auto contact_matrix = flu::contacts::to_symmetric_matrix( 
+            flu::contacts::shuffle_by_id( polymod_data, 
+                sample.contact_ids ), ages );
+
+    auto result_simu = flu::one_year_SEIR_with_vaccination(pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar)
+        .cases;
+
+    auto final_sizes = std::vector<double>( result_simu.cols(), 0.0 ); 
+
+    for(int i=0;i<result_simu.rows();i++)
+    {
+        for(int j=0; j<result_simu.cols(); j++)
+        {
+            final_sizes[j]+=result_simu(i,j);
+        }
+    }
+
+    return final_sizes;
+}
+

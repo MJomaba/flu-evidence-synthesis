@@ -1,11 +1,10 @@
-#include "data.hh"
+#include "data.h"
 
 #include <stdio.h>
 #include <fstream>
 #include <deque>
 
-#include "io.hh"
-#include "state.hh"
+#include "state.h"
 
 namespace flu
 {
@@ -55,122 +54,21 @@ namespace flu
             return pop_vec;
         }
 
-        std::vector<double> load_contact_regular( const std::string& contacts_filepath, const state_t &state, int *age_sizes, int *AG_sizes )
+        std::array<size_t,7> group_age_data( const 
+                std::vector<size_t> &age_sizes )
         {
-            int nc, age_part, AG_part;
-            double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
-            int c_age[POLY_PART], c_we[POLY_PART], c_N1[POLY_PART], c_N2[POLY_PART], c_N3[POLY_PART], c_N4[POLY_PART], c_N5[POLY_PART], c_N6[POLY_PART], c_N7[POLY_PART], c_AG[POLY_PART], c_ni[90];
-            int curr_age[POLY_PART], curr_we[POLY_PART], curr_N1[POLY_PART], curr_N2[POLY_PART], curr_N3[POLY_PART], curr_N4[POLY_PART], curr_N5[POLY_PART], curr_N6[POLY_PART], curr_N7[POLY_PART], curr_AG[POLY_PART], curr_ni[90], curr_nwe;
-            FILE *contacts_PM;
-            int c_nwe = 0;
-            contacts_PM=read_file( contacts_filepath );
-            for(size_t i=0; i<POLY_PART; i++)
-            {
-                save_fscanf(contacts_PM,"%d %d %d %d %d %d %d %d %d", &c_age[i], &c_we[i], &c_N1[i], &c_N2[i], &c_N3[i], &c_N4[i], &c_N5[i], &c_N6[i], &c_N7[i]);
-                age_part=c_age[i];
-                c_ni[age_part]++;
-                if(c_we[i]>0) c_nwe++;
-                c_AG[i]=0;
-                if(age_part>0) c_AG[i]++;
-                if(age_part>4) c_AG[i]++;
-                if(age_part>14) c_AG[i]++;
-                if(age_part>24) c_AG[i]++;
-                if(age_part>44) c_AG[i]++;
-                if(age_part>64) c_AG[i]++;
-            }
-
-
-            for(size_t i=0;i<90;i++)
-                curr_ni[i]=0;
-            curr_nwe=0;
-            for(size_t i=0; i<POLY_PART; i++)
-            {
-                nc = state.contact_ids[i];
-
-                age_part=c_age[nc];
-                curr_ni[age_part]++;
-                if(c_we[nc]>0) curr_nwe++;
-
-                curr_age[i]=c_age[nc];
-                curr_AG[i]=c_AG[nc];
-                curr_we[i]=c_we[nc];
-                curr_N1[i]=c_N1[nc];
-                curr_N2[i]=c_N2[nc];
-                curr_N3[i]=c_N3[nc];
-                curr_N4[i]=c_N4[nc];
-                curr_N5[i]=c_N5[nc];
-                curr_N6[i]=c_N6[nc];
-                curr_N7[i]=c_N7[nc];
-            }
-
-            /*update of the weights*/
-            for(size_t i=0;i<7;i++)
-                w_norm[i]=0;
-
-            for(size_t i=0;i<49;i++)
-                mij[i]=0;
-
-            for(size_t i=0; i<POLY_PART; i++)
-            {
-                age_part=curr_age[i];
-                AG_part=curr_AG[i];
-                if(curr_we[i]==0)
-                    ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*5/(POLY_PART-curr_nwe);
-                else
-                    ww[i]=(double)age_sizes[age_part]/curr_ni[age_part]*2/curr_nwe;
-
-                w_norm[AG_part]+=ww[i];
-                mij[7*AG_part]+=curr_N1[i]*ww[i];
-                mij[7*AG_part+1]+=curr_N2[i]*ww[i];
-                mij[7*AG_part+2]+=curr_N3[i]*ww[i];
-                mij[7*AG_part+3]+=curr_N4[i]*ww[i];
-                mij[7*AG_part+4]+=curr_N5[i]*ww[i];
-                mij[7*AG_part+5]+=curr_N6[i]*ww[i];
-                mij[7*AG_part+6]+=curr_N7[i]*ww[i];
-            }
-
-            for(size_t i=0; i<49; i++)
-            {
-                if(w_norm[i/7]>0)
-                    mij[i]/=w_norm[i/7];
-                cij[i]=mij[i]/AG_sizes[i%7];
-            }
-
-            std::vector<double> contact_regular( NAG2 );
+            std::array<size_t,7> age_group_sizes;
             for(size_t i=0; i<7; i++)
-            {
-                contact_regular[i*7+i]=cij[i*7+i];
-                for(size_t j=0;j<i;j++)
-                {
-                    cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
-                    contact_regular[i*7+j]=cij_pro;
-                    contact_regular[j*7+i]=cij_pro;
-                }
-            }
-
-            fclose( contacts_PM );
-
-            return contact_regular;
-        }
-
-        age_data_t load_age_data( const std::string &path )
-        {
-            age_data_t age_data;
-            for(size_t i=0; i<7; i++)
-                age_data.age_group_sizes[i]=0;
+                age_group_sizes[i]=0;
 
             size_t current_age = 0;
-            int pop_size;
-            std::ifstream infile( path );
-
             size_t group_count = 0;
             std::deque<size_t> group_barriers = 
                 { 0, 4, 14, 24, 44, 64 };
 
             // Iterate over each line
-            while (infile >> pop_size)
+            for( auto &pop_size : age_sizes )
             {
-                age_data.age_sizes.push_back(pop_size);
                 if (group_barriers.size() != 0 &&
                         current_age > group_barriers[0] )
                 {
@@ -178,13 +76,12 @@ namespace flu
                     ++group_count;
                     group_barriers.pop_front();
                 }
-                age_data.age_group_sizes[group_count]+=pop_size;
+                age_group_sizes[group_count]+=pop_size;
                 ++current_age;
             }
 
-            return age_data;
+            return age_group_sizes;
         }
 
-
-    };
-};
+    }
+}
