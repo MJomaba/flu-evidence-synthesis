@@ -10,32 +10,22 @@ The code is distributed under a GPLv3 license. Please remember to cite the above
 
 This code is now mainly developed as an R package and we recommend it to install it as such.
 
-If you haven’t done so yet, first clone this repository:
+First make sure you have the devtools package install in R by executing
 
-```
-git clone https://github.com/MJomaba/flu-evidence-synthesis.git
-cd flu-evidence-synthesis/fluEvidenceSynthesis/
-```
-
-If you have already cloned it then cd into the directory and update it:
-
-```
-git pull
-```
-Install the dependencies for the package, first start R and in R run:
-
-```
-install.packages(c("Rcpp", "BH", "RcppEigen"))
+```{r}
+install.packages("devtools")
 ```
 
-Now build the R package (from the commandline):
+from within R. Note that devtools relies on a fairly new R version (>=3.1.0).
 
+Then use devtools to install from fluEvidenceSynthesis by using the following command:
+
+```{r}
+library(devtools)
+install_github("MJomaba/flu-evidence-synthesis")
 ```
-./install.sh
-```
 
-This script generates some needed source files and then installs the package in R.
+## Documentation and examples
 
-## Usage examples
 
-Coming soon!
+
