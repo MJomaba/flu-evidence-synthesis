@@ -1,8 +1,8 @@
 Package: fluEvidenceSynthesis
 Type: Package
 Title: Flu Evidence Synthesis: analysing effectiveness of vaccine strategies
-Version: 0.5.0
-Date: 2015-06-24
+Version: 0.6.0
+Date: 2015-11-22
 Author: Marc Baguelin, Edwin van Leeuwen
 Maintainer: Edwin van Leeuwen <edwinvanl@gmail.com>
 Description: Package to synthesise the multiplicity of surveillance datasets in order to evaluate how changing target populations in the seasonal vaccination programme would affect infection rate and mortality. Mainly meant for Influenza modelling, but can be used more generally.
