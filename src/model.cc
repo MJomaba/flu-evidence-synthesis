@@ -340,8 +340,8 @@ namespace flu
     long double binomial_log_likelihood( double epsilon, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,
-            int confirmed_positive, int confirmed_samples, 
-            int depth )
+            int confirmed_positive, int confirmed_samples
+             )
     {
         auto pf = epsilon*((double) predicted)/population_size;
         long double prob = 0;
@@ -354,6 +354,29 @@ namespace flu
         }
         return log(prob);
     }
+
+    double binomial_log_likelihood_year(const std::vector<double> &eps, 
+            const Eigen::MatrixXd &result_by_week,
+            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
+            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
+            double * pop_5AG_RCGP)
+    {
+        long double result=0.0;
+        for(int i=0;i<5;i++)
+        {
+            auto epsilon=eps[i];
+            for(int week=0;week<result_by_week.rows();week++)
+            {
+                result += binomial_log_likelihood( epsilon, 
+                        result_by_week(week,i), pop_5AG_RCGP[i],
+                        ili(week,i), mon_pop(week,i),
+                        n_pos(week,i), n_samples(week,i) );
+            }
+            
+        }
+        return(result);
+    }
+
 
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 

@@ -48,6 +48,20 @@ namespace flu
 
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation);
 
+    /// Returns (simplified) log likelihood of one prediction
+    long double binomial_log_likelihood( double epsilon, 
+            size_t predicted, double population_size, 
+            int ili_cases, int ili_monitored,
+            int confirmed_positive, int confirmed_samples, 
+            int depth );
+
+    double binomial_log_likelihood_year(const std::vector<double> &eps, 
+            const Eigen::MatrixXd &result_by_week,
+            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
+            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
+            double * pop_5AG_RCGP);
+ 
+
     /// Returns log likelihood of one prediction
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
