@@ -337,6 +337,24 @@ namespace flu
         return result_weeks;
     }
 
+    long double binomial_log_likelihood( double epsilon, 
+            size_t predicted, double population_size, 
+            int ili_cases, int ili_monitored,
+            int confirmed_positive, int confirmed_samples, 
+            int depth )
+    {
+        auto pf = epsilon*((double) predicted)/population_size;
+        long double prob = 0;
+        for (size_t mplus = 0; mplus <= (size_t)ili_cases; ++mplus)
+        {
+            auto pn = ((double)mplus)/ili_cases;
+            prob += R::dbinom( mplus, ili_cases, pf, 0 )*
+                R::dbinom( confirmed_positive, confirmed_samples,
+                        pn, 0 );
+        }
+        return log(prob);
+    }
+
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,

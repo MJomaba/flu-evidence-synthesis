@@ -13,7 +13,7 @@
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values
 #'
-#' @seealso \code{\link{adaptive.mcmc}} Used internally by this function.
+#' @seealso \code{\link{adaptive.mcmc.cpp}} Used internally by this function.
 adaptive.mcmc <- function( lprior, llikelihood, nburn, initial, nbatch, blen = 1, ...  )
 {
     adaptive.mcmc.cpp( lprior, function(pars) llikelihood( pars, ... ),
