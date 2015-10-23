@@ -352,6 +352,15 @@ namespace flu
                 R::dbinom( confirmed_positive, confirmed_samples,
                         pn, 0 );
         }
+        if (prob == 0 || !std::isfinite(prob))
+        {
+            /*Rcpp::cout << epsilon << ", " << predicted << ", " <<
+                population_size << ", " << ili_cases << ", " << 
+                confirmed_positive << ", " confirmed_samples <<
+                std::endl;*/
+
+            return log(1e-100);
+        }
         return log(prob);
     }
 

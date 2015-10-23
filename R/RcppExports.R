@@ -21,29 +21,6 @@ inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calenda
     .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_sample, mcmc_chain_length, burn_in, thinning)
 }
 
-#' MCMC based inference of the parameter values given the different data sets
-#'
-#' Based on a simplified (binomial) log likelihood function, that does not
-#' assume the confirmation samples to be a strict subsample of the ILI cases
-#'
-#' @param age_sizes A vector with the population size by each age {1,2,..}
-#' @param ili The number of Influenza-like illness cases per week
-#' @param mon_pop The number of people monitored for ili
-#' @param n_pos The number of positive samples for the given strain (per week)
-#' @param n_samples The total number of samples tested 
-#' @param vaccine_calendar A vaccine calendar valid for that year
-#' @param polymod_data Contact data for different age groups
-#' @param init_sample The initial parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)
-#' @param mcmc_chain_length The number of MCMC steps to sample from
-#' @param thinning Keep every so many samples
-#' @param burn_in The number of initial samples to skip
-#' @return A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})
-#'
-#'
-binomial_inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_sample, mcmc_chain_length = 100000L, burn_in = 10000L, thinning = 100L) {
-    .Call('fluEvidenceSynthesis_binomial_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, init_sample, mcmc_chain_length, burn_in, thinning)
-}
-
 #' Update means when a new posterior sample is calculated
 #'
 #' @param means the current means of the parameters
@@ -147,6 +124,29 @@ llikelihood.cases <- function(epsilon, psi, predicted, population_size, ili_case
 #'
 adaptive.mcmc.cpp <- function(lprior, llikelihood, nburn, initial, nbatch, blen = 1L) {
     .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, nburn, initial, nbatch, blen)
+}
+
+#' MCMC based inference of the parameter values given the different data sets
+#'
+#' Based on a simplified (binomial) log likelihood function, that does not
+#' assume the confirmation samples to be a strict subsample of the ILI cases
+#'
+#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param ili The number of Influenza-like illness cases per week
+#' @param mon_pop The number of people monitored for ili
+#' @param n_pos The number of positive samples for the given strain (per week)
+#' @param n_samples The total number of samples tested 
+#' @param vaccine_calendar A vaccine calendar valid for that year
+#' @param polymod_data Contact data for different age groups
+#' @param initial Vector with starting parameter values
+#' @param nburn Number of iterations of burn in
+#' @param nbatch Number of batches to run (number of samples to return)
+#' @param blen Length of each batch
+#' 
+#' @return Returns a list with the accepted samples and the corresponding llikelihood values
+#'
+binomial.inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 10000L, nbatch = 1000L, blen = 1L) {
+    .Call('fluEvidenceSynthesis_binomial_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
 }
 
 #' Calculate number of influenza cases given a vaccination strategy
