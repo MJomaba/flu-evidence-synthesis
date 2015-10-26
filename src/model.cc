@@ -343,7 +343,7 @@ namespace flu
             int confirmed_positive, int confirmed_samples
              )
     {
-        auto pf = epsilon*((double) predicted)/population_size;
+        auto pf = (1.0/epsilon)*((double) predicted)/population_size;
         long double prob = 0;
         for (size_t mplus = 0; mplus <= (size_t)ili_cases; ++mplus)
         {
@@ -383,7 +383,7 @@ namespace flu
             }
             
         }
-        return(result);
+        return result;
     }
 
 
