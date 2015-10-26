@@ -241,7 +241,7 @@ namespace flu {
         auto current_pars = initial;
         /*translate into an initial infected population*/
         for(int i=0;i<NAG;i++)
-            curr_init_inf[i]=pow(10,current_pars[8] );
+            curr_init_inf[i]=pow(10,current_pars[7] );
 
         std::vector<size_t> current_contact_ids;
         current_contact_ids.reserve( polymod_data.contacts.size() );
@@ -258,18 +258,18 @@ namespace flu {
             contacts::to_symmetric_matrix( curr_c, age_data );
 
         Eigen::VectorXd susc(3);
-        susc << current_pars[5], current_pars[6], current_pars[7];
+        susc << current_pars[4], current_pars[5], current_pars[6];
 
         auto result = one_year_SEIR_with_vaccination(pop_vec, 
                 curr_init_inf, time_latent, time_infectious, 
                 susc,
-                current_contact_regular, current_pars[4], 
+                current_contact_regular, current_pars[3], 
                 vaccine_calendar, 7*24 );
 
         /*curr_psi=0.00001;*/
         long double current_llikelihood = binomial_log_likelihood_year(
-                { current_pars[1], current_pars[1], 
-                current_pars[2], current_pars[2], current_pars[3] },
+                { current_pars[0], current_pars[0], 
+                current_pars[1], current_pars[1], current_pars[2] },
                 days_to_weeks_5AG( result ), 
                 ili, mon_pop, n_pos, n_samples, pop_RCGP);
 
@@ -319,7 +319,7 @@ namespace flu {
 
             /*translate into an initial infected population*/
             for(int i=0;i<NAG;i++)
-                prop_init_inf[i]=pow(10,proposed_pars[8]);
+                prop_init_inf[i]=pow(10,proposed_pars[7]);
 
             auto prop_c = curr_c;
 
@@ -330,16 +330,16 @@ namespace flu {
             auto prop_contact_regular = 
                 contacts::to_symmetric_matrix( prop_c, age_data );
 
-            susc << proposed_pars[5], proposed_pars[6], proposed_pars[7];
+            susc << proposed_pars[4], proposed_pars[5], proposed_pars[6];
             result = one_year_SEIR_with_vaccination(pop_vec, 
                     curr_init_inf, time_latent, time_infectious, 
                     susc,
-                    prop_contact_regular, proposed_pars[4], 
+                    prop_contact_regular, proposed_pars[3], 
                     vaccine_calendar, 7*24 );
 
             long double proposed_llikelihood = binomial_log_likelihood_year(
-                    { proposed_pars[1], proposed_pars[1], 
-                    proposed_pars[2], proposed_pars[2], proposed_pars[3] },
+                    { proposed_pars[0], proposed_pars[0], 
+                    proposed_pars[1], proposed_pars[1], proposed_pars[2] },
                     days_to_weeks_5AG( result ), 
                     ili, mon_pop, n_pos, n_samples, pop_RCGP);
 
