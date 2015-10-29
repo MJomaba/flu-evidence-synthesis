@@ -21,6 +21,5 @@ tmp/
 symbols.rds
 .R*
 *.tar.gz
-*.Rd
 *.pdf
 *.html
