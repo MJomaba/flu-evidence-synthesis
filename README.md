@@ -1,4 +1,4 @@
-## flu-evidence
+# fluEvidenceSynthesis
 
 This repository contains the code used for flu data analysis first published in
 
@@ -8,7 +8,7 @@ The code is distributed under a GPLv3 license. Please remember to cite the above
 
 ## Install
 
-This code is now mainly developed as an R package and we recommend it to install it as such.
+### Devtools
 
 First make sure you have the devtools package install in R by executing the following in R:
 
@@ -17,6 +17,8 @@ install.packages("devtools")
 ```
 
 Note that devtools relies on a fairly new R version (>=3.1.0). Devtools also relies on a number of packages and one can run into problems installing it. Please refer to their [documentation](https://github.com/hadley/devtools) when encountering problems.
+
+### FluEvidenceSynthesis
 
 Then use devtools to install from fluEvidenceSynthesis by using the following command:
 
@@ -30,5 +32,9 @@ install_github("MJomaba/flu-evidence-synthesis",build_vignettes=TRUE)
 All functions provided by the package are documented in R, but we recommend reading the provided vignettes for a good introduction/overview of the provided capabilities.
 
 ```{r}
-browseVignettes("fluEvidenceSynthesis")
+# To list the included vignettes:
+vignette(package="fluEvidenceSynthesis")
+
+# To open the inference vignette:
+vignette("inference",package="fluEvidenceSynthesis")
 ```
