@@ -21,7 +21,6 @@ tmp/
 symbols.rds
 .R*
 *.tar.gz
-RcppExports.cpp
 *.Rd
 *.pdf
 *.html
