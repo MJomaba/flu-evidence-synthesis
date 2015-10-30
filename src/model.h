@@ -35,7 +35,8 @@ namespace flu
      */
     cases_t one_year_SEIR_with_vaccination(
             const std::vector<double> &pop_vec, 
-            double *, const double, const double,  
+            const Eigen::VectorXd &initial_infected, 
+            const double, const double,  
             const Eigen::VectorXd &, 
             const Eigen::MatrixXd &contact_regular, double, 
             const vaccine::vaccine_t &vaccine_programme,

@@ -143,27 +143,6 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// binomial_inference
-Rcpp::List binomial_inference(std::vector<size_t> age_sizes, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, flu::contacts::contacts_t polymod_data, Eigen::VectorXd initial, int nburn, int nbatch, int blen);
-RcppExport SEXP fluEvidenceSynthesis_binomial_inference(SEXP age_sizesSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili(iliSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type mon_pop(mon_popSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_pos(n_posSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
-    Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
-    Rcpp::traits::input_parameter< int >::type nburn(nburnSEXP);
-    Rcpp::traits::input_parameter< int >::type nbatch(nbatchSEXP);
-    Rcpp::traits::input_parameter< int >::type blen(blenSEXP);
-    __result = Rcpp::wrap(binomial_inference(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen));
-    return __result;
-END_RCPP
-}
 // vaccinationScenario
 std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, flu::contacts::contacts_t polymod_data, flu::state_t sample);
 RcppExport SEXP fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP sampleSEXP) {

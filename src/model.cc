@@ -190,7 +190,8 @@ namespace flu
     }
 
     cases_t one_year_SEIR_with_vaccination(
-            const std::vector<double> &Npop, double * seeding_infectious, 
+            const std::vector<double> &Npop,  
+            const Eigen::VectorXd &seeding_infectious, 
             const double tlatent, const double tinfectious, 
             const Eigen::VectorXd &s_profile, 
             const Eigen::MatrixXd &contact_regular, double transmissibility,
@@ -198,6 +199,9 @@ namespace flu
             size_t minimal_resolution, 
             const boost::posix_time::ptime &starting_time )
     {
+        assert( s_profile.size() == contact_regular.rows() );
+
+
         namespace bt = boost::posix_time;
 
         const size_t nag = contact_regular.rows(); // No. of age groups

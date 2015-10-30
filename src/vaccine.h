@@ -12,7 +12,7 @@ namespace flu {
     namespace vaccine {
         /// Details of a vaccine programme
         struct vaccine_t {
-            /// Efficacy for each year
+            /// Efficacy for each age group
             std::array<double, 7> efficacy_year;
 
             /**

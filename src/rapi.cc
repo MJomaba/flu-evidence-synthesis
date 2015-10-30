@@ -98,9 +98,8 @@ Rcpp::DataFrame runSEIRModel(
             age_data.age_group_sizes );
 
     /*translate into an initial infected population*/
-    double curr_init_inf[NAG];
-    for(int i=0;i<NAG;i++)
-        curr_init_inf[i]=pow(10,init_pop);
+    auto curr_init_inf = Eigen::VectorXd::Constant( 
+            susceptibility.size(), pow(10,init_pop) );
 
     auto current_contact_regular = 
         flu::contacts::to_symmetric_matrix( polymod_data, age_data );
@@ -276,43 +275,3 @@ Rcpp::List adaptiveMCMCR(
     rState["llikelihoods"] = Rcpp::wrap( mcmcResult.llikelihoods );
     return rState;
 }
-
-//' MCMC based inference of the parameter values given the different data sets
-//'
-//' Based on a simplified (binomial) log likelihood function, that does not
-//' assume the confirmation samples to be a strict subsample of the ILI cases
-//'
-//' @param age_sizes A vector with the population size by each age {1,2,..}
-//' @param ili The number of Influenza-like illness cases per week
-//' @param mon_pop The number of people monitored for ili
-//' @param n_pos The number of positive samples for the given strain (per week)
-//' @param n_samples The total number of samples tested 
-//' @param vaccine_calendar A vaccine calendar valid for that year
-//' @param polymod_data Contact data for different age groups
-//' @param initial Vector with starting parameter values
-//' @param nburn Number of iterations of burn in
-//' @param nbatch Number of batches to run (number of samples to return)
-//' @param blen Length of each batch
-//' 
-//' @return Returns a list with the accepted samples and the corresponding llikelihood values
-//'
-// [[Rcpp::export(name="binomial.inference")]]
-Rcpp::List binomial_inference( std::vector<size_t> age_sizes, 
-        Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
-        Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
-        flu::vaccine::vaccine_t vaccine_calendar,
-        flu::contacts::contacts_t polymod_data,
-        Eigen::VectorXd initial, 
-        int nburn = 10000, 
-        int nbatch = 1000, int blen = 1 )
-{
-    auto mcmcResult = flu::binomial_inference( age_sizes, ili, mon_pop,
-            n_pos, n_samples, vaccine_calendar, polymod_data, initial,
-            nburn, nbatch, blen );
-    Rcpp::List rState;
-    rState["batch"] = Rcpp::wrap( mcmcResult.batch );
-    rState["llikelihoods"] = Rcpp::wrap( mcmcResult.llikelihoods );
-    return rState;
-}
-
-
