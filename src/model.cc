@@ -45,7 +45,7 @@ namespace flu
             const Eigen::VectorXd &densities,
             const std::vector<double> &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
-            const std::array<double,7> &vaccine_efficacy_year,
+            const Eigen::VectorXd &vaccine_efficacy_age,
             const Eigen::MatrixXd &transmission_regular,
             double a1, double a2, double g1, double g2 )
     {
@@ -93,9 +93,9 @@ namespace flu
                 double vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[ode_id(nag,HIGH,S,i)]+densities[ode_id(nag,HIGH,E1,i)]+densities[ode_id(nag,HIGH,E2,i)]+densities[ode_id(nag,HIGH,I1,i)]+densities[ode_id(nag,HIGH,I2,i)]+densities[ode_id(nag,HIGH,R,i)]);
                 double vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[ode_id(nag,PREG,S,i)]+densities[ode_id(nag,PREG,E1,i)]+densities[ode_id(nag,PREG,E2,i)]+densities[ode_id(nag,PREG,I1,i)]+densities[ode_id(nag,PREG,I2,i)]+densities[ode_id(nag,PREG,R,i)]);*/
 
-                deltas[ode_id(nag,VACC_LOW,S,i)]+=densities[ode_id(nag,LOW,S,i)]*vacc_prov*(1-vaccine_efficacy_year[i]);
-                deltas[ode_id(nag,VACC_HIGH,S,i)]+=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*(1-vaccine_efficacy_year[i]);
-                deltas[ode_id(nag,VACC_PREG,S,i)]+=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*(1-vaccine_efficacy_year[i]);
+                deltas[ode_id(nag,VACC_LOW,S,i)]+=densities[ode_id(nag,LOW,S,i)]*vacc_prov*(1-vaccine_efficacy_age[i]);
+                deltas[ode_id(nag,VACC_HIGH,S,i)]+=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*(1-vaccine_efficacy_age[i]);
+                deltas[ode_id(nag,VACC_PREG,S,i)]+=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*(1-vaccine_efficacy_age[i]);
                 deltas[ode_id(nag,LOW,S,i)]-=densities[ode_id(nag,LOW,S,i)]*vacc_prov;
                 deltas[ode_id(nag,HIGH,S,i)]-=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r;
                 deltas[ode_id(nag,PREG,S,i)]-=densities[ode_id(nag,PREG,S,i)]*vacc_prov_p;
@@ -128,9 +128,9 @@ namespace flu
                 deltas[ode_id(nag,HIGH,I2,i)]-=densities[ode_id(nag,HIGH,I2,i)]*vacc_prov_r;
                 deltas[ode_id(nag,PREG,I2,i)]-=densities[ode_id(nag,PREG,I2,i)]*vacc_prov_p;
 
-                deltas[ode_id(nag,VACC_LOW,R,i)]+=densities[ode_id(nag,LOW,R,i)]*vacc_prov+densities[ode_id(nag,LOW,S,i)]*vacc_prov*vaccine_efficacy_year[i];
-                deltas[ode_id(nag,VACC_HIGH,R,i)]+=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r+densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*vaccine_efficacy_year[i];
-                deltas[ode_id(nag,VACC_PREG,R,i)]+=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p+densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*vaccine_efficacy_year[i];
+                deltas[ode_id(nag,VACC_LOW,R,i)]+=densities[ode_id(nag,LOW,R,i)]*vacc_prov+densities[ode_id(nag,LOW,S,i)]*vacc_prov*vaccine_efficacy_age[i];
+                deltas[ode_id(nag,VACC_HIGH,R,i)]+=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r+densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*vaccine_efficacy_age[i];
+                deltas[ode_id(nag,VACC_PREG,R,i)]+=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p+densities[ode_id(nag,PREG,S,i)]*vacc_prov_p*vaccine_efficacy_age[i];
                 deltas[ode_id(nag,LOW,R,i)]-=densities[ode_id(nag,LOW,R,i)]*vacc_prov;
                 deltas[ode_id(nag,HIGH,R,i)]-=densities[ode_id(nag,HIGH,R,i)]*vacc_prov_r;
                 deltas[ode_id(nag,PREG,R,i)]-=densities[ode_id(nag,PREG,R,i)]*vacc_prov_p;
@@ -146,7 +146,7 @@ namespace flu
             boost::posix_time::time_duration &dt,
             const std::vector<double> &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
-            const std::array<double,7> &vaccine_efficacy_year,
+            const Eigen::VectorXd &vaccine_efficacy_age,
             const Eigen::MatrixXd &transmission_regular,
             double a1, double a2, double g1, double g2
             )
@@ -166,7 +166,7 @@ namespace flu
         auto ode_func = [&]( const Eigen::VectorXd &y, const double dummy )
         {
             return flu_ode( deltas, y, 
-                    Npop, vaccine_rates, vaccine_efficacy_year,
+                    Npop, vaccine_rates, vaccine_efficacy_age,
                     transmission_regular, a1, a2, g1, g2 );
         };
 
@@ -294,7 +294,7 @@ namespace flu
                     next_time, dt,
                     Npop,
                     vacc_rates,
-                    vaccine_programme.efficacy_year,
+                    vaccine_programme.efficacy_age,
                     transmission_regular,
                     a1, a2, g1, g2 );
             current_time = next_time;
@@ -507,7 +507,7 @@ namespace flu
         return ll;
     }
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
+    double log_likelihood_hyper_poisson(const Eigen::VectorXd &eps, 
             double psi, const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 

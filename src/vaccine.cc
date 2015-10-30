@@ -30,7 +30,7 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
 
     //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
 
-    auto nag = vaccine_calendar.efficacy_year.size();
+    auto nag = vaccine_calendar.efficacy_age.size();
 
     //translate into an initial infected population
     auto init_inf = Eigen::VectorXd::Constant( 

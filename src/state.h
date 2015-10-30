@@ -13,10 +13,10 @@ namespace flu
     /// Parameters of the model
     // TODO: Add as vector option?
     struct parameter_set {
-        std::vector<double> epsilon = std::vector<double>(5);
+        Eigen::VectorXd epsilon;
         double psi;
         double transmissibility;
-        Eigen::VectorXd susceptibility = Eigen::VectorXd(7);
+        Eigen::VectorXd susceptibility;
         double init_pop;
     };
 

@@ -6,8 +6,9 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     flu::vaccine::vaccine_t vac_cal;
     auto rListVac = Rcpp::as<List>(rVac);
     Rcpp::NumericVector eff = rListVac["efficacy"];
-    for (size_t i = 0; i < vac_cal.efficacy_year.size(); ++i)
-        vac_cal.efficacy_year[i] = eff[i];
+    vac_cal.efficacy_age = Eigen::VectorXd::Zero( eff.size() );
+    for (int i = 0; i < eff.size(); ++i)
+        vac_cal.efficacy_age[i] = eff[i];
 
     vac_cal.calendar = Rcpp::as<Eigen::MatrixXd>(rListVac["calendar"]);
 
@@ -91,7 +92,7 @@ template <> flu::parameter_set Rcpp::as( SEXP rPar )
 {
     flu::parameter_set pars;
     auto rListPar = Rcpp::as<List>(rPar);
-    pars.epsilon = Rcpp::as<std::vector<double> >( rListPar["epsilon"] );
+    pars.epsilon = Rcpp::as<Eigen::VectorXd>( rListPar["epsilon"] );
     pars.psi = rListPar["psi"];
     pars.transmissibility = rListPar["transmissibility"];
     pars.susceptibility = Rcpp::as<Eigen::VectorXd>( 

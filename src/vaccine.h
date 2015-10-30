@@ -13,7 +13,7 @@ namespace flu {
         /// Details of a vaccine programme
         struct vaccine_t {
             /// Efficacy for each age group
-            std::array<double, 7> efficacy_year;
+            Eigen::VectorXd efficacy_age;
 
             /**
              * Calendar for the programme

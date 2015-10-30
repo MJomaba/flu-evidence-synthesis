@@ -10,6 +10,8 @@ test_that("We can run inference",
       data("ili")
       data("confirmed.samples")
 
+      expect_equal( length(vaccine_calendar$efficacy), 7 )
+
       set.seed(100)
       results <- inference( age_sizes=age_sizes$V1,
                            vaccine_calendar=vaccine_calendar,

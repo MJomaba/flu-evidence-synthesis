@@ -208,6 +208,7 @@ namespace flu {
                     correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
 
             /*new proposed values*/
+            proposed.epsilon = Eigen::VectorXd::Zero( current.epsilon.size() );
             proposed.epsilon[0]=current.epsilon[0]+un_moins_beta*correlated_draw[0]+beta*correlated_fix[0];
             proposed.epsilon[1]=proposed.epsilon[0];
             proposed.epsilon[2]=current.epsilon[2]+un_moins_beta*correlated_draw[1]+beta*correlated_fix[1];
@@ -218,6 +219,8 @@ namespace flu {
 
             proposed.transmissibility=current.transmissibility+un_moins_beta*correlated_draw[4]+beta*correlated_fix[4];
 
+            proposed.susceptibility = 
+                Eigen::VectorXd::Zero( current.susceptibility.size() );
             proposed.susceptibility[0]=current.susceptibility[0]+un_moins_beta*correlated_draw[5]+beta*correlated_fix[5];
             proposed.susceptibility[1]=proposed.susceptibility[0];
             proposed.susceptibility[2]=proposed.susceptibility[0];

@@ -56,7 +56,7 @@ namespace flu
             int confirmed_positive, int confirmed_samples, 
             int depth );
 
-    double binomial_log_likelihood_year(const std::vector<double> &eps, 
+    double binomial_log_likelihood_year(const Eigen::VectorXd &eps, 
             const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
@@ -70,7 +70,7 @@ namespace flu
             int confirmed_positive, int confirmed_samples, 
             int depth = 2 );
 
-    double log_likelihood_hyper_poisson(const std::vector<double> &eps, 
+    double log_likelihood_hyper_poisson(const Eigen::VectorXd &eps, 
             double psi, const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
