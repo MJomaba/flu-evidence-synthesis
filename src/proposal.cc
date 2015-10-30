@@ -1,5 +1,8 @@
 #include "proposal.h"
 #include <boost/numeric/ublas/matrix.hpp>
+
+#define twopi 6.283185
+
 namespace flu {
     /**
      * \brief Functions to keep track of proposal distribution

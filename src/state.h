@@ -5,14 +5,7 @@
 
 #include<Eigen/Core>
 
-#define NAG 7
-#define NAG2 49
-#define no_days 364
-#define length_weeks 52
-#define twopi 6.283185
 #define POLY_PART 597
-#define dim_par 9
-#define dim_par2 81
 //#define seed 578
 
 namespace flu
