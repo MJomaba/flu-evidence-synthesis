@@ -54,27 +54,29 @@ template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts )
     /*Loading of the participants with their number of contacts from Polymod*/
     for(int i=0; i<conMatrix.rows(); i++)
     {
-        //c.contacts.push_back( contact_t() );
-        c.contacts[i].age = conMatrix(i,0);
-        c.contacts[i].weekend = conMatrix(i,1);
-        c.contacts[i].N1 = conMatrix(i,2);
-        c.contacts[i].N2 = conMatrix(i,3);
-        c.contacts[i].N3 = conMatrix(i,4);
-        c.contacts[i].N4 = conMatrix(i,5);
-        c.contacts[i].N5 = conMatrix(i,6);
-        c.contacts[i].N6 = conMatrix(i,7);
-        c.contacts[i].N7 = conMatrix(i,8);
-        auto age_part=c.contacts[i].age;
+        contact_t new_contact;
+        new_contact.age = conMatrix(i,0);
+        new_contact.weekend = conMatrix(i,1);
+        new_contact.N1 = conMatrix(i,2);
+        new_contact.N2 = conMatrix(i,3);
+        new_contact.N3 = conMatrix(i,4);
+        new_contact.N4 = conMatrix(i,5);
+        new_contact.N5 = conMatrix(i,6);
+        new_contact.N6 = conMatrix(i,7);
+        new_contact.N7 = conMatrix(i,8);
+        auto age_part=new_contact.age;
         c.ni[age_part]++;
-        if(c.contacts[i].weekend) c.nwe++;
-        c.contacts[i].AG=0;
-        if(age_part>0) c.contacts[i].AG++;
-        if(age_part>4) c.contacts[i].AG++;
-        if(age_part>14) c.contacts[i].AG++;
-        if(age_part>24) c.contacts[i].AG++;
-        if(age_part>44) c.contacts[i].AG++;
-        if(age_part>64) c.contacts[i].AG++;
-        c.contacts[i].id = i;
+        if(new_contact.weekend) c.nwe++;
+        new_contact.AG=0;
+        if(age_part>0) new_contact.AG++;
+        if(age_part>4) new_contact.AG++;
+        if(age_part>14) new_contact.AG++;
+        if(age_part>24) new_contact.AG++;
+        if(age_part>44) new_contact.AG++;
+        if(age_part>64) new_contact.AG++;
+        new_contact.id = i;
+
+        c.contacts.push_back( new_contact );
     }
 
     return c;

@@ -45,7 +45,6 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         int mcmc_chain_length = 100000, 
         int burn_in = 10000, int thinning = 100 )
 {
-    Rcpp::Rcout << "Bla 1 " << std::endl;
     std::vector<state_t> results;
 
     auto nag = 7;

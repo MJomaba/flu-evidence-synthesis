@@ -49,7 +49,7 @@ namespace flu
                 shuffled_c.ni[age_part]++;
                 if(sorted_c.contacts[nc].weekend) shuffled_c.nwe++;
 
-                shuffled_c.contacts[i]=sorted_c.contacts[nc];
+                shuffled_c.contacts.push_back(sorted_c.contacts[nc]);
             }
 
             return shuffled_c;
