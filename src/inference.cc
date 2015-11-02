@@ -114,7 +114,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         if(k%thinning==0 && k>burn_in)
         {
             // Add results
-            for( size_t i = 0; i < POLY_PART; ++i )
+            for( size_t i = 0; i < curr_c.contacts.size(); ++i )
                 current_state.contact_ids[i] = curr_c.contacts[i].id;
 
             results.push_back(current_state);

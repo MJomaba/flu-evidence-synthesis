@@ -16,8 +16,8 @@ namespace flu
         {
             for(size_t i=0;i<no;i++)
             {
-                auto alea1=(size_t) R::runif(0,POLY_PART);
-                auto alea2=(size_t) R::runif(0,POLY_PART);
+                auto alea1=(size_t) R::runif(0,bootstrap.contacts.size());
+                auto alea2=(size_t) R::runif(0,bootstrap.contacts.size());
 
                 bootstrap.ni[bootstrap.contacts[alea1].age]--;
                 if(bootstrap.contacts[alea1].weekend) bootstrap.nwe--;
@@ -38,7 +38,7 @@ namespace flu
             for(size_t i=0;i<90;i++)
                 shuffled_c.ni[i]=0;
             shuffled_c.nwe=0;
-            for(size_t i=0; i<POLY_PART; i++)
+            for(size_t i=0; i<sorted_c.contacts.size(); i++)
             {
                 auto nc = ids[i];
 
@@ -58,7 +58,8 @@ namespace flu
         Eigen::MatrixXd to_symmetric_matrix( const contacts_t &c, 
                 const data::age_data_t &age_data )
         {
-            double ww[POLY_PART], mij[49], w_norm[7], cij[49], cij_pro;
+            Eigen::VectorXd ww = Eigen::VectorXd( c.contacts.size() );
+            double mij[49], w_norm[7], cij[49], cij_pro;
 
             /*update of the weights*/
             for(size_t i=0;i<7;i++)
@@ -67,12 +68,12 @@ namespace flu
             for(size_t i=0;i<49;i++)
                 mij[i]=0;
 
-            for(size_t i=0; i<POLY_PART; i++)
+            for(size_t i=0; i<c.contacts.size(); i++)
             {
                 int age_part=c.contacts[i].age;
                 int AG_part=c.contacts[i].AG;
                 if(!c.contacts[i].weekend)
-                    ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*5/(POLY_PART-c.nwe);
+                    ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*5/(c.contacts.size()-c.nwe);
                 else
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
 

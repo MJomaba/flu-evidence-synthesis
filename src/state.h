@@ -5,9 +5,6 @@
 
 #include<Eigen/Core>
 
-#define POLY_PART 597
-//#define seed 578
-
 namespace flu
 {
     /// Parameters of the model

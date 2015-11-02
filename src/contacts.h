@@ -27,7 +27,7 @@ namespace flu {
         /// Struct to keep all contacts and some metadata
         struct contacts_t
         {
-            std::array<contact_t,POLY_PART> contacts;
+            std::vector<contact_t> contacts;
 
             /// Total number of participants of each age group
             int ni[90];

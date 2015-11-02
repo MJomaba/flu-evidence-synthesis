@@ -54,6 +54,7 @@ template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts )
     /*Loading of the participants with their number of contacts from Polymod*/
     for(int i=0; i<conMatrix.rows(); i++)
     {
+        //c.contacts.push_back( contact_t() );
         c.contacts[i].age = conMatrix(i,0);
         c.contacts[i].weekend = conMatrix(i,1);
         c.contacts[i].N1 = conMatrix(i,2);
