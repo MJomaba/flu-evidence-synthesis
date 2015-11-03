@@ -45,16 +45,6 @@ namespace flu {
             {
                 init_cov_matrix(i,i) = 0.0000001;
             }
-            // Specialized case
-            /*if (init_cov_matrix.rows()==9)
-            {
-                init_cov_matrix(3,3) = 1e-16;
-                init_cov_matrix(4,4) = 0.000001;
-                init_cov_matrix(5,5) = 0.000007;
-                init_cov_matrix(6,6) = 0.000007;
-                init_cov_matrix(7,7) = 0.000007;
-                init_cov_matrix(8,8) = 0.00003;
-            }*/
 
             state.chol_ini = Eigen::LLT<Eigen::MatrixXd>(
                     init_cov_matrix).matrixL();
