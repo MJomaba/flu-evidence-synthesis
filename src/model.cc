@@ -259,7 +259,7 @@ namespace flu
                 /minimal_resolution );
 
         static bt::time_duration dt = bt::hours( 6 );
-        while (cases.times.size()<cases.cases.rows())
+        while (cases.times.size()<(size_t)cases.cases.rows())
         {
             auto next_time = current_time + bt::hours( minimal_resolution );
 
