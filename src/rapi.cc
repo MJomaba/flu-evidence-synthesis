@@ -9,6 +9,7 @@
 #include "model.h"
 #include "ode.h"
 #include "inference.h"
+#include "data.h"
 
 namespace bt = boost::posix_time;
 
