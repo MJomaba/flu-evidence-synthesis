@@ -1,7 +1,6 @@
 #include <boost/date_time.hpp>
 
 #include "rcppwrap.h"
-#include<Eigen/Core>
 
 #include "mcmc.h"
 
@@ -285,14 +284,16 @@ Rcpp::List adaptiveMCMCR(
 //' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
 //'
 //' @return Returns a symmetric matrix with the frequency of contact between each age group
+//'
 // [[Rcpp::export(name="contact.matrix")]]
-Eigen::MatrixXd contact_matrix( Eigen::VectorXd age_sizes, 
-        Eigen::MatrixXd polymod_data, 
+Eigen::MatrixXd contact_matrix( std::vector<size_t> age_sizes, 
+        flu::contacts::contacts_t polymod_data,
         std::vector<double> age_limits = {1, 5, 15, 25, 45, 65} )
 {
-    Eigen::MatrixXd cm = Eigen::MatrixXd::Zero( 
-            age_limits.size()+1, age_limits.size()+1 );
+    
+    flu::data::age_data_t age_data;
+    age_data.age_sizes = age_sizes;
+    age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
 
-
-    return cm;
+    return flu::contacts::to_symmetric_matrix( polymod_data, age_data );
 }
