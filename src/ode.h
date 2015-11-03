@@ -1,6 +1,8 @@
 #ifndef FLU_ODE_H
 #define FLU_ODE_H
 
+#include<array>
+
 //#include "rcppwrap.h"
 #include<Eigen/Core>
 

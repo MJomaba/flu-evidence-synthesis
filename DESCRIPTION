@@ -10,7 +10,7 @@ License: GPL-3
 LinkingTo: Rcpp, BH, RcppEigen
 Depends: R (>= 3.1.0), Rcpp (>= 0.11.6)
 Suggests: testthat, rjson, MASS, ISOweek,
-    knitr
+    knitr, moments
 SystemRequirements: C++11
 LazyData: true
 VignetteBuilder: knitr

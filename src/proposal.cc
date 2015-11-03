@@ -111,8 +111,10 @@ namespace flu {
             auto proposed = Eigen::VectorXd( current.size() );
             auto normal_draw = Eigen::VectorXd( current.size() );
             auto normal_add_draw = Eigen::VectorXd( current.size() );
-            auto correlated_draw = Eigen::VectorXd( current.size() );
-            auto correlated_fix = Eigen::VectorXd( current.size() );
+            Eigen::VectorXd correlated_draw = 
+                Eigen::VectorXd::Zero( current.size() );
+            Eigen::VectorXd correlated_fix = 
+                Eigen::VectorXd::Zero( current.size() );
             double unif1, unif2;
             double un_moins_beta;
             un_moins_beta=1-beta;
@@ -120,7 +122,7 @@ namespace flu {
             // TODO create random multivariate draw and use with
             // both chol_de and chol_ini
             /*drawing of the needed N(0,1) samples using Box-Muller*/
-            for(size_t i=0;i<current.size();i++)
+            for(int i=0;i<current.size();i++)
             {
                 unif1=R::runif(0,1);
                 unif2=R::runif(0,1);
@@ -130,20 +132,12 @@ namespace flu {
             }
 
             /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
-            // TODO use vector::zero
-            for(size_t i=0;i<current.size();i++)
-                correlated_draw[i]=0;
-
-            for(size_t i=0;i<current.size();i++)
-                for(size_t j=0;j<=i;j++)
+            for(int i=0;i<current.size();i++)
+                for(int j=0;j<=i;j++)
                     correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
 
-            // TODO use vector::zero
-            for(size_t i=0;i<current.size();i++)
-                correlated_fix[i]=0;
-
-            for(size_t i=0;i<current.size();i++)
-                for(size_t j=0;j<=i;j++)
+            for(int i=0;i<current.size();i++)
+                for(int j=0;j<=i;j++)
                     correlated_fix[i]+=chol_ini(i,j)*normal_add_draw[j];
 
             /*new proposed values*/
