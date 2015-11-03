@@ -18,7 +18,9 @@ namespace flu {
         struct contact_t
         {
             size_t id;
-            int age, N1, N2, N3, N4, N5, N6, N7, AG;
+            int age, AG;
+
+            std::vector<int> N;
 
             /// Is this data from the weekend
             bool weekend;

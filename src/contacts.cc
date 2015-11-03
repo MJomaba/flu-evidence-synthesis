@@ -78,13 +78,13 @@ namespace flu
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
 
                 w_norm[AG_part]+=ww[i];
-                mij[7*AG_part]+=c.contacts[i].N1*ww[i];
-                mij[7*AG_part+1]+=c.contacts[i].N2*ww[i];
-                mij[7*AG_part+2]+=c.contacts[i].N3*ww[i];
-                mij[7*AG_part+3]+=c.contacts[i].N4*ww[i];
-                mij[7*AG_part+4]+=c.contacts[i].N5*ww[i];
-                mij[7*AG_part+5]+=c.contacts[i].N6*ww[i];
-                mij[7*AG_part+6]+=c.contacts[i].N7*ww[i];
+                mij[7*AG_part]+=c.contacts[i].N[0]*ww[i];
+                mij[7*AG_part+1]+=c.contacts[i].N[1]*ww[i];
+                mij[7*AG_part+2]+=c.contacts[i].N[2]*ww[i];
+                mij[7*AG_part+3]+=c.contacts[i].N[3]*ww[i];
+                mij[7*AG_part+4]+=c.contacts[i].N[4]*ww[i];
+                mij[7*AG_part+5]+=c.contacts[i].N[5]*ww[i];
+                mij[7*AG_part+6]+=c.contacts[i].N[6]*ww[i];
             }
 
             /*Compute the contact matrix*/

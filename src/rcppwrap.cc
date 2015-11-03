@@ -57,16 +57,14 @@ template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts )
         contact_t new_contact;
         new_contact.age = conMatrix(i,0);
         new_contact.weekend = conMatrix(i,1);
-        new_contact.N1 = conMatrix(i,2);
-        new_contact.N2 = conMatrix(i,3);
-        new_contact.N3 = conMatrix(i,4);
-        new_contact.N4 = conMatrix(i,5);
-        new_contact.N5 = conMatrix(i,6);
-        new_contact.N6 = conMatrix(i,7);
-        new_contact.N7 = conMatrix(i,8);
+        new_contact.N.resize(conMatrix.rows()-2);
+        for (size_t j = 0; j < new_contact.N.size(); ++j)
+            new_contact.N[j] = conMatrix(i,j+2);
         auto age_part=new_contact.age;
         c.ni[age_part]++;
         if(new_contact.weekend) c.nwe++;
+
+        // TODO remove hard coded age group limits
         new_contact.AG=0;
         if(age_part>0) new_contact.AG++;
         if(age_part>4) new_contact.AG++;
