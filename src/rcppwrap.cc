@@ -57,7 +57,7 @@ template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts )
         contact_t new_contact;
         new_contact.age = conMatrix(i,0);
         new_contact.weekend = conMatrix(i,1);
-        new_contact.N.resize(conMatrix.rows()-2);
+        new_contact.N.resize(conMatrix.cols()-2);
         for (size_t j = 0; j < new_contact.N.size(); ++j)
             new_contact.N[j] = conMatrix(i,j+2);
         auto age_part=new_contact.age;
