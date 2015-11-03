@@ -126,6 +126,18 @@ adaptive.mcmc.cpp <- function(lprior, llikelihood, nburn, initial, nbatch, blen 
     .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, nburn, initial, nbatch, blen)
 }
 
+#' Create a contact matrix based on polymod data.
+#'
+#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param polymod_data Contact data for different age groups
+#' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
+#'
+#' @return Returns a symmetric matrix with the frequency of contact between each age group
+#'
+contact.matrix <- function(age_sizes, polymod_data, age_group_limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
+    .Call('fluEvidenceSynthesis_contact_matrix', PACKAGE = 'fluEvidenceSynthesis', age_sizes, polymod_data, age_group_limits)
+}
+
 #' Calculate number of influenza cases given a vaccination strategy
 #'
 #' @param age_sizes A vector with the population size by each age {1,2,..}
