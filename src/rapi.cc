@@ -279,15 +279,16 @@ Rcpp::List adaptiveMCMCR(
 
 //' Create a contact matrix based on polymod data.
 //'
-//' @param age_sizes A vector with the population size by each age {1,2,..}
 //' @param polymod_data Contact data for different age groups
+//' @param age_sizes A vector with the population size by each age {1,2,..}
 //' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
 //'
 //' @return Returns a symmetric matrix with the frequency of contact between each age group
 //'
 // [[Rcpp::export(name="contact.matrix")]]
-Eigen::MatrixXd contact_matrix( std::vector<size_t> age_sizes, 
+Eigen::MatrixXd contact_matrix(  
         flu::contacts::contacts_t polymod_data,
+        std::vector<size_t> age_sizes,
         Rcpp::NumericVector age_group_limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
 {

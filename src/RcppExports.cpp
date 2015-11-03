@@ -144,15 +144,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // contact_matrix
-Eigen::MatrixXd contact_matrix(std::vector<size_t> age_sizes, flu::contacts::contacts_t polymod_data, Rcpp::NumericVector age_group_limits);
-RcppExport SEXP fluEvidenceSynthesis_contact_matrix(SEXP age_sizesSEXP, SEXP polymod_dataSEXP, SEXP age_group_limitsSEXP) {
+Eigen::MatrixXd contact_matrix(flu::contacts::contacts_t polymod_data, std::vector<size_t> age_sizes, Rcpp::NumericVector age_group_limits);
+RcppExport SEXP fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP age_sizesSEXP, SEXP age_group_limitsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
     Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type age_group_limits(age_group_limitsSEXP);
-    __result = Rcpp::wrap(contact_matrix(age_sizes, polymod_data, age_group_limits));
+    __result = Rcpp::wrap(contact_matrix(polymod_data, age_sizes, age_group_limits));
     return __result;
 END_RCPP
 }
