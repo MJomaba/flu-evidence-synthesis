@@ -94,7 +94,10 @@ Rcpp::DataFrame runSEIRModel(
 
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
+
+    std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
+    age_data.age_group_sizes = flu::data::group_age_data( age_sizes, 
+            age_group_limits );
     auto pop_vec = flu::data::separate_into_risk_groups( 
             age_data.age_group_sizes );
 
@@ -104,7 +107,8 @@ Rcpp::DataFrame runSEIRModel(
 
     auto current_contact_regular = 
         flu::contacts::to_symmetric_matrix( 
-                flu::contacts::table_to_contacts(polymod_data), 
+                flu::contacts::table_to_contacts(polymod_data,
+                    age_group_limits ), 
                 age_data );
 
     auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, infection_delays[0], infection_delays[1], susceptibility, current_contact_regular, transmissibility, vaccine_calendar, interval*24 );

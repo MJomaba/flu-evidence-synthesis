@@ -24,7 +24,7 @@ namespace flu
          */
         std::vector<size_t> group_age_data( 
                 const std::vector<size_t> &age_sizes, 
-                const std::vector<size_t> &limits = { 1,5,15,25,45,65 } );
+                const std::vector<size_t> &limits );
 
         struct age_data_t
         {

@@ -25,7 +25,8 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
         Eigen::MatrixXi polymod_data,
         flu::state_t sample ) {
 
-    auto age_data = flu::data::group_age_data( age_sizes );
+    std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
+    auto age_data = flu::data::group_age_data( age_sizes, age_group_limits );
     auto pop_vec = flu::data::separate_into_risk_groups( age_data );
 
     //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
@@ -43,7 +44,8 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
 
     auto contact_matrix = flu::contacts::to_symmetric_matrix( 
             flu::contacts::shuffle_by_id( 
-                flu::contacts::table_to_contacts(polymod_data), 
+                flu::contacts::table_to_contacts( polymod_data,
+                    age_group_limits ), 
                 sample.contact_ids ), ages );
 
     auto result_simu = flu::one_year_SEIR_with_vaccination(pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar)
