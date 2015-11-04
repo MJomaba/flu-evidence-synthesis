@@ -8,7 +8,7 @@
 using namespace Rcpp;
 
 // inference
-std::vector<state_t> inference(std::vector<size_t> age_sizes, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, flu::contacts::contacts_t polymod_data, flu::state_t init_sample, int mcmc_chain_length, int burn_in, int thinning);
+std::vector<state_t> inference(std::vector<size_t> age_sizes, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, flu::state_t init_sample, int mcmc_chain_length, int burn_in, int thinning);
 RcppExport SEXP fluEvidenceSynthesis_inference(SEXP age_sizesSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP init_sampleSEXP, SEXP mcmc_chain_lengthSEXP, SEXP burn_inSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -19,7 +19,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_pos(n_posSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
     Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
     Rcpp::traits::input_parameter< flu::state_t >::type init_sample(init_sampleSEXP);
     Rcpp::traits::input_parameter< int >::type mcmc_chain_length(mcmc_chain_lengthSEXP);
     Rcpp::traits::input_parameter< int >::type burn_in(burn_inSEXP);
@@ -68,14 +68,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // runSEIRModel
-Rcpp::DataFrame runSEIRModel(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, flu::contacts::contacts_t polymod_data, Eigen::VectorXd susceptibility, double transmissibility, double init_pop, Eigen::VectorXd infection_delays, size_t interval);
+Rcpp::DataFrame runSEIRModel(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd susceptibility, double transmissibility, double init_pop, Eigen::VectorXd infection_delays, size_t interval);
 RcppExport SEXP fluEvidenceSynthesis_runSEIRModel(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP susceptibilitySEXP, SEXP transmissibilitySEXP, SEXP init_popSEXP, SEXP infection_delaysSEXP, SEXP intervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
     Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type susceptibility(susceptibilitySEXP);
     Rcpp::traits::input_parameter< double >::type transmissibility(transmissibilitySEXP);
     Rcpp::traits::input_parameter< double >::type init_pop(init_popSEXP);
@@ -144,12 +144,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // contact_matrix
-Eigen::MatrixXd contact_matrix(flu::contacts::contacts_t polymod_data, std::vector<size_t> age_sizes, Rcpp::NumericVector age_group_limits);
+Eigen::MatrixXd contact_matrix(Eigen::MatrixXi polymod_data, std::vector<size_t> age_sizes, Rcpp::NumericVector age_group_limits);
 RcppExport SEXP fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP age_sizesSEXP, SEXP age_group_limitsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
     Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type age_group_limits(age_group_limitsSEXP);
     __result = Rcpp::wrap(contact_matrix(polymod_data, age_sizes, age_group_limits));
@@ -157,14 +157,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // vaccinationScenario
-std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, flu::contacts::contacts_t polymod_data, flu::state_t sample);
+std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, flu::state_t sample);
 RcppExport SEXP fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP sampleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
     Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< flu::contacts::contacts_t >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
     Rcpp::traits::input_parameter< flu::state_t >::type sample(sampleSEXP);
     __result = Rcpp::wrap(vaccinationScenario(age_sizes, vaccine_calendar, polymod_data, sample));
     return __result;

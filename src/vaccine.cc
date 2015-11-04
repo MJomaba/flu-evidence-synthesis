@@ -22,7 +22,7 @@ namespace flu {
 // [[Rcpp::export]]
 std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,
-        flu::contacts::contacts_t polymod_data,
+        Eigen::MatrixXi polymod_data,
         flu::state_t sample ) {
 
     auto age_data = flu::data::group_age_data( age_sizes );
@@ -42,7 +42,8 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
     ages.age_group_sizes = age_data;
 
     auto contact_matrix = flu::contacts::to_symmetric_matrix( 
-            flu::contacts::shuffle_by_id( polymod_data, 
+            flu::contacts::shuffle_by_id( 
+                flu::contacts::table_to_contacts(polymod_data), 
                 sample.contact_ids ), ages );
 
     auto result_simu = flu::one_year_SEIR_with_vaccination(pop_vec, init_inf, sample.time_latent, sample.time_infectious, sample.parameters.susceptibility, contact_matrix, sample.parameters.transmissibility, vaccine_calendar)

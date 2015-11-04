@@ -103,5 +103,49 @@ namespace flu
 
             return contact_regular;
         }
+
+        contacts_t table_to_contacts(
+                const Eigen::MatrixXi &conMatrix,
+                const std::vector<size_t> &limits ) 
+        {
+
+            contacts_t c;
+
+            for(size_t i=0; i<90; i++)
+                c.ni[i]=0;
+
+            c.nwe=0;
+
+            /*Loading of the participants with their number of contacts from Polymod*/
+            for(int i=0; i<conMatrix.rows(); i++)
+            {
+                contact_t new_contact;
+                new_contact.age = conMatrix(i,0);
+                new_contact.weekend = conMatrix(i,1);
+                new_contact.N.resize(conMatrix.cols()-2);
+                for (size_t j = 0; j < new_contact.N.size(); ++j)
+                    new_contact.N[j] = conMatrix(i,j+2);
+                auto age_part=new_contact.age;
+                c.ni[age_part]++;
+                if(new_contact.weekend) c.nwe++;
+
+                new_contact.AG=0;
+                for (size_t j = 0; j < limits.size(); ++j)
+                {
+                    if (age_part >= (int)limits[j])
+                        new_contact.AG++;
+                    else
+                        break;
+                }
+
+                new_contact.id = i;
+
+                c.contacts.push_back( new_contact );
+            }
+
+            return c;
+        }
+
+
     }
 }

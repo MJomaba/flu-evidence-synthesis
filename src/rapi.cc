@@ -84,7 +84,7 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,
-        flu::contacts::contacts_t polymod_data,
+        Eigen::MatrixXi polymod_data,
         Eigen::VectorXd susceptibility, 
         double transmissibility, 
         double init_pop,
@@ -103,7 +103,9 @@ Rcpp::DataFrame runSEIRModel(
             susceptibility.size(), pow(10,init_pop) );
 
     auto current_contact_regular = 
-        flu::contacts::to_symmetric_matrix( polymod_data, age_data );
+        flu::contacts::to_symmetric_matrix( 
+                flu::contacts::table_to_contacts(polymod_data), 
+                age_data );
 
     auto result = flu::one_year_SEIR_with_vaccination(pop_vec, curr_init_inf, infection_delays[0], infection_delays[1], susceptibility, current_contact_regular, transmissibility, vaccine_calendar, interval*24 );
 
@@ -287,7 +289,7 @@ Rcpp::List adaptiveMCMCR(
 //'
 // [[Rcpp::export(name="contact.matrix")]]
 Eigen::MatrixXd contact_matrix(  
-        flu::contacts::contacts_t polymod_data,
+        Eigen::MatrixXi polymod_data,
         std::vector<size_t> age_sizes,
         Rcpp::NumericVector age_group_limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
@@ -300,5 +302,7 @@ Eigen::MatrixXd contact_matrix(
                 age_group_limits.begin(), age_group_limits.end() );
     age_data.age_group_sizes = flu::data::group_age_data( age_sizes, agl_v );
 
-    return flu::contacts::to_symmetric_matrix( polymod_data, age_data );
+    return flu::contacts::to_symmetric_matrix( 
+            flu::contacts::table_to_contacts(polymod_data, agl_v), 
+            age_data );
 }

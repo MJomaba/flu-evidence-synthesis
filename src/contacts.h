@@ -38,6 +38,12 @@ namespace flu {
             size_t nwe;
         };
 
+        /// Convert polymod table (matrix) to contacts_t struct
+        contacts_t table_to_contacts(
+                const Eigen::MatrixXi &conMatrix,
+                const std::vector<size_t> &limits = {1,5,15,25,45,65}
+                );
+
         /// Bootstrap the given contacts, by shuffling back the given no of contacts from the original data
         contacts_t bootstrap_contacts( contacts_t&& bootstrap,
                 const contacts_t &original,

@@ -40,7 +40,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
-        flu::contacts::contacts_t polymod_data,
+        Eigen::MatrixXi polymod_data,
         flu::state_t init_sample, 
         int mcmc_chain_length = 100000, 
         int burn_in = 10000, int thinning = 100 )
@@ -57,9 +57,12 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
 
     state_t current_state = init_sample;
 
+    std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
+
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
+    age_data.age_group_sizes = flu::data::group_age_data( age_sizes,
+            age_group_limits );
     auto pop_vec = flu::data::separate_into_risk_groups( 
             age_data.age_group_sizes );
 
@@ -79,7 +82,10 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     auto curr_init_inf = Eigen::VectorXd::Constant( 
             nag, pow(10,current_state.parameters.init_pop) );
 
-    auto curr_c = contacts::shuffle_by_id( polymod_data, 
+    auto polymod = flu::contacts::table_to_contacts( polymod_data, 
+            age_group_limits ); 
+
+    auto curr_c = contacts::shuffle_by_id( polymod, 
             current_state.contact_ids );
 
     auto current_contact_regular = 
@@ -149,7 +155,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             // so might as well make the likelihood function increase k when called
             if(R::runif(0,1) < p_ac_mat)
                 prop_c = contacts::bootstrap_contacts( std::move(prop_c),
-                        polymod_data, step_mat );
+                        polymod, step_mat );
 
             auto prop_contact_regular = 
                 contacts::to_symmetric_matrix( prop_c, age_data );

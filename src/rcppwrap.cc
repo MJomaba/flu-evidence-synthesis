@@ -40,46 +40,6 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     return vac_cal;
 }
 
-template <> flu::contacts::contacts_t Rcpp::as( SEXP rContacts ) 
-{
-    auto conMatrix = Rcpp::as<Eigen::MatrixXi>( rContacts );
-
-    contacts_t c;
-
-    for(size_t i=0; i<90; i++)
-        c.ni[i]=0;
-
-    c.nwe=0;
-
-    /*Loading of the participants with their number of contacts from Polymod*/
-    for(int i=0; i<conMatrix.rows(); i++)
-    {
-        contact_t new_contact;
-        new_contact.age = conMatrix(i,0);
-        new_contact.weekend = conMatrix(i,1);
-        new_contact.N.resize(conMatrix.cols()-2);
-        for (size_t j = 0; j < new_contact.N.size(); ++j)
-            new_contact.N[j] = conMatrix(i,j+2);
-        auto age_part=new_contact.age;
-        c.ni[age_part]++;
-        if(new_contact.weekend) c.nwe++;
-
-        // TODO remove hard coded age group limits
-        new_contact.AG=0;
-        if(age_part>0) new_contact.AG++;
-        if(age_part>4) new_contact.AG++;
-        if(age_part>14) new_contact.AG++;
-        if(age_part>24) new_contact.AG++;
-        if(age_part>44) new_contact.AG++;
-        if(age_part>64) new_contact.AG++;
-        new_contact.id = i;
-
-        c.contacts.push_back( new_contact );
-    }
-
-    return c;
-}
-
 /* 
 /// Parameters of the model
 struct parameter_set {
