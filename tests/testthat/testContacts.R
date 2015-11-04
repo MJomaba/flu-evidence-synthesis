@@ -32,6 +32,10 @@ test_that("We can use custom age limits",
                            age.group.limits )
       expect_equal( nrow(cm), 2 )
       expect_equal( ncol(cm), 2 )
+
+      expect_equal( sum(cm>0), 4 ) # All greater than 0
+      expect_lt( sum(cm), 6.682946e-07 + 1e-8 )
+      expect_gt( sum(cm), 6.682946e-07 - 1e-8 )
   }
 )
 
