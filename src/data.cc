@@ -1,5 +1,7 @@
 #include "data.h"
 
+#include "rcppwrap.h"
+
 #include <stdio.h>
 #include <fstream>
 #include <deque>
@@ -58,6 +60,7 @@ namespace flu
                 const std::vector<size_t> &age_sizes,
                 const std::vector<size_t> &limits )
         {
+            Rcpp::Rcout << limits.size() << std::endl;
             std::vector<size_t> age_group_sizes(limits.size()+1, 0);
 
             size_t current_age = 0;
@@ -79,6 +82,7 @@ namespace flu
                 ++current_age;
             }
 
+            Rcpp::Rcout << "I make it here ok" << std::endl;
             return age_group_sizes;
         }
 
