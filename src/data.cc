@@ -11,7 +11,7 @@ namespace flu
     namespace data
     {
         std::vector<double> separate_into_risk_groups( 
-                const std::array<size_t,7> &group_sizes )
+                const std::vector<size_t> &group_sizes )
         {
             /*opens the file with the number of positive samples for that strain and season*/
             //auto f_pop_model = read_file( filepath );
@@ -54,12 +54,10 @@ namespace flu
             return pop_vec;
         }
 
-        std::array<size_t,7> group_age_data( const 
+        std::vector<size_t> group_age_data( const 
                 std::vector<size_t> &age_sizes )
         {
-            std::array<size_t,7> age_group_sizes;
-            for(size_t i=0; i<7; i++)
-                age_group_sizes[i]=0;
+            std::vector<size_t> age_group_sizes(7, 0);
 
             size_t current_age = 0;
             size_t group_count = 0;

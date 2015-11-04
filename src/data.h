@@ -17,12 +17,12 @@ namespace flu
          * Groups are: low risk, high risk and pregnant women
          */
         std::vector<double>  separate_into_risk_groups( 
-                const std::array<size_t,7> &group_sizes );
+                const std::vector<size_t> &group_sizes );
 
         /**
          * \brief Group population size according to age groups
          */
-        std::array<size_t,7> group_age_data( const std::vector<size_t> 
+        std::vector<size_t> group_age_data( const std::vector<size_t> 
                 &age_sizes );
 
         struct age_data_t
@@ -31,7 +31,7 @@ namespace flu
             std::vector<size_t> age_sizes;
 
             /// Population per age group
-            std::array<size_t,7> age_group_sizes;
+            std::vector<size_t> age_group_sizes;
         };
     }
 }
