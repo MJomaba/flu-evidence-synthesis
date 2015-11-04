@@ -76,7 +76,6 @@ namespace flu
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*5/(c.contacts.size()-c.nwe);
                 else
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
-
                 w_norm[AG_part]+=ww[i];
                 mij[7*AG_part]+=c.contacts[i].N[0]*ww[i];
                 mij[7*AG_part+1]+=c.contacts[i].N[1]*ww[i];
@@ -93,6 +92,7 @@ namespace flu
                 if(w_norm[i/7]>0)
                     mij[i]/=w_norm[i/7];
                 cij[i]=mij[i]/age_data.age_group_sizes[i%7];
+
             }
 
             Eigen::MatrixXd contact_regular( 7, 7 );
