@@ -295,7 +295,10 @@ Eigen::MatrixXd contact_matrix(
     
     flu::data::age_data_t age_data;
     age_data.age_sizes = age_sizes;
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes );
+
+    auto agl_v = std::vector<size_t>( 
+                age_group_limits.begin(), age_group_limits.end() );
+    age_data.age_group_sizes = flu::data::group_age_data( age_sizes, agl_v );
 
     return flu::contacts::to_symmetric_matrix( polymod_data, age_data );
 }

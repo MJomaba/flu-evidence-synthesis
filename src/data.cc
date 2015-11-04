@@ -54,21 +54,22 @@ namespace flu
             return pop_vec;
         }
 
-        std::vector<size_t> group_age_data( const 
-                std::vector<size_t> &age_sizes )
+        std::vector<size_t> group_age_data( 
+                const std::vector<size_t> &age_sizes,
+                const std::vector<size_t> &limits )
         {
-            std::vector<size_t> age_group_sizes(7, 0);
+            std::vector<size_t> age_group_sizes(limits.size()+1, 0);
 
             size_t current_age = 0;
             size_t group_count = 0;
             std::deque<size_t> group_barriers = 
-                { 0, 4, 14, 24, 44, 64 };
+                std::deque<size_t>( limits.begin(), limits.end() );
 
             // Iterate over each line
             for( auto &pop_size : age_sizes )
             {
                 if (group_barriers.size() != 0 &&
-                        current_age > group_barriers[0] )
+                        current_age >= group_barriers[0] )
                 {
                     // Population should be added to the next age group
                     ++group_count;
