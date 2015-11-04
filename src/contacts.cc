@@ -60,16 +60,9 @@ namespace flu
         {
             Eigen::VectorXd ww = Eigen::VectorXd( c.contacts.size() );
             auto nag = age_data.age_group_sizes.size();
-            std::vector<double> mij(nag*nag);
-            std::vector<double> w_norm(nag);
-            std::vector<double> cij(nag*nag);
-
-            /*update of the weights*/
-            for(size_t i=0;i<w_norm.size();i++)
-                w_norm[i]=0;
-
-            for(size_t i=0;i<mij.size();i++)
-                mij[i]=0;
+            Eigen::MatrixXd mij = Eigen::MatrixXd::Zero(nag, nag);
+            Eigen::VectorXd w_norm = Eigen::VectorXd::Zero(nag);
+            Eigen::MatrixXd cij(nag, nag);
 
             for(size_t i=0; i<c.contacts.size(); i++)
             {
@@ -81,25 +74,28 @@ namespace flu
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
                 w_norm[AG_part]+=ww[i];
                 for (size_t j=0; j<c.contacts[i].N.size(); ++j)
-                    mij[nag*AG_part+j]+=c.contacts[i].N[j]*ww[i];
+                    mij(AG_part,j)+=c.contacts[i].N[j]*ww[i];
             }
 
             /*Compute the contact matrix*/
-            for(size_t i=0; i<mij.size(); i++)
+            for(int i=0; i<mij.cols(); i++)
             {
-                if(w_norm[i/nag]>0)
-                    mij[i]/=w_norm[i/nag];
-                cij[i]=mij[i]/age_data.age_group_sizes[i%nag];
+                for(int j=0; j<mij.rows(); j++)
+                {
+                    if(w_norm[j]>0)
+                        mij(j,i)/=w_norm[j];
+                    cij(j,i)=mij(j,i)/age_data.age_group_sizes[i];
+                }
 
             }
 
             Eigen::MatrixXd contact_regular( nag, nag );
             for(int i=0; i<contact_regular.rows(); i++)
             {
-                contact_regular(i,i)=cij[i*nag+i];
+                contact_regular(i,i)=cij(i,i);
                 for(int j=0;j<i;j++)
                 {
-                    auto cij_pro=(cij[i*nag+j]+cij[j*nag+i])/2;
+                    auto cij_pro=(cij(i,j)+cij(j,i))/2;
                     contact_regular(i,j)=cij_pro;
                     contact_regular(j,i)=cij_pro;
                 }
