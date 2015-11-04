@@ -59,13 +59,16 @@ namespace flu
                 const data::age_data_t &age_data )
         {
             Eigen::VectorXd ww = Eigen::VectorXd( c.contacts.size() );
-            double mij[49], w_norm[7], cij[49], cij_pro;
+            auto nag = age_data.age_group_sizes.size();
+            std::vector<double> mij(nag*nag);
+            std::vector<double> w_norm(nag);
+            std::vector<double> cij(nag*nag);
 
             /*update of the weights*/
-            for(size_t i=0;i<7;i++)
+            for(size_t i=0;i<w_norm.size();i++)
                 w_norm[i]=0;
 
-            for(size_t i=0;i<49;i++)
+            for(size_t i=0;i<mij.size();i++)
                 mij[i]=0;
 
             for(size_t i=0; i<c.contacts.size(); i++)
@@ -77,31 +80,26 @@ namespace flu
                 else
                     ww[i]=(double)age_data.age_sizes[age_part]/c.ni[age_part]*2/c.nwe;
                 w_norm[AG_part]+=ww[i];
-                mij[7*AG_part]+=c.contacts[i].N[0]*ww[i];
-                mij[7*AG_part+1]+=c.contacts[i].N[1]*ww[i];
-                mij[7*AG_part+2]+=c.contacts[i].N[2]*ww[i];
-                mij[7*AG_part+3]+=c.contacts[i].N[3]*ww[i];
-                mij[7*AG_part+4]+=c.contacts[i].N[4]*ww[i];
-                mij[7*AG_part+5]+=c.contacts[i].N[5]*ww[i];
-                mij[7*AG_part+6]+=c.contacts[i].N[6]*ww[i];
+                for (size_t j=0; j<c.contacts[i].N.size(); ++j)
+                    mij[nag*AG_part+j]+=c.contacts[i].N[j]*ww[i];
             }
 
             /*Compute the contact matrix*/
-            for(size_t i=0; i<49; i++)
+            for(size_t i=0; i<mij.size(); i++)
             {
-                if(w_norm[i/7]>0)
-                    mij[i]/=w_norm[i/7];
-                cij[i]=mij[i]/age_data.age_group_sizes[i%7];
+                if(w_norm[i/nag]>0)
+                    mij[i]/=w_norm[i/nag];
+                cij[i]=mij[i]/age_data.age_group_sizes[i%nag];
 
             }
 
-            Eigen::MatrixXd contact_regular( 7, 7 );
+            Eigen::MatrixXd contact_regular( nag, nag );
             for(int i=0; i<contact_regular.rows(); i++)
             {
-                contact_regular(i,i)=cij[i*7+i];
+                contact_regular(i,i)=cij[i*nag+i];
                 for(int j=0;j<i;j++)
                 {
-                    cij_pro=(cij[i*7+j]+cij[j*7+i])/2;
+                    auto cij_pro=(cij[i*nag+j]+cij[j*nag+i])/2;
                     contact_regular(i,j)=cij_pro;
                     contact_regular(j,i)=cij_pro;
                 }
