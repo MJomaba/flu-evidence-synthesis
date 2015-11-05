@@ -21,7 +21,7 @@ namespace flu
             // Fill risk groups
             for (int i = 0; i < risk.rows(); ++i)
             {
-                for (int j = 0; j < risk.cols(); ++j)
+                for (int j = 0; j < age_groups.size(); ++j)
                 {
                     pop_vec[ (1+i)*age_groups.size() + j ] =
                         age_groups[j]*risk(i,j);
@@ -29,7 +29,7 @@ namespace flu
             }
 
             // Fill low risk with left over
-            for( int i = 0; i < risk.cols(); ++i )
+            for( int i = 0; i < age_groups.size(); ++i )
             {
                 pop_vec[i] = age_groups[i];
                 for (int j = 0; j < risk.rows(); ++ j)
