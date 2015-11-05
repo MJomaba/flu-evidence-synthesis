@@ -65,7 +65,7 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
             age_group_limits );
 
     Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
-            age_data.age_group_sizes.size(), 2 );
+            2, age_data.age_group_sizes.size() );
     risk_proportions << 
         0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
         0, 0, 0, 0, 0, 0, 0;
