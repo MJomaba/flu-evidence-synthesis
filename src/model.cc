@@ -238,12 +238,22 @@ namespace flu
             }
         }
 
+        Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
+                2, nag );
+        risk_proportions << 
+            0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+            0, 0, 0, 0, 0, 0, 0;
+
+        auto seed_vec = flu::data::separate_into_risk_groups( 
+                seeding_infectious, risk_proportions  );
+
+
         /*initialisation, densities.segment(ode_id(nag,VACC_LOW,S),nag),E,I,densities.segment(ode_id(nag,VACC_LOW,R),nag)*/
         for(size_t i=0;i<nag;i++)
         {
-            densities[ode_id(nag,LOW,E1,i)]=seeding_infectious[i]*Npop[i]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
-            densities[ode_id(nag,HIGH,E1,i)]=seeding_infectious[i]*Npop[i+nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
-            densities[ode_id(nag,PREG,E1,i)]=seeding_infectious[i]*Npop[i+2*nag]/(Npop[i]+Npop[i+nag]+Npop[i+2*nag]);
+            densities[ode_id(nag,LOW,E1,i)]=seed_vec[i];
+            densities[ode_id(nag,HIGH,E1,i)]=seed_vec[i+nag];
+            densities[ode_id(nag,PREG,E1,i)]=seed_vec[i+2*nag];
 
             densities[ode_id(nag,LOW,S,i)]=Npop[i]-densities[ode_id(nag,LOW,E1,i)];
             densities[ode_id(nag,HIGH,S,i)]=Npop[i+nag]-densities[ode_id(nag,HIGH,E1,i)];

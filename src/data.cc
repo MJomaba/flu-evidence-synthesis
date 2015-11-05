@@ -12,35 +12,6 @@ namespace flu
 {
     namespace data
     {
-
-        Eigen::VectorXd separate_into_risk_groups( 
-                const Eigen::VectorXi &age_groups,
-                const Eigen::MatrixXd &risk )
-        {
-            Eigen::VectorXd pop_vec( age_groups.size() * (1+risk.rows()) );
-            // Fill risk groups
-            for (int i = 0; i < risk.rows(); ++i)
-            {
-                for (int j = 0; j < age_groups.size(); ++j)
-                {
-                    pop_vec[ (1+i)*age_groups.size() + j ] =
-                        age_groups[j]*risk(i,j);
-                }
-            }
-
-            // Fill low risk with left over
-            for( int i = 0; i < age_groups.size(); ++i )
-            {
-                pop_vec[i] = age_groups[i];
-                for (int j = 0; j < risk.rows(); ++ j)
-                {
-                    pop_vec[i] -= pop_vec[(1+j)*age_groups.size() + i];
-                }
-            }
-
-            return pop_vec;
-        }
-
         Eigen::VectorXi group_age_data( 
                 const std::vector<size_t> &age_sizes,
                 const std::vector<size_t> &limits )
