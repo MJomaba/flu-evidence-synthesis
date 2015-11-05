@@ -14,8 +14,12 @@ namespace flu
         /** 
          * \brief Separate the groups sizes into risk groups
          *
-         * Groups are: low risk, high risk and pregnant women
+         * Example groups are: low risk, high risk and pregnant women
          */
+        Eigen::VectorXd separate_into_risk_groups( 
+                const Eigen::VectorXd &age_groups,
+                const Eigen::MatrixXd &risk );
+
         std::vector<double>  separate_into_risk_groups( 
                 const std::vector<size_t> &group_sizes );
 

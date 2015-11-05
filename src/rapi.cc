@@ -310,3 +310,17 @@ Eigen::MatrixXd contact_matrix(
             flu::contacts::table_to_contacts(polymod_data, agl_v), 
             age_data );
 }
+
+//' Separate the population into risk groups
+//'
+//' @param age_groups A vector containing the population size of each age group
+//' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+//'
+//' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
+//'
+// [[Rcpp::export(name="separate.into.risk.groups")]]
+Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
+        Eigen::MatrixXd risk )
+{
+    return flu::data::separate_into_risk_groups( age_groups, risk );
+}

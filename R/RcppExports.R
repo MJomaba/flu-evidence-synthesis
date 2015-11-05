@@ -138,6 +138,17 @@ contact.matrix <- function(polymod_data, age_sizes, age_group_limits = as.numeri
     .Call('fluEvidenceSynthesis_contact_matrix', PACKAGE = 'fluEvidenceSynthesis', polymod_data, age_sizes, age_group_limits)
 }
 
+#' Separate the population into risk groups
+#'
+#' @param age_groups A vector containing the population size of each age group
+#' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+#'
+#' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
+#'
+separate.into.risk.groups <- function(age_groups, risk) {
+    .Call('fluEvidenceSynthesis_separate_into_risk_groups', PACKAGE = 'fluEvidenceSynthesis', age_groups, risk)
+}
+
 #' Calculate number of influenza cases given a vaccination strategy
 #'
 #' @param age_sizes A vector with the population size by each age {1,2,..}

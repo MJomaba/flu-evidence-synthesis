@@ -156,6 +156,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// separate_into_risk_groups
+Eigen::VectorXd separate_into_risk_groups(Eigen::VectorXd age_groups, Eigen::MatrixXd risk);
+RcppExport SEXP fluEvidenceSynthesis_separate_into_risk_groups(SEXP age_groupsSEXP, SEXP riskSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type age_groups(age_groupsSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type risk(riskSEXP);
+    __result = Rcpp::wrap(separate_into_risk_groups(age_groups, risk));
+    return __result;
+END_RCPP
+}
 // vaccinationScenario
 std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, flu::state_t sample);
 RcppExport SEXP fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP sampleSEXP) {
