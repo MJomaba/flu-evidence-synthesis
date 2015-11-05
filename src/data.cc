@@ -14,7 +14,7 @@ namespace flu
     {
 
         Eigen::VectorXd separate_into_risk_groups( 
-                const Eigen::VectorXd &age_groups,
+                const Eigen::VectorXi &age_groups,
                 const Eigen::MatrixXd &risk )
         {
             Eigen::VectorXd pop_vec( age_groups.size() * (1+risk.rows()) );
@@ -86,11 +86,12 @@ namespace flu
             return pop_vec;
         }
 
-        std::vector<size_t> group_age_data( 
+        Eigen::VectorXi group_age_data( 
                 const std::vector<size_t> &age_sizes,
                 const std::vector<size_t> &limits )
         {
-            std::vector<size_t> age_group_sizes(limits.size()+1, 0);
+            Eigen::VectorXi age_group_sizes = 
+                Eigen::VectorXi::Zero(limits.size()+1);
 
             size_t current_age = 0;
             size_t group_count = 0;

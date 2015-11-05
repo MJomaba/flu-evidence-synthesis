@@ -43,7 +43,7 @@ namespace flu
 
     inline Eigen::VectorXd flu_ode( Eigen::VectorXd &deltas,
             const Eigen::VectorXd &densities,
-            const std::vector<double> &Npop,
+            const Eigen::VectorXd &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
             const Eigen::VectorXd &vaccine_efficacy_age,
             const Eigen::MatrixXd &transmission_regular,
@@ -144,7 +144,7 @@ namespace flu
             const boost::posix_time::ptime &start_time,
             const boost::posix_time::ptime &end_time, 
             boost::posix_time::time_duration &dt,
-            const std::vector<double> &Npop,
+            const Eigen::VectorXd &Npop,
             const Eigen::MatrixXd &vaccine_rates, // If empty, rate of zero is assumed
             const Eigen::VectorXd &vaccine_efficacy_age,
             const Eigen::MatrixXd &transmission_regular,
@@ -190,7 +190,7 @@ namespace flu
     }
 
     cases_t one_year_SEIR_with_vaccination(
-            const std::vector<double> &Npop,  
+            const Eigen::VectorXd &Npop,  
             const Eigen::VectorXd &seeding_infectious, 
             const double tlatent, const double tinfectious, 
             const Eigen::VectorXd &s_profile, 

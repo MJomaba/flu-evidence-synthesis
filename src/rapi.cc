@@ -98,8 +98,15 @@ Rcpp::DataFrame runSEIRModel(
     std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
     age_data.age_group_sizes = flu::data::group_age_data( age_sizes, 
             age_group_limits );
+
+    Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
+            age_data.age_group_sizes.size(), 2 );
+    risk_proportions << 
+        0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+        0, 0, 0, 0, 0, 0, 0;
+
     auto pop_vec = flu::data::separate_into_risk_groups( 
-            age_data.age_group_sizes );
+            age_data.age_group_sizes, risk_proportions );
 
     /*translate into an initial infected population*/
     auto curr_init_inf = Eigen::VectorXd::Constant( 
@@ -319,7 +326,7 @@ Eigen::MatrixXd contact_matrix(
 //' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 //'
 // [[Rcpp::export(name="separate.into.risk.groups")]]
-Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
+Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXi age_groups,
         Eigen::MatrixXd risk )
 {
     return flu::data::separate_into_risk_groups( age_groups, risk );

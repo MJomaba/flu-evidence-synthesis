@@ -27,11 +27,20 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
 
     std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
     auto age_data = flu::data::group_age_data( age_sizes, age_group_limits );
-    auto pop_vec = flu::data::separate_into_risk_groups( age_data );
+
+    auto nag = age_data.size();
+
+    Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
+            nag, 2 );
+    risk_proportions << 
+        0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+        0, 0, 0, 0, 0, 0, 0;
+
+    auto pop_vec = flu::data::separate_into_risk_groups( age_data, 
+            risk_proportions );
 
     //auto vac_cal = Rcpp::as< flu::vaccine::vaccine_t >(vaccine_calendar);
 
-    auto nag = vaccine_calendar.efficacy_age.size();
 
     //translate into an initial infected population
     auto init_inf = Eigen::VectorXd::Constant( 

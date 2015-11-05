@@ -157,12 +157,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // separate_into_risk_groups
-Eigen::VectorXd separate_into_risk_groups(Eigen::VectorXd age_groups, Eigen::MatrixXd risk);
+Eigen::VectorXd separate_into_risk_groups(Eigen::VectorXi age_groups, Eigen::MatrixXd risk);
 RcppExport SEXP fluEvidenceSynthesis_separate_into_risk_groups(SEXP age_groupsSEXP, SEXP riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type age_groups(age_groupsSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type age_groups(age_groupsSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type risk(riskSEXP);
     __result = Rcpp::wrap(separate_into_risk_groups(age_groups, risk));
     return __result;

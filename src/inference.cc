@@ -63,8 +63,15 @@ std::vector<state_t> inference( std::vector<size_t> age_sizes,
     age_data.age_sizes = age_sizes;
     age_data.age_group_sizes = flu::data::group_age_data( age_sizes,
             age_group_limits );
+
+    Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
+            age_data.age_group_sizes.size(), 2 );
+    risk_proportions << 
+        0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+        0, 0, 0, 0, 0, 0, 0;
+
     auto pop_vec = flu::data::separate_into_risk_groups( 
-            age_data.age_group_sizes );
+            age_data.age_group_sizes, risk_proportions  );
 
     /*pop RCGP*/
     pop_RCGP[0]=pop_vec[0]+pop_vec[1]+pop_vec[7]+pop_vec[8]+pop_vec[14]+pop_vec[15];

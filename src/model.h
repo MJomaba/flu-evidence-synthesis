@@ -34,7 +34,7 @@ namespace flu
      * @minimal_resolution gives the time resolution (precision) of the returned simulation (in hours)
      */
     cases_t one_year_SEIR_with_vaccination(
-            const std::vector<double> &pop_vec, 
+            const Eigen::VectorXd &pop_vec, 
             const Eigen::VectorXd &initial_infected, 
             const double, const double,  
             const Eigen::VectorXd &, 

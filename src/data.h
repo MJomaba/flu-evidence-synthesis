@@ -17,16 +17,13 @@ namespace flu
          * Example groups are: low risk, high risk and pregnant women
          */
         Eigen::VectorXd separate_into_risk_groups( 
-                const Eigen::VectorXd &age_groups,
+                const Eigen::VectorXi &age_groups,
                 const Eigen::MatrixXd &risk );
-
-        std::vector<double>  separate_into_risk_groups( 
-                const std::vector<size_t> &group_sizes );
 
         /**
          * \brief Group population size according to age groups
          */
-        std::vector<size_t> group_age_data( 
+        Eigen::VectorXi group_age_data( 
                 const std::vector<size_t> &age_sizes, 
                 const std::vector<size_t> &limits );
 
@@ -36,7 +33,7 @@ namespace flu
             std::vector<size_t> age_sizes;
 
             /// Population per age group
-            std::vector<size_t> age_group_sizes;
+            Eigen::VectorXi age_group_sizes;
         };
     }
 }
