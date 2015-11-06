@@ -199,8 +199,39 @@ namespace flu
             size_t minimal_resolution, 
             const boost::posix_time::ptime &starting_time )
     {
-        assert( s_profile.size() == contact_regular.rows() );
+        // This splits seeding_infectious into a risk groups
+        // and then calls to the more general infectionODE function
+        Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
+                2, seeding_infectious.size() );
+        risk_proportions << 
+            0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+            0, 0, 0, 0, 0, 0, 0;
 
+        auto seed_vec = flu::data::separate_into_risk_groups( 
+                seeding_infectious, risk_proportions  );
+
+        return infectionODE(
+            Npop,  
+            seed_vec, 
+            tlatent, tinfectious, 
+            s_profile, 
+            contact_regular, transmissibility,
+            vaccine_programme,
+            minimal_resolution, 
+            starting_time );
+    }
+
+    cases_t infectionODE(
+            const Eigen::VectorXd &Npop,  
+            const Eigen::VectorXd &seed_vec, 
+            const double tlatent, const double tinfectious, 
+            const Eigen::VectorXd &s_profile, 
+            const Eigen::MatrixXd &contact_regular, double transmissibility,
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution, 
+            const boost::posix_time::ptime &starting_time )
+    {
+        assert( s_profile.size() == contact_regular.rows() );
 
         namespace bt = boost::posix_time;
 
@@ -237,16 +268,6 @@ namespace flu
                 transmission_regular(i,j)*=transmissibility*s_profile[i];
             }
         }
-
-        Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
-                2, nag );
-        risk_proportions << 
-            0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-            0, 0, 0, 0, 0, 0, 0;
-
-        auto seed_vec = flu::data::separate_into_risk_groups( 
-                seeding_infectious, risk_proportions  );
-
 
         /*initialisation, densities.segment(ode_id(nag,VACC_LOW,S),nag),E,I,densities.segment(ode_id(nag,VACC_LOW,R),nag)*/
         for(size_t i=0;i<nag;i++)
@@ -321,6 +342,7 @@ namespace flu
        
         return cases;
     } 
+
 
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
     {

@@ -44,6 +44,25 @@ namespace flu
             const boost::posix_time::ptime &starting_time = 
                 getTimeFromWeekYear( 35, 1970 ) );
 
+    /**
+     * \brief Run the model for a year
+     *
+     * @pop_vec Total population in all age groups and risk groups 
+     * @initial_infected Total infected population in all age groups and risk groups 
+     * @minimal_resolution gives the time resolution (precision) of the returned simulation (in hours)
+     */
+    cases_t infectionODE(
+            const Eigen::VectorXd &pop_vec, 
+            const Eigen::VectorXd &initial_infected, 
+            const double, const double,  
+            const Eigen::VectorXd &, 
+            const Eigen::MatrixXd &contact_regular, double, 
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution = 24,
+            const boost::posix_time::ptime &starting_time = 
+                getTimeFromWeekYear( 35, 1970 ) );
+
+
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
 
