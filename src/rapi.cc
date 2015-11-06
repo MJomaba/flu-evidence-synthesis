@@ -151,7 +151,74 @@ Rcpp::DataFrame runSEIRModel(
     //return resultMatrix;
 }
 
+//' Run the SEIR model for the given parameters
+//'
+//' @param population The population size of the different age groups, subdivided into risk groups 
+//' @param initial_infected The corresponding number of initially infected
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param contact_matrix Contact rates between different age groups
+//' @param susceptibility Vector with susceptibilities of each age group
+//' @param transmissibility The transmissibility of the strain
+//' @param infection_delays Vector with the time of latent infection and time infectious
+//' @param interval Interval (in days) between data points
+//' @return A data frame with number of new cases after each interval during the year
+//'
+// [[Rcpp::export(name="infectionODEs")]]
+Rcpp::DataFrame infectionODEs(
+        Eigen::VectorXd population, 
+        Eigen::VectorXd initial_infected, 
+        flu::vaccine::vaccine_t vaccine_calendar,
+        Eigen::MatrixXd contact_matrix,
+        Eigen::VectorXd susceptibility, 
+        double transmissibility, 
+        Eigen::VectorXd infection_delays, 
+        size_t interval = 1 )
+{
+    if (contact_matrix.cols() != contact_matrix.rows()) 
+        ::Rf_error("Contact matrix should be a square matrix");
+    else if (contact_matrix.cols() != susceptibility.size())
+        ::Rf_error("Contact matrix and susceptibility vector should use the same number of age groups.");
+    else if (contact_matrix.cols() != 3*population.size())
+        ::Rf_error("Currently precisely three risk groups are expected. Population vector should have the initial population of each group");
+    else if (population.size() != initial_infected.size())
+        ::Rf_error("Population vector and initial_infected should have the same number of entries");
 
+    auto result = flu::infectionODE(
+        population, initial_infected, 
+        infection_delays[0], infection_delays[1],
+        susceptibility, contact_matrix, transmissibility,
+        vaccine_calendar, interval*24 );
+
+    Rcpp::List resultList( result.cases.cols() + 1 );
+    Rcpp::CharacterVector columnNames;
+
+    //Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
+    // Convert times
+    auto times = Rcpp::DatetimeVector(result.times.size());
+    for ( size_t i = 0; i < result.times.size(); ++i )
+    {
+        times[i] = 
+                Rcpp::Datetime(
+            bt::to_iso_extended_string( result.times[i] ),
+            "%Y-%m-%dT%H:%M:%OS");
+    }
+
+    columnNames.push_back( "Time" );
+    resultList[0] = times;
+
+    for (int i=0; i<result.cases.cols(); ++i)
+    {
+        resultList[i+1] = Eigen::VectorXd(result.cases.col(i));
+        columnNames.push_back( 
+                "V" + boost::lexical_cast<std::string>( i+1 ) );
+    }
+
+    resultList.attr("names") = columnNames;
+
+    return Rcpp::DataFrame(resultList);
+    //return densities;
+    //return resultMatrix;
+}
 //' Returns log likelihood of the predicted number of cases given the data for that week
 //'
 //' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.

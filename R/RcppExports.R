@@ -71,6 +71,22 @@ infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptib
     .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval)
 }
 
+#' Run the SEIR model for the given parameters
+#'
+#' @param population The population size of the different age groups, subdivided into risk groups 
+#' @param initial_infected The corresponding number of initially infected
+#' @param vaccine_calendar A vaccine calendar valid for that year
+#' @param contact_matrix Contact rates between different age groups
+#' @param susceptibility Vector with susceptibilities of each age group
+#' @param transmissibility The transmissibility of the strain
+#' @param infection_delays Vector with the time of latent infection and time infectious
+#' @param interval Interval (in days) between data points
+#' @return A data frame with number of new cases after each interval during the year
+#'
+infectionODEs <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval = 1L) {
+    .Call('fluEvidenceSynthesis_infectionODEs', PACKAGE = 'fluEvidenceSynthesis', population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval)
+}
+
 #' Returns log likelihood of the predicted number of cases given the data for that week
 #'
 #' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.

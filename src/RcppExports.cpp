@@ -85,6 +85,24 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// infectionODEs
+Rcpp::DataFrame infectionODEs(Eigen::VectorXd population, Eigen::VectorXd initial_infected, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXd contact_matrix, Eigen::VectorXd susceptibility, double transmissibility, Eigen::VectorXd infection_delays, size_t interval);
+RcppExport SEXP fluEvidenceSynthesis_infectionODEs(SEXP populationSEXP, SEXP initial_infectedSEXP, SEXP vaccine_calendarSEXP, SEXP contact_matrixSEXP, SEXP susceptibilitySEXP, SEXP transmissibilitySEXP, SEXP infection_delaysSEXP, SEXP intervalSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type population(populationSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial_infected(initial_infectedSEXP);
+    Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type contact_matrix(contact_matrixSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type susceptibility(susceptibilitySEXP);
+    Rcpp::traits::input_parameter< double >::type transmissibility(transmissibilitySEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type infection_delays(infection_delaysSEXP);
+    Rcpp::traits::input_parameter< size_t >::type interval(intervalSEXP);
+    __result = Rcpp::wrap(infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval));
+    return __result;
+END_RCPP
+}
 // log_likelihood
 double log_likelihood(double epsilon, double psi, size_t predicted, double population_size, int ili_cases, int ili_monitored, int confirmed_positive, int confirmed_samples);
 RcppExport SEXP fluEvidenceSynthesis_log_likelihood(SEXP epsilonSEXP, SEXP psiSEXP, SEXP predictedSEXP, SEXP population_sizeSEXP, SEXP ili_casesSEXP, SEXP ili_monitoredSEXP, SEXP confirmed_positiveSEXP, SEXP confirmed_samplesSEXP) {
