@@ -28,6 +28,27 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// inference_multistrains
+mcmc_result_inference_t inference_multistrains(std::vector<size_t> age_sizes, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Rcpp::List n_pos, Eigen::MatrixXi n_samples, Rcpp::List vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, size_t nburn, size_t nbatch, size_t blen);
+RcppExport SEXP fluEvidenceSynthesis_inference_multistrains(SEXP age_sizesSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili(iliSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type mon_pop(mon_popSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type n_pos(n_posSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type vaccine_calendar(vaccine_calendarSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
+    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
+    __result = Rcpp::wrap(inference_multistrains(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen));
+    return __result;
+END_RCPP
+}
 // updateMeans
 Eigen::VectorXd updateMeans(Eigen::VectorXd means, Eigen::VectorXd v, size_t n);
 RcppExport SEXP fluEvidenceSynthesis_updateMeans(SEXP meansSEXP, SEXP vSEXP, SEXP nSEXP) {
