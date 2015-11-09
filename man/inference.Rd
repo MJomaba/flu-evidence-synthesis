@@ -22,16 +22,16 @@ inference(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 
 \item{polymod_data}{Contact data for different age groups}
 
-\item{init_sample}{The initial parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)}
+\item{initial}{Vector with starting parameter values}
 
-\item{mcmc_chain_length}{The number of MCMC steps to sample from}
+\item{nburn}{Number of iterations of burn in}
 
-\item{thinning}{Keep every so many samples}
+\item{nbatch}{Number of batches to run (number of samples to return)}
 
-\item{burn_in}{The number of initial samples to skip}
+\item{blen}{Length of each batch}
 }
 \value{
-A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})
+Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 }
 \description{
 MCMC based inference of the parameter values given the different data sets
