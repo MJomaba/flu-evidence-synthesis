@@ -615,4 +615,53 @@ namespace flu
         return log_prior;
     }
 
+    double log_prior( const Eigen::VectorXd &proposed,
+            const Eigen::VectorXd &current,
+            bool susceptibility ) {
+
+        // Parameters should be valid
+        if( 
+                proposed[0] <= 0 || proposed[0] >= 1 ||
+                proposed[1] <= 0 || proposed[1] >= 1 ||
+                proposed[2] <= 0 || proposed[2] >= 1 ||
+                proposed[3] < 0 || proposed[3] > 1 ||
+                proposed[4] < 0 ||
+                proposed[5] < 0 || proposed[5] > 1 ||
+                proposed[6] < 0 || proposed[6] > 1 ||
+                proposed[7] < 0 || proposed[7] > 1 ||
+                proposed[8]<log(0.00001) || proposed[8]>log(10)
+          )
+            return log(0);
+
+        double log_prior = 0;
+        if (!susceptibility)
+        {
+            /*Prior for the transmissibility; year other than 2003/04*/
+            /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
+            /*prior on q*/
+            log_prior=(current[4]-proposed[4])*(current[4]+proposed[4]-0.3306366)*650.2099;
+        } else {
+
+            /*prior on the susceptibility (year 2003/04)*/
+
+            /*correction for a normal prior with mu=0.688 and sd=0.083 for the 0-14 */
+            log_prior=(current[5]-proposed[5])*(current[5]+proposed[5]-1.376)*145.1589/2;
+            /*correction for a normal prior with mu=0.529 and sd=0.122 for the 15-64 */
+            log_prior+=(current[6]-proposed[6])*(current[6]+proposed[6]-1.058)*67.18624/2;
+            /*correction for a normal prior with mu=0.523 and sd=0.175 for the 65+ */
+            log_prior+=(current[7]-proposed[7])*(current[7]+proposed[7]-1.046)*32.65306/2;
+        }
+
+        /*Prior for the ascertainment probabilities*/
+
+        /*correct for the prior from serology season (lognormal):"0-14" lm=-4.493789, ls=0.2860455*/
+        log_prior += log(current[0])-log(proposed[0])+(log(current[0])-log(proposed[0]))*(log(current[0])+log(proposed[0])+8.987578)*6.110824;
+
+        /*correct for the prior from serology season (lognormal):"15-64" lm=-4.117028, ls=0.4751615*/
+        log_prior += log(current[1])-log(proposed[1])+(log(current[1])-log(proposed[1]))*(log(current[1])+log(proposed[1])+8.234056)*2.21456;
+
+        /*correct for the prior from serology season (lognormal):"65+" lm=-2.977965, ls=1.331832*/
+        log_prior += log(current[2])-log(proposed[2])+(log(current[2])-log(proposed[2]))*(log(current[2])+log(proposed[2])+5.95593)*0.2818844;
+        return log_prior;
+    }
 }

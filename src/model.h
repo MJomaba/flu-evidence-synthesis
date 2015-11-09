@@ -104,6 +104,14 @@ namespace flu
             const parameter_set &current,
             bool susceptibility = false );
 
+    /**
+     * \brief Return the log prior probability of the proposed parameters - current parameters
+     *
+     * \param susceptibility whether to use the prior based on 2003/04
+     */
+    double log_prior( const Eigen::VectorXd &proposed,
+            const Eigen::VectorXd &current,
+            bool susceptibility = false );
 }
 
 #endif

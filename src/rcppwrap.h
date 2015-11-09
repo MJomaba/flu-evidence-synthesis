@@ -5,6 +5,7 @@
 #include "vaccine.h"
 #include "state.h"
 #include "contacts.h"
+#include "inference.h"
 
 namespace Rcpp {
     using namespace flu;
@@ -38,6 +39,8 @@ namespace Rcpp {
 
     using namespace flu::contacts;
     template <> contacts_t as( SEXP );
+
+    template <> SEXP wrap( const mcmc_result_inference_t &mcmcResult );
 }
 
 // [[Rcpp::plugins(cpp11)]]
