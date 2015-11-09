@@ -5,8 +5,7 @@
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
 inference(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
-  polymod_data, init_sample, mcmc_chain_length = 100000L, burn_in = 10000L,
-  thinning = 100L)
+  polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L)
 }
 \arguments{
 \item{age_sizes}{A vector with the population size by each age {1,2,..}}
@@ -27,9 +26,9 @@ inference(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 
 \item{mcmc_chain_length}{The number of MCMC steps to sample from}
 
-\item{burn_in}{The number of initial samples to skip}
-
 \item{thinning}{Keep every so many samples}
+
+\item{burn_in}{The number of initial samples to skip}
 }
 \value{
 A vector with posterior samples of the parameters (length of \code{mcmc_chain_length}/\code{thinning})

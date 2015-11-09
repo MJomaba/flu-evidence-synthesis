@@ -11,7 +11,7 @@ namespace flu {
         Eigen::VectorXd llikelihoods;
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 
             Eigen::RowMajor>
-            contacts_mixing;
+            contact_ids;
     };
 }
 #endif

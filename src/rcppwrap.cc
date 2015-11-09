@@ -114,6 +114,6 @@ template <> SEXP Rcpp::wrap( const flu::mcmc_result_inference_t &mcmcResult )
     Rcpp::List rState;
     rState["batch"] = Rcpp::wrap( mcmcResult.batch );
     rState["llikelihoods"] = Rcpp::wrap( mcmcResult.llikelihoods );
-    rState["contacts.mixing"] = Rcpp::wrap( mcmcResult.contacts_mixing );
+    rState["contact.ids"] = Rcpp::wrap( mcmcResult.contact_ids );
     return rState;
 }
