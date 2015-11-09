@@ -31,20 +31,24 @@ library(fluEvidenceSynthesis)
 data("age_sizes")
 data("vaccine_calendar")
 data("polymod_uk")
-data("mcmcsample")
 data("ili")
 data("confirmed.samples")
+
+initial.parameters <- c(0.01188150, 0.01831852, 0.05434378,
+                        1.049317e-05, 0.1657944,
+                        0.3855279, 0.9269811, 0.5710709,
+                        -0.1543508 )
 
 inference.results <- inference( age_sizes=age_sizes$V1,
                       vaccine_calendar=vaccine_calendar,
                       polymod_data=as.matrix(polymod_uk),
-                      init_sample=mcmcsample,
                       ili=ili$ili,
                       mon_pop=ili$total.monitored,
                       n_pos=confirmed.samples$positive,
                       n_samples=confirmed.samples$total.samples,
-                      mcmc_chain_length=1000,
-                      burn_in=1000, thinning=10 )
+                      initial = initial.parameters,
+                      nbatch=1000,
+                      nburn=1000, blen=10 )
 ```
 
 The data used for the inference is:
@@ -57,10 +61,7 @@ vaccine_calendar
   
 polymod_data
   ~ Data gathered by the POLYMOD study on contacts of subjects with the different age groups. This data will be resampled during inference to use as a prior distribution on contacts.
-
-mcmcsample
-  ~ The initial state of the MCMC chain.
-  
+ 
 ili
   ~ The number of people with Influenza Like Illness in each week
 

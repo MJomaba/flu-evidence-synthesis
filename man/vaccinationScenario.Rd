@@ -4,7 +4,8 @@
 \alias{vaccinationScenario}
 \title{Calculate number of influenza cases given a vaccination strategy}
 \usage{
-vaccinationScenario(age_sizes, vaccine_calendar, polymod_data, sample)
+vaccinationScenario(age_sizes, vaccine_calendar, polymod_data, contact_ids,
+  parameters)
 }
 \arguments{
 \item{age_sizes}{A vector with the population size by each age {1,2,..}}
@@ -13,7 +14,9 @@ vaccinationScenario(age_sizes, vaccine_calendar, polymod_data, sample)
 
 \item{polymod_data}{Contact data for different age groups}
 
-\item{sample}{The parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)}
+\item{contact_ids}{IDs (row numbers) of the contact data used when modelling this scenario}
+
+\item{parameters}{The parameters to use}
 }
 \value{
 A data frame with the total number of influenza cases in that year

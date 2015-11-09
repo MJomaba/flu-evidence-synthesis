@@ -170,10 +170,11 @@ separate.into.risk.groups <- function(age_groups, risk) {
 #' @param age_sizes A vector with the population size by each age {1,2,..}
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
-#' @param sample The parameters needed to run the ODE model (typically one of the posterior sample created when running the inference)
+#' @param contact_ids IDs (row numbers) of the contact data used when modelling this scenario 
+#' @param parameters The parameters to use
 #' @return A data frame with the total number of influenza cases in that year
 #'
-vaccinationScenario <- function(age_sizes, vaccine_calendar, polymod_data, sample) {
-    .Call('fluEvidenceSynthesis_vaccinationScenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, sample)
+vaccinationScenario <- function(age_sizes, vaccine_calendar, polymod_data, contact_ids, parameters) {
+    .Call('fluEvidenceSynthesis_vaccinationScenario', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, contact_ids, parameters)
 }
 

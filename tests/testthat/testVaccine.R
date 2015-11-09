@@ -38,13 +38,15 @@ test_that("We can call scenario",
           {
               data("age_sizes")
               data("vaccine_calendar")
-              data("mcmcsample")
+              data("inference.results")
               data("polymod_uk")
 
               total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
-                    sample=mcmcsample,
-                    polymod_data=as.matrix(polymod_uk) )
+                    polymod_data=as.matrix(polymod_uk),
+                    contact_ids = inference.results$contact.ids[1000,],
+                    parameters = inference.results$batch[1000,],
+                    )
 
               exp.total.size <- c( 119474.807, 636440.213, 1469251.696, 2881440.126, 4408817.625, 2796622.448, 498176.149, 2541.504, 36427.619, 155706.821, 264664.169, 416935.424, 530054.119, 359250.707, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 )
               for( i in 1:length(total_size) )
