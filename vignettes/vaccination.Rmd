@@ -43,14 +43,16 @@ vaccine_calendar$calendar[1,c(8,9)] <- 0.02
 
 # Load needed data
 data("age_sizes")
-data("mcmcsample")
 data("polymod_uk")
+data("inference.results")
 
 # This returns the total size of the outbreak given the vaccination scenario and the
-# posterior (mcmc) sample
+# 1000th posterior (mcmc) sample
 vaccinationScenario( age_sizes=age_sizes[,1], vaccine_calendar=vaccine_calendar,
-  sample=mcmcsample, 
-  polymod_data=as.matrix(polymod_uk) )
+                     polymod_data=as.matrix(polymod_uk),
+                     contact_ids=inference.results$contact.ids[1000,],
+                     parameters=inference.results$batch[1000,]
+                    )
 ```
 
 The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
