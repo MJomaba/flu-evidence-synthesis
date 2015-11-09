@@ -24,6 +24,10 @@
 
 #' MCMC Result produced by the inference function
 #'
+"inference.results"
+
+#' DEPRECATED: MCMC Result produced by the inference function
+#'
 "mcmcsample"
 
 #' Polymod contact data for the UK
