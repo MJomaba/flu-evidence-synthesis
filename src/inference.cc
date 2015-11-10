@@ -295,6 +295,7 @@ mcmc_result_inference_t inference_multistrains(
     std::vector<Eigen::MatrixXd> positives;
     for ( auto p : n_pos )
         positives.push_back( Rcpp::as<Eigen::MatrixXd>( p ) );
+
     
     auto nag = 7;
     auto no_strains = n_pos.size();
@@ -370,7 +371,6 @@ mcmc_result_inference_t inference_multistrains(
               )
                 return log(0);
 
-            double log_prior = 0;
             /*Prior for the transmissibility; year other than 2003/04*/
             /*correction for a normal prior with mu=0.1653183 and sd=0.02773053*/
             /*prior on q*/
@@ -399,7 +399,7 @@ mcmc_result_inference_t inference_multistrains(
             auto curr_init_inf = Eigen::VectorXd::Constant( 
                     nag, pow(10,sub_pars[7]) );
 
-            Eigen::VectorXd susc;
+            Eigen::VectorXd susc(7);
             susc << sub_pars[4], sub_pars[4], sub_pars[4],
                  sub_pars[5], sub_pars[5], sub_pars[5],
                  sub_pars[6];
@@ -414,12 +414,12 @@ mcmc_result_inference_t inference_multistrains(
         }
 
         auto lprob = 0.0;
-        for (int w = 0; w < week_result[1].rows(); ++w) {
-            for (int ag = 0; ag < week_result[1].cols(); ++ag) {
+        for (int w = 0; w < week_result[0].rows(); ++w) {
+            for (int ag = 0; ag < week_result[0].cols(); ++ag) {
                 std::vector<double> e_ps;
                 double sum_e_ps = 0.0;
                 for (int st = 0; st < no_strains; ++st) {
-                    Eigen::VectorXd eps;
+                    Eigen::VectorXd eps(5);
                     eps << pars[st*8], pars[st*8],
                         pars[st*8+1], pars[st*8+1],
                         pars[st*8+2];
@@ -436,11 +436,11 @@ mcmc_result_inference_t inference_multistrains(
         return lprob;
     };
 
+    auto curr_lprior = lprior_function(curr_parameters);
     auto curr_llikelihood = llikelihood_function( curr_parameters,
             current_contact_regular );
-    auto curr_lprior = lprior_function(curr_parameters);
 
-    auto proposal_state = proposal::initialize( 9 );
+    auto proposal_state = proposal::initialize( curr_parameters.size() );
 
     /**************************************************************************************************************************************************************
     Start of the MCMC
