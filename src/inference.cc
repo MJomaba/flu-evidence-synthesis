@@ -389,14 +389,14 @@ mcmc_result_inference_t inference_multistrains(
     };
 
     auto llikelihood_function = [&]( const Eigen::VectorXd &pars,
-            const Eigen::VectorXd &contact_regular )
+            const Eigen::MatrixXd &contact_regular )
     {
         std::vector<Eigen::MatrixXd> week_result;
         for ( size_t i = 0; i < (size_t)no_strains; ++i )
         {
             auto sub_pars = pars.segment( i*8, 8 );
 
-            auto curr_init_inf = Eigen::VectorXd::Constant( 
+            auto init_inf = Eigen::VectorXd::Constant( 
                     nag, pow(10,sub_pars[7]) );
 
             Eigen::VectorXd susc(7);
@@ -404,13 +404,17 @@ mcmc_result_inference_t inference_multistrains(
                  sub_pars[5], sub_pars[5], sub_pars[5],
                  sub_pars[6];
 
-            auto result = one_year_SEIR_with_vaccination(pop_vec, 
-                    curr_init_inf, 
+            auto seed_vec = flu::data::separate_into_risk_groups( 
+                    init_inf, risk_proportions  );
+
+            auto result = infectionODE(pop_vec, 
+                    seed_vec, 
                     time_latent, time_infectious, 
                     susc,
                     contact_regular, sub_pars[3], 
                     vaccine_calendars[i], 7*24 );
-            week_result.push_back(days_to_weeks_5AG( result ));
+            auto week = days_to_weeks_5AG( result );
+            week_result.push_back(week);
         }
 
         auto lprob = 0.0;
@@ -424,19 +428,30 @@ mcmc_result_inference_t inference_multistrains(
                         pars[st*8+1], pars[st*8+1],
                         pars[st*8+2];
                     e_ps.push_back(eps[ag]*week_result[st](w,ag)
-                            /pop_RCGP[ag]); 
+                            /pop_RCGP[ag]);
                     sum_e_ps += e_ps[st];
                 }
                 sum_e_ps *= 1+pars[no_strains*8];
-                lprob += R::dbinom(ili(w,ag), mon_pop(w,ag), sum_e_ps, 1);
-                for (int st = 0; st < no_strains; ++st)
-                    lprob += R::dbinom(positives[st](w,ag), n_samples(w,ag), e_ps[st]/sum_e_ps, 1);
+                if (sum_e_ps > 1)
+                    lprob += -1e10;
+                else {
+                    lprob += R::dbinom(ili(w,ag), mon_pop(w,ag), sum_e_ps, 1);
+                    for (int st = 0; st < no_strains; ++st)
+                    {
+                        lprob += R::dbinom(positives[st](w,ag), n_samples(w,ag), e_ps[st]/sum_e_ps, 1);
+                    }
+                }
             }
         }
         return lprob;
     };
 
     auto curr_lprior = lprior_function(curr_parameters);
+    Rcpp::Rcout << "Prob: " << std::endl;
+    Rcpp::Rcout << current_contact_regular.cols() << std::endl;
+    Rcpp::Rcout << current_contact_regular.rows() << std::endl;
+    if (current_contact_regular.cols() != 7)
+        return results;
     auto curr_llikelihood = llikelihood_function( curr_parameters,
             current_contact_regular );
 
@@ -476,11 +491,6 @@ mcmc_result_inference_t inference_multistrains(
                 proposal_state.adaptive_scaling
                     -=0.234*proposal_state.conv_scaling;
         } else {
-            /*translate into an initial infected population*/
-            
-            auto prop_init_inf = Eigen::VectorXd::Constant( 
-                    nag, pow(10,prop_parameters[8]) );
-
             auto prop_c = curr_c;
 
             /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/
