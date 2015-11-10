@@ -466,6 +466,7 @@ mcmc_result_inference_t inference_multistrains(
 
     size_t sampleCount = 0;
     int k = 0;
+    size_t no_acceptance_count = 0;
     while(sampleCount<nbatch)
     {
         ++k;
@@ -485,6 +486,7 @@ mcmc_result_inference_t inference_multistrains(
 
         if (!std::isfinite(prior_ratio))
         {
+            ++no_acceptance_count;
             //Rcpp::Rcout << "Invalid proposed par" << std::endl;
             // TODO: code duplication with failure of acceptance
             if(k>=1000)
@@ -519,8 +521,11 @@ mcmc_result_inference_t inference_multistrains(
                     exp(prop_llikelihood-curr_llikelihood+
                     prior_ratio);
 
-            if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
+            if(R::runif(0,1)<my_acceptance_rate || 
+                    (no_acceptance_count>100 && 
+                     std::isfinite(my_acceptance_rate))) /*with prior*/
             {
+                no_acceptance_count = 0;
                 /*update the acceptance rate*/
                 proposal_state.acceptance++;
                 if(k>=1000)
@@ -540,6 +545,7 @@ mcmc_result_inference_t inference_multistrains(
             }
             else /*if reject*/
             {
+                ++no_acceptance_count;
                 if(k>=1000)
                     proposal_state.adaptive_scaling
                         -=0.234*proposal_state.conv_scaling;
