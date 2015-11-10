@@ -466,7 +466,7 @@ mcmc_result_inference_t inference_multistrains(
 
     size_t sampleCount = 0;
     int k = 0;
-    size_t no_acceptance_count = 0;
+    int no_acceptance_count = 0;
     while(sampleCount<nbatch)
     {
         ++k;
@@ -481,7 +481,7 @@ mcmc_result_inference_t inference_multistrains(
                 proposal_state.chol_ini,100,0.05, 
                 proposal_state.adaptive_scaling );
 
-        auto prop_lprior = lprior_function(curr_parameters);
+        auto prop_lprior = lprior_function(prop_parameters);
         auto prior_ratio = prop_lprior - curr_lprior;
 
         if (!std::isfinite(prior_ratio))
@@ -525,7 +525,9 @@ mcmc_result_inference_t inference_multistrains(
                     (no_acceptance_count>100 && 
                      std::isfinite(my_acceptance_rate))) /*with prior*/
             {
-                no_acceptance_count = 0;
+                no_acceptance_count -= 20;
+                no_acceptance_count = std::max(0, no_acceptance_count);
+                no_acceptance_count = std::min(105, no_acceptance_count);
                 /*update the acceptance rate*/
                 proposal_state.acceptance++;
                 if(k>=1000)
