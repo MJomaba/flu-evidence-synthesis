@@ -447,11 +447,7 @@ mcmc_result_inference_t inference_multistrains(
     };
 
     auto curr_lprior = lprior_function(curr_parameters);
-    Rcpp::Rcout << "Prob: " << std::endl;
-    Rcpp::Rcout << current_contact_regular.cols() << std::endl;
-    Rcpp::Rcout << current_contact_regular.rows() << std::endl;
-    if (current_contact_regular.cols() != 7)
-        return results;
+
     auto curr_llikelihood = llikelihood_function( curr_parameters,
             current_contact_regular );
 
