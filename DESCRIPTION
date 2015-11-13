@@ -5,10 +5,7 @@ Version: 0.7.0
 Date: 2015-11-29
 Author: Marc Baguelin, Edwin van Leeuwen
 Maintainer: Edwin van Leeuwen <edwinvanl@gmail.com>
-Description: Package to synthesise the multiplicity of surveillance datasets in
-    order to evaluate how changing target populations in the seasonal vaccination
-    programme would affect infection rate and mortality. Mainly meant for Influenza
-    modelling, but can be used more generally.
+Description: Package to evaluate the efficacy of different vaccination programmes. The method uses provided data on Influenze Like Illness counts, lab results on actual Influenza occurrence classified by strain and the current vaccine programme, uptake rates to fit an epidemiological model that takes into account different age groups and risk groups. The fitted results can then be used to predict the outcome of changes to the vaccination programme.
 License: GPL-3
 LinkingTo: Rcpp, BH, RcppEigen
 Depends:
