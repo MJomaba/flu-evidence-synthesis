@@ -220,8 +220,6 @@ test_that("We can set population sizes etc with infectionODEs", {
     initial.infected <- rep( 10^mcmcsample$parameters$init_pop, 7 )
     initial.infected <- separate.into.risk.groups(
               initial.infected, risk.ratios );
-    print( popv )
-    print( initial.infected )
 
     # Need to separate into age groups... 
     odes <- infectionODEs( popv, initial.infected,
