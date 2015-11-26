@@ -206,14 +206,30 @@ test_that("We can set population sizes etc with infectionODEs", {
                                        test.vac[["calendar"]][62,],
                                        test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
 
+    age.groups <- separate.into.age.groups( age_sizes[,1], 
+                                           c(1,5,15,25,45,65) )
+
+    risk.ratios <- matrix( c(
+        0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+        0, 0, 0, 0, 0, 0, 0                          
+                          ), ncol=7, byrow=T )
+
+    popv <- separate.into.risk.groups(
+              age.groups, risk.ratios );
+
+    initial.infected <- rep( 10^mcmcsample$parameters$init_pop, 7 )
+    initial.infected <- separate.into.risk.groups(
+              initial.infected, risk.ratios );
+    print( popv )
+    print( initial.infected )
+
     # Need to separate into age groups... 
-    odes <- infection.model( age_sizes[,1],
+    odes <- infectionODEs( popv, initial.infected,
                             test.vac,
-                            as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
+                            contact.matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
                             mcmcsample$parameters$susceptibility,
                             mcmcsample$parameters$transmissibility,
-                            mcmcsample$parameters$init_pop,
-                            c(0.8,1.8) )
+                            c(0.8,1.8), 1 )
 
     # Check all sums
     sums <- c(119002.481089555, 633877.330662713, 1463334.37622813, 2870258.66403954, 4391396.3601774, 2786119.98841863, 496487.103476314, 2531.54735113481, 36283.6707667877, 155096.824666694, 263690.71146717, 415426.823720658, 528526.506836539, 358207.414064678)

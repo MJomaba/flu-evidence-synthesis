@@ -178,7 +178,7 @@ Rcpp::DataFrame infectionODEs(
         ::Rf_error("Contact matrix should be a square matrix");
     else if (contact_matrix.cols() != susceptibility.size())
         ::Rf_error("Contact matrix and susceptibility vector should use the same number of age groups.");
-    else if (contact_matrix.cols() != 3*population.size())
+    else if (contact_matrix.cols() != population.size()/3)
         ::Rf_error("Currently precisely three risk groups are expected. Population vector should have the initial population of each group");
     else if (population.size() != initial_infected.size())
         ::Rf_error("Population vector and initial_infected should have the same number of entries");
@@ -410,7 +410,7 @@ Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
 //' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 //'
 // [[Rcpp::export(name="separate.into.risk.groups")]]
-Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXi age_groups,
+Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
         Eigen::MatrixXd risk )
 {
     return flu::data::separate_into_risk_groups( age_groups, risk );
