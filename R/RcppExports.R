@@ -174,6 +174,17 @@ contact.matrix <- function(polymod_data, age_sizes, age_group_limits = as.numeri
     .Call('fluEvidenceSynthesis_contact_matrix', PACKAGE = 'fluEvidenceSynthesis', polymod_data, age_sizes, age_group_limits)
 }
 
+#' Separate the population into age groups
+#'
+#' @param age_sizes A vector containing the population size by age (first element is number of people of age 1 and below)
+#' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
+#'
+#' @return A vector with the population in each age group.
+#'
+separate.into.age.groups <- function(age_sizes, limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
+    .Call('fluEvidenceSynthesis_separate_into_age_groups', PACKAGE = 'fluEvidenceSynthesis', age_sizes, limits)
+}
+
 #' Separate the population into risk groups
 #'
 #' @param age_groups A vector containing the population size of each age group

@@ -195,6 +195,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// separate_into_age_groups
+Eigen::VectorXi separate_into_age_groups(std::vector<size_t> age_sizes, Rcpp::NumericVector limits);
+RcppExport SEXP fluEvidenceSynthesis_separate_into_age_groups(SEXP age_sizesSEXP, SEXP limitsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type limits(limitsSEXP);
+    __result = Rcpp::wrap(separate_into_age_groups(age_sizes, limits));
+    return __result;
+END_RCPP
+}
 // separate_into_risk_groups
 Eigen::VectorXd separate_into_risk_groups(Eigen::VectorXi age_groups, Eigen::MatrixXd risk);
 RcppExport SEXP fluEvidenceSynthesis_separate_into_risk_groups(SEXP age_groupsSEXP, SEXP riskSEXP) {

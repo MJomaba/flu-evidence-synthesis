@@ -385,6 +385,23 @@ Eigen::MatrixXd contact_matrix(
             age_data );
 }
 
+//' Separate the population into age groups
+//'
+//' @param age_sizes A vector containing the population size by age (first element is number of people of age 1 and below)
+//' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
+//'
+//' @return A vector with the population in each age group.
+//'
+// [[Rcpp::export(name="separate.into.age.groups")]]
+Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
+        Rcpp::NumericVector limits = Rcpp::NumericVector::create(
+            1, 5, 15, 25, 45, 65 ) )
+{
+    auto agl_v = std::vector<size_t>( 
+                limits.begin(), limits.end() );
+    return flu::data::group_age_data( age_sizes, agl_v );
+}
+
 //' Separate the population into risk groups
 //'
 //' @param age_groups A vector containing the population size of each age group
