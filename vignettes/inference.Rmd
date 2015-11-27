@@ -129,17 +129,41 @@ build.llikelihood <- function()
       rs <- round(runif(2,1,length(current.contact.ids)))
       current.contact.ids[rs[1]] <- rs[2]
     }
-    contacts <- polymod_uk[current.contact.ids,]
-    
+
+    age.group.limits <- c(1,5,15,25,45,65)
+    contacts <- contact.matrix(as.matrix(polymod_uk[current.contact.ids,]),
+                               age_sizes[,1], age.group.limits )
+
+    age.groups <- separate.into.age.groups( age.sizes[,1], 
+                                           age.group.limits )
+
+    # Fraction of each age group classified as high risk
+    # We can classify a third risk group, but we are not doing
+    # that here (the second row is 0 in our risk.ratios matrix)
+    risk.ratios <- matrix( c(
+                             0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+                             0, 0, 0, 0, 0, 0, 0                          
+                             ), ncol=7, byrow=T )
+
+    # Population sizes in each age and risk group
+    popv <- separate.into.risk.groups(
+                     age.groups, risk.ratios );
+
+    # Population size initially infected by age and risk group
+    initial.infected <- rep( 10^pars[9], 7 )
+    initial.infected <- separate.into.risk.groups(
+                                                  initial.infected, risk.ratios );
+
     # Run simulation
     # Note that to reduce complexity 
     # we are using the same susceptibility parameter for multiple age groups
-    odes <- infection.model( age_sizes[,1], vaccine_calendar, 
-                             as.matrix(contacts), 
-                             c(pars[6],pars[6],pars[6],pars[7],pars[7],pars[7],pars[8]),
-                             transmissibility=pars[5], init_pop=pars[9], 
-                             infection_delays=c(0.8, 1.8),
-                             interval=7 )
+    odes <- infectionODEs( popv, initial.infected,
+                          vaccine_calendar,
+                          contacts,
+                          c(pars[6],pars[6],pars[6],
+                            pars[7],pars[7],pars[7],pars[8]),
+                          transmissibility=pars[5]
+                          c(0.8,1.8), 7 )
     
     # Ignore times row
     odes <- odes[,2:22]
