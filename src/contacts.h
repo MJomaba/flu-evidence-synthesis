@@ -1,7 +1,6 @@
 #ifndef FLU_CONTACTS_HH
 #define FLU_CONTACTS_HH
 
-#include<array>
 #include<vector>
 #include<string>
 

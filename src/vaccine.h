@@ -2,7 +2,6 @@
 #define FLU_VACCINE_HH
 
 #include <stdio.h>
-#include <array>
 #include <vector>
 #include <boost/date_time.hpp>
 
