@@ -17,7 +17,8 @@ Suggests:
     MASS,
     ISOweek,
     knitr,
-    moments
+    moments,
+    rmarkdown
 SystemRequirements: C++11
 LazyData: true
 VignetteBuilder: knitr
