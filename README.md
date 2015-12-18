@@ -29,7 +29,9 @@ install_github("MJomaba/flu-evidence-synthesis",build_vignettes=TRUE)
 
 ## Documentation and examples
 
-All functions provided by the package are documented in R, but we recommend reading the provided vignettes for a good introduction/overview of the provided capabilities.
+All functions provided by the package are documented in R, but we recommend reading the provided vignettes for a good introduction/overview of the provided capabilities. A vignette on parameter inference can be found [here](http://blackedder.github.io/flu-evidence-synthesis/inference.html). There is also a vignette available on analysis the effects of different [vaccination scenarios](http://blackedder.github.io/flu-evidence-synthesis/vaccination.html).
+
+To view them in R use:
 
 ```{r}
 # To list the included vignettes:
