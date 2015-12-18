@@ -3,3 +3,7 @@ language: r
 warnings_are_errors: false
 
 sudo: required
+
+os:
+  - linux
+  - osx
