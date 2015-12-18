@@ -1,6 +1,9 @@
 language: r
 warnings_are_errors: false
 sudo: required
+
+after_install: "./travis.sh"
+
 os:
 - linux
 - osx
