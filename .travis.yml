@@ -2,7 +2,7 @@ language: r
 warnings_are_errors: false
 sudo: required
 
-after_install: "./travis.sh"
+after_success: "./travis.sh"
 
 os:
 - linux
