@@ -3,6 +3,7 @@
 set -e -o pipefail
 
 #dub test --compiler=${DC}
+R -e 'library(rmarkdown);render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
 
 if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     if [ ! -z "$GH_TOKEN" ]; then
@@ -12,6 +13,7 @@ if [[ $TRAVIS_BRANCH == 'master' ]] ; then
         cd docs
 #        mkdir images
         echo "Hello" > index.html
+        cp ../vignettes/*.html ./
 #        cp ../*.{png,svg} images/
         git init
         git config user.name "Travis-CI"
