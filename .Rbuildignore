@@ -1,0 +1,5 @@
+autotest.sh
+install.sh
+build.sh
+travis.sh
+.travis.yml

@@ -19,7 +19,7 @@ tmp/
 *.so
 *.Rcheck
 symbols.rds
-.R*
+.Rhistory
 *.tar.gz
 *.pdf
 *.html
