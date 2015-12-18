@@ -20,7 +20,7 @@ Note that devtools relies on a fairly new R version (>=3.1.0). Devtools also rel
 
 ### FluEvidenceSynthesis
 
-Then use devtools to install from fluEvidenceSynthesis by using the following command:
+Then use devtools to install fluEvidenceSynthesis by using the following command:
 
 ```{r}
 library(devtools)
