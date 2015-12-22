@@ -415,3 +415,54 @@ Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
 {
     return flu::data::separate_into_risk_groups( age_groups, risk );
 }
+
+//' Probability density function for multinomial distribution
+//'
+//' @param x The counts
+//' @param size The total size from which is being samples
+//' @param prob Probabilities of each different outcome
+//' @param use_log Whether to return logarithm probability
+//'
+//' @return The probability of getting the counts, given the total size and probability of drawing each.
+//'
+// [[Rcpp::export(name="dmultinom.cpp")]]
+double dmultinomial( Eigen::VectorXi x, int size, Eigen::VectorXd prob, 
+        bool use_log = false )
+{
+    double loglik = 0.0;
+    double S = 0;
+    for (unsigned int i = 0; i < x.size(); i++) {
+        if (x[i] < 0 || floor(x[i]) != x[i]) {
+            return JAGS_NEGINF;
+        }
+        else if (x[i] != 0) {
+            if (PROB(prob)[i] == 0) {
+                return JAGS_NEGINF;
+            }
+            else {
+                loglik += x[i] * log(PROB(prob)[i]);
+            }
+            S += x[i];
+        }
+    }
+
+    //Check consistency between parameters and data
+    if (S != SIZE(prob))
+	return JAGS_NEGINF;
+
+	double sump = 0.0;
+	for (unsigned int i = 0; i < x.size(); ++i) {
+	    sump += PROB(prob)[i];
+	}
+	loglik -= SIZE(prob) * log(sump);
+
+	for (unsigned int i = 0; i < x.size(); ++i) {
+	    loglik -= R::lgammafn(x[i] + 1);
+	}
+
+	//If either data or parameters are fixed then this term is constant
+	//bearing in mind consistency check above.
+	loglik += R::lgammafn(SIZE(prob) + 1);
+
+    return loglik;
+}
