@@ -254,6 +254,37 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
     return results;
 }
 
+double dmultinomial( const Eigen::VectorXi &x, int size, 
+        const Eigen::VectorXd &prob, 
+        bool use_log = false )
+{
+    double loglik = 0.0;
+
+    loglik = R::lgammafn(size+1);
+
+    for (size_t i=0; i < x.size(); ++i)
+        loglik += x[i]*prob[i] - R::lgammafn(x[i]+1);
+    if (use_log)
+        return loglik;
+    return exp(loglik);
+}
+
+//' Probability density function for multinomial distribution
+//'
+//' @param x The counts
+//' @param size The total size from which is being samples
+//' @param prob Probabilities of each different outcome
+//' @param use_log Whether to return logarithm probability
+//'
+//' @return The probability of getting the counts, given the total size and probability of drawing each.
+//'
+// [[Rcpp::export(name="dmultinom.cpp")]]
+double dmultinomialCPP( Eigen::VectorXi x, int size, Eigen::VectorXd prob, 
+        bool use_log = false )
+{
+    return dmultinomial( x, size, prob, use_log );
+}
+
 //' MCMC based inference of the parameter values given the different data sets based on multiple strains
 //'
 //' @param age_sizes A vector with the population size by each age {1,2,..}
