@@ -263,7 +263,7 @@ double dmultinomial( const Eigen::VectorXi &x, int size,
     loglik = R::lgammafn(size+1);
 
     for (size_t i=0; i < x.size(); ++i)
-        loglik += x[i]*prob[i] - R::lgammafn(x[i]+1);
+        loglik += x[i]*log(prob[i]) - R::lgammafn(x[i]+1);
     if (use_log)
         return loglik;
     return exp(loglik);

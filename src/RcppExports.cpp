@@ -28,6 +28,20 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// dmultinomialCPP
+double dmultinomialCPP(Eigen::VectorXi x, int size, Eigen::VectorXd prob, bool use_log);
+RcppExport SEXP fluEvidenceSynthesis_dmultinomialCPP(SEXP xSEXP, SEXP sizeSEXP, SEXP probSEXP, SEXP use_logSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< bool >::type use_log(use_logSEXP);
+    __result = Rcpp::wrap(dmultinomialCPP(x, size, prob, use_log));
+    return __result;
+END_RCPP
+}
 // inference_multistrains
 mcmc_result_inference_t inference_multistrains(std::vector<size_t> age_sizes, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Rcpp::List n_pos, Eigen::MatrixXi n_samples, Rcpp::List vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, size_t nburn, size_t nbatch, size_t blen);
 RcppExport SEXP fluEvidenceSynthesis_inference_multistrains(SEXP age_sizesSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {

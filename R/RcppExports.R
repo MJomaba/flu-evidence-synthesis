@@ -21,6 +21,19 @@ inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calenda
     .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
 }
 
+#' Probability density function for multinomial distribution
+#'
+#' @param x The counts
+#' @param size The total size from which is being samples
+#' @param prob Probabilities of each different outcome
+#' @param use_log Whether to return logarithm probability
+#'
+#' @return The probability of getting the counts, given the total size and probability of drawing each.
+#'
+dmultinom.cpp <- function(x, size, prob, use_log = FALSE) {
+    .Call('fluEvidenceSynthesis_dmultinomialCPP', PACKAGE = 'fluEvidenceSynthesis', x, size, prob, use_log)
+}
+
 #' MCMC based inference of the parameter values given the different data sets based on multiple strains
 #'
 #' @param age_sizes A vector with the population size by each age {1,2,..}

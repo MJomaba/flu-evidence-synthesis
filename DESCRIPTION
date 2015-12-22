@@ -5,12 +5,18 @@ Version: 0.7.0
 Date: 2015-11-29
 Author: Marc Baguelin, Edwin van Leeuwen
 Maintainer: Edwin van Leeuwen <edwinvanl@gmail.com>
-Description: Package to evaluate the efficacy of different vaccination programmes. The method uses provided data on Influenze Like Illness counts, lab results on actual Influenza occurrence classified by strain and the current vaccine programme, uptake rates to fit an epidemiological model that takes into account different age groups and risk groups. The fitted results can then be used to predict the outcome of changes to the vaccination programme.
+Description: Package to evaluate the efficacy of different vaccination
+    programmes. The method uses provided data on Influenze Like Illness counts,
+    lab results on actual Influenza occurrence classified by strain and the current
+    vaccine programme, uptake rates to fit an epidemiological model that takes into
+    account different age groups and risk groups. The fitted results can then be
+    used to predict the outcome of changes to the vaccination programme.
 License: GPL-3
 LinkingTo: Rcpp, BH, RcppEigen
 Depends:
     R (>= 3.1.0),
-Imports: Rcpp (>= 0.11.6)
+Imports:
+    Rcpp (>= 0.11.6)
 Suggests:
     testthat,
     rjson,
@@ -22,4 +28,4 @@ Suggests:
 SystemRequirements: C++11
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1

@@ -79,3 +79,10 @@ test_that("We can run inference",
       expect_more_than(m3, -5.0 )
   }
 )
+
+test_that("dmultinom and dmultinom.cpp return same value", 
+    {
+        dp <- dmultinom( c(5,4,3), 12, c(0.4, 0.5, 0.1) )
+        expect_identical( dmultinom.cpp( c(5,4,3), 12, c(0.4,0.5,0.1) ), dp )
+    }
+)
