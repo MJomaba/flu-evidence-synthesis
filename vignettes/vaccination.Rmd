@@ -55,9 +55,9 @@ vaccinationScenario( age_sizes=age_sizes[,1], vaccine_calendar=vaccine_calendar,
                     )
 ```
 
-The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
+The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general, you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
 
-The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With efficacy a vector defining the efficacy of the vaccine for each of the 7 age groups. The calendar a matrix holding daily uptakes rates. The first 7 columns are low risk age groups, second the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero.
+The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With efficacy a vector defining the efficacy of the vaccine for each of the 7 age groups **[PK: unclear sentence ]**. The calendar a matrix holding daily uptakes rates **[PK: unclear  ]**. The first 7 columns are low risk age groups, second **[how many?]** the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero.
 
 # References
 
