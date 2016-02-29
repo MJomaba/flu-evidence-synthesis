@@ -20,15 +20,15 @@ This vignette will focus on how the fluEvidenceSythesis package can be used to p
 
 The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to obtain the posterior distribution of the parameters of an underlying epidemiological model. In this vignette we give practical examples on the required data and how to use the package to perform the MCMC fitting.
 
-**[Need a short description of the underlying model, the parameters that are being estimated here, and whether the package is built to accommodate changes to this model.]** Further details of the underlying model and techniques can be found in Baguelin et al. (2013). 
+The epidemiological model is a compartmental model with Susceptible, Exposed, Infection and Recovered (SEIR) compartments. Waiting time between Exposed and Infectious and between Infectious and Recovered are assumed to be gamma distributed. The epidemiological parameters used in the model are the transmissibility, susceptibility, time latent (time between exposed and susceptible) and the time infectious. Further details of the underlying model and techniques can be found in Baguelin et al. (2013). 
 
-The methods are computationally intensive and fitting the model can easily take a couple of hours on a powerfull machine. **[It would be useful to see a real example here - the inference ran XX hours and YY minutes on XYZ machine with XX specs.]**
+The methods are computationally intensive and fitting the model can easily take a couple of hours on a powerfull machine. For example an inference run of 11 million samples (1 million burn in) will take about 8-9 hours on a relatively modern machine (2015, Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz). Of course one can run different years/strains in parallell.
 
 # Examples
 
 ## Simple example
 
-The example below shows an example for the case where the data used corresponds to the structure of the data gathered in the UK. **[This structure assumes XX age classes of the following ranges: XX, XX,... XX. And other highlights of this data structure]** 
+The example below shows an example for the case where the data used corresponds to the structure of the data gathered in the UK. The example assumes 7 age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64, >65. In the UK ILI and virulogical data are only separated into 5 age groups though (<4,5-14,15-24,25-64,>65), so `inference` will internally group the first two (<1,1-4) and the middle age groups together when calculating the likelihood of the model given the data.
 
 This example first loads the data and then runs the inference function which returns the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
 
@@ -81,7 +81,7 @@ n_samples
   ~ The number of total samples tested. This is assumed to be a strict subset of the number of ILI cases
   
   
-**[Need a little bit more info on the output list `inference.results`, its structure, what information it entails, etc. e.g. Returns a list with the accepted parameters and the corresponding log-likelihood values and a matrix (contact.ids) containing the row numbers of the contacts data used to build the contact matrix. ]**  
+The `inference` function returns a list with the accepted parameters (`inference.results$batch`) and the corresponding log-likelihood values (`inference.results$llikelihoods`) as well as a matrix (`inference.results$contact.ids`) containing the row numbers of the contacts data used to build the contact matrix.
   
 For more details on the data format used `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
   
