@@ -34,6 +34,9 @@ vaccine_calendar <- list(
 )
 
 # Set rate of vaccine uptake for different dates/age groups
+# In this case the elderly (age group 7) start with an uptake rate of 0.02 in the first month
+# followed by 0.005 in the second and third month. After three months the total uptake will be:
+# 31*0.02+30*0.005+31*0.005=0.925
 vaccine_calendar$calendar[1,c(7,14,21)] <- 0.02
 vaccine_calendar$calendar[2,c(7,14,21)] <- 0.005
 vaccine_calendar$calendar[3,c(7,14,21)] <- 0.005
@@ -57,7 +60,7 @@ vaccinationScenario( age_sizes=age_sizes[,1], vaccine_calendar=vaccine_calendar,
 
 The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general, you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
 
-The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With efficacy a vector defining the efficacy of the vaccine for each of the 7 age groups **[PK: unclear sentence ]**. The calendar a matrix holding daily uptakes rates **[PK: unclear  ]**. The first 7 columns are low risk age groups, second **[how many?]** the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero.
+The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With `vaccine_calendar$efficacy` a vector defining the efficacy of the vaccine for the 7 age groups. In this case we assume that the vaccine causes immunity for 70% of most of the age groups, except for the elderly (>65) where it is only successful in 30% of the cases. The calendar is a matrix holding daily uptakes rates of the vaccine. The first 7 columns of the matrix are the uptake rates for the low risk age groups, following 7 columns are the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero. 
 
 # References
 
