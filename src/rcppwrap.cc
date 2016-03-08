@@ -25,16 +25,13 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
             vac_cal.dates.push_back(
                     boost::posix_time::ptime(
                         boost::gregorian::date( rDate.getYear(),
-                            rDate.getMonth(), rDate.getDay() )
+                            rDate.getMonth(), rDate.getDay() ),
+                        boost::posix_time::time_duration(12, 0, 0 ) 
                         // This would be useful if we had an Rcpp::Datetime object
                         //boost::posix_time::time_duration( rDate.getHours(),
                         //    rDate.getMinutes(), rDate.getSeconds() )
                         )
                     );
-
-            /*Rcpp::Rcout << rDate.getYear() << " " <<
-                boost::posix_time::to_iso_string(vac_cal.dates.back()) << 
-                std::endl;*/
         }
     }
     return vac_cal;

@@ -88,10 +88,15 @@ namespace flu
         {
             for(size_t i=0;i<nag;i++)
             {
-                double vacc_prov=Npop[i]*vaccine_rates(i)/(densities[ode_id(nag,LOW,S,i)]+densities[ode_id(nag,LOW,E1,i)]+densities[ode_id(nag,LOW,E2,i)]+densities[ode_id(nag,LOW,I1,i)]+densities[ode_id(nag,LOW,I2,i)]+densities[ode_id(nag,LOW,R,i)]);
-                /*surv[i]+=vaccination_calendar[cal_time*21+i];*/
-                double vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[ode_id(nag,HIGH,S,i)]+densities[ode_id(nag,HIGH,E1,i)]+densities[ode_id(nag,HIGH,E2,i)]+densities[ode_id(nag,HIGH,I1,i)]+densities[ode_id(nag,HIGH,I2,i)]+densities[ode_id(nag,HIGH,R,i)]);
-                double vacc_prov_p=0; /*Npop[i+2*nag]*vaccination_calendar[cal_time*21+i+2*nag]/(densities[ode_id(nag,PREG,S,i)]+densities[ode_id(nag,PREG,E1,i)]+densities[ode_id(nag,PREG,E2,i)]+densities[ode_id(nag,PREG,I1,i)]+densities[ode_id(nag,PREG,I2,i)]+densities[ode_id(nag,PREG,R,i)]);*/
+                double vacc_prov = 0;
+                if (Npop[i]>0) // If zero then densities also zero -> 0/0
+                    vacc_prov=Npop[i]*vaccine_rates(i)/(densities[ode_id(nag,LOW,S,i)]+densities[ode_id(nag,LOW,E1,i)]+densities[ode_id(nag,LOW,E2,i)]+densities[ode_id(nag,LOW,I1,i)]+densities[ode_id(nag,LOW,I2,i)]+densities[ode_id(nag,LOW,R,i)]);
+                double vacc_prov_r = 0;
+                if (Npop[i+nag]>0)
+                    vacc_prov_r=Npop[i+nag]*vaccine_rates(i+nag)/(densities[ode_id(nag,HIGH,S,i)]+densities[ode_id(nag,HIGH,E1,i)]+densities[ode_id(nag,HIGH,E2,i)]+densities[ode_id(nag,HIGH,I1,i)]+densities[ode_id(nag,HIGH,I2,i)]+densities[ode_id(nag,HIGH,R,i)]);
+                double vacc_prov_p = 0;
+                if (Npop[i+2*nag]>0)
+                    vacc_prov_p=Npop[i+2*nag]*vaccine_rates(i+2*nag)/(densities[ode_id(nag,PREG,S,i)]+densities[ode_id(nag,PREG,E1,i)]+densities[ode_id(nag,PREG,E2,i)]+densities[ode_id(nag,PREG,I1,i)]+densities[ode_id(nag,PREG,I2,i)]+densities[ode_id(nag,PREG,R,i)]);
 
                 deltas[ode_id(nag,VACC_LOW,S,i)]+=densities[ode_id(nag,LOW,S,i)]*vacc_prov*(1-vaccine_efficacy_age[i]);
                 deltas[ode_id(nag,VACC_HIGH,S,i)]+=densities[ode_id(nag,HIGH,S,i)]*vacc_prov_r*(1-vaccine_efficacy_age[i]);
@@ -294,6 +299,10 @@ namespace flu
         {
             auto next_time = current_time + bt::hours( minimal_resolution );
 
+            
+            //Rcpp::Rcout << "cTime: " << current_time << std::endl;
+            //Rcpp::Rcout << "Time: " << next_time << std::endl;
+
             Eigen::VectorXd vacc_rates;
             if (vaccine_programme.dates.size() > 0)
             {
@@ -320,7 +329,7 @@ namespace flu
             if (date_id >= 0 &&
                     date_id < vaccine_programme.calendar.rows() )
                 vacc_rates = vaccine_programme.calendar.row(date_id); 
-
+            //Rcpp::Rcout << "Densities " << densities << std::endl;
             auto n_cases = new_cases( densities, current_time,
                     next_time, dt,
                     Npop,
@@ -329,6 +338,7 @@ namespace flu
                     transmission_regular,
                     a1, a2, g1, g2 );
             current_time = next_time;
+            //Rcpp::Rcout << "N cases" << n_cases << std::endl;
 
             assert(step_count < cases.cases.rows());
 
