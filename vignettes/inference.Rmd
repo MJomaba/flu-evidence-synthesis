@@ -18,13 +18,19 @@ This package implements all the tools needed to analyse and compare the effectiv
 
 This vignette will focus on how the fluEvidenceSythesis package can be used to perform the first step of parameter inference.
 
-The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to get the posterior distribution of the parameters of an epidemiological model. In this vignette we give practical examples on the required data and how to use the package to perform the MCMC fitting. Further details of the underlying model and techniques can be found in Baguelin et al. (2013). The methods are computationally intensive and fitting the model can easily take a couple of hours on a powerfull machine.
+The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to obtain the posterior distribution of the parameters of an underlying epidemiological model. In this vignette we give practical examples on the required data and how to use the package to perform the MCMC fitting.
+
+The epidemiological model is a compartmental model with Susceptible, Exposed, Infection and Recovered (SEIR) compartments. Waiting time between Exposed and Infectious and between Infectious and Recovered are assumed to be gamma distributed. The epidemiological parameters used in the model are the transmissibility, susceptibility, time latent (time between exposed and susceptible) and the time infectious. Further details of the underlying model and techniques can be found in Baguelin et al. (2013). 
+
+The methods are computationally intensive and fitting the model can easily take a couple of hours on a powerfull machine. For example an inference run of 11 million samples (1 million burn in) will take about 8-9 hours on a relatively modern machine (2015, Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz). Of course one can run different years/strains in parallell.
 
 # Examples
 
 ## Simple example
 
-The example below shows an example for the case where your data is comparable in structure to the data gathered in the UK. In such a case one loads the data and then runs the inference function which will return the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
+The example below shows an example for the case where the data used corresponds to the structure of the data gathered in the UK. The example assumes 7 age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64, >65. In the UK ILI and virulogical data are only separated into 5 age groups though (<4,5-14,15-24,25-64,>65), so `inference` will internally group the first two (<1,1-4) and the middle age groups together when calculating the likelihood of the model given the data.
+
+This example first loads the data and then runs the inference function which returns the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
 
 ```{r, eval=FALSE}
 library(fluEvidenceSynthesis)
@@ -74,19 +80,22 @@ n_pos
 n_samples
   ~ The number of total samples tested. This is assumed to be a strict subset of the number of ILI cases
   
+  
+The `inference` function returns a list with the accepted parameters (`inference.results$batch`) and the corresponding log-likelihood values (`inference.results$llikelihoods`) as well as a matrix (`inference.results$contact.ids`) containing the row numbers of the contacts data used to build the contact matrix.
+  
 For more details on the data format used `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
   
 ## More in depth example
 
-Above we used the general `inference` function to perform parameter inference using the data. In this section we will implement this function in R, which will allow people to adjust the inference process in case they have access to slightly different data or maybe want to adjust things like the number of age groups. This method will give you more control, but it will be slower than calling the `inference` function directly.
+Above we used the general `inference` function to perform parameter inference using the data. In this section we implement this function in R, which allows adjustment of the inference process to allow different data structures or different number of age groups. This method gives the user more control, but it will be slower than calling the `inference` function directly.
 
-To perform parameter inference we need to define a function that returns the (log) likelihood for given parameter values, as dependent on the data and a function which returns the log prior probability of the parameters. These functions will then be passed to `adaptive.mcmc` which will return a posterior sample for the parameter values. We are combining a number of data sources, making the likelihood function relatively complex. The likelihood function needs to perform the following steps (for full details see Baguelin et al., 2013):
+To perform parameter inference we first need to define a function that returns the (log) likelihood for given parameter values, as dependent on the data and a function which returns the log prior probability of the parameters. These functions are then passed to `adaptive.mcmc` which returns a posterior sample for the parameter values. By combining a number of data sources, the likelihood function becomes relatively complex, and so needs to perform the following steps (for full details see Baguelin et al., 2013):
 
-- Bootstrap the polymod data
+- Bootstrap the POLYMOD data
 - Run the model given the parameters
     - Note that we model 7 separate age groups, divided into low risk, high risk and pregnant women
-- Our ILI data and confirmation data is subdivided into 5 age groups, so we need to convert the model results from 7 age groups to the 5 age
-- Finally calculate the likelihood of the converted model results given the ILI and confirmation data
+- Convert the model results from 7 age groups to 5 age to match the structure of the ILI and confirmation data (which is subdivided into 5 age groups)
+- Calculate the likelihood of the converted model results given the ILI and confirmation data
 
 ```{r, eval=FALSE}
 library(fluEvidenceSynthesis)
@@ -134,7 +143,7 @@ build.llikelihood <- function()
     contacts <- contact.matrix(as.matrix(polymod_uk[current.contact.ids,]),
                                age_sizes[,1], age.group.limits )
 
-    age.groups <- separate.into.age.groups( age.sizes[,1], 
+    age.groups <- separate.into.age.groups( age_sizes[,1], 
                                            age.group.limits )
 
     # Fraction of each age group classified as high risk
@@ -162,7 +171,7 @@ build.llikelihood <- function()
                           contacts,
                           c(pars[6],pars[6],pars[6],
                             pars[7],pars[7],pars[7],pars[8]),
-                          transmissibility=pars[5]
+                          transmissibility=pars[5],
                           c(0.8,1.8), 7 )
     
     # Ignore times row
