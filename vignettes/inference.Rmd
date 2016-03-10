@@ -72,7 +72,7 @@ ili
   ~ The number of people with Influenza Like Illness in each week
 
 mon_pop
-  ~ The total number of people monitored for ILI. For the UK this is defined as the number of visitors to the General Practitioner (GP; Doctor).
+  ~ The total number of people monitored for ILI. For the UK this is defined as the number of people registered at the General Practitioner (GP; Doctor).
   
 n_pos
   ~ The number of samples positive for a given Influenza strain
