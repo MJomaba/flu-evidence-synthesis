@@ -40,3 +40,5 @@ vignette(package="fluEvidenceSynthesis")
 # To open the inference vignette:
 vignette("inference",package="fluEvidenceSynthesis")
 ```
+
+There is also a presentation available with some more details on the package [here](http://blackedder.github.io/flu-evidence-synthesis/RCoursePackage.html).
