@@ -3,7 +3,7 @@
 set -e -o pipefail
 
 #dub test --compiler=${DC}
-R -e 'library(rmarkdown);render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
+R -e 'library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
 
 if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     if [ ! -z "$GH_TOKEN" ]; then

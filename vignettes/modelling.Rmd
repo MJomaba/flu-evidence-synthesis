@@ -1,0 +1,78 @@
+---
+title: "Using fluEvidenceSynthesis to predict efficacy of different vaccination scenarios"
+author: "Edwin van Leeuwen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Epidemiological model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r,include=F}
+library(pander)
+```
+
+# Epidemiological model provided by the package
+
+The basic epidemiological model in the package is a SEEIIR model, which is a version of the [SEIR model](https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SEIR_model), but with both the Exposed and Infected split into two different groups. This results in a more realistic gamma distributed waiting time both between the exposed and infected state and the infected and recovered states.
+
+We also need to keep track of who is vaccinated or not. When a Susceptible is vaccinated there is a certain probability that the person becomes recovered (and vaccinated), or stays susceptible (but vaccinated). This is dependent on the efficacy of the vaccine that season. Once one is in any of the other states, we assume that the vaccine does not influence the progress of the infection. As a result an infected who is vaccinated, will stay infected, but is now also tracked as being vaccinated.
+
+Finally we divide the population into different age groups and risk groups. Different age groups and risk groups will be vaccinated at different rates. Infections between age groups happens according to the a contact matrix. The contact matrix governs the number of contacts between and within people of different age groups.
+
+The main function implementing the epidemiological model is the `infectionODEs` function. This function requires a number of parameters and we will explain all these parameters below.
+
+```{r, eval=F}
+infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix,
+  susceptibility, transmissibility, infection_delays, interval)
+```
+
+### population
+
+The size of the population size part of each age group and risk group.
+```{r}
+library(fluEvidenceSynthesis)
+data(age_sizes) # Population divided by age (0 years old, 1 years old, etc.)
+
+# Separate into non elderly (<65) and elderly population
+ag <- separate.into.age.groups(age_sizes$V1, limits=c(65)) # c( 43670500, 8262600 )
+
+# Separate in risk groups. In this case we assume one additional (high) risk groups and that respectively 
+# 1 percent of non elderly and 40% of elderly are in this risk group. It is possible to
+# define an additional risk group (e.g. pregnant women) if desired
+population <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c( 43233795, 4957560, 436705, 3305040 )
+```
+The resulting vector holds the low risk population by age group (43233795, 4957560) followed by the high risk (436705, 3305040).
+
+### Initial infected
+
+The number of people infected at the beginning of the season, again separated into age groups and risk groups.
+```{r}
+library(fluEvidenceSynthesis)
+ag <- c(1000,1000)
+initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c(990, 600, 10, 400)
+```
+
+### Vaccine calendar
+
+The vaccine calendar during the year. See the [vaccination vignette](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html) for a more in depth explanation of this object. Here we will assume a constant rate of vaccination for four months, with no vaccination for the low risk, younger group.
+
+```{r}
+vaccine_calendar <- list(
+  "efficacy" = c(0.7,0.3),
+  "calendar" = matrix(c(0,0.007,0.001,0.007),ncol=2),
+  "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
+)
+```
+
+### Contact matrix
+
+Contact rates between the different age groups.
+
+```{r}
+library(fluEvidenceSynthesis)
+data(polymod_uk)
+data(age_sizes)
+contacts <- contact.matrix(as.matrix(polymod_uk), age_sizes$V1, c(65))
+```

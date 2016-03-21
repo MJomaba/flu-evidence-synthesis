@@ -30,7 +30,7 @@ vaccine_calendar <- list(
   "efficacy" = c(0.7,0.7,0.7,0.7,0.7,0.7,0.3),
   "calendar" = matrix(rep(0,21*3),ncol=21),
   "dates" =  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
-               as.Date("2010-12-01"), as.Date("2010-01-01"))
+               as.Date("2010-12-01"), as.Date("2011-01-01"))
 )
 
 # Set rate of vaccine uptake for different dates/age groups
