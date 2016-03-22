@@ -347,28 +347,14 @@ namespace flu
                     vaccine_programme.efficacy_age,
                     transmission_regular,
                     a1, a2, g1, g2 );
-            size_t faults = 0;
+
+            /* DEBUG This is a good sanity check if run into problems
             for( size_t i=0; i < densities.size(); ++i)
             {
-                bool fault = false;
                 if (densities[i]<0)
-                {   
-                    Rcpp::Rcout << current_time << " " << next_time << " " << i << " " << densities[i] << std::endl;
-                    fault = true;
-                }
-
-                /*if (nag==2)
-                    Rcpp::Rcout << densities.size() << std::endl;*/
-                if (fault) {
-                    Rcpp::Rcout << densities.size() << std::endl;
-                    Rcpp::Rcout << nag << " " << nag*group_types.size()*seir_types.size() << std::endl;
-                    Rcpp::Rcout << transmission_regular << std::endl;
-                    ++faults;
-                }
-            }
-
-            if (faults > 0)
                     ::Rf_error( "Some densities below zero" );
+            }
+            */
 
             current_time = next_time;
             //Rcpp::Rcout << "N cases" << n_cases << std::endl;
