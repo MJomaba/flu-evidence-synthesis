@@ -346,6 +346,16 @@ namespace flu
                     vaccine_programme.efficacy_age,
                     transmission_regular,
                     a1, a2, g1, g2 );
+
+            for( size_t i=0; i < densities.size(); ++i)
+            {
+                if (densities[i]<0)
+                {   
+                    Rcpp::Rcout << current_time << " " << i << " " << densities[i] << std::endl;
+                    ::Rf_error( "Some densities below zero" );
+                }
+            }
+
             current_time = next_time;
             //Rcpp::Rcout << "N cases" << n_cases << std::endl;
 

@@ -350,7 +350,7 @@ test_that("infectionODEs works with less than 3 risk groups", {
     initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) )
     vaccine_calendar <- list(
       "efficacy" = c(0.7,0.3),
-      "calendar" = matrix(c(0,0.007,0.001,0.007),ncol=2),
+      "calendar" = matrix(c(0,0.007,0.001,0.007),nrow=1),
       "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
     )
 
@@ -368,8 +368,8 @@ test_that("infectionODEs works with less than 3 risk groups", {
                 susceptibility, transmissibility, infection_delays, 7 )
     expect_equal(ncol(odes), 5)
     expect_equal(format(odes$Time[1],format="%Y"),"2010" );
-
+    
     comp <- mapply( function(x,y) difftime(y,x)==7, odes$Time[1:(nrow(odes)-1)], odes$Time[2:nrow(odes)] )
-    expect_equal( sum(comp), length(comp)-2 ) # Note two errors, due to GMT switch to BST, which causes diff hour more or less than a real week
+    expect_equal( sum(comp), length(comp) - 2 ) # Two time diffs will be slightly more/less than 7 days due to summer time
 })
 
