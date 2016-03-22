@@ -369,7 +369,11 @@ test_that("infectionODEs works with less than 3 risk groups", {
     expect_equal(ncol(odes), 5)
     expect_equal(format(odes$Time[1],format="%Y"),"2010" );
     
-    comp <- mapply( function(x,y) difftime(y,x)==7, odes$Time[1:(nrow(odes)-1)], odes$Time[2:nrow(odes)] )
-    expect_equal( sum(comp), length(comp) - 2 ) # Two time diffs will be slightly more/less than 7 days due to summer time
+    comp <- mapply( function(x,y) difftime(y,x)-7, odes$Time[1:(nrow(odes)-1)], odes$Time[2:nrow(odes)] )
+
+    # Up to two time diffs will be slightly more/less than 7 days due to summer time
+    print(comp)
+    expect_less_than(sum(comp!=0),3)
+    expect_less_than( sum(abs(comp)), 2.1/24 )
 })
 
