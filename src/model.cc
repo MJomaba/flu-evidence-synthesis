@@ -349,7 +349,7 @@ namespace flu
 
             for( size_t i=0; i < densities.size(); ++i)
             {
-                if (densities[i]<0)
+                if (densities[i]<-10)
                 {   
                     Rcpp::Rcout << current_time << " " << i << " " << densities[i] << std::endl;
                     ::Rf_error( "Some densities below zero" );
