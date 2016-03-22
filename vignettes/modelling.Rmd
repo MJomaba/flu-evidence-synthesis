@@ -11,6 +11,7 @@ vignette: >
 
 ```{r,include=F}
 library(pander)
+library(ggplot2)
 ```
 
 # Epidemiological model provided by the package
@@ -103,4 +104,9 @@ Interval is the time we want to integrate over. For example if we have a data po
 odes <- infectionODEs( population, initial.infected, vaccine_calendar, contacts, 
                susceptibility, transmissibility, infection_delays, 7 )
 pander(head(odes))
+```
+
+```{r}
+ggplot( data=odes ) + geom_line( aes(x=Time, y=V1 ) ) + 
+  geom_line( aes(x=Time,y=V2) )
 ```

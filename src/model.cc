@@ -185,7 +185,7 @@ namespace flu
                         h_step, t, time_left, 5 );*/
             densities = ode::step( std::move(densities), ode_func,
                         h_step, t, time_left );
-            //Rcpp::Rcout << h_step << std::endl;
+            //Rcpp::Rcout << h_step << " " << t << " " << time_left << std::endl;
 
             results.block( 0, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_LOW,E2),nag)+densities.segment(ode_id(nag,LOW,E2),nag))*(t-prev_t);
             results.block( nag, 0, nag, 1 ) += a2*(densities.segment(ode_id(nag,VACC_HIGH,E2),nag)+densities.segment(ode_id(nag,HIGH,E2),nag))*(t-prev_t);
@@ -297,9 +297,17 @@ namespace flu
                 /minimal_resolution );
 
         static bt::time_duration dt = bt::hours( 6 );
+        bool time_changed_for_vacc = false;
         while (cases.times.size()<(size_t)cases.cases.rows())
         {
             auto next_time = current_time + bt::hours( minimal_resolution );
+            if (time_changed_for_vacc && cases.times.size()>0) 
+            {
+                // Previous iteration time was changed, now need to
+                // go back to old situation
+                next_time = cases.times.back() + bt::hours( minimal_resolution );
+                time_changed_for_vacc = false;
+            }
 
             
             //Rcpp::Rcout << "cTime: " << current_time << std::endl;
@@ -318,7 +326,6 @@ namespace flu
                 date_id=floor((current_time-start_time).hours()/24.0-44);
             }
 
-            bool time_changed_for_vacc = false;
             if (date_id < ((int)vaccine_programme.dates.size())-1 && 
                         date_id >= -1 && 
                     next_time > vaccine_programme.dates[date_id+1] )
