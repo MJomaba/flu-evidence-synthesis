@@ -2,11 +2,12 @@
 
 set -e -o pipefail
 
-#dub test --compiler=${DC}
-R -e 'library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
-
 if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     if [ ! -z "$GH_TOKEN" ]; then
+        ./install.sh
+        R -e 'library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
+
+
         git checkout master
         mkdir docs 
 #        dub build -b docs --compiler=${DC}
