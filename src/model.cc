@@ -249,10 +249,12 @@ namespace flu
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
 
         auto current_time = starting_time;
-        if (to_tm(current_time).tm_year==1970 && 
+        if (to_tm(current_time).tm_year==70 && 
                 vaccine_programme.dates.size()!=0)
+        {
             current_time = getTimeFromWeekYear( 35, 
-                    vaccine_programme.dates[0].date().year() );
+                vaccine_programme.dates[0].date().year() );
+        }
 
         auto start_time = current_time;
         auto end_time = current_time + bt::hours(364*24);

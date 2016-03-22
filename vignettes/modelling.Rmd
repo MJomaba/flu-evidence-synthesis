@@ -61,7 +61,7 @@ The vaccine calendar during the year. See the [vaccination vignette](https://bla
 ```{r}
 vaccine_calendar <- list(
   "efficacy" = c(0.7,0.3),
-  "calendar" = matrix(c(0,0.007,0.001,0.007),ncol=2),
+  "calendar" = matrix(c(0,0.007,0.001,0.007),nrow=1),
   "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
 )
 ```
@@ -74,5 +74,33 @@ Contact rates between the different age groups.
 library(fluEvidenceSynthesis)
 data(polymod_uk)
 data(age_sizes)
-contacts <- contact.matrix(as.matrix(polymod_uk), age_sizes$V1, c(65))
+
+# Polymod data is subdivided in seven age groups
+poly <- polymod_uk[,c(1,2,3,9)]
+poly[,3] <- rowSums(polymod_uk[,3:8])
+
+contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+pander(contacts)
+```
+
+### Epidemiological parameters
+
+Different parameter values in the epidemiological model. We assume susceptibility is different for the different age groups, while transmissibility is the same for each age group. Infection_delays are the average time going from exposed to infected and from infected to recovered.
+
+```{r}
+susceptibility <- c( 0.7, 0.3 ) # Different for different ages
+transmissibility <- 0.17 # Same for all ages
+infection_delays <- c( 0.8, 1.8 ) # 0.8 and 1.8 day.
+```
+
+### Interval
+
+Interval is the time we want to integrate over. For example if we have a data point each week, then we want to model all the people infections during that week, giving us an interval of 7 days.
+
+## Run the model
+
+```{r}
+odes <- infectionODEs( population, initial.infected, vaccine_calendar, contacts, 
+               susceptibility, transmissibility, infection_delays, 7 )
+pander(head(odes))
 ```

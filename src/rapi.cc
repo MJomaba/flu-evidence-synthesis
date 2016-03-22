@@ -178,10 +178,24 @@ Rcpp::DataFrame infectionODEs(
         ::Rf_error("Contact matrix should be a square matrix");
     else if (contact_matrix.cols() != susceptibility.size())
         ::Rf_error("Contact matrix and susceptibility vector should use the same number of age groups.");
-    else if (contact_matrix.cols() != population.size()/3)
-        ::Rf_error("Currently precisely three risk groups are expected. Population vector should have the initial population of each group");
+    else if (contact_matrix.cols()*3 < population.size()) 
+        ::Rf_error("Maximum of three risk groups are expected. Population vector should have the initial population of each group");
+    else if (population.size()%contact_matrix.cols()!=0)
+        ::Rf_error("Population groups and contact_matrix size mismatch");
     else if (population.size() != initial_infected.size())
         ::Rf_error("Population vector and initial_infected should have the same number of entries");
+
+    auto dim = population.size();
+    if (contact_matrix.cols() != population.size()/3)
+    {
+        population.conservativeResize(contact_matrix.cols()*3);
+        initial_infected.conservativeResize(contact_matrix.cols()*3);
+        for( size_t i = dim; i<population.size(); ++i)
+        {
+            population[i] = 0;
+            initial_infected[i] = 0;
+        }
+    }
 
     auto result = flu::infectionODE(
         population, initial_infected, 
@@ -189,7 +203,7 @@ Rcpp::DataFrame infectionODEs(
         susceptibility, contact_matrix, transmissibility,
         vaccine_calendar, interval*24 );
 
-    Rcpp::List resultList( result.cases.cols() + 1 );
+    Rcpp::List resultList( dim + 1 );
     Rcpp::CharacterVector columnNames;
 
     //Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
@@ -206,7 +220,7 @@ Rcpp::DataFrame infectionODEs(
     columnNames.push_back( "Time" );
     resultList[0] = times;
 
-    for (int i=0; i<result.cases.cols(); ++i)
+    for (int i=0; i<dim; ++i)
     {
         resultList[i+1] = Eigen::VectorXd(result.cases.col(i));
         columnNames.push_back( 
@@ -216,9 +230,8 @@ Rcpp::DataFrame infectionODEs(
     resultList.attr("names") = columnNames;
 
     return Rcpp::DataFrame(resultList);
-    //return densities;
-    //return resultMatrix;
 }
+
 //' Returns log likelihood of the predicted number of cases given the data for that week
 //'
 //' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.

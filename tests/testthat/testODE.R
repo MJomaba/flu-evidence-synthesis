@@ -338,3 +338,35 @@ test_that("Second risk group works as expected", {
         expect_less_than( dt, 5 )
     }
 })
+
+
+test_that("infectionODEs works with less than 3 risk groups", {
+    data(age_sizes) 
+    data(polymod_uk)
+
+    ag <- separate.into.age.groups(age_sizes$V1, limits=c(65)) # c( 43670500, 8262600 )
+    population <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c( 43233795, 4957560, 436705, 3305040 )
+    ag <- c(1000,1000)
+    initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) )
+    vaccine_calendar <- list(
+      "efficacy" = c(0.7,0.3),
+      "calendar" = matrix(c(0,0.007,0.001,0.007),ncol=2),
+      "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
+    )
+
+    # Polymod data is subdivided in seven age groups
+    poly <- polymod_uk[,c(1,2,3,9)]
+    poly[,3] <- rowSums(polymod_uk[,3:8])
+
+    contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+    susceptibility <- c( 0.7, 0.3 ) # Different for different ages
+    transmissibility <- 0.17 # Same for all ages
+    infection_delays <- c( 0.8, 1.8 ) # 0.8 and 1.8 day.
+
+    odes <- infectionODEs( population, initial.infected, 
+                vaccine_calendar,  contacts, 
+                susceptibility, transmissibility, infection_delays, 7 )
+    expect_equal(ncol(odes), 5)
+    expect_equal(format(odes$Time[1],format="%Y"),"2010" );
+})
+
