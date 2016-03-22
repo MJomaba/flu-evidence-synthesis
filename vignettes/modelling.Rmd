@@ -33,7 +33,6 @@ infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix,
 
 The size of the population size part of each age group and risk group.
 ```{r}
-library(fluEvidenceSynthesis)
 data(age_sizes) # Population divided by age (0 years old, 1 years old, etc.)
 
 # Separate into non elderly (<65) and elderly population
@@ -50,7 +49,6 @@ The resulting vector holds the low risk population by age group (43233795, 49575
 
 The number of people infected at the beginning of the season, again separated into age groups and risk groups.
 ```{r}
-library(fluEvidenceSynthesis)
 ag <- c(1000,1000)
 initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c(990, 600, 10, 400)
 ```
@@ -72,7 +70,6 @@ vaccine_calendar <- list(
 Contact rates between the different age groups.
 
 ```{r}
-library(fluEvidenceSynthesis)
 data(polymod_uk)
 data(age_sizes)
 
