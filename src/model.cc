@@ -50,6 +50,7 @@ namespace flu
             double a1, double a2, double g1, double g2 )
     {
         const size_t nag = transmission_regular.cols();
+        
         for(size_t i=0;i<nag;i++)
         {
             /*rate of depletion of susceptible*/
@@ -163,7 +164,7 @@ namespace flu
         const size_t nag = transmission_regular.cols();
         Eigen::VectorXd results = Eigen::VectorXd::Zero(nag*3);
 
-        static Eigen::VectorXd deltas( nag*group_types.size()*
+        Eigen::VectorXd deltas( nag*group_types.size()*
                 seir_types.size() );
 
         auto time_left = (end_time-start_time).hours()/24.0;
@@ -346,15 +347,28 @@ namespace flu
                     vaccine_programme.efficacy_age,
                     transmission_regular,
                     a1, a2, g1, g2 );
-
+            size_t faults = 0;
             for( size_t i=0; i < densities.size(); ++i)
             {
-                if (densities[i]<-10)
+                bool fault = false;
+                if (densities[i]<0)
                 {   
-                    Rcpp::Rcout << current_time << " " << i << " " << densities[i] << std::endl;
-                    ::Rf_error( "Some densities below zero" );
+                    Rcpp::Rcout << current_time << " " << next_time << " " << i << " " << densities[i] << std::endl;
+                    fault = true;
+                }
+
+                /*if (nag==2)
+                    Rcpp::Rcout << densities.size() << std::endl;*/
+                if (fault) {
+                    Rcpp::Rcout << densities.size() << std::endl;
+                    Rcpp::Rcout << nag << " " << nag*group_types.size()*seir_types.size() << std::endl;
+                    Rcpp::Rcout << transmission_regular << std::endl;
+                    ++faults;
                 }
             }
+
+            if (faults > 0)
+                    ::Rf_error( "Some densities below zero" );
 
             current_time = next_time;
             //Rcpp::Rcout << "N cases" << n_cases << std::endl;

@@ -12,6 +12,18 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
 
     vac_cal.calendar = Rcpp::as<Eigen::MatrixXd>(rListVac["calendar"]);
 
+    // HARDCODED risk groups!
+    if (vac_cal.calendar.cols() < 3*vac_cal.efficacy_age.size()) {
+        auto dim = vac_cal.calendar.cols();
+        vac_cal.calendar.conservativeResize( vac_cal.calendar.rows(), 
+                3*vac_cal.efficacy_age.size() );
+        for (size_t j=dim; j<vac_cal.calendar.cols(); ++j)
+        {
+            for (size_t i = 0; i < vac_cal.calendar.rows(); ++i)
+                vac_cal.calendar(i,j)=0;
+        }
+    }
+
     if (rListVac.containsElementNamed("dates")) 
     {
         // Ideally would work with Datetime, but automatic conversion of
