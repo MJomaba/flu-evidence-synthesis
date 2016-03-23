@@ -12,6 +12,7 @@ if [[ $TRAVIS_BRANCH == 'master' ]] ; then
         mkdir docs 
 #        dub build -b docs --compiler=${DC}
         cd docs
+        wget https://gitlab.com/BlackEdder/rcourse/raw/master/RIntroduction.html
         wget https://gitlab.com/BlackEdder/rcourse/raw/master/RCoursePackage.html
 #        mkdir images
         cp ../vignettes/*.html ./
