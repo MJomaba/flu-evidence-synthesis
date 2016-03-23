@@ -23,3 +23,5 @@ symbols.rds
 *.tar.gz
 *.pdf
 *.html
+*_cache/
+*_files/

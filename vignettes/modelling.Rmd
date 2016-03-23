@@ -106,7 +106,7 @@ odes <- infectionODEs( population, initial.infected, vaccine_calendar, contacts,
 pander(head(odes))
 ```
 
-```{r}
+```{r,fig.width=6,fig.height=5}
 fraction.infected <- odes
 fraction.infected$V1 <- fraction.infected$V1/population[1]
 fraction.infected$V2 <- fraction.infected$V2/population[2]

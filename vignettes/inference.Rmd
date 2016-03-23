@@ -9,6 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r,include=F}
+library(pander)
+```
+
 # Introduction
 
 This package implements all the tools needed to analyse and compare the effectiveness of different Influenza vaccine programs (see Baguelin et al. (2013) for more details). This analysis has two main steps.
@@ -32,7 +36,7 @@ The example below shows an example for the case where the data used corresponds 
 
 This example first loads the data and then runs the inference function which returns the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
 
-```{r, eval=FALSE}
+```{r,cache=T}
 library(fluEvidenceSynthesis)
 data("age_sizes")
 data("vaccine_calendar")
@@ -82,8 +86,20 @@ n_samples
   
   
 The `inference` function returns a list with the accepted parameters (`inference.results$batch`) and the corresponding log-likelihood values (`inference.results$llikelihoods`) as well as a matrix (`inference.results$contact.ids`) containing the row numbers of the contacts data used to build the contact matrix.
+
+```{r}
+pander(head(inference.results$batch))
+```
+
+Each row represents a sample of posterior parameter values. The order of the parameters is as follows:
+
+- 1-3: Ascertainment probabilty for three age groups ($\epsilon_i$)
+- 4: Outside infection ($\psi$)
+- 5: Transmissibility ($q$)
+- 6-8: Susceptibility for three age groups ($\sigma_i$)
+- 9: Initial number of infections ($I$)
   
-For more details on the data format used `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
+For more details on the input data see `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
   
 ## More in depth example
 
@@ -97,7 +113,7 @@ To perform parameter inference we first need to define a function that returns t
 - Convert the model results from 7 age groups to 5 age to match the structure of the ILI and confirmation data (which is subdivided into 5 age groups)
 - Calculate the likelihood of the converted model results given the ILI and confirmation data
 
-```{r, eval=FALSE}
+```{r,cache=T}
 library(fluEvidenceSynthesis)
 
 # Load the data and return the log likelihood function given the data
@@ -112,18 +128,7 @@ build.llikelihood <- function()
   data("confirmed.samples")
   
   # Sum all populations with a certain age into their corresponding age group
-  age.group.sizes.5 <- rep(0,5)
-  count <- 1
-  ag.limits <- c(5,15,45,65)
-  for (i in seq(0,nrow(age_sizes)-1))
-  {
-    if (count <= length(ag.limits))
-    {
-      if (i>=ag.limits[count])
-        count <- count + 1
-    }
-    age.group.sizes.5[count] <- age.group.sizes.5[count] + age_sizes[i+1,1]
-  }
+  age.group.sizes.5 <- separate.into.age.groups(age_sizes$V1,c(5,15,45,65))
   
   # This is to keep track of the bootstrapped contact results
   current.contact.ids <- seq(1,nrow(polymod_uk))
@@ -223,14 +228,24 @@ llikelihood <- build.llikelihood()
 
 # Run adaptive.mcmc
 mcmc.result <- adaptive.mcmc( lprior=llprior, llikelihood=llikelihood,
-               nburn=1000, 
+               nburn=100, 
                initial=init.pars,
-               nbatch=1000, blen=10 )
+               nbatch=100, blen=10 )
 ```
 
 # Analysing the results
 
-(For this I need the plotting commands Marc has)
+Plotting the resulting posterior parameter values^[Be aware that these results are for a very short mcmc run and are not realistic].
+
+```{r,cache=T,fig.width=5,fig.height=5}
+library(reshape2)
+library(ggplot2)
+colnames(inference.results$batch) <- c("eps1", "eps2", "eps3", "psi", "q",
+                                       "susc1", "susc2", "susc3", "I0")
+
+ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales="free" ) + geom_histogram(aes(x=value,factor=Var2), bins=25)
+
+```
 
 # References
 
