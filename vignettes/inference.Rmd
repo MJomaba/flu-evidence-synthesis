@@ -250,8 +250,12 @@ ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales=
 
 ## Posterior model results
 
+Here we plot the credibility intervals of our models. Each plot is the result for one of the seven age groups and shows the number of new cases each week.
+
 ```{r,cache=T, fig.width=5, fig.height=5}
-pars <- inference.results$batch[1,]
+
+# Function that runs the model given a set of parameters. Most of the function
+# has todo with loading the correct inputs for the ODE model
 ode.results <- function( pars ) 
 {
   data("age_sizes")
@@ -297,9 +301,14 @@ ode.results <- function( pars )
   return( simplify.odes )
 }
 
+# Calculate the credibility intervals for each time point. By default the function
+# calculate it for the credibility cut off values of 1%, 50% (median) and 99%
 cim <- credible.interval.model(ode.results, inference.results$batch)
+cim$row.ID <- sapply(cim$row.ID,function(s) as.Date(as.character(s))) 
 
-ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) + geom_line(aes(x=row.ID,y=value,factor=column.ID))
+ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) +
+  geom_line(aes(x=row.ID,y=value,group=aggregate,colour=aggregate,factor=column.ID)) +
+  xlab("Time") + ylab("New infections")
 ```
 
 # References
