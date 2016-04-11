@@ -303,11 +303,11 @@ ode.results <- function( pars )
 
 # Calculate the credibility intervals for each time point. By default the function
 # calculate it for the (equal tailed) credibility interval of 0% (median) and 98%
-cim <- credible.interval.model(ode.results, inference.results$batch)
+cim <- credible.interval.model(ode.results, inference.results$batch, intervals=c(0,0.5, 0.98))
 cim$row.ID <- sapply(cim$row.ID,function(s) as.Date(as.character(s))) 
 
 ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) +
-  geom_line(aes(x=row.ID,y=value,group=aggregate,colour=aggregate,factor=column.ID)) +
+  stat_ci( aes(row.ID,value,ci=aggregate, factor=column.ID) ) +
   xlab("Time") + ylab("New infections")
 ```
 

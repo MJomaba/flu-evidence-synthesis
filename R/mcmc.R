@@ -88,14 +88,12 @@ credible.interval.model <- function( func, batch, intervals = c( 0.0, 0.98 ), ..
   agg.f <- function( v )
   {
     xs <- sort(v)
-    int <- sapply( intervals, function(i) 
+    int <- lapply( intervals, function(i) 
     { 
-      if (i==0.0)
-        return(0.5)
       perc <- i/2
-      c(0.5-perc,0.5+perc)
+      list(0.5-perc,0.5+perc)
     })
-    ls <- lapply( int, function(i) xs[i*length(xs)] )
+    ls <- lapply( int, function(i) xs[unlist(i)*length(xs)] )
     names(ls) <- intervals
     return(ls)
   }
