@@ -302,7 +302,7 @@ ode.results <- function( pars )
 }
 
 # Calculate the credibility intervals for each time point. By default the function
-# calculate it for the credibility cut off values of 1%, 50% (median) and 99%
+# calculate it for the (equal tailed) credibility interval of 0% (median) and 98%
 cim <- credible.interval.model(ode.results, inference.results$batch)
 cim$row.ID <- sapply(cim$row.ID,function(s) as.Date(as.character(s))) 
 

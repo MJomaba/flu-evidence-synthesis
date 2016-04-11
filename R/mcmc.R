@@ -48,14 +48,19 @@ aggregate.model <- function( func, batch, aggregate, ... )
     for (j in colnames(values[[1]]))
     {
       agg <- aggregate(sapply( values, function(v) v[i,j] ))
-      column.ID <- c( column.ID, rep(j,length(agg)) )
-      row.ID <- c( row.ID, rep(i,length(agg)) )
+      vs <- as.vector(unlist(agg))
+      column.ID <- c( column.ID, rep(j,length(vs)) )
+      row.ID <- c( row.ID, rep(i,length(vs)) )
       
       if (class(agg)=="list")
-        interval <- c( interval, names(agg) )
+      {
+        nms <- names(agg)
+        for (l in 1:length(agg))
+             interval <- c(interval, rep( nms[[l]], length( agg[[l]] ) ) )
+      }
       else
-        interval <- c( interval, seq(1,length(agg)) )
-      value <- c( value, unlist(agg) )
+        interval <- c( interval, seq(1,length(vs)) )
+      value <- c( value, vs )
     }
   return(
       data.frame(list(
@@ -66,24 +71,31 @@ aggregate.model <- function( func, batch, aggregate, ... )
     ) ) )
 }
 
-#' Calculate the credible interval at different time points
+#' Calculate the (equal tailed) credible interval at different time points
 #' 
 #' This function is useful to convert the mcmc results into credible intervals, which is needed for plotting
 #' your results. Calls aggregate.model to aggregate the results by the passed intervals.
 #' 
 #' @param func The function that gets called for each set of parameters (e.g. infectionODEs)
 #' @param batch Posterior parameters samples resulting from mcmc. Each row is a set of parameters
-#' @param intervals The cut offs at which to calculate the intervals
+#' @param intervals The intervals to calculate (by default median (0%) and 98%)
 #' @param ... Extra parameters passed to func.
 #' 
 #' @return Returns a data.table in long format, with for each time point, interval, column.ID the value
 #' 
-credible.interval.model <- function( func, batch, intervals = c( 0.01, 0.5, 0.99 ), ... )
+credible.interval.model <- function( func, batch, intervals = c( 0.0, 0.98 ), ... )
 {
   agg.f <- function( v )
   {
     xs <- sort(v)
-    ls <- lapply( intervals, function(i) xs[i*length(xs)] )
+    int <- sapply( intervals, function(i) 
+    { 
+      if (i==0.0)
+        return(0.5)
+      perc <- i/2
+      c(0.5-perc,0.5+perc)
+    })
+    ls <- lapply( int, function(i) xs[i*length(xs)] )
     names(ls) <- intervals
     return(ls)
   }
