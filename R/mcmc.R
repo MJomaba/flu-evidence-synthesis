@@ -29,9 +29,9 @@ adaptive.mcmc <- function( lprior, llikelihood, nburn, initial, nbatch, blen = 1
 #' @param aggregate The aggragation function (i.e. mean, var etc). If the function returns a list, then the names are used in the return value
 #' @param ... Extra parameters passed to func.
 #' 
-#' @return Returns a data.table in long format, with for each time point, interval, column.ID the value
+#' @return Returns a data.frame in long format, with for each time point, interval, column.ID the value
 #' 
-aggregate.model <- function( func, batch, aggregate, ... )
+aggregateModel <- function( func, batch, aggregate, ... )
 {
   values <- list()
   for( k in 1:nrow(batch) )
@@ -74,14 +74,14 @@ aggregate.model <- function( func, batch, aggregate, ... )
 #' Calculate the (equal tailed) credible interval at different time points
 #' 
 #' This function is useful to convert the mcmc results into credible intervals, which is needed for plotting
-#' your results. Calls aggregate.model to aggregate the results by the passed intervals.
+#' your results. Calls aggregateModel to aggregate the results by the passed intervals.
 #' 
 #' @param func The function that gets called for each set of parameters (e.g. infectionODEs)
 #' @param batch Posterior parameters samples resulting from mcmc. Each row is a set of parameters
 #' @param intervals The intervals to calculate (by default median (0%) and 98%)
 #' @param ... Extra parameters passed to func.
 #' 
-#' @return Returns a data.table in long format, with for each time point, interval, column.ID the value
+#' @return Returns a data.frame in long format, with for each time point, interval, column.ID the value
 #' 
 credible.interval.model <- function( func, batch, intervals = c( 0.0, 0.98 ), ... )
 {
@@ -97,5 +97,5 @@ credible.interval.model <- function( func, batch, intervals = c( 0.0, 0.98 ), ..
     names(ls) <- intervals
     return(ls)
   }
-  aggregate.model( func, batch, agg.f, ... )
+  aggregateModel( func, batch, agg.f, ... )
 }

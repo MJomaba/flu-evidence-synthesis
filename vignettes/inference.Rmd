@@ -253,6 +253,7 @@ ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales=
 Here we plot the credibility intervals of our models. Each plot is the result for one of the seven age groups and shows the number of new cases each week.
 
 ```{r,cache=T, fig.width=5, fig.height=5}
+library(fluEvidenceSynthesis)
 
 # Function that runs the model given a set of parameters. Most of the function
 # has todo with loading the correct inputs for the ODE model

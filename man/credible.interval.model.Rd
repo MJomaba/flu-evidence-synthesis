@@ -16,10 +16,10 @@ credible.interval.model(func, batch, intervals = c(0, 0.98), ...)
 \item{...}{Extra parameters passed to func.}
 }
 \value{
-Returns a data.table in long format, with for each time point, interval, column.ID the value
+Returns a data.frame in long format, with for each time point, interval, column.ID the value
 }
 \description{
 This function is useful to convert the mcmc results into credible intervals, which is needed for plotting
-your results. Calls aggregate.model to aggregate the results by the passed intervals.
+your results. Calls aggregateModel to aggregate the results by the passed intervals.
 }
 
