@@ -11,9 +11,9 @@ credible.interval.model(func, batch, intervals = c(0, 0.98), ...)
 
 \item{batch}{Posterior parameters samples resulting from mcmc. Each row is a set of parameters}
 
-\item{intervals}{The intervals to calculate (by default median (0%) and 98%)}
+\item{intervals}{The intervals to calculate (by default 0 (median) and 0.98)}
 
-\item{...}{Extra parameters passed to func.}
+\item{...}{Extra parameters passed to func}
 }
 \value{
 Returns a data.frame in long format, with for each time point, interval, column.ID the value

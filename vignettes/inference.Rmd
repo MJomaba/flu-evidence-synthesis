@@ -254,6 +254,7 @@ Here we plot the credibility intervals of our models. Each plot is the result fo
 
 ```{r,cache=T, fig.width=5, fig.height=5}
 library(fluEvidenceSynthesis)
+library(ggplot2)
 
 # Function that runs the model given a set of parameters. Most of the function
 # has todo with loading the correct inputs for the ODE model
