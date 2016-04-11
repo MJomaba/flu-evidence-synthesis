@@ -2,16 +2,16 @@
 % Please edit documentation in R/mcmc.R
 \name{credible.interval.model}
 \alias{credible.interval.model}
-\title{Calculate the credible interval at different time points}
+\title{Calculate the (equal tailed) credible interval at different time points}
 \usage{
-credible.interval.model(func, batch, intervals = c(0.01, 0.5, 0.99), ...)
+credible.interval.model(func, batch, intervals = c(0, 0.98), ...)
 }
 \arguments{
 \item{func}{The function that gets called for each set of parameters (e.g. infectionODEs)}
 
 \item{batch}{Posterior parameters samples resulting from mcmc. Each row is a set of parameters}
 
-\item{intervals}{The cut offs at which to calculate the intervals}
+\item{intervals}{The intervals to calculate (by default median (0%) and 98%)}
 
 \item{...}{Extra parameters passed to func.}
 }
