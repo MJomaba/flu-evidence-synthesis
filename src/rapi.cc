@@ -13,6 +13,38 @@
 
 namespace bt = boost::posix_time;
 
+Rcpp::Datetime ptime_to_datetime( const bt::ptime &ti )
+{
+    return Rcpp::Datetime(
+            bt::to_iso_extended_string( ti ),
+            "%Y-%m-%dT%H:%M:%OS");
+}
+
+Rcpp::Date ptime_to_date( const bt::ptime &ti )
+{
+    return Rcpp::Date(
+            bt::to_iso_extended_string( ti ),
+            "%Y-%m-%dT%H:%M:%OS");
+}
+
+
+bt::ptime datetime_to_ptime( const Rcpp::Datetime &ti )
+{
+    return bt::ptime( boost::gregorian::date(ti.getYear(), ti.getMonth(), 
+                ti.getDay()),
+            bt::hours( ti.getHours() )+
+            bt::minutes( ti.getMinutes() ) +
+            bt::seconds( ti.getSeconds() )
+            );
+}
+
+bt::ptime date_to_ptime( const Rcpp::Date &ti )
+{
+    return bt::ptime( boost::gregorian::date(ti.getYear(), ti.getMonth(), 
+                ti.getDay()), bt::hours(12) );
+}
+
+
 /**
  * This file contains some thin wrappers around C++ code. Mostly used
  * for testing the C++ code from R.
@@ -61,9 +93,7 @@ Eigen::MatrixXd updateCovariance( Eigen::MatrixXd cov,
 Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 {
     //return bt::to_iso_string(flu::getTimeFromWeekYear( week, year ));
-    return Rcpp::Datetime(
-            bt::to_iso_extended_string(flu::getTimeFromWeekYear( week, year )),
-            "%Y-%m-%dT%H:%M:%OS");
+    return ptime_to_datetime(flu::getTimeFromWeekYear( week, year ));
     //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
     //return Rcpp::wrap(flu::getTimeFromWeekYear( week, year ));
 }
@@ -163,7 +193,7 @@ Rcpp::DataFrame runSEIRModel(
 //' @param interval Interval (in days) between data points
 //' @return A data frame with number of new cases after each interval during the year
 //'
-// [[Rcpp::export(name="infectionODEs")]]
+// [[Rcpp::export(name="infectionODEs.cpp")]]
 Rcpp::DataFrame infectionODEs(
         Eigen::VectorXd population, 
         Eigen::VectorXd initial_infected, 
@@ -172,7 +202,7 @@ Rcpp::DataFrame infectionODEs(
         Eigen::VectorXd susceptibility, 
         double transmissibility, 
         Eigen::VectorXd infection_delays, 
-        size_t interval = 1 )
+        Rcpp::DateVector dates )
 {
     if (contact_matrix.cols() != contact_matrix.rows()) 
         ::Rf_error("Contact matrix should be a square matrix");
@@ -197,24 +227,31 @@ Rcpp::DataFrame infectionODEs(
         }
     }
 
+    std::vector<boost::posix_time::ptime> datesC;
+    for( auto & d : dates )
+    {
+        datesC.push_back( date_to_ptime( d ) );
+    }
+
     auto result = flu::infectionODE(
         population, initial_infected, 
         infection_delays[0], infection_delays[1],
         susceptibility, contact_matrix, transmissibility,
-        vaccine_calendar, interval*24 );
+        vaccine_calendar, datesC );
 
     Rcpp::List resultList( dim + 1 );
     Rcpp::CharacterVector columnNames;
 
     //Rcpp::DataFrame densities = Rcpp::wrap<Rcpp::DataFrame>( result.cases );
     // Convert times
-    auto times = Rcpp::DatetimeVector(result.times.size());
+    auto times = Rcpp::DateVector(result.times.size());
     for ( size_t i = 0; i < result.times.size(); ++i )
     {
-        times[i] = 
-                Rcpp::Datetime(
-            bt::to_iso_extended_string( result.times[i] ),
-            "%Y-%m-%dT%H:%M:%OS");
+        times[i] = ptime_to_date( result.times[i] );
+        if (dates[i+1]!=times[i])
+        {
+            ::Rf_error("Dates do not match");
+        }
     }
 
     columnNames.push_back( "Time" );

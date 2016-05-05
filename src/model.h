@@ -62,6 +62,15 @@ namespace flu
             const boost::posix_time::ptime &starting_time = 
                 getTimeFromWeekYear( 35, 1970 ) );
 
+    cases_t infectionODE(
+            const Eigen::VectorXd &Npop,  
+            const Eigen::VectorXd &seed_vec, 
+            const double tlatent, const double tinfectious, 
+            const Eigen::VectorXd &s_profile, 
+            const Eigen::MatrixXd &contact_regular, 
+            double transmissibility,
+            const vaccine::vaccine_t &vaccine_programme,
+            const std::vector<boost::posix_time::ptime> &times );
 
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
