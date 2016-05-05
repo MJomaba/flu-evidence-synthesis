@@ -167,6 +167,7 @@ namespace flu
         Eigen::VectorXd deltas( nag*group_types.size()*
                 seir_types.size() );
 
+        auto t = 0.0;
         auto time_left = (end_time-start_time).hours()/24.0;
 
         auto ode_func = [&]( const Eigen::VectorXd &y, const double dummy )
@@ -176,12 +177,9 @@ namespace flu
                     transmission_regular, a1, a2, g1, g2 );
         };
 
-        auto t = 0.0;
-        auto prev_t = t;
-
         while (t < time_left)
         {
-            prev_t = t;
+            auto prev_t = t;
             /*densities = ode::rkf45_astep( std::move(densities), ode_func,
                         h_step, t, time_left, 5 );*/
             densities = ode::step( std::move(densities), ode_func,
