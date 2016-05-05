@@ -232,14 +232,14 @@ namespace flu
             const Eigen::VectorXd &seed_vec, 
             const double tlatent, const double tinfectious, 
             const Eigen::VectorXd &s_profile, 
-            const Eigen::MatrixXd &contact_regular, double transmissibility,
+            const Eigen::MatrixXd &contact_regular, 
+            double transmissibility,
             const vaccine::vaccine_t &vaccine_programme,
-            size_t minimal_resolution, 
-            const boost::posix_time::ptime &starting_time )
+            const std::vector<boost::posix_time::ptime> &times )
     {
-        assert( s_profile.size() == contact_regular.rows() );
-
         namespace bt = boost::posix_time;
+ 
+        assert( s_profile.size() == contact_regular.rows() );
 
         const size_t nag = contact_regular.rows(); // No. of age groups
 
@@ -247,20 +247,8 @@ namespace flu
                 nag*group_types.size()*
                 seir_types.size() );
 
+
         double a1, a2, g1, g2 /*, surv[7]={0,0,0,0,0,0,0}*/;
-
-        auto current_time = starting_time;
-        if (to_tm(current_time).tm_year==70 && 
-                vaccine_programme.dates.size()!=0)
-        {
-            current_time = getTimeFromWeekYear( 35, 
-                vaccine_programme.dates[0].date().year() );
-        }
-
-        auto start_time = current_time;
-        auto end_time = current_time + bt::hours(364*24);
-        size_t step_count = 0;
-
         a1=2/tlatent;
         a2=a1;
         g1=2/tinfectious;
@@ -289,24 +277,26 @@ namespace flu
             densities[ode_id(nag,PREG,S,i)]=Npop[i+2*nag]-densities[ode_id(nag,PREG,E1,i)];
         }
 
+        auto current_time = times[0];
+
         cases_t cases;
-
-        cases.cases = Eigen::MatrixXd::Zero( (end_time-start_time).hours()
-                /minimal_resolution, 
+        cases.cases = Eigen::MatrixXd::Zero( times.size()-1, 
                 contact_regular.cols()*group_types.size()/2);
-        cases.times.reserve( (end_time-start_time).hours()
-                /minimal_resolution );
+        cases.times = times;
+        cases.times.erase( cases.times.begin() );
 
+        size_t step_count = 0;
         static bt::time_duration dt = bt::hours( 6 );
         bool time_changed_for_vacc = false;
-        while (cases.times.size()<(size_t)cases.cases.rows())
+        auto next_time = current_time;
+        auto start_time = current_time;
+        while (step_count<cases.times.size())
         {
-            auto next_time = current_time + bt::hours( minimal_resolution );
-            if (time_changed_for_vacc && cases.times.size()>0) 
+            next_time = cases.times[step_count];
+            if (time_changed_for_vacc) 
             {
                 // Previous iteration time was changed, now need to
                 // go back to old situation
-                next_time = cases.times.back() + bt::hours( minimal_resolution );
                 time_changed_for_vacc = false;
             }
 
@@ -365,12 +355,48 @@ namespace flu
             if (!time_changed_for_vacc) 
             {
                 ++step_count;
-                cases.times.push_back( current_time );
             }
         }
-       
         return cases;
     } 
+
+    cases_t infectionODE(
+            const Eigen::VectorXd &Npop,  
+            const Eigen::VectorXd &seed_vec, 
+            const double tlatent, const double tinfectious, 
+            const Eigen::VectorXd &s_profile, 
+            const Eigen::MatrixXd &contact_regular, double transmissibility,
+            const vaccine::vaccine_t &vaccine_programme,
+            size_t minimal_resolution, 
+            const boost::posix_time::ptime &starting_time )
+    {
+ 
+        namespace bt = boost::posix_time;
+        auto current_time = starting_time;
+        if (to_tm(current_time).tm_year==70 && 
+                vaccine_programme.dates.size()!=0)
+        {
+            current_time = getTimeFromWeekYear( 35, 
+                vaccine_programme.dates[0].date().year() );
+        }
+
+        auto start_time = current_time;
+        auto end_time = current_time + bt::hours(364*24);
+
+        auto next_time = current_time;
+
+        std::vector<boost::posix_time::ptime> times;
+        times.push_back(start_time);
+        while(next_time < end_time)
+        {
+            next_time += bt::hours(minimal_resolution);
+            times.push_back( next_time );
+        }
+        return infectionODE( Npop, seed_vec, tlatent, tinfectious,
+                s_profile, contact_regular,
+                transmissibility, vaccine_programme,
+                times );
+    }
 
 
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
