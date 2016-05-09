@@ -113,7 +113,7 @@ infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptib
 #' @param susceptibility Vector with susceptibilities of each age group
 #' @param transmissibility The transmissibility of the strain
 #' @param infection_delays Vector with the time of latent infection and time infectious
-#' @param interval Interval (in days) between data points
+#' @param dates Dates to return values for.
 #' @return A data frame with number of new cases after each interval during the year
 #'
 infectionODEs.cpp <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, dates) {
