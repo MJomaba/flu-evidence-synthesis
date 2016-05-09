@@ -49,11 +49,19 @@ test_that("Runge Kutta ode solver works with a large initial integration dt",
 })
 
 test_that("Return the correct ODE results", {
+      if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
     data("age_sizes")
     data("vaccine_calendar")
     data("polymod_uk")
     data("mcmcsample")
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             vaccine_calendar,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
@@ -92,11 +100,20 @@ test_that("Return the correct ODE results", {
 })
 
 test_that("Return the correct ODE results, when using a different interval", {
+     if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
+
     data("age_sizes")
     data("vaccine_calendar")
     data("polymod_uk")
     data("mcmcsample")
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             vaccine_calendar,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
@@ -136,6 +153,15 @@ test_that("Return the correct ODE results, when using a different interval", {
 })
 
 test_that("ODE works correctly with the new vaccine date vector", {
+     if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
+
     data("age_sizes")
     data("polymod_uk")
     data("mcmcsample")
@@ -153,7 +179,7 @@ test_that("ODE works correctly with the new vaccine date vector", {
                                        test.vac[["calendar"]][32,],
                                        test.vac[["calendar"]][62,],
                                        test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             test.vac,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
