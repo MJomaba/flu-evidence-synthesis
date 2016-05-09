@@ -110,7 +110,7 @@ Rcpp::Datetime getTimeFromWeekYear( int week, int year )
 //' @param interval Interval (in days) between data points
 //' @return A data frame with number of new cases after each interval during the year
 //'
-// [[Rcpp::export(name="infection.model")]]
+// [[Rcpp::export(name=".infection.model")]]
 Rcpp::DataFrame runSEIRModel(
         std::vector<size_t> age_sizes, 
         flu::vaccine::vaccine_t vaccine_calendar,

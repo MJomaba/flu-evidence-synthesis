@@ -22,7 +22,7 @@ infectionODEs.cpp(population, initial_infected, vaccine_calendar,
 
 \item{infection_delays}{Vector with the time of latent infection and time infectious}
 
-\item{interval}{Interval (in days) between data points}
+\item{dates}{Dates to return values for.}
 }
 \value{
 A data frame with number of new cases after each interval during the year
