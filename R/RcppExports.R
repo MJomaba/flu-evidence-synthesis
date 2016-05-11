@@ -100,7 +100,7 @@ getTimeFromWeekYear <- function(week, year) {
 #' @param interval Interval (in days) between data points
 #' @return A data frame with number of new cases after each interval during the year
 #'
-infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval = 1L) {
+.infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval = 1L) {
     .Call('fluEvidenceSynthesis_runSEIRModel', PACKAGE = 'fluEvidenceSynthesis', age_sizes, vaccine_calendar, polymod_data, susceptibility, transmissibility, init_pop, infection_delays, interval)
 }
 
@@ -113,11 +113,11 @@ infection.model <- function(age_sizes, vaccine_calendar, polymod_data, susceptib
 #' @param susceptibility Vector with susceptibilities of each age group
 #' @param transmissibility The transmissibility of the strain
 #' @param infection_delays Vector with the time of latent infection and time infectious
-#' @param interval Interval (in days) between data points
+#' @param dates Dates to return values for.
 #' @return A data frame with number of new cases after each interval during the year
 #'
-infectionODEs <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval = 1L) {
-    .Call('fluEvidenceSynthesis_infectionODEs', PACKAGE = 'fluEvidenceSynthesis', population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval)
+infectionODEs.cpp <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, dates) {
+    .Call('fluEvidenceSynthesis_infectionODEs', PACKAGE = 'fluEvidenceSynthesis', population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, dates)
 }
 
 #' Returns log likelihood of the predicted number of cases given the data for that week

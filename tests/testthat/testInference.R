@@ -2,6 +2,13 @@ context("Inference")
 
 test_that("Likelihood function returns the correct value",
   {
+      if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
       data("age_sizes")
       data("vaccine_calendar")
       data("polymod_uk")
@@ -13,7 +20,7 @@ test_that("Likelihood function returns the correct value",
       age.group <- 3
       population <- sum(age_sizes$V1[16:45]) # age group 3 is from 16 to 45
 
-      inf.model <- infection.model(age_sizes$V1,vaccine_calendar,
+      inf.model <- .infection.model(age_sizes$V1,vaccine_calendar,
                                    as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                                    mcmcsample$parameters$susceptibility,
                                    mcmcsample$parameters$transmissibility,

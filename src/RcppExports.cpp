@@ -121,8 +121,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // infectionODEs
-Rcpp::DataFrame infectionODEs(Eigen::VectorXd population, Eigen::VectorXd initial_infected, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXd contact_matrix, Eigen::VectorXd susceptibility, double transmissibility, Eigen::VectorXd infection_delays, size_t interval);
-RcppExport SEXP fluEvidenceSynthesis_infectionODEs(SEXP populationSEXP, SEXP initial_infectedSEXP, SEXP vaccine_calendarSEXP, SEXP contact_matrixSEXP, SEXP susceptibilitySEXP, SEXP transmissibilitySEXP, SEXP infection_delaysSEXP, SEXP intervalSEXP) {
+Rcpp::DataFrame infectionODEs(Eigen::VectorXd population, Eigen::VectorXd initial_infected, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXd contact_matrix, Eigen::VectorXd susceptibility, double transmissibility, Eigen::VectorXd infection_delays, Rcpp::DateVector dates);
+RcppExport SEXP fluEvidenceSynthesis_infectionODEs(SEXP populationSEXP, SEXP initial_infectedSEXP, SEXP vaccine_calendarSEXP, SEXP contact_matrixSEXP, SEXP susceptibilitySEXP, SEXP transmissibilitySEXP, SEXP infection_delaysSEXP, SEXP datesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -133,8 +133,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type susceptibility(susceptibilitySEXP);
     Rcpp::traits::input_parameter< double >::type transmissibility(transmissibilitySEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type infection_delays(infection_delaysSEXP);
-    Rcpp::traits::input_parameter< size_t >::type interval(intervalSEXP);
-    __result = Rcpp::wrap(infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval));
+    Rcpp::traits::input_parameter< Rcpp::DateVector >::type dates(datesSEXP);
+    __result = Rcpp::wrap(infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, dates));
     return __result;
 END_RCPP
 }

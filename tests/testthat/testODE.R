@@ -49,11 +49,19 @@ test_that("Runge Kutta ode solver works with a large initial integration dt",
 })
 
 test_that("Return the correct ODE results", {
+      if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
     data("age_sizes")
     data("vaccine_calendar")
     data("polymod_uk")
     data("mcmcsample")
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             vaccine_calendar,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
@@ -69,6 +77,8 @@ test_that("Return the correct ODE results", {
         expect_less_than( ratio, 1.03 )
         expect_more_than( ratio, 0.97 )
     }
+    
+    expect_equal( nrow(odes), 364 )
 
     # Check max value
     maxs <- c(3132.20022124067, 16720.2726361168, 38489.4726884184, 77065.0627636948, 115970.502880153, 73496.0794524567, 13004.8663674856, 66.6225150332303, 956.806903893294, 4077.66057862465, 7073.81188424645, 10955.7871500801, 13891.6328086064, 9360.94718096195)
@@ -90,11 +100,20 @@ test_that("Return the correct ODE results", {
 })
 
 test_that("Return the correct ODE results, when using a different interval", {
+     if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
+
     data("age_sizes")
     data("vaccine_calendar")
     data("polymod_uk")
     data("mcmcsample")
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             vaccine_calendar,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
@@ -112,6 +131,7 @@ test_that("Return the correct ODE results, when using a different interval", {
         expect_less_than( ratio, 1.05 )
         expect_more_than( ratio, 0.97 )
     }
+    expect_equal( nrow(odes), 52 )
 
     # Check max value
     maxs <- c(3132.20022124067, 16720.2726361168, 38489.4726884184, 77065.0627636948, 115970.502880153, 73496.0794524567, 13004.8663674856, 66.6225150332303, 956.806903893294, 4077.66057862465, 7073.81188424645, 10955.7871500801, 13891.6328086064, 9360.94718096195)
@@ -133,6 +153,15 @@ test_that("Return the correct ODE results, when using a different interval", {
 })
 
 test_that("ODE works correctly with the new vaccine date vector", {
+     if (!exists(".infection.model"))
+      {
+          # In certain situation this function is hidden 
+          # (i.e. for devtools::check(), but not for devtools::test()
+
+          skip(".infection.model not available (hidden)")
+      }
+
+
     data("age_sizes")
     data("polymod_uk")
     data("mcmcsample")
@@ -150,7 +179,7 @@ test_that("ODE works correctly with the new vaccine date vector", {
                                        test.vac[["calendar"]][32,],
                                        test.vac[["calendar"]][62,],
                                        test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
-    odes <- infection.model( age_sizes[,1],
+    odes <- .infection.model( age_sizes[,1],
                             test.vac,
                             as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                             mcmcsample$parameters$susceptibility,
