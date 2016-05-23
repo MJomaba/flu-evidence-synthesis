@@ -20,9 +20,9 @@ test_that("We can run adaptive MCMC",
       expect_equal( length(mcmc.result$llikelihoods), 1000 )
       expect_equal( nrow(mcmc.result$batch), 1000 )
       expect_equal( ncol(mcmc.result$batch), 2 )
-      expect_less_than(abs(-24-mean(mcmc.result$llikelihoods)),0.1)
-      expect_less_than(abs(1-mean(mcmc.result$batch[,1])), 0.001)
-      expect_less_than(abs(0.3-mean(mcmc.result$batch[,2])), 0.015)
+      expect_lt(abs(-24-mean(mcmc.result$llikelihoods)),0.1)
+      expect_lt(abs(1-mean(mcmc.result$batch[,1])), 0.001)
+      expect_lt(abs(0.3-mean(mcmc.result$batch[,2])), 0.015)
   }
 )
 
@@ -46,8 +46,8 @@ test_that("We can run pass extra parameters for the likeihood function to adapti
       expect_equal( length(mcmc.result$llikelihoods), 1000 )
       expect_equal( nrow(mcmc.result$batch), 1000 )
       expect_equal( ncol(mcmc.result$batch), 2 )
-      expect_less_than(abs(-24-mean(mcmc.result$llikelihoods)),0.1)
-      expect_less_than(abs(1-mean(mcmc.result$batch[,1])), 0.001)
-      expect_less_than(abs(0.3-mean(mcmc.result$batch[,2])), 0.015)
+      expect_lt(abs(-24-mean(mcmc.result$llikelihoods)),0.1)
+      expect_lt(abs(1-mean(mcmc.result$batch[,1])), 0.001)
+      expect_lt(abs(0.3-mean(mcmc.result$batch[,2])), 0.015)
   }
 )

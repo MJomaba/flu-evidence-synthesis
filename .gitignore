@@ -25,3 +25,4 @@ symbols.rds
 *.html
 *_cache/
 *_files/
+.Rproj.user
