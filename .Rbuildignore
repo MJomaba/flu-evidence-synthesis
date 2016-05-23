@@ -3,3 +3,5 @@ install.sh
 build.sh
 travis.sh
 .travis.yml
+^.*\.Rproj$
+^\.Rproj\.user$
