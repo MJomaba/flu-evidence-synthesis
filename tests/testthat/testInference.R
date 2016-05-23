@@ -39,8 +39,8 @@ test_that("Likelihood function returns the correct value",
                               ili$total.monitored[week,age.group],
                               confirmed.samples$positive[week,age.group],
                               confirmed.samples$total.samples[week,age.group])
-      expect_less_than(ll, 121.9881)
-      expect_more_than(ll, 120.9881)
+      expect_lt(ll, 121.9881)
+      expect_gt(ll, 120.9881)
   }
 )
 
@@ -76,14 +76,14 @@ test_that("We can run inference",
       expect_false(identical(results$contact.ids[1,], results$contact.ids[1000,]))
       #mean
       m1 <- moment(results$llikelihoods,central=FALSE)
-      expect_less_than(m1, 2268 )
-      expect_more_than(m1, 2242 )
+      expect_lt(m1, 2268 )
+      expect_gt(m1, 2242 )
       m2 <- moment(results$llikelihoods,central=TRUE,2)
-      expect_less_than(m2, 3.5 )
-      expect_more_than(m2, 0.9 )
+      expect_lt(m2, 3.5 )
+      expect_gt(m2, 0.9 )
       m3 <- moment(results$llikelihoods,central=TRUE,3)
-      expect_less_than(m3, -1.0 )
-      expect_more_than(m3, -5.0 )
+      expect_lt(m3, -1.0 )
+      expect_gt(m3, -5.0 )
   }
 )
 

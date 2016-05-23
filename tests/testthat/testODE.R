@@ -31,7 +31,7 @@ test_that("Runge Kutta ode solver works correctly",
 
     sol <- .runStep()
     rkf <- .runRKF(step_size=0.1)
-    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+    expect_lt( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
 })
 
 test_that("Runge Kutta ode solver works with a large initial integration dt",
@@ -45,7 +45,7 @@ test_that("Runge Kutta ode solver works with a large initial integration dt",
     }
     sol <- .runStep(step_size=0.1)
     rkf <- .runRKF(step_size=0.1,h_step=1.0)
-    expect_less_than( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
+    expect_lt( sum(abs(sol[,2:3]-rkf[,2:3]))/nrow(sol),0.05 )
 })
 
 test_that("Return the correct ODE results", {
@@ -74,8 +74,8 @@ test_that("Return the correct ODE results", {
     for( i in 1:length(sums) )
     {
         ratio <- odeSums[i]/sums[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
     
     expect_equal( nrow(odes), 364 )
@@ -86,8 +86,8 @@ test_that("Return the correct ODE results", {
     for( i in 1:length(maxs) )
     {
         ratio <- odeMaxs[i]/maxs[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
     # Check time of max
     maxts <- c(118, 117, 118, 114, 117, 117, 118, 118, 117, 118, 114, 117, 117, 118)
@@ -95,7 +95,7 @@ test_that("Return the correct ODE results", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]-maxts[i])
-        expect_less_than( dt, 5 )
+        expect_lt( dt, 5 )
     }
 })
 
@@ -128,8 +128,8 @@ test_that("Return the correct ODE results, when using a different interval", {
     for( i in 1:length(sums) )
     {
         ratio <- odeSums[i]/sums[i]
-        expect_less_than( ratio, 1.05 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.05 )
+        expect_gt( ratio, 0.97 )
     }
     expect_equal( nrow(odes), 52 )
 
@@ -139,8 +139,8 @@ test_that("Return the correct ODE results, when using a different interval", {
     for( i in 1:length(maxs) )
     {
         ratio <- odeMaxs[i]/(7*maxs[i])
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
     # Check time of max
     maxts <- c(118, 117, 118, 114, 117, 117, 118, 118, 117, 118, 114, 117, 117, 118)
@@ -148,7 +148,7 @@ test_that("Return the correct ODE results, when using a different interval", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]*7-maxts[i]) # Take into account different time
-        expect_less_than( dt, 6 )
+        expect_lt( dt, 6 )
     }
 })
 
@@ -193,8 +193,8 @@ test_that("ODE works correctly with the new vaccine date vector", {
     for( i in 1:length(sums) )
     {
         ratio <- odeSums[i]/sums[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
 
     # Check max value
@@ -203,8 +203,8 @@ test_that("ODE works correctly with the new vaccine date vector", {
     for( i in 1:length(maxs) )
     {
         ratio <- odeMaxs[i]/maxs[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
     # Check time of max
     maxts <- c(118, 117, 118, 114, 117, 117, 118, 118, 117, 118, 114, 117, 117, 118)
@@ -212,7 +212,7 @@ test_that("ODE works correctly with the new vaccine date vector", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]-maxts[i])
-        expect_less_than( dt, 5 )
+        expect_lt( dt, 5 )
     }
 })
 
@@ -264,8 +264,8 @@ test_that("We can set population sizes etc with infectionODEs", {
     for( i in 1:length(sums) )
     {
         ratio <- odeSums[i]/sums[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
 
     # Check max value
@@ -274,8 +274,8 @@ test_that("We can set population sizes etc with infectionODEs", {
     for( i in 1:length(maxs) )
     {
         ratio <- odeMaxs[i]/maxs[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
     }
     # Check time of max
     maxts <- c(118, 117, 118, 114, 117, 117, 118, 118, 117, 118, 114, 117, 117, 118)
@@ -283,7 +283,7 @@ test_that("We can set population sizes etc with infectionODEs", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]-maxts[i])
-        expect_less_than( dt, 5 )
+        expect_lt( dt, 5 )
     }
 })
 
@@ -355,7 +355,7 @@ test_that("infectionODEs works correctly with different interval", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]*7-maxts[i]) # Take into account different time
-        expect_less_than( dt, 9 )
+        expect_lt( dt, 9 )
     }
 })
 
@@ -411,8 +411,8 @@ test_that("Second risk group works as expected", {
         if( odeSums[i] != 0 & sums[i] != 0 )
         {
             ratio <- odeSums[i]/sums[i]
-            expect_less_than( ratio, 1.03 )
-            expect_more_than( ratio, 0.97 )
+            expect_lt( ratio, 1.03 )
+            expect_gt( ratio, 0.97 )
         }
     }
 
@@ -424,8 +424,8 @@ test_that("Second risk group works as expected", {
       if( odeMaxs[i] != 0 & maxs[i] != 0 )
       {
         ratio <- odeMaxs[i]/maxs[i]
-        expect_less_than( ratio, 1.03 )
-        expect_more_than( ratio, 0.97 )
+        expect_lt( ratio, 1.03 )
+        expect_gt( ratio, 0.97 )
       }
     }
     # Check time of max
@@ -436,7 +436,7 @@ test_that("Second risk group works as expected", {
     for( i in 1:length(maxts) )
     {
         dt <- abs(odeMaxts[i]-maxts[i])
-        expect_less_than( dt, 5 )
+        expect_lt( dt, 5 )
     }
 })
 
@@ -473,7 +473,7 @@ test_that("infectionODEs works with less than 3 risk groups", {
     comp <- mapply( function(x,y) difftime(y,x)-7, odes$Time[1:(nrow(odes)-1)], odes$Time[2:nrow(odes)] )
 
     # Up to two time diffs will be slightly more/less than 7 days due to summer time
-    expect_less_than(sum(comp!=0),3)
-    expect_less_than( sum(abs(comp)), 2.1/24 )
+    expect_lt(sum(comp!=0),3)
+    expect_lt( sum(abs(comp)), 2.1/24 )
 })
 

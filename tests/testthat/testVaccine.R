@@ -57,8 +57,8 @@ test_that("We can call scenario",
                   else
                   {
                       ratio <- exp.total.size[i]/total_size[i]
-                      expect_less_than( ratio, 1.03 )
-                      expect_more_than( ratio, 0.97 )
+                      expect_lt( ratio, 1.03 )
+                      expect_gt( ratio, 0.97 )
                   }
               }
           })

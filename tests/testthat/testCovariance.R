@@ -38,7 +38,7 @@ test_that("We calculate (biased) covariance correctly",
               # In general (except for numerical errors) the difference 
               # between biased and unbiased should decrease
               diff <- max(abs(cov-cov(samples[1:i,])))
-              expect_less_than( diff, prev )
+              expect_lt( diff, prev )
               prev <- diff
           }
       }
