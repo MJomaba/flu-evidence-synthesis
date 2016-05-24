@@ -226,7 +226,6 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
             if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
             {
                 /*update the acceptance rate*/
-                proposal_state.acceptance++;
                 if(k>=1000)
                     proposal_state.adaptive_scaling
                         += 0.766*proposal_state.conv_scaling;
@@ -566,7 +565,6 @@ mcmc_result_inference_t inference_multistrains(
                 no_acceptance_count = std::max(0, no_acceptance_count);
                 no_acceptance_count = std::min(105, no_acceptance_count);
                 /*update the acceptance rate*/
-                proposal_state.acceptance++;
                 if(k>=1000)
                     proposal_state.adaptive_scaling
                         += 0.766*proposal_state.conv_scaling;

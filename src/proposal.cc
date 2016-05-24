@@ -68,9 +68,6 @@ namespace flu {
                 state.chol_emp_cov = Eigen::LLT<Eigen::MatrixXd>(
                         state.emp_cov_matrix).matrixL();
 
-                state.past_acceptance=state.acceptance;
-                state.acceptance=0;
-
                 state.conv_scaling/=1.005;
             }
             return state;

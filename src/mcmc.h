@@ -61,7 +61,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         if(R::runif(0,1)<my_acceptance_rate) //with prior
         {
             //update the acceptance rate
-            proposal_state.acceptance++;
             if(k>=adapt_rate)
                 proposal_state.adaptive_scaling
                     += 0.766*proposal_state.conv_scaling;

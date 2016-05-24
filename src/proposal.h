@@ -35,15 +35,11 @@ namespace flu {
             Eigen::MatrixXd emp_cov_matrix, chol_emp_cov, chol_ini;
 
             double adaptive_scaling;
-            double past_acceptance;
             double conv_scaling;
-            int acceptance;
 
             proposal_state_t() {
                 adaptive_scaling = 0.3;
-                past_acceptance = 234;
                 conv_scaling = 0.001;
-                acceptance = 234;
             }
         };
 
