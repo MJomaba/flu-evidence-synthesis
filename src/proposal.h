@@ -60,7 +60,7 @@ namespace flu {
         Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 
-                int n, double beta, double adapt_scale );
+                double beta, double adapt_scale );
 
         parameter_set haario_adapt_scale( const parameter_set &current, 
                 const Eigen::MatrixXd &chol_de, 

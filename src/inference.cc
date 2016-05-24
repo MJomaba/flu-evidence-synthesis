@@ -50,7 +50,6 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
     results.llikelihoods = Eigen::VectorXd( nbatch );
     results.contact_ids = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, polymod_data.rows() );
 
-
     auto nag = 7;
 
     int step_mat;
@@ -155,11 +154,22 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
         /*update of the variance-covariance matrix and the mean vector*/
         proposal_state = proposal::update( std::move( proposal_state ),
                 curr_parameters, k );
+     
+        /*
+        if (k>=nburn)
+        {
+          Rcpp::Rcout << "Adaptive scaling: " << proposal_state.adaptive_scaling << std::endl;
+          Rcpp::Rcout << "past_acceptance: " << proposal_state.past_acceptance << std::endl;
+          Rcpp::Rcout << "conv_scaling: " << proposal_state.conv_scaling << std::endl;
+          Rcpp::Rcout << "Acceptance: " << proposal_state.acceptance << std::endl;
+          Rcpp::Rcout << proposal_state.emp_cov_matrix << std::endl << std::endl;
+        }
+        */
 
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
-                proposal_state.chol_ini,100,0.05, 
+                proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
 
         auto prior_ratio = 
@@ -505,7 +515,7 @@ mcmc_result_inference_t inference_multistrains(
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
-                proposal_state.chol_ini,100,0.05, 
+                proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
 
         auto prop_lprior = lprior_function(prop_parameters);

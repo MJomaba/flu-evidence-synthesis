@@ -42,7 +42,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
-                proposal_state.chol_ini,100,0.05, 
+                proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
 
         auto prop_lprior = 
