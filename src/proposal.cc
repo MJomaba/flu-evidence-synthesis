@@ -63,7 +63,7 @@ namespace flu {
             state.emp_cov_matrix = updateCovariance( state.emp_cov_matrix,
                     parameters, state.means_parameters, k );
             /*adjust variance for MCMC parameters*/
-            if(k%1000==0)
+            if(k%100==0)
             {
                 state.chol_emp_cov = Eigen::LLT<Eigen::MatrixXd>(
                         state.emp_cov_matrix).matrixL();
@@ -90,6 +90,54 @@ namespace flu {
             return update( std::move(state), pars_v, k );
         }
 
+        Eigen::VectorXd haario( size_t k,
+                const Eigen::VectorXd &current, 
+                const Eigen::MatrixXd &chol_de, 
+                double epsilon )
+        {
+            auto proposed = Eigen::VectorXd( current.size() );
+            auto normal_draw = Eigen::VectorXd( current.size() );
+            auto normal_add_draw = Eigen::VectorXd( current.size() );
+            Eigen::VectorXd correlated_draw = 
+                Eigen::VectorXd::Zero( current.size() );
+            double unif1, unif2;
+
+            auto sqrtd = sqrt( current.size() );
+            auto sd = 2.38/sqrtd;
+            auto esd = epsilon*sd;
+
+            // TODO create random multivariate draw and use with
+            // both chol_de and chol_ini
+            /*drawing of the needed N(0,1) samples using Box-Muller*/
+            for(int i=0;i<current.size();i++)
+            {
+                unif1=R::runif(0,1);
+                unif2=R::runif(0,1);
+                normal_draw[i]=sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+                /*drawing of the needed N(0,1) samples using Box-Muller*/
+                normal_add_draw[i]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
+
+            if (k<1000)
+            {
+                proposed = current + esd*normal_add_draw;
+            }
+
+            /*transforming the numbers generated with the Cholesky mat to get the correlated samples*/
+            for(int i=0;i<current.size();i++)
+                for(int j=0;j<=i;j++)
+                    correlated_draw[i]+=chol_de(i,j)*normal_draw[j];
+
+            // Identity matrix should mean that Id*normal_add_draw = normal_add_draw
+            /*new proposed values*/
+            proposed = current + sd*correlated_draw + esd*normal_add_draw;
+            return proposed;
+        }
+
+
+
+
+
          Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 
@@ -106,6 +154,8 @@ namespace flu {
             double un_moins_beta;
             un_moins_beta=1-beta;
 
+            auto sqrtd = sqrt( current.size() );
+
             // TODO create random multivariate draw and use with
             // both chol_de and chol_ini
             /*drawing of the needed N(0,1) samples using Box-Muller*/
@@ -113,7 +163,7 @@ namespace flu {
             {
                 unif1=R::runif(0,1);
                 unif2=R::runif(0,1);
-                normal_draw[i]=adapt_scale*2.38/3*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
+                normal_draw[i]=adapt_scale*2.38/sqrtd*sqrt(-2*log(unif1))*sin(twopi*unif2); /*3 = sqrt(9)*/
                 /*drawing of the needed N(0,1) samples using Box-Muller*/
                 normal_add_draw[i]=sqrt(-2*log(unif1))*cos(twopi*unif2);
             }

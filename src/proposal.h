@@ -53,6 +53,12 @@ namespace flu {
                 const parameter_set &parameters,
                 int k );
 
+        /// The original haario version
+        Eigen::VectorXd haario( size_t k, 
+                const Eigen::VectorXd &current, 
+                const Eigen::MatrixXd &chol_de, 
+                double epsilon );
+
         Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 

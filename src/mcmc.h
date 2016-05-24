@@ -39,11 +39,18 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         proposal_state = proposal::update( std::move( proposal_state ),
                 curr_parameters, k );
 
+        /*
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
                 proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
+        */
+        auto prop_parameters = proposal::haario( k,
+                curr_parameters,
+                proposal_state.chol_emp_cov, 0.001 );
+
+
 
         auto prop_lprior = 
             lprior(prop_parameters);
