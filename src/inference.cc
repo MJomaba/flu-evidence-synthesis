@@ -517,9 +517,12 @@ mcmc_result_inference_t inference_multistrains(
                 proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
         */
+        auto epsilon = 0.001;
+        if (k>10000)
+            epsilon = 0;
         auto prop_parameters = proposal::haario( k,
                 curr_parameters,
-                proposal_state.chol_emp_cov, 0.001 );
+                proposal_state.chol_emp_cov, epsilon );
 
 
         auto prop_lprior = lprior_function(prop_parameters);
