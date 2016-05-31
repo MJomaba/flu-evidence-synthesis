@@ -49,6 +49,10 @@ namespace flu {
                 const Eigen::VectorXd &parameters,
                 int k );
 
+        /// Was the latest mcmc sample accepted or not
+        proposal_state_t accepted( proposal_state_t&& state, 
+                bool accepted, int k );
+
         proposal_state_t update( proposal_state_t&& state,
                 const parameter_set &parameters,
                 int k );

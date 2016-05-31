@@ -179,9 +179,9 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
         {
             //Rcpp::Rcout << "Invalid proposed par" << std::endl;
             // TODO: code duplication with failure of acceptance
-            if(k>=1000)
-                proposal_state.adaptive_scaling
-                    -=0.234*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), 
+                    false, k );
         } else {
             /*translate into an initial infected population*/
             
@@ -226,9 +226,8 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
             if(R::runif(0,1)<my_acceptance_rate) /*with prior*/
             {
                 /*update the acceptance rate*/
-                if(k>=1000)
-                    proposal_state.adaptive_scaling
-                        += 0.766*proposal_state.conv_scaling;
+                proposal_state = proposal::accepted( 
+                        std::move(proposal_state), true, k );
 
                 curr_parameters = prop_parameters;
 
@@ -242,9 +241,8 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
             }
             else /*if reject*/
             {
-                if(k>=1000)
-                    proposal_state.adaptive_scaling
-                        -=0.234*proposal_state.conv_scaling;
+                proposal_state = proposal::accepted( 
+                        std::move(proposal_state), false, k );
             }
         }
 
@@ -532,9 +530,8 @@ mcmc_result_inference_t inference_multistrains(
         {
             //Rcpp::Rcout << "Invalid proposed par" << std::endl;
             // TODO: code duplication with failure of acceptance
-            if(k>=1000)
-                proposal_state.adaptive_scaling
-                    -=0.234*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), false, k );
         } else {
             auto prop_c = curr_c;
 
@@ -568,9 +565,8 @@ mcmc_result_inference_t inference_multistrains(
                      std::isfinite(my_acceptance_rate)) /*with prior*/
             {
                 /*update the acceptance rate*/
-                if(k>=1000)
-                    proposal_state.adaptive_scaling
-                        += 0.766*proposal_state.conv_scaling;
+                proposal_state = proposal::accepted( 
+                        std::move(proposal_state), true, k );
 
                 curr_parameters = prop_parameters;
 
@@ -585,9 +581,8 @@ mcmc_result_inference_t inference_multistrains(
             }
             else /*if reject*/
             {
-                if(k>=1000)
-                    proposal_state.adaptive_scaling
-                        -=0.234*proposal_state.conv_scaling;
+                proposal_state = proposal::accepted( 
+                        std::move(proposal_state), false, k );
             }
         }
 

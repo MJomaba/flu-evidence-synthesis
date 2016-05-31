@@ -53,6 +53,21 @@ namespace flu {
             return state;
         }
 
+        /// Was the latest mcmc sample accepted or not
+        proposal_state_t accepted( proposal_state_t&& state, 
+                bool accepted, int k )
+        {
+            if (k<1000)
+                return state;
+            if (accepted)
+                state.adaptive_scaling
+                    += 0.766*state.conv_scaling;
+            else
+                state.adaptive_scaling
+                    -= 0.234*state.conv_scaling;
+            return state;
+        }
+
         proposal_state_t update( proposal_state_t&& state,
                 const Eigen::VectorXd &parameters,
                 int k )
