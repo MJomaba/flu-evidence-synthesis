@@ -165,12 +165,16 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
           Rcpp::Rcout << proposal_state.emp_cov_matrix << std::endl << std::endl;
         }
         */
-
+        /*
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
                 proposal_state.chol_ini,0.05, 
-                proposal_state.adaptive_scaling );
+                proposal_state.adaptive_scaling );*/
+
+        auto prop_parameters = proposal::sherlock( k,
+                curr_parameters,
+                proposal_state );
 
         auto prior_ratio = 
             log_prior(prop_parameters, curr_parameters, false );
@@ -515,13 +519,17 @@ mcmc_result_inference_t inference_multistrains(
                 proposal_state.chol_ini,0.05, 
                 proposal_state.adaptive_scaling );
         */
+        /*
         auto epsilon = 0.001;
         if (k>10000)
             epsilon = 0;
         auto prop_parameters = proposal::haario( k,
                 curr_parameters,
-                proposal_state.chol_emp_cov, epsilon );
+                proposal_state.chol_emp_cov, epsilon );*/
 
+        auto prop_parameters = proposal::sherlock( k,
+                curr_parameters,
+                proposal_state );
 
         auto prop_lprior = lprior_function(prop_parameters);
         auto prior_ratio = prop_lprior - curr_lprior;

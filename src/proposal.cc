@@ -50,6 +50,14 @@ namespace flu {
                     init_cov_matrix).matrixL();
             state.chol_emp_cov = state.chol_ini;
 
+            state.cholesky_I = Eigen::LLT<Eigen::MatrixXd>(
+                    Eigen::MatrixXd::Identity(dim,dim))
+                .matrixL();
+
+            state.m = 2.38/sqrt(dim);
+            state.delta = state.m/100;
+            state.lambda = 0.001/sqrt(dim);
+
             return state;
         }
 
@@ -57,14 +65,27 @@ namespace flu {
         proposal_state_t accepted( proposal_state_t&& state, 
                 bool accepted, int k )
         {
-            if (k<100)
-                return state;
+            if (state.adaptive_step)
+                ++state.no_adaptive;
+
             if (accepted)
-                state.adaptive_scaling
-                    += 0.766*state.conv_scaling;
-            else
-                state.adaptive_scaling
-                    -= 0.234*state.conv_scaling;
+            {
+                ++state.no_accepted;
+                if (k>=100)
+                    state.adaptive_scaling
+                        += 0.766*state.conv_scaling;
+                if (state.adaptive_step)
+                    state.m += 2.3*state.delta/sqrt(state.no_adaptive);
+            }
+            else {
+                if (state.adaptive_step)
+                    state.m -= state.delta/sqrt(state.no_adaptive);
+            
+                if (k>=100)
+                    state.adaptive_scaling
+                        -= 0.234*state.conv_scaling;
+            } 
+
             return state;
         }
 
@@ -78,13 +99,13 @@ namespace flu {
             state.emp_cov_matrix = updateCovariance( state.emp_cov_matrix,
                     parameters, state.means_parameters, k );
             /*adjust variance for MCMC parameters*/
-            if(k%100==0)
-            {
+            /*if(k%100==0)
+            {*/
                 state.chol_emp_cov = Eigen::LLT<Eigen::MatrixXd>(
                         state.emp_cov_matrix).matrixL();
 
                 state.conv_scaling/=1.005;
-            }
+            //}
             return state;
         }
 
@@ -197,6 +218,47 @@ namespace flu {
 
             return proposed;
         }
+
+        /// The sherlock 2010 algorithm 6B
+        Eigen::VectorXd sherlock( size_t k, 
+                const Eigen::VectorXd &current, 
+                proposal_state_t &state ) {
+
+            auto proposed = Eigen::VectorXd( current.size() );
+            auto normal_draw = Eigen::VectorXd( current.size() );
+            Eigen::VectorXd correlated = 
+                Eigen::VectorXd::Zero( current.size() );
+            //auto normal_add_draw = Eigen::VectorXd( current.size() );
+ 
+            for(int i=0;i<current.size();i++)
+            {
+                auto unif1=R::runif(0,1);
+                auto unif2=R::runif(0,1);
+                normal_draw[i]=sqrt(-2*log(unif1))*sin(twopi*unif2);
+                /*drawing of the needed N(0,1) samples using Box-Muller*/
+                //normal_add_draw[i]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+            }
+
+            if (state.no_accepted<100 || R::runif(0,1)<0.05)
+            {
+                state.adaptive_step = false;
+                for(int i=0;i<current.size();i++)
+                    for(int j=0;j<=i;j++)
+                        correlated[i]+=state.cholesky_I(i,j)*normal_draw[j];
+
+                 proposed = current + state.lambda*correlated;
+            } else {
+                state.adaptive_step = true;
+                for(int i=0;i<current.size();i++)
+                    for(int j=0;j<=i;j++)
+                        correlated[i]+=state.chol_emp_cov(i,j)*normal_draw[j];
+
+                proposed = current + state.m*correlated;
+            }
+            return proposed;
+        }
+
+
     }
 }
 

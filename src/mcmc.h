@@ -43,14 +43,18 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 curr_parameters,
                 proposal_state.chol_emp_cov,
                 proposal_state.chol_ini,0.05, 
-                proposal_state.adaptive_scaling );
-        */
+                proposal_state.adaptive_scaling );*/
+        /*
         auto epsilon = 0.001;
         if (k>10000)
             epsilon = 0;
         auto prop_parameters = proposal::haario( k,
                 curr_parameters,
                 proposal_state.chol_emp_cov, epsilon );
+                */
+        auto prop_parameters = proposal::sherlock( k,
+                curr_parameters,
+                proposal_state );
 
         auto prop_lprior = 
             lprior(prop_parameters);

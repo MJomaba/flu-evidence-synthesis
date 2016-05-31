@@ -34,12 +34,26 @@ namespace flu {
             Eigen::VectorXd means_parameters;
             Eigen::MatrixXd emp_cov_matrix, chol_emp_cov, chol_ini;
 
+            Eigen::MatrixXd cholesky_I; // Cholesky decomposition of identity matrix
+
             double adaptive_scaling;
             double conv_scaling;
+
+            size_t no_accepted;
+            size_t no_adaptive;
+            bool adaptive_step;
+
+            double m;
+            double delta;
+            double lambda;
 
             proposal_state_t() {
                 adaptive_scaling = 0.3;
                 conv_scaling = 0.001;
+
+                no_accepted = 0;
+                no_adaptive = 0;
+                adaptive_step = false;
             }
         };
 
@@ -67,6 +81,11 @@ namespace flu {
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 
                 double beta, double adapt_scale );
+
+        /// The sherlock 2010 algorithm 6B
+        Eigen::VectorXd sherlock( size_t k, 
+                const Eigen::VectorXd &current, 
+                proposal_state_t &state );
     }
 }
 #endif
