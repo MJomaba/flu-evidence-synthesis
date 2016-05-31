@@ -57,7 +57,7 @@ namespace flu {
         proposal_state_t accepted( proposal_state_t&& state, 
                 bool accepted, int k )
         {
-            if (k<1000)
+            if (k<100)
                 return state;
             if (accepted)
                 state.adaptive_scaling

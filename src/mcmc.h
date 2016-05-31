@@ -25,7 +25,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     auto curr_parameters = initial;
     auto curr_lprior = lprior( curr_parameters );
     auto curr_llikelihood = llikelihood( curr_parameters );
-    auto adapt_rate = 100;
     auto proposal_state = proposal::initialize( initial.size() );
 
 
@@ -69,9 +68,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         if(R::runif(0,1)<my_acceptance_rate) //with prior
         {
             //update the acceptance rate
-            if(k>=adapt_rate)
-                proposal_state.adaptive_scaling
-                    += 0.766*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), true, k );
 
             curr_parameters = prop_parameters;
 
@@ -81,9 +79,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         }
         else //if reject
         {
-            if(k>=adapt_rate)
-                proposal_state.adaptive_scaling
-                    -=0.234*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), false, k );
         }
 
         if(k%blen==0 && k>=nburn)
