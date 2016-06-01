@@ -241,11 +241,7 @@ namespace flu {
  
             for(int i=0;i<current.size();i++)
             {
-                auto unif1=R::runif(0,1);
-                auto unif2=R::runif(0,1);
-                normal_draw[i]=sqrt(-2*log(unif1))*sin(twopi*unif2);
-                /*drawing of the needed N(0,1) samples using Box-Muller*/
-                //normal_add_draw[i]=sqrt(-2*log(unif1))*cos(twopi*unif2);
+                normal_draw[i]=R::rnorm(0,1);
             }
 
             if (state.no_accepted<100 || R::runif(0,1)<0.05)
