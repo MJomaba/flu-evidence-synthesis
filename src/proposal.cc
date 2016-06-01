@@ -233,11 +233,7 @@ namespace flu {
                 const Eigen::VectorXd &current, 
                 proposal_state_t &state ) {
 
-            auto proposed = Eigen::VectorXd( current.size() );
             auto normal_draw = Eigen::VectorXd( current.size() );
-            Eigen::VectorXd correlated = 
-                Eigen::VectorXd::Zero( current.size() );
-            //auto normal_add_draw = Eigen::VectorXd( current.size() );
  
             for(int i=0;i<current.size();i++)
             {
@@ -247,20 +243,15 @@ namespace flu {
             if (state.no_accepted<100 || R::runif(0,1)<0.05)
             {
                 state.adaptive_step = false;
-                for(int i=0;i<current.size();i++)
-                    for(int j=0;j<=i;j++)
-                        correlated[i]+=state.cholesky_I(i,j)*normal_draw[j];
 
-                 proposed = current + state.lambda*correlated;
+                return current 
+                    + state.lambda*state.cholesky_I*normal_draw;
             } else {
                 state.adaptive_step = true;
-                for(int i=0;i<current.size();i++)
-                    for(int j=0;j<=i;j++)
-                        correlated[i]+=state.chol_emp_cov(i,j)*normal_draw[j];
 
-                proposed = current + state.m*correlated;
+                return current 
+                    + state.m*state.chol_emp_cov*normal_draw;
             }
-            return proposed;
         }
 
 
