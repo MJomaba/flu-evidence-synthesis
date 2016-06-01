@@ -84,6 +84,15 @@ namespace flu {
                 if (k>=100)
                     state.adaptive_scaling
                         -= 0.234*state.conv_scaling;
+
+                // In the beginning we train state.lambda as well
+                // because we need a certain number of accepted
+                // before we can use our more efficient algorithm
+                if (k>25
+                    && k<10000
+                    && k%10==0
+                    && double(state.no_accepted)/k < 0.05)
+                    state.lambda /= 1.1;
             } 
 
             return state;
