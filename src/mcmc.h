@@ -25,7 +25,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     auto curr_parameters = initial;
     auto curr_lprior = lprior( curr_parameters );
     auto curr_llikelihood = llikelihood( curr_parameters );
-    auto adapt_rate = 100;
     auto proposal_state = proposal::initialize( initial.size() );
 
 
@@ -39,11 +38,23 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         proposal_state = proposal::update( std::move( proposal_state ),
                 curr_parameters, k );
 
+        /*
         auto prop_parameters = proposal::haario_adapt_scale(
                 curr_parameters,
                 proposal_state.chol_emp_cov,
-                proposal_state.chol_ini,100,0.05, 
-                proposal_state.adaptive_scaling );
+                proposal_state.chol_ini,0.05, 
+                proposal_state.adaptive_scaling );*/
+        /*
+        auto epsilon = 0.001;
+        if (k>10000)
+            epsilon = 0;
+        auto prop_parameters = proposal::haario( k,
+                curr_parameters,
+                proposal_state.chol_emp_cov, epsilon );
+                */
+        auto prop_parameters = proposal::sherlock( k,
+                curr_parameters,
+                proposal_state );
 
         auto prop_lprior = 
             lprior(prop_parameters);
@@ -61,10 +72,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         if(R::runif(0,1)<my_acceptance_rate) //with prior
         {
             //update the acceptance rate
-            proposal_state.acceptance++;
-            if(k>=adapt_rate)
-                proposal_state.adaptive_scaling
-                    += 0.766*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), true, k );
 
             curr_parameters = prop_parameters;
 
@@ -74,9 +83,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         }
         else //if reject
         {
-            if(k>=adapt_rate)
-                proposal_state.adaptive_scaling
-                    -=0.234*proposal_state.conv_scaling;
+            proposal_state = proposal::accepted( 
+                    std::move(proposal_state), false, k );
         }
 
         if(k%blen==0 && k>=nburn)

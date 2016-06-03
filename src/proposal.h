@@ -34,16 +34,26 @@ namespace flu {
             Eigen::VectorXd means_parameters;
             Eigen::MatrixXd emp_cov_matrix, chol_emp_cov, chol_ini;
 
+            Eigen::MatrixXd cholesky_I; // Cholesky decomposition of identity matrix
+
             double adaptive_scaling;
-            double past_acceptance;
             double conv_scaling;
-            int acceptance;
+
+            size_t no_accepted;
+            size_t no_adaptive;
+            bool adaptive_step;
+
+            double m;
+            double delta;
+            double lambda;
 
             proposal_state_t() {
                 adaptive_scaling = 0.3;
-                past_acceptance = 234;
                 conv_scaling = 0.001;
-                acceptance = 234;
+
+                no_accepted = 0;
+                no_adaptive = 0;
+                adaptive_step = false;
             }
         };
 
@@ -53,20 +63,29 @@ namespace flu {
                 const Eigen::VectorXd &parameters,
                 int k );
 
+        /// Was the latest mcmc sample accepted or not
+        proposal_state_t accepted( proposal_state_t&& state, 
+                bool accepted, int k );
+
         proposal_state_t update( proposal_state_t&& state,
                 const parameter_set &parameters,
                 int k );
 
+        /// The original haario version
+        Eigen::VectorXd haario( size_t k, 
+                const Eigen::VectorXd &current, 
+                const Eigen::MatrixXd &chol_de, 
+                double epsilon );
+
         Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 
-                int n, double beta, double adapt_scale );
+                double beta, double adapt_scale );
 
-        parameter_set haario_adapt_scale( const parameter_set &current, 
-                const Eigen::MatrixXd &chol_de, 
-                const Eigen::MatrixXd &chol_ini, 
-                int n, double beta, double adapt_scale );
-
+        /// The sherlock 2010 algorithm 6B
+        Eigen::VectorXd sherlock( size_t k, 
+                const Eigen::VectorXd &current, 
+                proposal_state_t &state );
     }
 }
 #endif
