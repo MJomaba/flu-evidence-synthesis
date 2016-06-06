@@ -11,8 +11,8 @@ namespace flu {
     namespace vaccine {
         /// Details of a vaccine programme
         struct vaccine_t {
-            /// Efficacy for each age group
-            Eigen::VectorXd efficacy_age;
+            /// Efficacy for each age/risk group
+            Eigen::VectorXd efficacy;
 
             /**
              * Calendar for the programme
