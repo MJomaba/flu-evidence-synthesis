@@ -55,6 +55,7 @@
 #' 
 vaccine.calendar <- function( coverage, efficacy, uptake )
 {
+  .Deprecated("as.vaccination.calendar")
     new.vacc.cal<-matrix(rep(0,123*21),ncol=21)
 
     LR.cov<-as.numeric(coverage[1:7])
@@ -77,7 +78,7 @@ vaccine.calendar <- function( coverage, efficacy, uptake )
     cal
 }
 
-#' Function to read legacy file format for vaccines
+#' Function to read legacy file format for vaccine calendar
 #'
 #' @param file The file to load
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
@@ -100,14 +101,14 @@ read.legacy.vaccine.file <- function( file )
     {
       if (count==2)
       {
-        efficacy <- as.numeric(read.csv(text=line,sep=" ",header=FALSE)[1,])
+        efficacy <- as.numeric(utils::read.csv(text=line,sep=" ",header=FALSE)[1,])
         str.calendar <- ""
       } else if (count>3 & count<127) {
         str.calendar <- paste(str.calendar,line,sep="\n")
       }
       if (count==126)
       {
-        calendar <- as.matrix(read.csv(text=str.calendar,sep=" ",header=FALSE))
+        calendar <- as.matrix(utils::read.csv(text=str.calendar,sep=" ",header=FALSE))
         results[[length(results)+1]] <- list("efficacy"=efficacy,
                                          "calendar"=calendar)
         count <- -1
