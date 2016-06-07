@@ -9,3 +9,12 @@ test_that("We can separate into risk groups",
             c( 1500, 1000, 600, 1200, 800, 300, 300, 200, 100 ) )
 
   })
+
+test_that("We can convert age to age group", {
+  expect_equal(as.age.group( 6, c(1,5,10) ),3)
+  expect_equal(as.age.group( 5, c(1,5,10) ),3)
+  expect_equal(as.age.group( 4, c(1,5,10) ),2)
+  expect_equal(as.age.group( 0, c(1,5,10) ),1)
+  expect_equal(as.age.group( 10, c(1,5,10) ),4)
+})
+  

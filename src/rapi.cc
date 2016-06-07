@@ -435,6 +435,34 @@ Eigen::MatrixXd contact_matrix(
             age_data );
 }
 
+//' Age as age group
+//'
+//' @description Returns the age group a certain age belongs to given the upper age group limits 
+//'
+//' @param age The relevant age 
+//' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
+//'
+//' @return An integer representing the age group
+//'
+// [[Rcpp::export(name="as.age.group")]]
+size_t as_age_group( size_t age,
+        Rcpp::NumericVector limits = Rcpp::NumericVector::create(
+            1, 5, 15, 25, 45, 65 ) )
+{
+    std::deque<size_t> group_barriers = std::deque<size_t>( 
+                limits.begin(), limits.end() );
+    size_t ag = 1;
+    while (group_barriers.size() != 0 
+            && age >= group_barriers[0] )
+    {
+        ++ag;
+        group_barriers.pop_front();
+    }
+    return ag;
+}
+
+
+
 //' Separate the population into age groups
 //'
 //' @param age_sizes A vector containing the population size by age (first element is number of people of age 1 and below)
