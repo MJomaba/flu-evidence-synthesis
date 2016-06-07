@@ -199,3 +199,46 @@ test_that("We can specify efficacy by risk group", {
     expect_equal( as.numeric(which.max(
       colSums(odes5[,2:ncol(odes5)])/colSums(odes1[,2:ncol(odes1)]))), 3 )
 })
+
+
+test_that("as.vaccination.calendar should normalize given vaccination calendars", {
+    vaccine_calendar <- list(
+      "efficacy" = c(0.7,0.3),
+      "calendar" = matrix(c(0,0.007,0.001,0.007),nrow=1),
+      "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
+    )
+    
+    vc <- as.vaccination.calendar( vaccine_calendar )
+    expect_equal( vc$efficacy, c(0.7, 0.3, 0.7, 0.3, 0, 0) )
+    expect_equal( ncol(vc$calendar), 6 )
+    expect_equal( vc$calendar[nrow(vc$calendar),], rep(0,6) )
+})
+
+test_that("as.vaccination.calendar fails when more than 100% gets vaccinated (if sum rates > 1)", {
+    vaccine_calendar <- list(
+      "efficacy" = c(0.7,0.3),
+      "calendar" = matrix(c(0,0.007,0.02,0.007),nrow=1),
+      "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
+    )
+    
+    expect_error(as.vaccination.calendar( vaccine_calendar ))
+    
+    vaccine_calendar <- list(
+      "efficacy" = c(0.7,0.3),
+      "calendar" = matrix(c(0,0.007,0.02,0.007,0,0.007,0.02,0.007),nrow=2,byrow=T),
+      "dates" =  c(as.Date("2010-10-01"), as.Date("2010-12-30"), as.Date("2011-02-01")) # begin and end date
+    )
+    
+    expect_error(as.vaccination.calendar( vaccine_calendar ))
+})
+ 
+    # Add test with legacy vaccine.calendar
+test_that("as.vaccination.calendar correctly converts legacy vaccine.calendar ", {
+  data( vaccine_calendar )
+  expect_equal( nrow(vaccine_calendar$calendar), 123 )
+  expect_null( vaccine_calendar$dates )
+    
+  vc <- as.vaccination.calendar( vaccine_calendar )
+  expect_equal( length(vc$dates), 5 )
+  expect_equal(vc$efficacy, rep(vaccine_calendar$efficacy,3))
+})
