@@ -129,9 +129,10 @@ read.legacy.vaccine.file <- function( file )
 #' @param legacy An optional legacy object to convert. Will sanity check the given object
 #' @param no.risk.groups The total number of risk groups (optional)
 #' @param no.age.groups The total number of age groups (optional)
+#' @param starting.year The year of the start of the season. Only used when passed a legacy file
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
-as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.age.groups = NULL )
+as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.age.groups = NULL, starting.year = NULL )
 {
   if (!is.null(legacy))
   {
@@ -171,11 +172,15 @@ as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.ag
       stop("Only three risk groups supported currently")
     
     # Dates (if not given, and 123? rows are there -> use default uk values)
+    if (is.null(starting.year))
+      starting.year <- 1970
     if (nrow(vc$calendar)==123 & is.null(vc$dates)) 
     {
-      vc[["dates"]] <- c(as.Date("1970-10-07"), as.Date("1970-11-07"),
-                         as.Date("1970-12-07"), as.Date("1971-01-07"),
-                         as.Date("1971-02-07"))
+      vc[["dates"]] <- c(as.Date(paste0(starting.year,"-10-01")),
+                         as.Date(paste0(starting.year,"-11-01")),
+                         as.Date(paste0(starting.year,"-12-01")),
+                         as.Date(paste0(starting.year+1,"-01-01")),
+                         as.Date(paste0(starting.year+1,"-02-01")))
       vc[["calendar"]] <- matrix(c(vc[["calendar"]][1,],
                                    vc[["calendar"]][32,],
                                    vc[["calendar"]][62,],
