@@ -126,13 +126,16 @@ read.legacy.vaccine.file <- function( file )
 #' Helper function to create (valid) vaccination calendars. It will take the given data, do some
 #' sanity checking and convert it into a list object that can be passed to other functions.
 #'
+#' @param efficacy Vector holding the vaccine efficacy for each age group and risk group
+#' @param dates Vector containing the dates at which the coverage was measured.  
+#' @param coverage Data frame with the fraction of coverage for each age and risk group in each column. Different rows are the different dates of measurements
 #' @param legacy An optional legacy object to convert. When passed a legacy object this function will sanity check the given object
 #' @param no_risk_groups The total number of risk groups (optional)
 #' @param no_age_groups The total number of age groups (optional)
 #' @param starting_year The year of the start of the season. Only used when passed a legacy file
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
-as.vaccination.calendar <- function(legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
+as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
   if (!is.null(legacy))
   {
     # We are dealing with a legacy object
@@ -204,6 +207,9 @@ as.vaccination.calendar <- function(legacy = NULL, no_risk_groups = NULL, no_age
       vc$calendar <- cbind( vc$calendar, zeros )
     }
     
+    if (!all(vc$calendar >= 0))
+        stop("Vaccination rates should be positive")
+    
     
     if (length(vc$dates) != nrow(vc$calendar))
       stop("Incompatible number of dates and rows in the calendar")
@@ -218,7 +224,17 @@ as.vaccination.calendar <- function(legacy = NULL, no_risk_groups = NULL, no_age
       stop( "Total fraction of people vaccinated greater than 1" )
     
     return(vc)
+  } else {
+    vc <- list("efficacy" = efficacy, "dates" = dates)
+    if (!all(coverage[1,] == 0)) {
+      stop("The first row of the coverage table should be 0. This is required to no the beginning of the vaccination program (using the first element of the dates vector)")
+    }
+    
+    diff.dates <- dates[2:length(dates)] - dates[1:(length(dates) - 1)]
+    diff.coverage <- coverage[2:nrow(coverage),] - coverage[1:(nrow(coverage) - 1),]
+    vc$calendar <- diff.coverage/diff.dates
+    # Note that if passed data we can recursively call it with the legacy argument to 
+    # normalize the result
+    return(as.vaccination.calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
   }
-  # Note that if passed data we can recursively call it with the legacy argument to 
-  # normalize the result
 }
