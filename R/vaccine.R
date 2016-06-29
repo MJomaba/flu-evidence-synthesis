@@ -46,6 +46,9 @@
 #' Vaccination uptake rate for the UK in 1999
 "vaccine_calendar"
 
+#' Data on vaccine coverage during the 2007-08 season
+"coverage"
+
 #' Function to create a vaccine calendar object
 #'
 #' @param coverage A vector containing the total coverage for the vaccine for each age/risk group
@@ -196,7 +199,7 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     {
       vc$calendar <- rbind(vc$calendar, rep(0, ncol(vc$calendar)))
     }
-    else if (!equal(vc$calendar[nrow(vc$calendar),], rep(0,ncol(vc$calendar))))
+    else if (!all(vc$calendar[nrow(vc$calendar),] == 0))
     {
       warning("No date given when vaccination is stopped.")
     }
@@ -232,7 +235,7 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     
     diff.dates <- dates[2:length(dates)] - dates[1:(length(dates) - 1)]
     diff.coverage <- coverage[2:nrow(coverage),] - coverage[1:(nrow(coverage) - 1),]
-    vc$calendar <- diff.coverage/diff.dates
+    vc$calendar <- as.matrix(diff.coverage)/as.double(diff.dates)
     # Note that if passed data we can recursively call it with the legacy argument to 
     # normalize the result
     return(as.vaccination.calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))

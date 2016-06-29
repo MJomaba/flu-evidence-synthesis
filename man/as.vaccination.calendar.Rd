@@ -4,15 +4,24 @@
 \alias{as.vaccination.calendar}
 \title{Create a vaccination calendar object}
 \usage{
-as.vaccination.calendar(legacy = NULL, no.risk.groups = NULL,
-  no.age.groups = NULL)
+as.vaccination.calendar(efficacy = NULL, dates = NULL, coverage = NULL,
+  legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL,
+  starting_year = NULL)
 }
 \arguments{
-\item{legacy}{An optional legacy object to convert. Will sanity check the given object}
+\item{efficacy}{Vector holding the vaccine efficacy for each age group and risk group}
 
-\item{no.risk.groups}{The total number of risk groups (optional)}
+\item{dates}{Vector containing the dates at which the coverage was measured.}
 
-\item{no.age.groups}{The total number of age groups (optional)}
+\item{coverage}{Data frame with the fraction of coverage for each age and risk group in each column. Different rows are the different dates of measurements}
+
+\item{legacy}{An optional legacy object to convert. When passed a legacy object this function will sanity check the given object}
+
+\item{no_risk_groups}{The total number of risk groups (optional)}
+
+\item{no_age_groups}{The total number of age groups (optional)}
+
+\item{starting_year}{The year of the start of the season. Only used when passed a legacy file}
 }
 \value{
 A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
