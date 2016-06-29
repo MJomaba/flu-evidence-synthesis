@@ -55,15 +55,17 @@ ag <- c(1000,1000)
 initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c(990, 600, 10, 400)
 ```
 
-### Vaccine calendar
+### Vaccination calendar
 
-The vaccine calendar during the year. See the [vaccination vignette](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html) for a more in depth explanation of this object. Here we will assume a constant percentage being vaccinated four months. The elderly and high risk groups are vaccinated at the highest rate, with no vaccination for the low risk, younger group. For example this means that the elderly have a total vaccination coverage after four months of: $0.007*31+0.007*30+0.007*31+0.007*31=0.861$
+The vaccination calendar for a given the year. See the [vaccination vignette](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html) for a more in depth explanation of this object. Here we will assume a constant percentage being vaccinated for four months. The elderly and high risk groups are vaccinated at the highest rate, with no vaccination for the low risk, younger group. 
 
 ```{r}
-vaccine_calendar <- list(
-  "efficacy" = c(0.7,0.3),
-  "calendar" = matrix(c(0,0.007,0.001,0.007),nrow=1),
-  "dates" =  c(as.Date("2010-10-01"), as.Date("2011-02-01")) # begin and end date
+vaccine_calendar <- as.vaccination.calendar(
+  efficacy = c(0.7,0.3),
+  coverage = as.data.frame(matrix(c(0,0,0,0,0,0.861,0.123,0.861), nrow = 2, byrow = T)),
+  dates = c(as.Date("2010-10-01"), as.Date("2011-02-01")), # begin and end date
+  no_age_groups = 2,
+  no_risk_groups = 2
 )
 ```
 
