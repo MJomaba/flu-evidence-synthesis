@@ -440,7 +440,6 @@ test_that("Second risk group works as expected", {
     }
 })
 
-
 test_that("infectionODEs works with less than 3 risk groups", {
     data(age_sizes) 
     data(polymod_uk)
@@ -476,4 +475,3 @@ test_that("infectionODEs works with less than 3 risk groups", {
     expect_lt(sum(comp!=0),3)
     expect_lt( sum(abs(comp)), 2.1/24 )
 })
-

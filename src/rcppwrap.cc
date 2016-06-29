@@ -6,17 +6,33 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     flu::vaccine::vaccine_t vac_cal;
     auto rListVac = Rcpp::as<List>(rVac);
     Rcpp::NumericVector eff = rListVac["efficacy"];
-    vac_cal.efficacy_age = Eigen::VectorXd::Zero( eff.size() );
-    for (int i = 0; i < eff.size(); ++i)
-        vac_cal.efficacy_age[i] = eff[i];
+
+    auto nag = eff.size();
+
+    if (eff.size() == vac_cal.calendar.cols())
+    {
+        if( eff.size()%3==0 )
+            nag /= 3; // assume 3 risk groups
+        if( eff.size()%2==0 )
+            nag /= 2; // assume 2 risk groups
+    }
+    vac_cal.efficacy = Eigen::VectorXd::Zero( 3*nag );
+    for (int i = 0; i < nag; ++i)
+        if (nag == eff.size()) {
+            vac_cal.efficacy[i] = eff[i];
+            vac_cal.efficacy[i+nag] = eff[i];
+            vac_cal.efficacy[i+2*nag] = eff[i];
+        }
+        else 
+            vac_cal.efficacy[i] = eff[i];
 
     vac_cal.calendar = Rcpp::as<Eigen::MatrixXd>(rListVac["calendar"]);
 
     // HARDCODED risk groups!
-    if (vac_cal.calendar.cols() < 3*vac_cal.efficacy_age.size()) {
+    if (vac_cal.calendar.cols() < 3*nag) {
         auto dim = vac_cal.calendar.cols();
         vac_cal.calendar.conservativeResize( vac_cal.calendar.rows(), 
-                3*vac_cal.efficacy_age.size() );
+                3*nag );
         for (size_t j=dim; j<vac_cal.calendar.cols(); ++j)
         {
             for (size_t i = 0; i < vac_cal.calendar.rows(); ++i)
@@ -34,14 +50,12 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
 
         for( auto rDate : rDates )
         {
+            // TODO: use rapi date_to_ptime
             vac_cal.dates.push_back(
                     boost::posix_time::ptime(
                         boost::gregorian::date( rDate.getYear(),
                             rDate.getMonth(), rDate.getDay() ),
                         boost::posix_time::time_duration(12, 0, 0 ) 
-                        // This would be useful if we had an Rcpp::Datetime object
-                        //boost::posix_time::time_duration( rDate.getHours(),
-                        //    rDate.getMinutes(), rDate.getSeconds() )
                         )
                     );
         }

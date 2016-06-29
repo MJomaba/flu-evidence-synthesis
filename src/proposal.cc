@@ -179,11 +179,7 @@ namespace flu {
             return proposed;
         }
 
-
-
-
-
-         Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
+        Eigen::VectorXd haario_adapt_scale( const Eigen::VectorXd &current, 
                 const Eigen::MatrixXd &chol_de, 
                 const Eigen::MatrixXd &chol_ini, 
                 double beta, double adapt_scale )

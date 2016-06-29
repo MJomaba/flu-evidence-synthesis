@@ -9,6 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r load-libraries, include=F}
+library(pander)
+library(fluEvidenceSynthesis)
+```
+
 # Introduction
 
 This package implements all the tools needed to analyse and compare the effectiveness of different Influenza vaccine programs (see Baguelin et al. (2013) for more details). This analysis has two main steps.
@@ -18,32 +23,64 @@ This package implements all the tools needed to analyse and compare the effectiv
 
 This vignette will focus on how the fluEvidenceSythesis package can be used to perform the second step. For details on the first step see the inference vignette.
 
-To test the efficacy of different vaccination scenarios you first need to create a custom vaccination scenario. A vaccination scenario specifies the rate of vaccination per day of each age group and risk group during a given period. The epidemiological model is then run with this scenario. To run the model we need to specify the epidemiological parameters that we inferred by fitting the model to our Influenza data (see inference vignette).
+To test the efficacy of different vaccination scenarios you first need to specify a vaccination scenario. A vaccination scenario specifies the rate of vaccination per day of each age group and risk group during a given period and the efficacy of the vaccine during that season. The epidemiological model can then be run with this scenario. To run the model we also need to have the epidemiological parameters that we inferred by fitting the model to our Influenza data (see inference vignette).
 
-# Example
+# Building a vaccination scenario
 
+```{r, echo=F}
+data(coverage)
+pander(head(coverage), caption = "The vaccination coverage rates in the UK in season 2007-08. Note that this only shows the first 6 weeks of data")
+```
+
+The `as.vaccination.scenario()` function can be used to build a vaccination scenario object based on coverage data. In the example below we use the coverage rates for the 2007-08 season in the UK. If there are multiple age groups and risk groups then the layout in general is expected to be all age groups for one risk group, followed by the age groups for the second risk group etc. In the example below the efficacy of the under 65 at low risk is expected to be $.7$ and for the 65+ the efficacy is $.4$.
+
+```{r, as.vaccination.scenario}
+library("fluEvidenceSynthesis")
+data(coverage)
+# Coverage rates for respectively low risk <65, low risk 65+,
+# high risk <65 and 65+. Original is in percentages. Here converted to fraction
+cov <- coverage[,c("Under.65","X65","at.risk.under.65","X65")]/100.0
+
+vaccine_calendar <- as.vaccination.calendar(efficacy = c(0.7, 0.4, 0.7, 0.4), 
+                                        dates = coverage$Date,
+                                        coverage = cov, 
+                                        no_age_groups = 2, no_risk_groups = 2)
+```
+
+## More age groups
+
+Below we show how to create a vaccination calendar for 7 age groups and 3 risk groups. We assume at risk young children and 65 year and older get a vaccine.
 ```{r}
 library("fluEvidenceSynthesis")
 
-# Create vaccination scenario
-vaccine_calendar <- list(
-  "efficacy" = c(0.7,0.7,0.7,0.7,0.7,0.7,0.3),
-  "calendar" = matrix(rep(0,21*3),ncol=21),
-  "dates" =  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
-               as.Date("2010-12-01"), as.Date("2011-01-01"))
-)
+efficacy <- c(0.7,0.7,0.7,0.7,0.7,0.7,0.3)
+calendar <- matrix(rep(0,21*4),ncol = 21)
+dates <-  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
+            as.Date("2010-12-01"), as.Date("2011-01-01"))
 
+  
 # Set rate of vaccine uptake for different dates/age groups
-# In this case the elderly (age group 7) start with an uptake rate of 0.02 in the first month
-# followed by 0.005 in the second and third month. After three months the total uptake will be:
-# 31*0.02+30*0.005+31*0.005=0.925
-vaccine_calendar$calendar[1,c(7,14,21)] <- 0.02
-vaccine_calendar$calendar[2,c(7,14,21)] <- 0.005
-vaccine_calendar$calendar[3,c(7,14,21)] <- 0.005
+# In this case the elderly (age group 7) start with a coverage of 0.62 in the first month
+# followed by 0.7 and 0.925 in the second and third month. After three months the total uptake will be.
+calendar[1,c(7,14,21)] <- 0.0
+calendar[2,c(7,14,21)] <- 0.62
+calendar[3,c(7,14,21)] <- 0.77
+calendar[4,c(7,14,21)] <- 0.925
 
-# Set daily uptake for first month, for high risk young children
-vaccine_calendar$calendar[1,c(8,9)] <- 0.02
+# Set coverage for high risk young children
+calendar[1,c(8,9)] <- 0.0
+calendar[2,c(8,9)] <- 0.62
+calendar[3,c(8,9)] <- 0.62
+calendar[4,c(8,9)] <- 0.62
 
+vaccine_calendar <- as.vaccination.calendar(efficacy = efficacy, dates = dates, 
+                                            coverage = calendar, no_age_groups = 7,
+                                            no_risk_groups = 3)
+```
+
+## Outbreak size
+
+```{r}
 # Load needed data
 data("age_sizes")
 data("polymod_uk")
@@ -52,17 +89,15 @@ data("inference.results")
 # This returns the total size of the outbreak given the vaccination scenario and the
 # 1000th posterior (mcmc) sample. The outbreak sizes is separated by age group and 
 # risk groups
-cases.per.year <- vaccinationScenario( age_sizes=age_sizes[,1],
-                     vaccine_calendar=vaccine_calendar,
-                     polymod_data=as.matrix(polymod_uk),
-                     contact_ids=inference.results$contact.ids[1000,],
-                     parameters=inference.results$batch[1000,]
+cases.per.year <- vaccinationScenario(age_sizes = age_sizes[,1],
+                     vaccine_calendar = vaccine_calendar,
+                     polymod_data = as.matrix(polymod_uk),
+                     contact_ids = inference.results$contact.ids[1000,],
+                     parameters = inference.results$batch[1000,]
                     )
 ```
 
 The above shows how to use a specific posterior (mcmc) sample to create one prediction. In general, you should have a number of samples from the posterior and you call vaccinationScenario using each of those samples. This will result in a posterior distribution for the predicted efficacy of your vaccinationScenario. This can then be used for further analysis, such as the cost effectiveness of your analysis.
-
-The `vaccine_calendar` object defines the needed parameters for a certain vaccine scenario. With `vaccine_calendar$efficacy` a vector defining the efficacy of the vaccine for the 7 age groups. In this case we assume that the vaccine causes immunity for 70% of most of the age groups, except for the elderly (>65) where it is only successful in 30% of the cases. The calendar is a matrix holding daily uptakes rates of the vaccine. The first 7 columns of the matrix are the uptake rates for the low risk age groups, following 7 columns are the high risk groups. Finally the dates give the starting dates for each of the rows of the calendar matrix. The last date in the date vector is the last date of vaccination. After that date all uptake rates are set back to zero.
 
 ## Full posterior of cases
 

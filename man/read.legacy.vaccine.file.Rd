@@ -2,7 +2,7 @@
 % Please edit documentation in R/vaccine.R
 \name{read.legacy.vaccine.file}
 \alias{read.legacy.vaccine.file}
-\title{Function to read legacy file format for vaccines}
+\title{Function to read legacy file format for vaccine calendar}
 \usage{
 read.legacy.vaccine.file(file)
 }
@@ -13,6 +13,6 @@ read.legacy.vaccine.file(file)
 A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 }
 \description{
-Function to read legacy file format for vaccines
+Function to read legacy file format for vaccine calendar
 }
 
