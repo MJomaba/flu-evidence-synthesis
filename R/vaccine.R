@@ -126,71 +126,70 @@ read.legacy.vaccine.file <- function( file )
 #' Helper function to create (valid) vaccination calendars. It will take the given data, do some
 #' sanity checking and convert it into a list object that can be passed to other functions.
 #'
-#' @param legacy An optional legacy object to convert. Will sanity check the given object
-#' @param no.risk.groups The total number of risk groups (optional)
-#' @param no.age.groups The total number of age groups (optional)
-#' @param starting.year The year of the start of the season. Only used when passed a legacy file
+#' @param legacy An optional legacy object to convert. When passed a legacy object this function will sanity check the given object
+#' @param no_risk_groups The total number of risk groups (optional)
+#' @param no_age_groups The total number of age groups (optional)
+#' @param starting_year The year of the start of the season. Only used when passed a legacy file
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
-as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.age.groups = NULL, starting.year = NULL )
-{
+as.vaccination.calendar <- function(legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
   if (!is.null(legacy))
   {
     # We are dealing with a legacy object
     vc <- legacy
-    if (is.null(no.risk.groups))
+    if (is.null(no_risk_groups))
     {
-      no.risk.groups <- 1
-      if (is.null(no.age.groups))
+      no_risk_groups <- 1
+      if (is.null(no_age_groups))
       {
-        if (length(vc$efficacy)==ncol(vc$calendar))
+        if (length(vc$efficacy) == ncol(vc$calendar))
         {
-          if (length(vc$efficacy)%%3==0)
-            no.risk.groups <- 3
-          if (length(vc$efficacy)%%2==0)
-            no.risk.groups <- 2
+          if (length(vc$efficacy) %% 3 == 0)
+            no_risk_groups <- 3
+          if (length(vc$efficacy) %% 2 == 0)
+            no_risk_groups <- 2
         }
         else
-          no.risk.groups <- ncol(vc$calendar)/length(vc$efficacy)
+          no_risk_groups <- ncol(vc$calendar)/length(vc$efficacy)
       }
       else
-        no.risk.groups <- ncol(vc$calendar)/no.age.groups
+        no_risk_groups <- ncol(vc$calendar)/no_age_groups
     }
-    if (is.null(no.age.groups))
-      no.age.groups <- ncol(vc$calendar)/no.risk.groups
+    if (is.null(no_age_groups))
+      no_age_groups <- ncol(vc$calendar)/no_risk_groups
     
-    if (no.age.groups != round(no.age.groups) 
-        || no.risk.groups != round(no.risk.groups))
-      stop("no.age.groups: ", no.age.groups," and no.risk.groups: ", no.risk.groups, 
+    if (no_age_groups != round(no_age_groups) 
+        || no_risk_groups != round(no_risk_groups))
+      stop("no_age_groups: ", no_age_groups," and no_risk_groups: ", no_risk_groups, 
            " need to be integer values")
     
-    if (length(vc$efficacy)!=ncol(vc$calendar))
-      vc$efficacy <- rep(vc$efficacy, no.risk.groups)
-    if (no.risk.groups < 3) # append zeros
-      vc$efficacy <- c(vc$efficacy, rep(0, no.age.groups*(3-no.risk.groups)))
-    if (no.risk.groups > 3)
+    if (length(vc$efficacy) != ncol(vc$calendar))
+      vc$efficacy <- rep(vc$efficacy, no_risk_groups)
+    if (no_risk_groups < 3) # append zeros
+      vc$efficacy <- c(vc$efficacy, rep(0, no_age_groups*(3 - no_risk_groups)))
+    if (no_risk_groups > 3)
       stop("Only three risk groups supported currently")
     
-    # Dates (if not given, and 123? rows are there -> use default uk values)
-    if (is.null(starting.year))
-      starting.year <- 1970
-    if (nrow(vc$calendar)==123 & is.null(vc$dates)) 
+    # Dates (if not given, and 123 rows are there -> use default uk values)
+    if (is.null(starting_year))
+      starting_year <- 1970
+    if (nrow(vc$calendar) == 123 & is.null(vc$dates)) 
     {
-      vc[["dates"]] <- c(as.Date(paste0(starting.year,"-10-01")),
-                         as.Date(paste0(starting.year,"-11-01")),
-                         as.Date(paste0(starting.year,"-12-01")),
-                         as.Date(paste0(starting.year+1,"-01-01")),
-                         as.Date(paste0(starting.year+1,"-02-01")))
+      vc[["dates"]] <- c(as.Date(paste0(starting_year,"-10-01")),
+                         as.Date(paste0(starting_year,"-11-01")),
+                         as.Date(paste0(starting_year,"-12-01")),
+                         as.Date(paste0(starting_year + 1,"-01-01")),
+                         as.Date(paste0(starting_year + 1,"-02-01")))
       vc[["calendar"]] <- matrix(c(vc[["calendar"]][1,],
                                    vc[["calendar"]][32,],
                                    vc[["calendar"]][62,],
-                                   vc[["calendar"]][93,]),ncol=21,byrow=TRUE)
+                                   vc[["calendar"]][93,]),ncol = 21, byrow = TRUE)
     }
     # Also make sure they are dates
     
     # Calendar (convert it to a matrix)
     # If dates 1 longer -> add row of zeros to calendar
-    if (length(vc$dates) == nrow(vc$calendar)+1)
+    if (length(vc$dates) == nrow(vc$calendar) + 1)
     {
       vc$calendar <- rbind(vc$calendar, rep(0, ncol(vc$calendar)))
     }
@@ -198,10 +197,10 @@ as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.ag
     {
       warning("No date given when vaccination is stopped.")
     }
-    # If no.risk.groups<3, fill with extra zero columns
-    if (no.risk.groups < 3)
+    # If no_risk_groups<3, fill with extra zero columns
+    if (no_risk_groups < 3)
     {
-      zeros <- matrix(rep(0,(3-no.risk.groups)*no.age.groups*nrow(vc$calendar)), nrow = nrow(vc$calendar))
+      zeros <- matrix(rep(0,(3 - no_risk_groups)*no_age_groups*nrow(vc$calendar)), nrow = nrow(vc$calendar))
       vc$calendar <- cbind( vc$calendar, zeros )
     }
     
@@ -209,12 +208,13 @@ as.vaccination.calendar <- function( legacy = NULL, no.risk.groups = NULL, no.ag
     if (length(vc$dates) != nrow(vc$calendar))
       stop("Incompatible number of dates and rows in the calendar")
     
-    rates <-  vc$calendar[1:(nrow(vc$calendar)-1),]*as.numeric((vc$dates[2:(length(vc$dates))]-vc$dates[1:(length(vc$dates)-1)]))
-    if(class(rates)=="matrix")
+    rates <-  vc$calendar[1:(nrow(vc$calendar) - 1),]*
+      as.numeric((vc$dates[2:(length(vc$dates))] - vc$dates[1:(length(vc$dates) - 1)]))
+    if (class(rates) == "matrix")
       rates <- colSums(rates)
     
     # Check that summed rates (by column,multiplied by number of days) are below 1
-    if (!all(rates<=1))
+    if (!all(rates <= 1))
       stop( "Total fraction of people vaccinated greater than 1" )
     
     return(vc)
