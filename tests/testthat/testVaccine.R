@@ -110,7 +110,7 @@ test_that("Vaccination scenario and infectionODEs give similar results",
   # Need to separate into age groups... 
   odes <- infectionODEs( popv, initial.infected,
                          test.vac,
-                         contact.matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,]+1,]),
+                         contact.matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
                                          age_sizes[,1], c(1,5,15,25,45,65) ),
                          c(rep(inference.results$batch[1000,6],3),rep(inference.results$batch[1000,7],3),inference.results$batch[1000,8]),
                          inference.results$batch[1000,5],

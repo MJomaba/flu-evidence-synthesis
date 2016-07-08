@@ -103,7 +103,7 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
     /*translate into an initial infected population*/
     std::vector<size_t> contact_ids;
     for (size_t i = 0; i < (size_t)polymod_data.rows(); ++i)
-        contact_ids.push_back(i);
+        contact_ids.push_back(i+1);
 
     auto curr_parameters = initial;
     auto curr_init_inf = Eigen::VectorXd::Constant( 
@@ -376,7 +376,7 @@ mcmc_result_inference_t inference_multistrains(
     /*translate into an initial infected population*/
     std::vector<size_t> contact_ids;
     for (size_t i = 0; i < (size_t)polymod_data.rows(); ++i)
-        contact_ids.push_back(i);
+        contact_ids.push_back(i+1);
 
     auto curr_parameters = initial;
     auto polymod = flu::contacts::table_to_contacts( polymod_data, 

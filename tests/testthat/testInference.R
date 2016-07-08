@@ -72,6 +72,9 @@ test_that("We can run inference",
 
       expect_that( nrow(results$batch), equals( 1000 ) )
       expect_that( nrow(results$contact.ids), equals( 1000 ) )
+      expect_true(all(results$contact.ids > 0))
+      expect_true(all(results$contact.ids <= nrow(polymod_uk)))
+
       # Contact ids are mixing
       expect_false(identical(results$contact.ids[1,], results$contact.ids[1000,]))
       #mean

@@ -40,7 +40,7 @@ namespace flu
             shuffled_c.nwe=0;
             for(size_t i=0; i<sorted_c.contacts.size(); i++)
             {
-                auto nc = ids[i];
+                auto nc = ids[i]-1;
 
                 // Make sure that the ids are still the same
                 assert( sorted_c.contacts[nc].id == nc );
@@ -138,7 +138,7 @@ namespace flu
                         break;
                 }
 
-                new_contact.id = i;
+                new_contact.id = i+1;
 
                 c.contacts.push_back( new_contact );
             }
