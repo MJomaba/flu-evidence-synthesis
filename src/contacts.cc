@@ -40,6 +40,8 @@ namespace flu
             shuffled_c.nwe=0;
             for(size_t i=0; i<sorted_c.contacts.size(); i++)
             {
+                if (ids[i] <= 0)
+                    ::Rf_error("You are using old inference results with the newer package version. You might want to rerun the inference or add 1 to all the contact_ids values");
                 auto nc = ids[i]-1;
 
                 // Make sure that the ids are still the same
