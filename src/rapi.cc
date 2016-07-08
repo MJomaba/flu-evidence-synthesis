@@ -271,7 +271,7 @@ Rcpp::DataFrame infectionODEs(
 
 //' Returns log likelihood of the predicted number of cases given the data for that week
 //'
-//' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.
+//' The model results in a prediction for the given number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.
 //'
 //' @param epsilon Parameter for the probability distribution
 //' @param psi Parameter for the probability distribution
@@ -282,7 +282,9 @@ Rcpp::DataFrame infectionODEs(
 //' @param confirmed_positive The number of samples positive for the Influenza strain
 //' @param confirmed_samples Number of samples tested for the Influenza strain
 //'
-// [[Rcpp::export(name="llikelihood.cases")]]
+//' @seealso{\link{total_log_likelihood_cases}}
+//'
+// [[Rcpp::export(name=".log_likelihood_cases")]]
 double log_likelihood( double epsilon, double psi, 
         size_t predicted, double population_size, 
         int ili_cases, int ili_monitored,
@@ -292,6 +294,39 @@ double log_likelihood( double epsilon, double psi,
             predicted, population_size,
             ili_cases, ili_monitored,
             confirmed_positive, confirmed_samples, 2 );
+}
+
+//' Returns log likelihood of the predicted number of cases given the data
+//'
+//' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function sum the log likelihood for the predicted cases for each week and age group given the data on reported Influenza Like Illnesses and confirmed samples.
+//'
+//' @param epsilon Parameter for the probability distribution by age group
+//' @param psi Parameter for the probability distribution
+//' @param predicted Number of cases predicted by your model for each week and age group
+//' @param population_size The total population size in the age groups 
+//' @param ili_cases The number of Influenza Like Illness cases by week and age group
+//' @param ili_monitored The size of the population monitored for ILI  by week and age group
+//' @param confirmed_positive The number of samples positive for the Influenza strain  by week and age group
+//' @param confirmed_samples Number of samples tested for the Influenza strain  by week and age group
+//'
+//'
+// [[Rcpp::export(name="log_likelihood_cases")]]
+double total_log_likelihood(  Eigen::VectorXd epsilon, double psi, 
+        Eigen::MatrixXi predicted, Eigen::VectorXi population_size, 
+        Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored,
+        Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples )
+{
+    double ll = 0;
+    for (size_t j = 0; j < ili_cases.cols(); ++j) {
+        for (size_t i = 0; i < ili_cases.rows(); ++i) {
+            ll += flu::log_likelihood( epsilon[j], psi,
+                    predicted(i,j), population_size[j],
+                    ili_cases(i,j), ili_monitored(i,j),
+                    confirmed_positive(i,j), confirmed_samples(i,j), 
+                    2 );
+        }
+    }
+    return ll;
 }
 
 

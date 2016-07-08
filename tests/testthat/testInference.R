@@ -32,13 +32,14 @@ test_that("Likelihood function returns the correct value",
       # i.e group 4 and 5 is equal to group 3
       predicted <- rowSums(inf.model[week,5:6])+rowSums(inf.model[week,12:13])
 
-      ll <- llikelihood.cases(mcmcsample$parameters$epsilon[age.group],
+      ll <- log_likelihood_cases(
+                              c(mcmcsample$parameters$epsilon[age.group]),
                               mcmcsample$parameters$psi,
-                              predicted, population,
-                              ili$ili[week,age.group],
-                              ili$total.monitored[week,age.group],
-                              confirmed.samples$positive[week,age.group],
-                              confirmed.samples$total.samples[week,age.group])
+                              as.matrix(predicted), c(population),
+                              as.matrix(ili$ili[week,age.group]),
+                              as.matrix(ili$total.monitored[week,age.group]),
+                              as.matrix(confirmed.samples$positive[week,age.group]),
+                              as.matrix(confirmed.samples$total.samples[week,age.group]))
       expect_lt(ll, 121.9881)
       expect_gt(ll, 120.9881)
   }

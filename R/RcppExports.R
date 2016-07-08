@@ -122,7 +122,7 @@ infectionODEs.cpp <- function(population, initial_infected, vaccine_calendar, co
 
 #' Returns log likelihood of the predicted number of cases given the data for that week
 #'
-#' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.
+#' The model results in a prediction for the given number of new cases in a certain age group and for a certain week. This function calculates the likelihood of that given the data on reported Influenza Like Illnesses and confirmed samples.
 #'
 #' @param epsilon Parameter for the probability distribution
 #' @param psi Parameter for the probability distribution
@@ -133,8 +133,28 @@ infectionODEs.cpp <- function(population, initial_infected, vaccine_calendar, co
 #' @param confirmed_positive The number of samples positive for the Influenza strain
 #' @param confirmed_samples Number of samples tested for the Influenza strain
 #'
-llikelihood.cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples) {
+#' @seealso{\link{total_log_likelihood_cases}}
+#'
+.log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples) {
     .Call('fluEvidenceSynthesis_log_likelihood', PACKAGE = 'fluEvidenceSynthesis', epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples)
+}
+
+#' Returns log likelihood of the predicted number of cases given the data
+#'
+#' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function sum the log likelihood for the predicted cases for each week and age group given the data on reported Influenza Like Illnesses and confirmed samples.
+#'
+#' @param epsilon Parameter for the probability distribution by age group
+#' @param psi Parameter for the probability distribution
+#' @param predicted Number of cases predicted by your model for each week and age group
+#' @param population_size The total population size in the age groups 
+#' @param ili_cases The number of Influenza Like Illness cases by week and age group
+#' @param ili_monitored The size of the population monitored for ILI  by week and age group
+#' @param confirmed_positive The number of samples positive for the Influenza strain  by week and age group
+#' @param confirmed_samples Number of samples tested for the Influenza strain  by week and age group
+#'
+#'
+log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples) {
+    .Call('fluEvidenceSynthesis_total_log_likelihood', PACKAGE = 'fluEvidenceSynthesis', epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples)
 }
 
 #' Run an ODE model with the runge-kutta solver for testing purposes

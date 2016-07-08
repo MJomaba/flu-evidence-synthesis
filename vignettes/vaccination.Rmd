@@ -53,7 +53,7 @@ Below we show how to create a vaccination calendar for 7 age groups and 3 risk g
 ```{r}
 library("fluEvidenceSynthesis")
 
-efficacy <- c(0.7,0.7,0.7,0.7,0.7,0.7,0.3)
+efficacy <- rep(c(0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.3), 3)
 calendar <- matrix(rep(0,21*4),ncol = 21)
 dates <-  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
             as.Date("2010-12-01"), as.Date("2011-01-01"))

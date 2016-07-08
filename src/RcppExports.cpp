@@ -156,6 +156,24 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// total_log_likelihood
+double total_log_likelihood(Eigen::VectorXd epsilon, double psi, Eigen::MatrixXi predicted, Eigen::VectorXi population_size, Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored, Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples);
+RcppExport SEXP fluEvidenceSynthesis_total_log_likelihood(SEXP epsilonSEXP, SEXP psiSEXP, SEXP predictedSEXP, SEXP population_sizeSEXP, SEXP ili_casesSEXP, SEXP ili_monitoredSEXP, SEXP confirmed_positiveSEXP, SEXP confirmed_samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< double >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type predicted(predictedSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type population_size(population_sizeSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili_cases(ili_casesSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili_monitored(ili_monitoredSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type confirmed_positive(confirmed_positiveSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type confirmed_samples(confirmed_samplesSEXP);
+    __result = Rcpp::wrap(total_log_likelihood(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples));
+    return __result;
+END_RCPP
+}
 // runPredatorPrey
 Eigen::MatrixXd runPredatorPrey(double step_size, double h_step);
 RcppExport SEXP fluEvidenceSynthesis_runPredatorPrey(SEXP step_sizeSEXP, SEXP h_stepSEXP) {
