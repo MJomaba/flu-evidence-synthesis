@@ -1,6 +1,6 @@
 ---
 title: "Using fluEvidenceSynthesis to predict efficacy of different vaccination scenarios"
-author: "Edwin van Leeuwen" 
+author: "Edwin van Leeuwen"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -121,8 +121,8 @@ ggplot(data=data.frame("cases"=cases)) + geom_histogram(aes(x=cases),bins=25)
 
 1. Try different vaccination scenarios
     - Uptake rate
-    - Additional age groups/risk groups 
-2. Explore the results by age group/risk group 
+    - Additional age groups/risk groups
+2. Explore the results by age group/risk group
 
 # References
 
