@@ -4,7 +4,8 @@
 \alias{adaptive.mcmc}
 \title{Adaptive MCMC algorithm}
 \usage{
-adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1, ...)
+adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
+  outfun = NULL, ...)
 }
 \arguments{
 \item{lprior}{A function returning the log prior probability of the parameters}
@@ -19,10 +20,12 @@ adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1, ...)
 
 \item{blen}{Length of each batch}
 
+\item{outfun}{A function that is called with the current parameters. It's output is added to the returned list}
+
 \item{...}{Extra parameters passed to the log likelihood function}
 }
 \value{
-Returns a list with the accepted samples and the corresponding llikelihood values
+Returns a list with the accepted samples and the corresponding llikelihood values and the return of the optional passed outfun
 }
 \description{
 MCMC which adapts its proposal distribution for faster convergence following:

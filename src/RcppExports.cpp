@@ -199,18 +199,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // adaptiveMCMCR
-Rcpp::List adaptiveMCMCR(Rcpp::Function lprior, Rcpp::Function llikelihood, size_t nburn, Eigen::VectorXd initial, size_t nbatch, size_t blen);
-RcppExport SEXP fluEvidenceSynthesis_adaptiveMCMCR(SEXP lpriorSEXP, SEXP llikelihoodSEXP, SEXP nburnSEXP, SEXP initialSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
+Rcpp::List adaptiveMCMCR(Rcpp::Function lprior, Rcpp::Function llikelihood, Rcpp::Function outfun, size_t nburn, Eigen::VectorXd initial, size_t nbatch, size_t blen);
+RcppExport SEXP fluEvidenceSynthesis_adaptiveMCMCR(SEXP lpriorSEXP, SEXP llikelihoodSEXP, SEXP outfunSEXP, SEXP nburnSEXP, SEXP initialSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::Function >::type lprior(lpriorSEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type llikelihood(llikelihoodSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type outfun(outfunSEXP);
     Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
     Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
     Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
-    __result = Rcpp::wrap(adaptiveMCMCR(lprior, llikelihood, nburn, initial, nbatch, blen));
+    __result = Rcpp::wrap(adaptiveMCMCR(lprior, llikelihood, outfun, nburn, initial, nbatch, blen));
     return __result;
 END_RCPP
 }

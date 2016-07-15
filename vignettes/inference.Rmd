@@ -116,6 +116,9 @@ To perform parameter inference we first need to define a function that returns t
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
 
+# This is to keep track of the bootstrapped contact results
+current.contact.ids <- seq(1,nrow(polymod_uk))
+
 # Load the data and return the log likelihood function given the data
 build.llikelihood <- function()
 {
@@ -129,10 +132,7 @@ build.llikelihood <- function()
   
   # Sum all populations with a certain age into their corresponding age group
   age.group.sizes.5 <- separate.into.age.groups(age_sizes$V1,c(5,15,45,65))
-  
-  # This is to keep track of the bootstrapped contact results
-  current.contact.ids <- seq(1,nrow(polymod_uk))
-  
+ 
   # Define the actual log likelihood function
   llikelihood.f <- function( pars )
   {
@@ -220,7 +220,8 @@ init.pars <- c(0.01188150,0.01831852, 0.05434378, 1.049317e-05, 0.1657944,
 llikelihood <- build.llikelihood()
 
 # Run adaptive.mcmc
-mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood,
+mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood, 
+               outfun = function(pars) { current.contact.ids },
                nburn = 100, 
                initial = init.pars,
                nbatch = 100, blen = 10)

@@ -4,12 +4,15 @@
 \alias{adaptive.mcmc.cpp}
 \title{Adaptive MCMC algorithm implemented in C++}
 \usage{
-adaptive.mcmc.cpp(lprior, llikelihood, nburn, initial, nbatch, blen = 1L)
+adaptive.mcmc.cpp(lprior, llikelihood, outfun, nburn, initial, nbatch,
+  blen = 1L)
 }
 \arguments{
 \item{lprior}{A function returning the log prior probability of the parameters}
 
 \item{llikelihood}{A function returning the log likelihood of the parameters given the data}
+
+\item{outfun}{A function that is called with the current parameters. It's output is added to the returned list}
 
 \item{nburn}{Number of iterations of burn in}
 
