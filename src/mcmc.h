@@ -12,9 +12,9 @@ struct mcmc_result_t
     Eigen::VectorXd llikelihoods;
 };
 
-template<typename Func1, typename Func2, typename Func3>
+template<typename Func1, typename Func2, typename Func3, typename Func4>
 mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood, 
-        const Func3 &outfun,
+        const Func3 &outfun, const Func4 &acceptfun,
         size_t nburn,
         const Eigen::VectorXd &initial, 
         size_t nbatch, size_t blen = 1 )
@@ -81,6 +81,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             //update current likelihood
             curr_llikelihood=prop_llikelihood;
             curr_lprior=prop_lprior;
+            // Call the accept function
+            acceptfun();
         }
         else //if reject
         {

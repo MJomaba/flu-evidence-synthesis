@@ -118,6 +118,7 @@ library(fluEvidenceSynthesis)
 
 # This is to keep track of the bootstrapped contact results
 current.contact.ids <- seq(1,nrow(polymod_uk))
+proposed.contact.ids <- current.contact.ids
 
 # Load the data and return the log likelihood function given the data
 build.llikelihood <- function()
@@ -136,16 +137,16 @@ build.llikelihood <- function()
   # Define the actual log likelihood function
   llikelihood.f <- function( pars )
   {
-    # Resample contact ids. This is actually not ideal, because we should not accept
-    # the resampling if new pars are not accepted
-    # Possible solution: a parameter that (rounded) represents the number of steps from start. 
-    if (runif(1,0,1)<1) {
-      rs <- round(runif(2,1,length(current.contact.ids)))
-      current.contact.ids[rs[1]] <<- rs[2]
+    
+    # Resample contact ids 
+    proposed.contact.ids <<- current.contact.ids
+    if (runif(1,0,1) < 1) {
+      rs <- round(runif(2,1,length(proposed.contact.ids)))
+      proposed.contact.ids[rs[1]] <<- rs[2]
     }
 
     age.group.limits <- c(1,5,15,25,45,65)
-    contacts <- contact.matrix(as.matrix(polymod_uk[current.contact.ids,]),
+    contacts <- contact.matrix(as.matrix(polymod_uk[proposed.contact.ids,]),
                                age_sizes[,1], age.group.limits )
 
     age.groups <- separate.into.age.groups( age_sizes[,1], 
@@ -219,11 +220,15 @@ init.pars <- c(0.01188150,0.01831852, 0.05434378, 1.049317e-05, 0.1657944,
                        0.3855279, 0.9269811, 0.5710709, -0.1543508)
 llikelihood <- build.llikelihood()
 
+# Store the contact ids used during inference
+contact.ids <- list()
 # Run adaptive.mcmc
 mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood, 
                outfun = function() { 
-                 cr <- current.contact.ids
-                 cr
+                 contact.ids[[length(contact.ids)+1]] <<-  current.contact.ids
+               },
+               acceptfun = function() {
+                 current.contact.ids <<- proposed.contact.ids
                },
                nburn = 100, 
                initial = init.pars,

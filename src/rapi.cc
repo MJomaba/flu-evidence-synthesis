@@ -410,6 +410,7 @@ Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5
 //' @param lprior A function returning the log prior probability of the parameters 
 //' @param llikelihood A function returning the log likelihood of the parameters given the data
 //' @param outfun A function that is called for each batch. Can be useful to log certain values. 
+//' @param accpetfun A function that is called whenever a sample is accepted. 
 //' @param nburn Number of iterations of burn in
 //' @param initial Vector with starting parameter values
 //' @param nbatch Number of batches to run (number of samples to return)
@@ -423,6 +424,7 @@ Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5
 Rcpp::List adaptiveMCMCR( 
         Rcpp::Function lprior, Rcpp::Function llikelihood,
         Rcpp::Function outfun,
+        Rcpp::Function acceptfun,
         size_t nburn,
         Eigen::VectorXd initial, 
         size_t nbatch, size_t blen = 1 )
@@ -437,7 +439,7 @@ Rcpp::List adaptiveMCMCR(
         return ll;
     };
 
-    auto mcmcResult = flu::adaptiveMCMC( cppLprior, cppLlikelihood, outfun, 
+    auto mcmcResult = flu::adaptiveMCMC( cppLprior, cppLlikelihood, outfun, acceptfun,
             nburn, initial, nbatch, blen );
     Rcpp::List rState;
     rState["batch"] = Rcpp::wrap( mcmcResult.batch );

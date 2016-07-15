@@ -183,6 +183,7 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #' @param lprior A function returning the log prior probability of the parameters 
 #' @param llikelihood A function returning the log likelihood of the parameters given the data
 #' @param outfun A function that is called for each batch. Can be useful to log certain values. 
+#' @param accpetfun A function that is called whenever a sample is accepted. 
 #' @param nburn Number of iterations of burn in
 #' @param initial Vector with starting parameter values
 #' @param nbatch Number of batches to run (number of samples to return)
@@ -192,8 +193,8 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #'
 #' @seealso \code{\link{adaptive.mcmc}} For a more flexible R frontend to this function.
 #'
-adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, nburn, initial, nbatch, blen = 1L) {
-    .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, nburn, initial, nbatch, blen)
+adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen = 1L) {
+    .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen)
 }
 
 #' Create a contact matrix based on polymod data.
