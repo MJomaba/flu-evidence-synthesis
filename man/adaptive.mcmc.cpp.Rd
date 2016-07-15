@@ -4,8 +4,8 @@
 \alias{adaptive.mcmc.cpp}
 \title{Adaptive MCMC algorithm implemented in C++}
 \usage{
-adaptive.mcmc.cpp(lprior, llikelihood, outfun, nburn, initial, nbatch,
-  blen = 1L)
+adaptive.mcmc.cpp(lprior, llikelihood, outfun, acceptfun, nburn, initial,
+  nbatch, blen = 1L)
 }
 \arguments{
 \item{lprior}{A function returning the log prior probability of the parameters}
@@ -21,6 +21,8 @@ adaptive.mcmc.cpp(lprior, llikelihood, outfun, nburn, initial, nbatch,
 \item{nbatch}{Number of batches to run (number of samples to return)}
 
 \item{blen}{Length of each batch}
+
+\item{accpetfun}{A function that is called whenever a sample is accepted.}
 }
 \value{
 Returns a list with the accepted samples and the corresponding llikelihood values

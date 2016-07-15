@@ -140,7 +140,7 @@ build.llikelihood <- function()
     
     # Resample contact ids 
     proposed.contact.ids <<- current.contact.ids
-    if (runif(1,0,1) < 1) {
+    if (runif(1,0,1) < 0.1) {
       rs <- round(runif(2,1,length(proposed.contact.ids)))
       proposed.contact.ids[rs[1]] <<- rs[2]
     }
