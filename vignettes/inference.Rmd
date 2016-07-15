@@ -139,9 +139,9 @@ build.llikelihood <- function()
     # Resample contact ids. This is actually not ideal, because we should not accept
     # the resampling if new pars are not accepted
     # Possible solution: a parameter that (rounded) represents the number of steps from start. 
-    if (runif(1,0,1)<0.1) {
+    if (runif(1,0,1)<1) {
       rs <- round(runif(2,1,length(current.contact.ids)))
-      current.contact.ids[rs[1]] <- rs[2]
+      current.contact.ids[rs[1]] <<- rs[2]
     }
 
     age.group.limits <- c(1,5,15,25,45,65)
@@ -221,7 +221,10 @@ llikelihood <- build.llikelihood()
 
 # Run adaptive.mcmc
 mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood, 
-               outfun = function(pars) { current.contact.ids },
+               outfun = function() { 
+                 cr <- current.contact.ids
+                 cr
+               },
                nburn = 100, 
                initial = init.pars,
                nbatch = 100, blen = 10)

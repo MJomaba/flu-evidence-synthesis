@@ -12,7 +12,7 @@ adaptive.mcmc.cpp(lprior, llikelihood, outfun, nburn, initial, nbatch,
 
 \item{llikelihood}{A function returning the log likelihood of the parameters given the data}
 
-\item{outfun}{A function that is called with the current parameters. It's output is added to the returned list}
+\item{outfun}{A function that is called for each batch. Can be useful to log certain values.}
 
 \item{nburn}{Number of iterations of burn in}
 

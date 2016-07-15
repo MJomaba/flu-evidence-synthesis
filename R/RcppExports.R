@@ -182,7 +182,7 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #'
 #' @param lprior A function returning the log prior probability of the parameters 
 #' @param llikelihood A function returning the log likelihood of the parameters given the data
-#' @param outfun A function that is called for each batch. It's output is added to the returned list
+#' @param outfun A function that is called for each batch. Can be useful to log certain values. 
 #' @param nburn Number of iterations of burn in
 #' @param initial Vector with starting parameter values
 #' @param nbatch Number of batches to run (number of samples to return)

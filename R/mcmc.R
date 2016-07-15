@@ -9,7 +9,7 @@
 #' @param initial Vector with starting parameter values
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
-#' @param outfun A function that is called each batch. It's output is added to the returned list
+#' @param outfun A function that is called for each batch. Can be useful to log certain values. 
 #' @param ... Extra parameters passed to the log likelihood function
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and the return of the optional outfun

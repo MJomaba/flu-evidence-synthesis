@@ -10,7 +10,6 @@ struct mcmc_result_t
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
         batch;
     Eigen::VectorXd llikelihoods;
-    Eigen::Matrix<SEXP, Eigen::Dynamic, 1> outs;
 };
 
 template<typename Func1, typename Func2, typename Func3>
@@ -23,7 +22,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     mcmc_result_t result;
     result.batch = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, initial.size() );
     result.llikelihoods = Eigen::VectorXd( nbatch );
-    result.outs = Eigen::Matrix<SEXP, Eigen::Dynamic, 1>(nbatch);
 
     auto curr_parameters = initial;
     auto curr_lprior = lprior( curr_parameters );
@@ -95,7 +93,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             // Add results
             result.llikelihoods[sampleCount] = curr_llikelihood;
             result.batch.row( sampleCount ) = curr_parameters;
-            result.outs[sampleCount] = outfun();
+            outfun();
             ++sampleCount;
         }
     }

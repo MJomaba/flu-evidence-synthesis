@@ -67,16 +67,21 @@ test_that("We can use the output function",
               return(-Inf)
           sum( sapply(the.data, function(x) dnorm(x,pars[1],pars[2], TRUE )))
       }
+
+      outs <- c()
+      id <- 1
       
       outfun <- function() {
-        runif(10, 0, 1)  
+          outs <<- c(outs, id)
+          id <<- id + 1
       }
 
       mcmc.result <- adaptive.mcmc(lprior,llikelihood,5000,c(0,1),1000,10, outfun = outfun)
       
-      expect_false(is.null(mcmc.result$outs)) 
-      expect_equal(length(mcmc.result$outs), 1000)
-      expect_false(any(mcmc.result$outs[[1]] == mcmc.result$out[[1000]])) 
+      expect_false(is.null(outs)) 
+      expect_equal(length(outs), 1000)
+      expect_equal(outs[1], 1)
+      expect_equal(outs[100], 100)
       
       expect_equal( length(mcmc.result$llikelihoods), 1000 )
       expect_equal( nrow(mcmc.result$batch), 1000 )
