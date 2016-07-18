@@ -91,7 +91,7 @@ test_that("Vaccination scenario and infectionODEs give similar results",
                                      test.vac[["calendar"]][62,],
                                      test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
   
-  age.groups <- separate.into.age.groups( age_sizes[,1], 
+  age.groups <- stratify_by_age( age_sizes[,1], 
                                           c(1,5,15,25,45,65) )
   
   risk.ratios <- matrix( c(
@@ -99,12 +99,12 @@ test_that("Vaccination scenario and infectionODEs give similar results",
     0, 0, 0, 0, 0, 0, 0                          
   ), ncol=7, byrow=T )
   
-  popv <- separate.into.risk.groups(
+  popv <- stratify_by_risk(
     age.groups, risk.ratios );
   
   initial.infected <- rep( 10^inference.results$batch[1000,9], 7 )
   
-  initial.infected <- separate.into.risk.groups(
+  initial.infected <- stratify_by_risk(
     initial.infected, risk.ratios );
   
   # Need to separate into age groups... 
@@ -122,10 +122,10 @@ test_that("We can specify efficacy by risk group", {
     data(age_sizes) 
     data(polymod_uk)
 
-    ag <- separate.into.age.groups(age_sizes$V1, limits=c(65)) # c( 43670500, 8262600 )
-    population <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) ) # c( 43233795, 4957560, 436705, 3305040 )
+    ag <- stratify_by_age(age_sizes$V1, limits = c(65)) # c( 43670500, 8262600 )
+    population <- stratify_by_risk(ag, matrix(c(0.01,0.4), nrow = 1)) # c( 43233795, 4957560, 436705, 3305040 )
     ag <- c(1000,1000)
-    initial.infected <- separate.into.risk.groups( ag, matrix(c(0.01,0.4),nrow=1) )
+    initial.infected <- stratify_by_risk( ag, matrix(c(0.01,0.4),nrow=1) )
     vaccine_calendar <- list(
       "efficacy" = c(0.7,0.3),
       "calendar" = matrix(c(0,0.007,0.001,0.007),nrow=1),
