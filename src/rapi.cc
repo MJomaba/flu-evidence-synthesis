@@ -503,14 +503,16 @@ size_t as_age_group( size_t age,
 
 
 
-//' Separate the population into age groups
+//' @title Stratify the population by age
+//'
+//' @description Stratifies the population and returns the population size of each age group.
 //'
 //' @param age_sizes A vector containing the population size by age (first element is number of people of age 1 and below)
 //' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
 //'
 //' @return A vector with the population in each age group.
 //'
-// [[Rcpp::export(name="separate.into.age.groups")]]
+// [[Rcpp::export(name="stratify_by_age")]]
 Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
         Rcpp::NumericVector limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
@@ -520,18 +522,16 @@ Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
     return flu::data::group_age_data( age_sizes, agl_v );
 }
 
-//' Separate the population into risk groups
+//' @title Stratify age groups into different risk groups
 //'
 //' @param age_groups A vector containing the population size of each age group
 //' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
 //'
 //' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 //'
-// [[Rcpp::export(name="separate.into.risk.groups")]]
+// [[Rcpp::export(name="stratify_by_risk")]]
 Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
         Eigen::MatrixXd risk )
 {
     return flu::data::separate_into_risk_groups( age_groups, risk );
 }
-
-
