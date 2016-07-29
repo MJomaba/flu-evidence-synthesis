@@ -22,9 +22,9 @@ adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
 
 \item{outfun}{A function that is called for each batch. Can be useful to log certain values.}
 
-\item{...}{Extra parameters passed to the log likelihood function}
+\item{acceptfun}{A function that is called whenever a sample is accepted.}
 
-\item{accpetfun}{A function that is called whenever a sample is accepted.}
+\item{...}{Extra parameters passed to the log likelihood function}
 }
 \value{
 Returns a list with the accepted samples and the corresponding llikelihood values and the return of the optional outfun

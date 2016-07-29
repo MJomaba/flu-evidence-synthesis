@@ -183,7 +183,7 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #' @param lprior A function returning the log prior probability of the parameters 
 #' @param llikelihood A function returning the log likelihood of the parameters given the data
 #' @param outfun A function that is called for each batch. Can be useful to log certain values. 
-#' @param accpetfun A function that is called whenever a sample is accepted. 
+#' @param acceptfun A function that is called whenever a sample is accepted. 
 #' @param nburn Number of iterations of burn in
 #' @param initial Vector with starting parameter values
 #' @param nbatch Number of batches to run (number of samples to return)
@@ -236,6 +236,8 @@ stratify_by_age <- function(age_sizes, limits = as.numeric( c(             1, 5,
 }
 
 #' @title Stratify age groups into different risk groups
+#' 
+#' @description Stratifies the age groups and returns the population size of each age group and risk group.
 #'
 #' @param age_groups A vector containing the population size of each age group
 #' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk

@@ -1,4 +1,4 @@
-proportion_by_group <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
+.proportion_by_group <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
   if (length(proportion) == 1 || length(proportion) == length(incidence))
     return(proportion*incidence)
   if (is.null(no_risk_groups) && is.null(no_age_groups)) {
@@ -25,6 +25,9 @@ proportion_by_group <- function(proportion, incidence, no_risk_groups = NULL, no
 
 #' @title Calculate number of hospitalisations from incidence data
 #' 
+#' @description Uses the provided proportion to calculate the number of hosptitalisations from the incidence data. The expected
+#' proportion of hospitalisations needs to be provided by the user and is likely to be country/disease specific.
+#' 
 #' @param proportion The expected proportion of cases resulting in hospitalisations. 
 #' This can be a constant value for each age/risk groups, or a vector with the proportion for each age/risk group. Finally if
 #' either no_risk_groups or no_age_groups is specified it can also be a vector with the proportion by risk groups or by age group.
@@ -34,10 +37,13 @@ proportion_by_group <- function(proportion, incidence, no_risk_groups = NULL, no
 #' @return A vector with the number of hospitalisations for each age/risk group
 #' @export
 hospitalisations <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
-  proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
+  .proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
 }
 
 #' @title Calculate number of deaths from incidence data
+#' 
+#' @description Uses the provided proportion to calculate the mortality from the incidence data. The expected
+#' proportion of hospitalisations needs to be provided by the user and is likely to be country/disease specific.
 #' 
 #' @param proportion The expected proportion of cases resulting in death. 
 #' This can be a constant value for each age/risk groups, or a vector with the proportion for each age/risk group. Finally if
@@ -48,5 +54,5 @@ hospitalisations <- function(proportion, incidence, no_risk_groups = NULL, no_ag
 #' @return A vector with the number of deaths for each age/risk group
 #' @export
 mortality <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
-  proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
+  .proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
 }

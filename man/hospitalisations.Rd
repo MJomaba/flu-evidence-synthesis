@@ -21,4 +21,8 @@ either no_risk_groups or no_age_groups is specified it can also be a vector with
 \value{
 A vector with the number of hospitalisations for each age/risk group
 }
+\description{
+Uses the provided proportion to calculate the number of hosptitalisations from the incidence data. The expected
+proportion of hospitalisations needs to be provided by the user and is likely to be country/disease specific.
+}
 
