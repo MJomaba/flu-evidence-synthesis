@@ -56,3 +56,22 @@ hospitalisations <- function(proportion, incidence, no_risk_groups = NULL, no_ag
 mortality <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
   .proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
 }
+
+# Calculate final coverage from a passed vaccination_calendar (used in vaccine_doses)
+.final_coverage <- function(vaccination_calendar) {
+  dim <- length(vaccination_calendar$dates)
+  durations <- vaccination_calendar$dates[2:dim] - vaccination_calendar$dates[1:(dim - 1)]
+  return(as.vector(colSums(durations*vaccination_calendar$calendar[1:(dim - 1),])))
+}
+
+#' @title Calculate number of vaccine doses needed based on vaccine calendar
+#' 
+#' @description Calculates the number of doses required to vaccinate the population under the provided vaccination calendar.
+#' 
+#' @param vaccination_calendar The vaccination calendar. This object should have the same layout as a 
+#' vaccination_calendar returned by \code{\link{as.vaccination.calendar}}.
+#' @param population A vector with the size of the population in each age and risk group
+#' @return The number of doses by age and risk group.
+vaccine_doses <- function(vaccination_calendar, population) {
+  .final_coverage(vaccination_calendar)*population
+}
