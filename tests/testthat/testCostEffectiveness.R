@@ -53,6 +53,8 @@ test_that("We can calculate final coverage from a vaccination calendar",
     
     expect_equal(.final_coverage(vaccine_calendar), c(0.068, 0.736, 0.466, 0.736, 0, 0))
     expect_equal(vaccine_doses(vaccine_calendar, c(2,3,4,5,0,0)), c(2*0.068, 3*0.736, 4*0.466, 5*0.736, 0, 0))
+    expect_equal(vaccine_doses(vaccine_calendar, c(2,3,4,5)), c(2*0.068, 3*0.736, 4*0.466, 5*0.736))
+    expect_error(vaccine_doses(vaccine_calendar, c(2,3,4)))
   }
 )
  

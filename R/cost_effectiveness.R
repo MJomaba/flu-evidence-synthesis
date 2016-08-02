@@ -73,5 +73,16 @@ mortality <- function(proportion, incidence, no_risk_groups = NULL, no_age_group
 #' @param population A vector with the size of the population in each age and risk group
 #' @return The number of doses by age and risk group.
 vaccine_doses <- function(vaccination_calendar, population) {
-  .final_coverage(vaccination_calendar)*population
+  cov <- .final_coverage(vaccination_calendar)
+  if (length(population) == length(cov)) {
+    return(cov*population)
+  } else {
+    dim <- length(population)
+    if (all(cov[(dim + 1):length(cov)] == 0)) {
+      # Maintain compatibility and just ignore zeros
+      return(cov[1:dim]*population)
+    } else {
+      stop("Vaccination calendar number of groups incompatible with population vector")
+    }
+  }
 }
