@@ -23,39 +23,29 @@
   stop("Length of proportion and incidence vectors are incompatible")
 }
 
-#' @title Calculate number of hospitalisations from incidence data
+#' @title Calculate the number of public health relevant cases (e.g. mortality, hospitalisations) 
+#' from incidence data
 #' 
-#' @description Uses the provided proportion to calculate the number of hosptitalisations from the incidence data. The expected
-#' proportion of hospitalisations needs to be provided by the user and is likely to be country/disease specific.
+#' @description Uses the provided proportion to calculate the number of different cases from the incidence data. The expected
+#' proportion of each case needs to be provided by the user and is likely to be country/disease specific.
 #' 
 #' @param proportion The expected proportion of cases resulting in hospitalisations. 
 #' This can be a constant value for each age/risk groups, or a vector with the proportion for each age/risk group. Finally if
 #' either no_risk_groups or no_age_groups is specified it can also be a vector with the proportion by risk groups or by age group.
+#' Finally it can also be a list with different proportions for different outcomes, e.g. \code{list("hospitalisation" = c(0.01, 0.001), "mortality" = 0.0001)}
 #' @param incidence Vector containing the expected incidence for each age/risk group as returned by for example \code{\link{vaccinationScenario}}.
 #' @param no_risk_groups The total number of risk groups (optional)
 #' @param no_age_groups The total number of age groups (optional)
 #' @return A vector with the number of hospitalisations for each age/risk group
 #' @export
-hospitalisations <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
+public_health_outcome <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
+  if (class(proportion) == "list") {
+    return(lapply(proportion, function(prop) 
+      .proportion_by_group(prop, incidence, no_risk_groups, no_age_groups)))
+  }
   .proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
 }
 
-#' @title Calculate number of deaths from incidence data
-#' 
-#' @description Uses the provided proportion to calculate the mortality from the incidence data. The expected
-#' proportion of hospitalisations needs to be provided by the user and is likely to be country/disease specific.
-#' 
-#' @param proportion The expected proportion of cases resulting in death. 
-#' This can be a constant value for each age/risk groups, or a vector with the proportion for each age/risk group. Finally if
-#' either no_risk_groups or no_age_groups is specified it can also be a vector with the proportion by risk groups or by age group.
-#' @param incidence Vector containing the expected incidence for each age/risk group as returned by for example \code{\link{vaccinationScenario}}.
-#' @param no_risk_groups The total number of risk groups (optional)
-#' @param no_age_groups The total number of age groups (optional)
-#' @return A vector with the number of deaths for each age/risk group
-#' @export
-mortality <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
-  .proportion_by_group(proportion, incidence, no_risk_groups, no_age_groups)
-}
 
 # Calculate final coverage from a passed vaccination_calendar (used in vaccine_doses)
 .final_coverage <- function(vaccination_calendar) {
