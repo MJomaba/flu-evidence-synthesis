@@ -60,15 +60,24 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         auto prop_lprior = 
             lprior(prop_parameters);
 
-        auto prop_llikelihood = llikelihood( prop_parameters );
+        auto prop_llikelihood = log(0);
 
         auto my_acceptance_rate = 0.0;
-        if (std::isinf(prop_llikelihood) && std::isinf(curr_llikelihood) )
-            my_acceptance_rate = exp(prop_lprior-curr_lprior); // We want to explore and find a non infinite likelihood
-        else
-            my_acceptance_rate=
-                exp(prop_llikelihood-curr_llikelihood+
-                        prop_lprior - curr_lprior);
+        if (!std::isinf(prop_lprior)) 
+        {
+            prop_llikelihood = llikelihood( prop_parameters );
+
+            if (std::isinf(prop_llikelihood) && std::isinf(curr_llikelihood) )
+                my_acceptance_rate = exp(prop_lprior-curr_lprior); // We want to explore and find a non infinite likelihood
+            else
+                my_acceptance_rate=
+                    exp(prop_llikelihood-curr_llikelihood+
+                            prop_lprior - curr_lprior);
+        } else {
+            if (std::isinf(curr_lprior))
+                ::Rf_error("Algorithm stuck on infinite prior");
+            my_acceptance_rate = -1.0;
+        }
 
         if(R::runif(0,1)<my_acceptance_rate) //with prior
         {
