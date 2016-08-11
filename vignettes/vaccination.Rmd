@@ -32,9 +32,9 @@ data(coverage)
 pander(head(coverage), caption = "The vaccination coverage rates in the UK in season 2007-08. Note that this only shows the first 6 weeks of data")
 ```
 
-The `as.vaccination.scenario()` function can be used to build a vaccination scenario object based on coverage data. In the example below we use the coverage rates for the 2007-08 season in the UK. If there are multiple age groups and risk groups then the layout in general is expected to be all age groups for one risk group, followed by the age groups for the second risk group etc. In the example below the efficacy of the under 65 at low risk is expected to be $.7$ and for the 65+ the efficacy is $.4$.
+The `as.vaccination.calendar()` function can be used to build a vaccination scenario object based on coverage data. In the example below we use the coverage rates for the 2007-08 season in the UK. If there are multiple age groups and risk groups then the layout in general is expected to be all age groups for one risk group, followed by the age groups for the second risk group etc. In the example below the efficacy of the under 65 at low risk is expected to be $.7$ and for the 65+ the efficacy is $.4$.
 
-```{r, as.vaccination.scenario}
+```{r as.vaccination.calendar}
 library("fluEvidenceSynthesis")
 data(coverage)
 # Coverage rates for respectively low risk <65, low risk 65+,

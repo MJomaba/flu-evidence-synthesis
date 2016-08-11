@@ -14,6 +14,8 @@ adaptive.mcmc.cpp(lprior, llikelihood, outfun, acceptfun, nburn, initial,
 
 \item{outfun}{A function that is called for each batch. Can be useful to log certain values.}
 
+\item{acceptfun}{A function that is called whenever a sample is accepted.}
+
 \item{nburn}{Number of iterations of burn in}
 
 \item{initial}{Vector with starting parameter values}
@@ -21,8 +23,6 @@ adaptive.mcmc.cpp(lprior, llikelihood, outfun, acceptfun, nburn, initial,
 \item{nbatch}{Number of batches to run (number of samples to return)}
 
 \item{blen}{Length of each batch}
-
-\item{accpetfun}{A function that is called whenever a sample is accepted.}
 }
 \value{
 Returns a list with the accepted samples and the corresponding llikelihood values

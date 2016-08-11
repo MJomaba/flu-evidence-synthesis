@@ -18,7 +18,9 @@ Depends:
 Imports:
     Rcpp (>= 0.11.6),
     ggplot2,
-    data.table
+    data.table,
+    BH,
+    RcppEigen
 Suggests:
     testthat,
     rjson,

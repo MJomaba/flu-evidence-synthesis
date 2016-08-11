@@ -14,4 +14,7 @@ stratify_by_risk(age_groups, risk)
 \value{
 A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 }
+\description{
+Stratifies the age groups and returns the population size of each age group and risk group.
+}
 
