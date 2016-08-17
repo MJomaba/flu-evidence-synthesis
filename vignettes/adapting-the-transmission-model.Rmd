@@ -9,6 +9,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+# Introduction
+
+This vignette shows how to re-implement the SEEIIR model used in the package using the `odin` ODE solver package. This should show you how to implement your own model or make changes to the current model. The model is currently implemented with the function `infectionODEs` and is called as follows:
+```{r, eval=F}
+infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix,
+  susceptibility, transmissibility, infection_delays, interval)
+```
+For more details see the [modelling vignette](https://blackedder.github.io/flu-evidence-synthesis/modelling.html). The goal of this vignette is to get a similar function, but implemented using R.
+
+
 ```{r install, cache = T}
 if (!require("devtools")) {
   install.packages("devtools")
