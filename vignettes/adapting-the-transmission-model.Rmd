@@ -9,6 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = F}
+chooseCRANmirror(ind = 1)
+```
+
 # Introduction
 
 This vignette shows how to re-implement the SEEIIR model used in the package using the `odin` ODE solver package. This should show you how to implement your own model or make changes to the current model. The model is currently implemented with the function `infectionODEs` and is called as follows:
