@@ -1,0 +1,222 @@
+---
+title: "Adapting the epidemiological model."
+author: "Edwin van Leeuwen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Adapting the epidemiological model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r install, cache = T}
+if (!require("devtools")) {
+  install.packages("devtools")
+  library("devtools")
+}
+if (!require("odin")) {
+  devtools::install_github("richfitz/odin")
+  library(odin)
+}
+if (!require("dplyr")) {
+  install.packages("dplyr")
+  library("dplyr")
+}
+if (!require("tidyr")) {
+  install.packages("tidyr")
+  library("tidyr")
+}
+```
+
+```{r infection_odin, dependson = "model_definition", cache = TRUE}
+infection_odin <- function(pop, init_pop, cal, cij, susc, trans, lat, interval) {
+  warning("These dates should be derived from the vaccination calendar")
+  t <- as.numeric(seq(as.Date("2010-09-01"), as.Date("2011-08-25"), interval))
+  
+  agn <- length(pop)
+  no_risk_groups <- agn/nrow(cij)
+  no_age_groups <- agn/no_risk_groups
+  
+  # Contacts matrix only covers one set of age groups, here I "repeat" it to also cover 
+  # risk groups
+  new_cij <- matrix(rep(0,agn*agn), nrow = agn)
+  for (k in 1:no_risk_groups) {
+    for (l in 1:no_risk_groups) {
+      lk <- (k - 1)*no_age_groups + 1
+      ll <- (l - 1)*no_age_groups + 1
+      new_cij[lk:(lk + no_age_groups - 1), ll:(ll + no_age_groups - 1)] <- cij
+    }
+  }
+  
+  calendar <- cal$calendar[c(nrow(cal$calendar),1:nrow(cal$calendar)),]
+  dates <- as.numeric(c(t[1], cal$dates))
+             
+  
+  # Set the parameter values
+  mod <- gen_seeiir_ag_vacc(agn = agn, cij = new_cij, trans = trans,
+                       pop = pop,
+                       I0 = init_pop,
+                       susc = rep(susc,no_risk_groups),
+                       alpha = cal$efficacy[1:agn],
+                       dates = dates,
+                       calendar = calendar[,1:agn] )
+  y <- mod$run(t, hmax = NULL, method = "euler", hini = 0.25, atol = 1)
+  #y <- mod$run(t, hmax = NULL)
+  
+  # Only return new infections by week, ignore the rest
+  d <- ncol(y)
+  y <- y[, (d - agn + 1):d]
+  # Returning the differences in cumulative infections from one week to the other
+  y <- data.frame(y[2:(nrow(y)), ] - y[1:(nrow(y) - 1), ])
+  colnames(y) <- sapply(seq(1,no_risk_groups), function(i) sapply(seq(1,no_age_groups), function(j) paste0("Age", i, "Risk", j)))
+  #mutate(y, Time = sapply(t[1:nrow(y)], function(date) as.Date(date, origin = "1970-01-01")))
+  mutate(y, Time = as.Date(t[1:nrow(y)], origin = "1970-01-01"))
+}
+```
+
+```{r model_definition, dependson = "install", cache = T}
+warning("gamma1 and 2 should be user defined")
+gen_seeiir_ag_vacc <- odin::odin({
+  # Number of groups
+  agn <- user()
+  
+  # Transmissibility
+  trans <- user()
+  
+  # Population size by age/risk group
+  dim(pop) <- agn
+  pop[] <- user()
+  # Initial infection by age/risk group
+  dim(I0) <- agn
+  I0[] <- user()
+  # Susceptibility
+  dim(susc) <- agn
+  susc[] <- user()
+  
+  # Force of infection
+  dim(lambda) <- agn
+  lambda[] <- trans * susc[i] * (sum(sij[i,]))
+  
+  # Latent periods
+  gamma1 <- 2.5
+  gamma2 <- 1.1
+  
+  # Vaccination
+  vI[] <- interpolate(dates, calendar, "constant")
+  dim(vI) <- agn
+  dates[] <- user()
+  dim(dates) <- user()
+  calendar[,] <- user()
+  dim(calendar) <- user()
+  dim(sumN) <- agn
+  # Vaccination is given as a fraction vaccination, here we scale it to 
+  # a rate
+  sumN[] <- if (vI[i]>0) (S[i]+E1[i]+E2[i]+I1[i]+I2[i]+R[i]) else 0
+  v[] <- if (sumN[i]>0) vI[i]*pop[i]/sumN[i] else 0
+  #v[] <- 1
+  dim(v) <- agn
+  
+  # efficacy
+  dim(alpha) <- agn
+  alpha[] <- user()
+  
+  # Contact matrix
+  dim(cij) <- c(agn, agn)
+  cij[,] <- user()
+  dim(sij) <- c(agn, agn)
+  sij[,] <- cij[i,j] * (I1[j] + I2[j] + I1v[j] + I2v[j])
+   
+  dim(S) <- agn
+  dim(E1) <- agn
+  dim(E2) <- agn
+  dim(I1) <- agn
+  dim(I2) <- agn
+  dim(R) <- agn
+  dim(Sv) <- agn
+  dim(E1v) <- agn
+  dim(E2v) <- agn
+  dim(I1v) <- agn
+  dim(I2v) <- agn
+  dim(Rv) <- agn
+  dim(cumI) <- agn
+  
+  initial(S[1:agn]) <- pop[i] - I0[i]
+  initial(E1[1:agn]) <- 0
+  initial(E2[1:agn]) <- 0
+  initial(I1[1:agn]) <- I0[i]
+  initial(I2[1:agn]) <- 0
+  initial(R[1:agn]) <- 0
+  initial(cumI[1:agn]) <- 0
+  
+  initial(Sv[1:agn]) <- 0
+  initial(E1v[1:agn]) <- 0
+  initial(E2v[1:agn]) <- 0
+  initial(I1v[1:agn]) <- 0
+  initial(I2v[1:agn]) <- 0
+  initial(Rv[1:agn]) <- 0
+ 
+  dim(newInf) <- agn
+  newInf[] <- lambda[i] * S[i]
+  dim(newInfv) <- agn
+  newInfv[] <- lambda[i] * Sv[i]
+  
+  deriv(S[]) <- -newInf[i] - v[i] * S[i]
+  deriv(E1[]) <- newInf[i] - gamma1 * E1[i] - v[i] * E1[i]
+  deriv(E2[]) <- gamma1 * (E1[i] - E2[i]) - v[i] * E2[i]
+  deriv(I1[]) <- gamma1 * E2[i]  - gamma2 * I1[i] - v[i] * I1[i]
+  deriv(I2[]) <- gamma2 * (I1[i] - I2[i]) - v[i] * I2[i]
+  deriv(R[]) <- gamma2 * I2[i] - v[i] * R[i]
+  
+  deriv(Sv[]) <- -newInfv[i] + v[i] * (1-alpha[i]) * S[i]
+  deriv(E1v[]) <- newInfv[i] - gamma1 * E1v[i] + v[i] * E1[i]
+  deriv(E2v[]) <- gamma1 * (E1v[i] - E2v[i]) + v[i] * E2[i]
+  deriv(I1v[]) <- gamma1 * E2v[i]  - gamma2 * I1v[i] + v[i] * I1[i]
+  deriv(I2v[]) <- gamma2 * (I1v[i] - I2v[i]) + v[i] * I2[i]
+  deriv(Rv[]) <- gamma2 * I2v[i] + v[i] * (R[i] + alpha[i] * S[i])
+   
+  # We are interested in new infections over time
+  deriv(cumI[]) <- newInf[i] + newInfv[i]
+})
+```
+
+
+# Run the model
+
+Setup of the demographic and vaccination data. For further details see the [modelling vignette](http://blackedder.github.io/flu-evidence-synthesis/modelling.html)
+
+```{r setup_data, cache = TRUE}
+library(fluEvidenceSynthesis)
+data(age_sizes)
+ag <- stratify_by_age(age_sizes$V1, limits = c(65))
+
+population <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
+
+ag <- c(1000, 1000)
+initial.infected <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
+
+vaccine_calendar <- as.vaccination.calendar(
+  efficacy = c(0.7, 0.3),
+  coverage = as.data.frame(matrix(c(0, 0, 0, 0, 0, 0.861, 0.123, 0.861), nrow = 2, byrow = TRUE)),
+  dates = c(as.Date("2010-10-01"), as.Date("2011-02-01")),
+  no_age_groups = 2,
+  no_risk_groups = 2
+)
+
+data(polymod_uk)
+data(age_sizes)
+poly <- polymod_uk[, c(1, 2, 3, 9)]
+poly[,3] <- rowSums(polymod_uk[, 3:8])
+
+contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+```
+
+Here we actually run and plot the model using the newly defined infection_odin function. Note the differences in the y axis scale. The low risk age group below 65 (`Age1Risk1`) has the largest population and also the largest incidence level.
+
+```{r run_example, dependson=c("infection_odin","setup_data"), cache = TRUE, fig.width=6, fig.height=7}
+library(ggplot2)
+odes <- infection_odin( population, initial.infected, vaccine_calendar, contacts, 
+               c(0.7, 0.3), 0.17, c(0.8, 1.8), 7 )
+
+ggplot(data = odes %>% gather(Group, Infections, -Time)) + 
+  geom_line(aes(x = Time, y = Infections)) + facet_wrap(~Group,scales = "free")
+```

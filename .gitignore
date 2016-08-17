@@ -26,3 +26,4 @@ symbols.rds
 *_cache/
 *_files/
 .Rproj.user
+inst/doc
