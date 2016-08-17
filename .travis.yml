@@ -1,6 +1,7 @@
 language: r
 warnings_are_errors: false
 sudo: required
+cran: http://cran.rstudio.com
 
 after_success: "./travis.sh"
 
