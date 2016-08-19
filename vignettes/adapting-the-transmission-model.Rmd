@@ -239,8 +239,8 @@ Here we actually run and plot the model using the newly defined infection_odin f
 
 ```{r run_example, dependson=c("infection_odin","setup_data"), cache = TRUE, fig.width=6, fig.height=7}
 library(ggplot2)
-odes <- infection_odin( population, initial.infected, vaccine_calendar, contacts, 
-               c(0.7, 0.3), 0.17, c(0.8, 1.8), 7 )
+odes <- infection_odin(population, initial.infected, vaccine_calendar, contacts, 
+               c(0.7, 0.3), 0.17, c(0.8, 1.8), 7)
 
 ggplot(data = odes %>% gather(Group, Infections, -Time)) + 
   geom_line(aes(x = Time, y = Infections)) + facet_wrap(~Group,scales = "free")
