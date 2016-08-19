@@ -5,7 +5,7 @@
 \title{Adaptive MCMC algorithm implemented in C++}
 \usage{
 adaptive.mcmc.cpp(lprior, llikelihood, outfun, acceptfun, nburn, initial,
-  nbatch, blen = 1L)
+  nbatch, blen = 1L, verbose = FALSE)
 }
 \arguments{
 \item{lprior}{A function returning the log prior probability of the parameters}

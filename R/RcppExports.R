@@ -193,8 +193,8 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #'
 #' @seealso \code{\link{adaptive.mcmc}} For a more flexible R frontend to this function.
 #'
-adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen = 1L) {
-    .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen)
+adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen = 1L, verbose = FALSE) {
+    .Call('fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen, verbose)
 }
 
 #' Create a contact matrix based on polymod data.
