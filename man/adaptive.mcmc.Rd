@@ -5,7 +5,7 @@
 \title{Adaptive MCMC algorithm}
 \usage{
 adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
-  outfun = NULL, acceptfun = NULL, ...)
+  outfun = NULL, acceptfun = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{lprior}{A function returning the log prior probability of the parameters}
@@ -23,6 +23,8 @@ adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
 \item{outfun}{A function that is called for each batch. Can be useful to log certain values.}
 
 \item{acceptfun}{A function that is called whenever a sample is accepted.}
+
+\item{verbose}{Output debugging information}
 
 \item{...}{Extra parameters passed to the log likelihood function}
 }
