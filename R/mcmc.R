@@ -11,6 +11,7 @@
 #' @param blen Length of each batch
 #' @param outfun A function that is called for each batch. Can be useful to log certain values. 
 #' @param acceptfun A function that is called whenever a sample is accepted. 
+#' @param verbose Output debugging information
 #' @param ... Extra parameters passed to the log likelihood function
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and the return of the optional outfun
@@ -18,7 +19,7 @@
 #' @seealso \code{\link{adaptive.mcmc.cpp}} Used internally by this function.
 adaptive.mcmc <- function(lprior, llikelihood, nburn, 
                           initial, nbatch, blen = 1, outfun = NULL, 
-                          acceptfun = NULL, ...)
+                          acceptfun = NULL, verbose = FALSE, ...)
 {
   if (is.null(outfun))
     outfun <- function() { NULL }
@@ -26,7 +27,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
     acceptfun <- function() { NULL }
   
   adaptive.mcmc.cpp(lprior, function(pars) llikelihood(pars, ...), outfun,
-                    acceptfun, nburn, initial, nbatch, blen)
+                    acceptfun, nburn, initial, nbatch, blen, verbose)
 }
 
 #' Aggregate model results at different time points

@@ -1,6 +1,8 @@
 #ifndef FLU_MCMC_HH
 #define FLU_MCMC_HH
 
+#include<chrono>
+
 #include "proposal.h"
 
 namespace flu {
@@ -17,7 +19,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         const Func3 &outfun, const Func4 &acceptfun,
         size_t nburn,
         const Eigen::VectorXd &initial, 
-        size_t nbatch, size_t blen = 1 )
+        size_t nbatch, size_t blen = 1, bool verbose = false )
 {
     mcmc_result_t result;
     result.batch = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, initial.size() );
@@ -56,16 +58,35 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         auto prop_parameters = proposal::sherlock( k,
                 curr_parameters,
                 proposal_state );
+        if (verbose) {
+            Rcpp::Rcout << "Proposed parameters\t" << prop_parameters.transpose() <<
+                std::endl;
+            Rcpp::Rcout << "Var\tvalue\ttime (ns)" << std::endl;
+        }
+        std::chrono::high_resolution_clock::time_point start_time; 
 
+        if (verbose)
+            start_time = std::chrono::high_resolution_clock::now();
         auto prop_lprior = 
             lprior(prop_parameters);
-
+        if (verbose)
+            Rcpp::Rcout << "LPrior\t" << prop_lprior << "\t" <<
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::high_resolution_clock::now() -
+                        start_time).count() << std::endl;
         auto prop_llikelihood = log(0);
 
         auto my_acceptance_rate = 0.0;
         if (!std::isinf(prop_lprior)) 
         {
+            if (verbose)
+                start_time = std::chrono::high_resolution_clock::now();
             prop_llikelihood = llikelihood( prop_parameters );
+            if (verbose)
+                Rcpp::Rcout << "Llikeli\t" << prop_llikelihood << "\t" <<
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::high_resolution_clock::now() -
+                            start_time).count() << std::endl;
 
             if (std::isinf(prop_llikelihood) && std::isinf(curr_llikelihood) )
                 my_acceptance_rate = exp(prop_lprior-curr_lprior); // We want to explore and find a non infinite likelihood
@@ -91,7 +112,15 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             curr_llikelihood=prop_llikelihood;
             curr_lprior=prop_lprior;
             // Call the accept function
+            if (verbose)
+                start_time = std::chrono::high_resolution_clock::now();
             acceptfun();
+            if (verbose)
+                Rcpp::Rcout << "acceptfun\t" << 0.0/0.0 << "\t" <<
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::high_resolution_clock::now() -
+                            start_time).count() << std::endl;
+
         }
         else //if reject
         {
@@ -104,7 +133,15 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             // Add results
             result.llikelihoods[sampleCount] = curr_llikelihood;
             result.batch.row( sampleCount ) = curr_parameters;
+            if (verbose)
+                start_time = std::chrono::high_resolution_clock::now();
             outfun();
+            if (verbose)
+                Rcpp::Rcout << "outfun\t" << 0.0/0.0 << "\t" <<
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::high_resolution_clock::now() -
+                            start_time).count() << std::endl;
+
             ++sampleCount;
         }
     }

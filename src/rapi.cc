@@ -427,7 +427,7 @@ Rcpp::List adaptiveMCMCR(
         Rcpp::Function acceptfun,
         size_t nburn,
         Eigen::VectorXd initial, 
-        size_t nbatch, size_t blen = 1 )
+        size_t nbatch, size_t blen = 1, bool verbose = false )
 {
     auto cppLprior = [&lprior]( const Eigen::VectorXd &pars ) {
         double lPrior = Rcpp::as<double>(lprior( pars ));
@@ -440,7 +440,7 @@ Rcpp::List adaptiveMCMCR(
     };
 
     auto mcmcResult = flu::adaptiveMCMC( cppLprior, cppLlikelihood, outfun, acceptfun,
-            nburn, initial, nbatch, blen );
+            nburn, initial, nbatch, blen, verbose );
     Rcpp::List rState;
     rState["batch"] = Rcpp::wrap( mcmcResult.batch );
     rState["llikelihoods"] = Rcpp::wrap( mcmcResult.llikelihoods );
