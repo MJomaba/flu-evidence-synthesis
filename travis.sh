@@ -5,7 +5,7 @@ set -e -o pipefail
 if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     if [ ! -z "$GH_TOKEN" ]; then
         ./install.sh
-        R -e 'library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");'
+        R -e 'library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");render("vignettes/adapting-the-transmission-model.Rmd");'
 
 
         git checkout master
