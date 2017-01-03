@@ -1,0 +1,302 @@
+---
+title: "Adapting the epidemiological model."
+author: "Edwin van Leeuwen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Adapting the epidemiological model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = F}
+chooseCRANmirror(ind = 1)
+```
+
+# Introduction
+
+This vignette shows how to re-implement the SEEIIR model used in the package using the [`odin` ODE solver package](https://github.com/richfitz/odin). You can use this vignette to learn more on how the current model works and how to make changes to the current model. 
+
+In the package the transmission model is implemented in the `infectionODEs` function, which is called as follows:
+```{r, eval=F}
+infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix,
+  susceptibility, transmissibility, infection_delays, interval)
+```
+For more details on the built-in function see the [modelling vignette](https://blackedder.github.io/flu-evidence-synthesis/modelling.html).
+
+```{r install, cache = T, echo = F}
+if (!require("devtools")) {
+  install.packages("devtools")
+  library("devtools")
+}
+if (!require("odin")) {
+  devtools::install_github("richfitz/odin")
+  library(odin)
+}
+if (!require("dplyr")) {
+  install.packages("dplyr")
+  library("dplyr")
+}
+if (!require("tidyr")) {
+  install.packages("tidyr")
+  library("tidyr")
+}
+```
+
+## Epidemiological model
+
+The epidemiological model implemented in the package is an SEIR model, with two compartments for the Exposed and Infectious states that result in a more realistic gamma distributed average time for both the Exposed and Infectious states (rather than an exponentially distributed waiting time when there is only a single compartment). The general model has the following form.
+\begin{equation}\begin{split}
+\frac{dS_{ik}}{dt} & = -\lambda_i S_{ik} \\
+\frac{dE_{ik}^1}{dt} & = \lambda_i S_{ik} -\gamma_1 E_{ik}^1 \\
+\frac{dE_{ik}^2}{dt} & = \gamma_1 \left(E_{ik}^1 -E_{ik}^2 \right) \\
+\frac{dI_{ik}^1}{dt} & = \gamma_1 E_{ik}^2 -\gamma_2 I_{ik}^1 \\
+\frac{dI_{ik}^2}{dt} & = \gamma_2 \left( I_{ik}^1 - I_{ik}^2 \right) \\
+\frac{dR_{ik}}{dt} & = \gamma_2 I_{ik}^2
+\end{split}\end{equation}
+\noindent
+where $S_{ik}$ is the number of susceptibles in the age group $i$ and risk group $k$, $E_{ik}^1$ and $E_{ik}^2$ are two compartments with exposed but not yet infectious individuals of age group $i$ and risk group $k$, $I_{ik}^1$ and $I_{ik}^2$ represent infectious individuals, and immune individuals of age group $i$ and risk group $k$ are given by $R_{ik}$. The rate of loss of latency and infectiousness are respectively $\gamma_1$ and $\gamma_2$, while the age-group-specific force of infection $\lambda_i$ is given by 
+\begin{equation}
+\lambda_i = \sigma_i \sum_{j=1}^x \sum_{k=1}^y \beta_{i,j} \left( I_{ik}^1 - I_{ik}^2 \right)
+\end{equation}
+\noindent
+where $\beta_{i,j}$ is the effective contact rate between individuals in age group $i$ and age group $j$, and $\sigma_i$ is the susceptibility of the age group $i$ (that can be inferred from serological data).
+
+Eq. 1 tracks the infection for each age and risk group. To implement vaccination in the package we further separate each of the epidemiological compartments (SEEIIR) in the model (1) into vaccinated and non-vaccinated group. Non-vaccinated people of age $i$ and risk $k$ are vaccinated at a given rate ($\mu_{ik}$) regardless of their epidemiological status. If the subject has already been exposed or infected, the infection progresses as normal. Depending on the efficacy of the vaccine ($\alpha$), a proportion of vaccinated susceptibles will become immune ($\mu_{ik} \alpha S$), so the total rate of becoming vaccinated and recovered is $\mu_{ik} ( R+\alpha S)$. If the vaccine isn't 100% effective, a proportion of vaccinated individuals will remain susceptible so the rate of becoming a 'vaccinated susceptible' is $\mu_{ik} (1-\alpha) S$. For full details of the underlying model see the supplementary information of @baguelin_assessing_2013.
+
+We will be implementing this epidemiological model using the [odin](https://github.com/richfitz/odin) package. For installation and usage instructions we refer to their [website](https://github.com/richfitz/odin). The model definition in odin is shown below. Note that you need to make sure you have installed and loaded (`library(odin)`) the odin package before running this code.
+
+```{r model_definition, dependson = "install", cache = T}
+gen_seeiir_ag_vacc <- odin::odin({
+  # Number of groups
+  no_groups <- user()
+  
+  # INITIAL CONDITIONS
+  # Population size by age/risk group
+  pop[] <- user()
+  # Initial infection by age/risk group
+  I0[] <- user()
+  
+  # MODEL PARAMETERS
+  # Susceptibility
+  susc[] <- user()
+  
+  # Transmissibility
+  trans <- user()
+  
+  # Latent periods
+  gamma1 <- user()
+  gamma2 <- user()
+  
+  # Vaccine related variables 
+  dates[] <- user()
+  calendar[,] <- user()
+  
+  # efficacy
+  alpha[] <- user()
+  
+  # Contact matrix
+  cij[,] <- user()
+   
+  # Force of infection
+  lambda[] <- trans * susc[i] * (sum(sij[i,]))
+   
+  # Vaccination. The rate is a step function that changes at each date according
+  # to the passed calendar
+  vI[] <- interpolate(dates, calendar, "constant")
+  # Vaccination is given as a fraction vaccination, here we scale it to 
+  # a rate
+  sumN[] <- if (vI[i]>0) (S[i]+E1[i]+E2[i]+I1[i]+I2[i]+R[i]) else 0
+  v[] <- if (sumN[i]>0) vI[i]*pop[i]/sumN[i] else 0
+ 
+  # Transmission matrix
+  sij[,] <- cij[i,j] * (I1[j] + I2[j] + I1v[j] + I2v[j])
+
+  # Newly infected
+  newInf[] <- lambda[i] * S[i]
+  newInfv[] <- lambda[i] * Sv[i]
+ 
+  # THE DERIVATIVES OF THE SEEIIR MODEL
+  # Derivatives of the not vaccinated group
+  deriv(S[]) <- -newInf[i] - v[i] * S[i]
+  deriv(E1[]) <- newInf[i] - gamma1 * E1[i] - v[i] * E1[i]
+  deriv(E2[]) <- gamma1 * (E1[i] - E2[i]) - v[i] * E2[i]
+  deriv(I1[]) <- gamma1 * E2[i]  - gamma2 * I1[i] - v[i] * I1[i]
+  deriv(I2[]) <- gamma2 * (I1[i] - I2[i]) - v[i] * I2[i]
+  deriv(R[]) <- gamma2 * I2[i] - v[i] * R[i]
+  
+  # Derivatives vaccination group
+  deriv(Sv[]) <- -newInfv[i] + v[i] * (1-alpha[i]) * S[i]
+  deriv(E1v[]) <- newInfv[i] - gamma1 * E1v[i] + v[i] * E1[i]
+  deriv(E2v[]) <- gamma1 * (E1v[i] - E2v[i]) + v[i] * E2[i]
+  deriv(I1v[]) <- gamma1 * E2v[i]  - gamma2 * I1v[i] + v[i] * I1[i]
+  deriv(I2v[]) <- gamma2 * (I1v[i] - I2v[i]) + v[i] * I2[i]
+  deriv(Rv[]) <- gamma2 * I2v[i] + v[i] * (R[i] + alpha[i] * S[i])
+  
+  # Tracking the cumulative amount of infections over time for output of incidence
+  deriv(cumI[]) <- newInf[i] + newInfv[i]
+ 
+  # Initial value of the variables
+  initial(S[1:no_groups]) <- pop[i] - I0[i]
+  initial(E1[1:no_groups]) <- 0
+  initial(E2[1:no_groups]) <- 0
+  initial(I1[1:no_groups]) <- I0[i]
+  initial(I2[1:no_groups]) <- 0
+  initial(R[1:no_groups]) <- 0
+  initial(cumI[1:no_groups]) <- 0
+  
+  initial(Sv[1:no_groups]) <- 0
+  initial(E1v[1:no_groups]) <- 0
+  initial(E2v[1:no_groups]) <- 0
+  initial(I1v[1:no_groups]) <- 0
+  initial(I2v[1:no_groups]) <- 0
+  initial(Rv[1:no_groups]) <- 0
+ 
+  # Set dimension of all variables/parameters
+  dim(dates) <- user()
+  dim(calendar) <- user()
+  
+  dim(pop) <- no_groups
+  dim(I0) <- no_groups
+  dim(susc) <- no_groups
+  dim(lambda) <- no_groups
+  dim(v) <- no_groups
+  dim(vI) <- no_groups
+  dim(sumN) <- no_groups  
+  dim(alpha) <- no_groups
+  dim(cij) <- c(no_groups, no_groups)
+  dim(sij) <- c(no_groups, no_groups)
+ 
+  dim(S) <- no_groups
+  dim(E1) <- no_groups
+  dim(E2) <- no_groups
+  dim(I1) <- no_groups
+  dim(I2) <- no_groups
+  dim(R) <- no_groups
+  dim(Sv) <- no_groups
+  dim(E1v) <- no_groups
+  dim(E2v) <- no_groups
+  dim(I1v) <- no_groups
+  dim(I2v) <- no_groups
+  dim(Rv) <- no_groups
+  dim(cumI) <- no_groups
+  dim(newInf) <- no_groups
+  dim(newInfv) <- no_groups
+})
+```
+
+In the above code we "flatten" the age/risk group so that we can more easily represent the population in one vector. What this means is that instead of having an matrix for each state ($S; E1; E2; \dots$) with the age groups on one dimension and the risk groups on the other dimension, we transform these into a vector, with first all the age groups for the first risk group, followed by the age groups for the second risk group, and so on. 
+
+Next we write a helper function `infection_odin`, which has the same inputs and outputs as the `infectionODEs` function and wraps the above implemented odin model (`gen_seeiir_ag_vacc`). This will make it easy to swap the functions in and out of the model.
+
+```{r infection_odin, dependson = "model_definition", cache = TRUE}
+infection_odin <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval) {
+  # Extract the date used from the vaccine calendar
+  begin_date <- as.Date(paste0(format(vaccine_calendar$dates[1], "%Y"),"-09-01"))
+  t <- as.numeric(seq(begin_date, begin_date + 7*52, interval))
+  
+  no_groups <- length(population)
+  no_risk_groups <- no_groups/nrow(contact_matrix)
+  no_age_groups <- no_groups/no_risk_groups
+  
+  # Contacts matrix only covers one set of age groups, here we "repeat" it to also cover 
+  # risk groups
+  new_cij <- matrix(rep(0,no_groups*no_groups), nrow = no_groups)
+  for (k in 1:no_risk_groups) {
+    for (l in 1:no_risk_groups) {
+      lk <- (k - 1)*no_age_groups + 1
+      ll <- (l - 1)*no_age_groups + 1
+      new_cij[lk:(lk + no_age_groups - 1), ll:(ll + no_age_groups - 1)] <- contact_matrix
+    }
+  }
+  
+  calendar <- vaccine_calendar$calendar[c(nrow(vaccine_calendar$calendar),1:nrow(vaccine_calendar$calendar)),]
+  dates <- as.numeric(c(t[1], vaccine_calendar$dates))
+             
+  
+  # Set the parameter values
+  mod <- gen_seeiir_ag_vacc(no_groups = no_groups, cij = new_cij, trans = transmissibility,
+                       pop = population,
+                       I0 = initial_infected,
+                       susc = rep(susceptibility,no_risk_groups),
+                       alpha = vaccine_calendar$efficacy[1:no_groups],
+                       dates = dates,
+                       calendar = calendar[,1:no_groups],
+                       gamma1 = 2/infection_delays[1], gamma2 = 2/infection_delays[2])
+  y <- mod$run(t, hmax = NULL, method = "euler", hini = 0.25, atol = 1)
+  
+  # Only return new infections by week, ignore the rest
+  y <- y[, (ncol(y) - no_groups + 1):ncol(y)]
+  
+  # Returning the differences in cumulative infections from one week to the other
+  y <- data.frame(y[2:(nrow(y)), ] - y[1:(nrow(y) - 1), ])
+  
+  #Cleanup and add Time column
+  colnames(y) <- sapply(seq(1,no_risk_groups), function(i) sapply(seq(1,no_age_groups), function(j) paste0("Age", i, "Risk", j)))
+  mutate(y, Time = as.Date(t[1:nrow(y)], origin = "1970-01-01"))
+}
+```
+
+## Example of usage
+
+First we setup the demographic and vaccination data. For further details on this code see the [modelling vignette](http://blackedder.github.io/flu-evidence-synthesis/modelling.html)
+
+```{r setup_data, cache = TRUE}
+library(fluEvidenceSynthesis)
+data(age_sizes)
+ag <- stratify_by_age(age_sizes$V1, limits = c(65))
+
+population <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
+
+ag <- c(1000, 1000)
+initial.infected <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
+
+vaccine_calendar <- as.vaccination.calendar(
+  efficacy = c(0.7, 0.3),
+  coverage = as.data.frame(matrix(c(0, 0, 0, 0, 0, 0.861, 0.123, 0.861), nrow = 2, byrow = TRUE)),
+  dates = c(as.Date("2010-10-01"), as.Date("2011-02-01")),
+  no_age_groups = 2,
+  no_risk_groups = 2
+)
+
+data(polymod_uk)
+data(age_sizes)
+poly <- polymod_uk[, c(1, 2, 3, 9)]
+poly[,3] <- rowSums(polymod_uk[, 3:8])
+
+contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+```
+
+Next we run our model using the newly defined `infection_odin` function and plot the result. Note the differences in the y axis scale. The low risk age group below 65 (`Age1Risk1`) has the largest population and also the largest incidence level.
+
+```{r run_example, dependson=c("infection_odin","setup_data"), cache = TRUE, fig.width=6, fig.height=7}
+library(ggplot2)
+odes <- infection_odin(population, initial.infected, vaccine_calendar, contacts, 
+               c(0.7, 0.3), 0.17, c(0.8, 1.8), 7)
+
+fraction.infected <- odes
+fraction.infected$V1 <- fraction.infected$Age1Risk1/population[1]
+fraction.infected$V2 <- fraction.infected$Age1Risk2/population[2]
+fraction.infected$V3 <- fraction.infected$Age2Risk1/population[3]
+fraction.infected$V4 <- fraction.infected$Age2Risk2/population[4]
+
+ggplot( data=fraction.infected ) + geom_line( aes(x=Time, y=V1, colour = "<65") ) + 
+  geom_line( aes(x=Time,y=V2, colour="65+") )  + 
+  geom_line( aes(x=Time, y=V3, colour="<65 High risk") ) +
+  geom_line( aes(x=Time,y=V4, colour="65+ High risk"),linetype=2 ) +
+  scale_colour_manual("", 
+                      breaks = c("<65","65+","<65 High risk","65+ High risk"),
+                      values = c("darkblue","blue","darkred","red")) +
+  ylab( "Fraction infected" )
+```
+
+# Further reading
+
+The next step now is to use your new model in the parameter inference. How to do this is explained in more detail in the [inference vignette](https://blackedder.github.io/flu-evidence-synthesis/inference.html).
+
+## Possible exercises
+
+#. Smooth the vaccination function instead of using a step function
+#. Make it possible to use different contact matrices for different time periods
+#. Simplify it to use SEIR/SIR instead of the SEEIIR model shown here

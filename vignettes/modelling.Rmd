@@ -125,6 +125,10 @@ ggplot( data=fraction.infected ) + geom_line( aes(x=Time, y=V1, colour = "<65") 
   ylab( "Fraction infected" )
 ```
 
+# Further reading
+
+You can look up how to adapt the underlying transmission model to your own needs in the [adapting-the-transmission-model vignette](https://blackedder.github.io/flu-evidence-synthesis/adapting-the-transmission-model.html) or learn how to use your model for parameter inference, which is explained in more detail in the [inference vignette](https://blackedder.github.io/flu-evidence-synthesis/inference.html).
+
 ## Possible exercises
 
 1. Try different vaccine calendars and compare the results
