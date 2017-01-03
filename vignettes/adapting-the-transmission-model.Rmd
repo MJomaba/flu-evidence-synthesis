@@ -67,7 +67,7 @@ Eq. 1 tracks the infection for each age and risk group. To implement vaccination
 
 We will be implementing this epidemiological model using the [odin](https://github.com/richfitz/odin) package. For installation and usage instructions we refer to their [website](https://github.com/richfitz/odin). The model definition in odin is shown below. Note that you need to make sure you have installed and loaded (`library(odin)`) the odin package before running this code.
 
-```{r model_definition, dependson = "install", cache = T}
+```{r model_definition, dependson = "install", cache = T, message = F}
 gen_seeiir_ag_vacc <- odin::odin({
   # Number of groups
   no_groups <- user()
@@ -183,14 +183,14 @@ gen_seeiir_ag_vacc <- odin::odin({
   dim(cumI) <- no_groups
   dim(newInf) <- no_groups
   dim(newInfv) <- no_groups
-})
+}, verbose = F)
 ```
 
 In the above code we "flatten" the age/risk group so that we can more easily represent the population in one vector. What this means is that instead of having an matrix for each state ($S; E1; E2; \dots$) with the age groups on one dimension and the risk groups on the other dimension, we transform these into a vector, with first all the age groups for the first risk group, followed by the age groups for the second risk group, and so on. 
 
 Next we write a helper function `infection_odin`, which has the same inputs and outputs as the `infectionODEs` function and wraps the above implemented odin model (`gen_seeiir_ag_vacc`). This will make it easy to swap the functions in and out of the model.
 
-```{r infection_odin, dependson = "model_definition", cache = TRUE}
+```{r infection_odin, dependson = "model_definition", cache = TRUE, message = F}
 infection_odin <- function(population, initial_infected, vaccine_calendar, contact_matrix, susceptibility, transmissibility, infection_delays, interval) {
   # Extract the date used from the vaccine calendar
   begin_date <- as.Date(paste0(format(vaccine_calendar$dates[1], "%Y"),"-09-01"))
