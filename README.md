@@ -24,7 +24,7 @@ Then use devtools to install fluEvidenceSynthesis by using the following command
 
 ```{r}
 library(devtools)
-install_github("MJomaba/flu-evidence-synthesis")
+install_github("MJomaba/flu-evidence-synthesis", dependencies = TRUE)
 ```
 
 ## Documentation and examples
