@@ -42,6 +42,8 @@ data("age_sizes")
 data("vaccine_calendar")
 data("polymod_uk")
 data("ili")
+
+# Virologically confirmed infections
 data("confirmed.samples")
 
 initial.parameters <- c(0.01188150, 0.01831852, 0.05434378,
@@ -127,7 +129,6 @@ build.llikelihood <- function()
   data("age_sizes")
   data("vaccine_calendar")
   data("polymod_uk")
-  #data("mcmcsample")
   data("ili")
   data("confirmed.samples")
   
@@ -165,9 +166,9 @@ build.llikelihood <- function()
                      age.groups, risk.ratios );
 
     # Population size initially infected by age and risk group
-    initial.infected <- rep( 10^pars[9], 7 )
+    initial.infected <- rep( 10^pars[9], 7 ) 
     initial.infected <- stratify_by_risk(
-                                                  initial.infected, risk.ratios );
+      initial.infected, risk.ratios );
 
     # Run simulation
     # Note that to reduce complexity 
@@ -313,6 +314,10 @@ ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) +
   stat_ci( aes(row.ID,value,ci=aggregate, factor=column.ID) ) +
   xlab("Time") + ylab("New infections")
 ```
+
+## Possible exercises
+
+#. Plot the covariance between parameters 
 
 # References
 

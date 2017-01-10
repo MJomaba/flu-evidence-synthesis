@@ -133,3 +133,5 @@ You can look up how to adapt the underlying transmission model to your own needs
 
 1. Try different vaccine calendars and compare the results
 2. Explore different parameter values
+3. Change the contact matrix
+4. Add more age groups
