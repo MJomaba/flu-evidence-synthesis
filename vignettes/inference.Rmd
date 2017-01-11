@@ -290,7 +290,7 @@ ode.results <- function( pars )
   
   # Run simulation
   # Note that to reduce complexity 
-  # we are using the same susceptibility parameter for multiple age groups
+  # by using the same susceptibility parameter for multiple age groups
   odes <- infectionODEs( popv, initial.infected,
                          vaccine_calendar,
                          contacts,
@@ -315,7 +315,7 @@ ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) +
   xlab("Time") + ylab("New infections")
 ```
 
-## Possible exercises
+## Possible exercise(s)
 
 #. Plot the covariance between parameters 
 
