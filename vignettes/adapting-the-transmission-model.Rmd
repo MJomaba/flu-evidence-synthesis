@@ -10,7 +10,7 @@ vignette: >
 bibliography: references.bib
 ---
 
-```{r, include = F}
+```{r, include = F, message = F, warning = F}
 chooseCRANmirror(ind = 1)
 ```
 
@@ -28,18 +28,18 @@ For more details on the built-in function see the [modelling vignette](https://b
 ```{r install, cache = T, echo = F, message = F, warning = F}
 if (!require("devtools")) {
   install.packages("devtools")
-  library("devtools")
+  library("devtools", quiet = T)
 }
 if (!require("odin")) {
-  devtools::install_github("richfitz/odin")
+  devtools::install_github("richfitz/odin", quiet = T)
   library(odin)
 }
 if (!require("dplyr")) {
-  install.packages("dplyr")
+  install.packages("dplyr", quiet = T)
   library("dplyr")
 }
 if (!require("tidyr")) {
-  install.packages("tidyr")
+  install.packages("tidyr", quiet = T)
   library("tidyr")
 }
 ```
