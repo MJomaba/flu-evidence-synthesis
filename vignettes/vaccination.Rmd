@@ -117,6 +117,49 @@ cases <- sapply(seq(1,nrow(inference.results$batch)), function(i)
 ggplot(data=data.frame("cases"=cases)) + geom_histogram(aes(x=cases),bins=25)
 ```
 
+## Change the vaccination coverage
+
+Here we show an example on how you could change the uptake rate of vaccination to a 80% uptake in all the age/risk groups.
+
+```{r, cache = T,fig.width=5,fig.height=5}
+# Helper function to scale the uptake of each age/risk group, so that at the end of the vaccination period the vaccination is equal to 
+# the given final_uptake
+change_coverage <- function(data, final_uptake) {
+  sums <- data[nrow(data),]
+  # If final uptake is zero in a group then we need to make some kind of assumption on uptake rate over time
+  if (any(sums == 0)) {
+    warning("No prior information on uptake rate. Using constant uptake rate")
+    #browser()
+    col <- which(sums == 0)
+    data[,col] <- seq(0, (nrow(data)-1))
+    sums <- data[nrow(data),]    
+  }
+  for(i in 1:nrow(data)) {
+    data[i,] <- data[i,]*final_uptake/sums
+  }
+  data
+}
+
+# Scale all age groups to 80%
+new_calendar <- change_coverage(calendar, rep(0.8, ncol(calendar)))
+
+# The rest of the simulation is similar as above, but now using the new_calendar
+new_vaccine_calendar <- as.vaccination.calendar(efficacy = efficacy, dates = dates, 
+                                            coverage = new_calendar, no_age_groups = 7,
+                                            no_risk_groups = 3)
+
+new_cases <- sapply(seq(1,nrow(inference.results$batch)), function(i)
+{
+  sum(vaccinationScenario( age_sizes=age_sizes[,1],
+                     vaccine_calendar=new_vaccine_calendar,
+                     polymod_data=as.matrix(polymod_uk),
+                     contact_ids=inference.results$contact.ids[i,],
+                     parameters=inference.results$batch[i,]
+                    ))
+})
+ggplot(data=data.frame("cases"=new_cases)) + geom_histogram(aes(x=cases),bins=25)
+```
+
 ## Possible exercises
 
 1. Try different vaccination scenarios
