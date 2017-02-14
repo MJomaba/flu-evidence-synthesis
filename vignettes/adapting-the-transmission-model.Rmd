@@ -58,7 +58,7 @@ The epidemiological model implemented in the package is an SEIR model, with two 
 \noindent
 where $S_{ik}$ is the number of susceptibles in the age group $i$ and risk group $k$, $E_{ik}^1$ and $E_{ik}^2$ are two compartments with exposed but not yet infectious individuals of age group $i$ and risk group $k$, $I_{ik}^1$ and $I_{ik}^2$ represent infectious individuals, and immune individuals of age group $i$ and risk group $k$ are given by $R_{ik}$. The rate of loss of latency and infectiousness are respectively $\gamma_1$ and $\gamma_2$, while the age-group-specific force of infection $\lambda_i$ is given by 
 \begin{equation}
-\lambda_i = \sigma_i \sum_{j=1}^x \sum_{k=1}^y \beta_{i,j} \left( I_{ik}^1 - I_{ik}^2 \right)
+\lambda_i = \sigma_i \sum_{j=1}^x \sum_{k=1}^y \beta_{i,j} \left( I_{ik}^1 + I_{ik}^2 \right)
 \end{equation}
 \noindent
 where $\beta_{i,j}$ is the effective contact rate between individuals in age group $i$ and age group $j$, and $\sigma_i$ is the susceptibility of the age group $i$ (that can be inferred from serological data).
