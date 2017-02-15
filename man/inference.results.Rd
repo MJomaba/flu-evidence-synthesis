@@ -12,4 +12,3 @@ inference.results
 MCMC Result produced by the inference function
 }
 \keyword{datasets}
-

@@ -27,4 +27,3 @@ A vector with the number of hospitalisations for each age/risk group
 Uses the provided proportion to calculate the number of different cases from the incidence data. The expected
 proportion of each case needs to be provided by the user and is likely to be country/disease specific.
 }
-

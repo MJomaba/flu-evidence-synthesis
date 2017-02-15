@@ -21,4 +21,3 @@ Returns a data.frame in long format, with for each time point, interval, column.
 \description{
 This function is useful to convert the mcmc results into aggregated results, such as mean, variance etc.
 }
-

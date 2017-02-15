@@ -12,4 +12,3 @@ age_sizes
 Number of people of each age for the UK in 1999
 }
 \keyword{datasets}
-

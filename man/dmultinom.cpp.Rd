@@ -21,4 +21,3 @@ The probability of getting the counts, given the total size and probability of d
 \description{
 Probability density function for multinomial distribution
 }
-

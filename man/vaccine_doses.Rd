@@ -18,4 +18,3 @@ The number of doses by age and risk group.
 \description{
 Calculates the number of doses required to vaccinate the population under the provided vaccination calendar.
 }
-

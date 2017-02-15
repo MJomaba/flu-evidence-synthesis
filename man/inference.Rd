@@ -36,4 +36,3 @@ Returns a list with the accepted samples and the corresponding llikelihood value
 \description{
 MCMC based inference of the parameter values given the different data sets
 }
-

@@ -34,4 +34,3 @@ Sherlock, C., Fearnhead, P. and Roberts, G.O. The Random Walk Metrolopois: Linki
 \seealso{
 \code{\link{adaptive.mcmc}} For a more flexible R frontend to this function.
 }
-

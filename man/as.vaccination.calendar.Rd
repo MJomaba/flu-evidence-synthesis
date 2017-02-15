@@ -30,4 +30,3 @@ A list that contains the \code{calendar} and \code{efficacy} of the vaccine for 
 Helper function to create (valid) vaccination calendars. It will take the given data, do some
 sanity checking and convert it into a list object that can be passed to other functions.
 }
-

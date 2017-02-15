@@ -16,4 +16,3 @@ ili
 Number of Influenza-like illness cases per week
 }
 \keyword{datasets}
-

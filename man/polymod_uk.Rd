@@ -17,4 +17,3 @@ polymod_uk
 Polymod contact data for the UK
 }
 \keyword{datasets}
-

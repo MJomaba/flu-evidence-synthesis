@@ -17,4 +17,3 @@ A vector with the population in each age group.
 \description{
 Stratifies the population and returns the population size of each age group.
 }
-

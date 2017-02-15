@@ -24,4 +24,3 @@ A data frame with the total number of influenza cases in that year
 \description{
 Calculate number of influenza cases given a vaccination strategy
 }
-

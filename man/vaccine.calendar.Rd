@@ -19,4 +19,3 @@ A list that contains the \code{calendar} and \code{efficacy} of the vaccine for 
 \description{
 Function to create a vaccine calendar object
 }
-
