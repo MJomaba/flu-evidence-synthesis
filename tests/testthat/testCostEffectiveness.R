@@ -40,7 +40,7 @@ test_that("We can calculate final coverage from a vaccination calendar",
     # high risk <65 and 65+. Original is in percentages. Here converted to fraction
     cov <- coverage[,c("Under.65","X65","at.risk.under.65","X65")]/100.0
     
-    vaccine_calendar <- as.vaccination.calendar(efficacy = c(0.7, 0.4, 0.7, 0.4), 
+    vaccine_calendar <- as_vaccination_calendar(efficacy = c(0.7, 0.4, 0.7, 0.4), 
                                                 dates = coverage$Date,
                                                 coverage = cov, 
                                                 no_age_groups = 2, no_risk_groups = 2)

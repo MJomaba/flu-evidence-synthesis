@@ -27,7 +27,8 @@
 "inference.results"
 
 #' DEPRECATED: MCMC Result produced by the inference function
-#'
+#' 
+#' @keywords internal
 "mcmcsample"
 
 #' Polymod contact data for the UK
@@ -41,6 +42,7 @@
 "polymod_uk"
 
 #' Data on the uptake rates of vaccination in the UK
+#' @keywords internal
 "uptake"
 
 #' Vaccination uptake rate for the UK in 1999
@@ -49,37 +51,6 @@
 #' Data on vaccine coverage during the 2007-08 season
 "coverage"
 
-#' Function to create a vaccine calendar object
-#'
-#' @param coverage A vector containing the total coverage for the vaccine for each age/risk group
-#' @param efficacy The efficacy of the vaccine for that year (subdivided by each age group)
-#' @param uptake The uptake of the vaccine over different time periods
-#' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
-#' 
-vaccine.calendar <- function( coverage, efficacy, uptake )
-{
-  .Deprecated("as.vaccination.calendar")
-    new.vacc.cal<-matrix(rep(0,123*21),ncol=21)
-
-    LR.cov<-as.numeric(coverage[1:7])
-    HR.cov<-as.numeric(coverage[8:14])
-
-    #October
-    for(j in 1:31)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[2],6),uptake[3],rep(uptake[2],6),uptake[3],rep(uptake[2],6),uptake[3])/(31*100)  
-    #November
-    for(j in 32:61)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3],rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3],rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3])/(30*100)
-    #December
-    for(j in 62:92)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5],rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5],rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5])/(31*100)
-    #Januari
-    for(j in 93:123)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(100-uptake[6],6),100-uptake[7],rep(100-uptake[6],6),100-uptake[7],rep(100-uptake[6],6),100-uptake[7])/(31*100)
-
-    cal <- list( "efficacy"=efficacy, "calendar"=new.vacc.cal )
-    cal
-}
 
 #' Function to read legacy file format for vaccine calendar
 #'
@@ -136,9 +107,10 @@ read.legacy.vaccine.file <- function( file )
 #' @param no_risk_groups The total number of risk groups (optional)
 #' @param no_age_groups The total number of age groups (optional)
 #' @param starting_year The year of the start of the season. Only used when passed a legacy file
+#' @seealso \url{http://blackedder.github.io/flu-evidence-synthesis/vaccination.html}
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
-as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
+as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
   if (!is.null(legacy))
   {
     # We are dealing with a legacy object
@@ -238,6 +210,6 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     vc$calendar <- as.matrix(diff.coverage)/as.double(diff.dates)
     # Note that if passed data we can recursively call it with the legacy argument to 
     # normalize the result
-    return(as.vaccination.calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
+    return(as_vaccination_calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
   }
 }

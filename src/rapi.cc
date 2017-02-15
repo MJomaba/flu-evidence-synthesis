@@ -484,7 +484,7 @@ Eigen::MatrixXd contact_matrix(
 //'
 //' @return An integer representing the age group
 //'
-// [[Rcpp::export(name="as.age.group")]]
+// [[Rcpp::export]]
 size_t as_age_group( size_t age,
         Rcpp::NumericVector limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )

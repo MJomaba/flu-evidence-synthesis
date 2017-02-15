@@ -11,4 +11,4 @@ uptake
 \description{
 Data on the uptake rates of vaccination in the UK
 }
-\keyword{datasets}
+\keyword{internal}

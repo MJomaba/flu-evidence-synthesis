@@ -17,3 +17,4 @@ A vector with the population in each age group.
 \description{
 Superseded by stratify_by_age function
 }
+\keyword{internal}

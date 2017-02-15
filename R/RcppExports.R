@@ -218,7 +218,7 @@ contact.matrix <- function(polymod_data, age_sizes, age_group_limits = as.numeri
 #'
 #' @return An integer representing the age group
 #'
-as.age.group <- function(age, limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
+as_age_group <- function(age, limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
     .Call('fluEvidenceSynthesis_as_age_group', PACKAGE = 'fluEvidenceSynthesis', age, limits)
 }
 

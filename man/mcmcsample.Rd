@@ -11,4 +11,4 @@ mcmcsample
 \description{
 DEPRECATED: MCMC Result produced by the inference function
 }
-\keyword{datasets}
+\keyword{internal}
