@@ -41,12 +41,13 @@ test_that("We can call scenario",
               data("inference.results")
               data("polymod_uk")
 
-              total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
+              expect_warning(
+                total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
                     vaccine_calendar=vaccine_calendar,
                     polymod_data=as.matrix(polymod_uk),
                     contact_ids = inference.results$contact.ids[1000,],
                     parameters = inference.results$batch[1000,]
-                    )
+                    ))
 
               exp.total.size <- c(46500.6746557518, 303225.043210381, 649632.503513013, 2471269.51343945, 4089296.63404964, 2176800.79303793, 421066.463090916, 989.173167588841, 17354.8114395601, 68842.3418775971, 226975.890171658, 386713.740264845, 412465.102974455, 303654.162949902, 0, 0, 0, 0, 0, 0, 0)
               #exp.total.size <- c( 119474.807, 636440.213, 1469251.696, 2881440.126, 4408817.625, 2796622.448, 498176.149, 2541.504, 36427.619, 155706.821, 264664.169, 416935.424, 530054.119, 359250.707, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000 )
@@ -70,12 +71,13 @@ test_that("Vaccination scenario and infectionODEs give similar results",
   data("inference.results")
   data("polymod_uk")
 
-  total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
+  expect_warning(
+    total_size <- vaccinationScenario( age_sizes=age_sizes[,1], 
         vaccine_calendar=vaccine_calendar,
         polymod_data=as.matrix(polymod_uk),
         contact_ids = inference.results$contact.ids[1000,],
         parameters = inference.results$batch[1000,]
-        )
+        ))
 
   test.vac <- vaccine_calendar
   # We would take first of the month, but because we want to directly

@@ -39,7 +39,7 @@ separate.into.risk.groups <- function(age_groups, risk) {
 #' @keywords internal
 #'
 #' @return An integer representing the age group
-as.age.group <- function(age, limits) {
+as.age.group <- function(age, limits = as.numeric(c(1, 5, 15, 25, 45, 65))) {
   .Deprecated("as_age_group")
   as_age_group(age, limits)
 }

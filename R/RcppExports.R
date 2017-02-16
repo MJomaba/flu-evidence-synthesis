@@ -286,11 +286,18 @@ as_transmission_rate <- function(R0, contact_matrix, population, duration = 1.8)
 
 #' Calculate number of influenza cases given a vaccination strategy
 #'
+#' @description Superseded by \code{vaccination_scenario}
+#'
 #' @param age_sizes A vector with the population size by each age {1,2,..}
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
 #' @param contact_ids IDs (row numbers) of the contact data used when modelling this scenario 
 #' @param parameters The parameters to use
+#' 
+#' @keywords internal
+#'
+#' @seealso \code{\link{vaccination_scenario}}
+#' 
 #' @return A data frame with the total number of influenza cases in that year
 #'
 vaccinationScenario <- function(age_sizes, vaccine_calendar, polymod_data, contact_ids, parameters) {

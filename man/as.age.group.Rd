@@ -4,7 +4,7 @@
 \alias{as.age.group}
 \title{Age as age group}
 \usage{
-as.age.group(age, limits)
+as.age.group(age, limits = as.numeric(c(1, 5, 15, 25, 45, 65)))
 }
 \arguments{
 \item{age}{The relevant age}
