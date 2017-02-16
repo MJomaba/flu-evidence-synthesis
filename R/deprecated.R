@@ -101,3 +101,6 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
                           no_age_groups, starting_year)
 }
 
+#' Number of people of each age for the UK in 1999
+#' @keywords internal
+"age_sizes"
