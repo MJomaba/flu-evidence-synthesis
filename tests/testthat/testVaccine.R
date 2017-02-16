@@ -242,3 +242,130 @@ test_that("as_vaccination_calendar correctly converts legacy vaccine.calendar ",
   expect_equal( length(vc$dates), 5 )
   expect_equal(vc$efficacy, rep(vaccine_calendar$efficacy,3))
 })
+
+test_that("New vaccination_scenario gives similar results to infectionODEs", 
+{
+  data("age_sizes")
+  data("vaccine_calendar")
+  data("inference.results")
+  data("polymod_uk")
+  
+  test.vac <- vaccine_calendar
+  # We would take first of the month, but because we want to directly
+  # compare with the old way we use their dates
+  #test.vac[["dates"]] <- c(as.Date("1999-10-01"), as.Date("1999-11-01"),
+  #                         as.Date("1999-12-01"), as.Date("2000-01-01"),
+  #                         as.Date("2000-02-01"))
+  test.vac[["dates"]] <- c(as.Date("1970-10-07"), as.Date("1970-11-07"),
+                           as.Date("1970-12-07"), as.Date("1971-01-07"),
+                           as.Date("1971-02-07"))
+  test.vac[["calendar"]] <- matrix(c(test.vac[["calendar"]][1,],
+                                     test.vac[["calendar"]][32,],
+                                     test.vac[["calendar"]][62,],
+                                     test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
+
+  total_size <- vaccination_scenario(demography=age_sizes[,1], 
+        vaccine_calendar=test.vac,
+        polymod_data = as.matrix(polymod_uk),
+        contact_ids = inference.results$contact.ids[1000,],
+        parameters = inference.results$batch[1000,],
+        verbose = F)
+ 
+  age.groups <- stratify_by_age( age_sizes[,1], 
+                                          c(1,5,15,25,45,65) )
+  
+  risk.ratios <- matrix( c(
+    0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+    0, 0, 0, 0, 0, 0, 0                          
+  ), ncol=7, byrow=T )
+  
+  popv <- stratify_by_risk(
+    age.groups, risk.ratios );
+  
+  initial.infected <- rep( 10^inference.results$batch[1000,9], 7 )
+  
+  initial.infected <- stratify_by_risk(
+    initial.infected, risk.ratios );
+  
+  # Need to separate into age groups... 
+  odes <- infectionODEs( popv, initial.infected,
+                         test.vac,
+                         contact.matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
+                                         age_sizes[,1], c(1,5,15,25,45,65) ),
+                         c(rep(inference.results$batch[1000,6],3),rep(inference.results$batch[1000,7],3),inference.results$batch[1000,8]),
+                         inference.results$batch[1000,5],
+                         c(0.8,1.8), 1 )
+  expect_lt(abs(sum(total_size-colSums(odes[,2:ncol(odes)]))),1e-3)
+})
+
+test_that("New vaccination_scenario works when passed an incidence_function", 
+{
+  # Define incidence_function
+  inci_f <- function(vaccine_calendar, parameters, contact_ids) {
+    data("age_sizes")
+    data("vaccine_calendar")
+    data("polymod_uk")
+    
+    age.groups <- stratify_by_age( age_sizes[,1], 
+                                   c(1,5,15,25,45,65) )
+    
+    risk.ratios <- matrix( c(
+      0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+      0, 0, 0, 0, 0, 0, 0                          
+    ), ncol=7, byrow=T )
+    
+    popv <- stratify_by_risk(
+      age.groups, risk.ratios );
+    
+    initial.infected <- rep( 10^parameters[9], 7 )
+    
+    initial.infected <- stratify_by_risk(
+      initial.infected, risk.ratios );
+    
+    # Need to separate into age groups... 
+    infectionODEs( popv, initial.infected,
+                   test.vac,
+                   contact.matrix( as.matrix(polymod_uk[contact_ids,]),
+                                   age_sizes[,1], c(1,5,15,25,45,65) ),
+                   c(rep(parameters[6],3),rep(parameters[7],3),parameters[8]),
+                   parameters[5],
+                   c(0.8,1.8), 1 )
+  }
+  
+  data("vaccine_calendar")
+  test.vac <- vaccine_calendar
+  # We would take first of the month, but because we want to directly
+  # compare with the old way we use their dates
+  #test.vac[["dates"]] <- c(as.Date("1999-10-01"), as.Date("1999-11-01"),
+  #                         as.Date("1999-12-01"), as.Date("2000-01-01"),
+  #                         as.Date("2000-02-01"))
+  test.vac[["dates"]] <- c(as.Date("1970-10-07"), as.Date("1970-11-07"),
+                           as.Date("1970-12-07"), as.Date("1971-01-07"),
+                           as.Date("1971-02-07"))
+  test.vac[["calendar"]] <- matrix(c(test.vac[["calendar"]][1,],
+                                     test.vac[["calendar"]][32,],
+                                     test.vac[["calendar"]][62,],
+                                     test.vac[["calendar"]][93,]),ncol=21,byrow=TRUE)
+  
+  # Test on one set of parameters/contact_ids
+  data(inference.results)
+  total_size <- vaccination_scenario(test.vac, inference.results$batch[1000,],
+                       inference.results$contact.ids[1000,], 
+                       inci_f, time_column = "Time")
+  data(polymod_uk)
+  data(age_sizes)
+  reference <- vaccination_scenario(demography = age_sizes[,1], 
+        vaccine_calendar = test.vac,
+        polymod_data = as.matrix(polymod_uk),
+        contact_ids = inference.results$contact.ids[1000,],
+        parameters = inference.results$batch[1000,],
+        verbose = F)
+  expect_lt(abs(sum(total_size-reference)),1e-3)
+  
+  # Test on table of parameters/contact_ids
+  df <- vaccination_scenario(test.vac, inference.results$batch[1:10,],
+                       inference.results$contact.ids[1:10,], 
+                       inci_f, time_column = "Time")
+  expect_equal(ncol(df), 21)
+  expect_equal(nrow(df), 10)
+})

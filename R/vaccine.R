@@ -213,3 +213,123 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     return(as_vaccination_calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
   }
 }
+
+#' Calculate number of influenza cases given a vaccination strategy
+#'
+#' @param vaccine_calendar A vaccine calendar valid for that year
+#' @param parameters The parameters to use. Both a vector or a data frame with each row a set of parameters 
+#' (e.g. a batch of inferred parameters by adaptive_mcmc$batch) are accepted.
+#' @param contact_ids Optional: The contact_ids used to infer the contact matrix. Similar to the @param parameters this can be a
+#' vector or a data frame.
+#' @param incidence_function An optional function that takes a \code{vaccine_calendar}, \code{parameters} and optionally
+#' \code{contact_ids} and returns the incidence over time. If none is provided then the default
+#' \code{infectionODEs} is used. In that case both \code{polymod_data} and \code{demography} data need to be
+#' provided as well.
+#' @param time_column An optional time column that will be removed from the data returned by the incidence_function
+#' @param ... Further parameters that will be passed to the \code{incidence_function}
+#' @param verbose Whether to display warnings. Default is TRUE.
+#' 
+#' @seealso \code{\link{infectionODEs}}
+#' 
+#' @return The total incidence in a year per age and risk group
+vaccination_scenario <- function(vaccine_calendar, parameters,  
+                                 contact_ids, incidence_function,
+                                 time_column, ..., verbose = T) {
+  if (missing(incidence_function)) {
+    var_names <- names(sys.call())
+    if (!"polymod_data" %in% var_names) {
+      stop("No polymod_data set provided")
+    } else {
+      polymod_data <- eval(match.call()[["polymod_data"]])
+    }
+    if (missing(contact_ids)) {
+      stop("No contact_ids set provided")
+    }
+    if (!"demography" %in% var_names) {
+      stop("No demography provided, i.e. a vector with population size by age (starting at age is zero)")
+    } else {
+      demography <- eval(match.call()[["demography"]])
+    }
+    time_column = "Time"
+    incidence_function <- function(vaccine_calendar, parameters, contact_ids, ...) {
+      if (!"age_group_limits" %in% var_names) {
+        if (verbose)
+          warning("Missing age_group_limits, using default: c(1,5,15,25,45,65)")
+        age_group_limits <- c(1,5,15,25,45,65)
+      } else {
+        age_group_limits <- eval(match.call()[["age_group_limits"]])
+      }
+      contacts <- contact.matrix(as.matrix(polymod_data[contact_ids,]),
+                                 demography, age_group_limits )
+      
+      age.groups <- stratify_by_age( demography, 
+                                     age_group_limits )
+      
+      # Fraction of each age group classified as high risk
+      # We can classify a third risk group, but we are not doing
+      # that here (the second row is 0 in our risk.ratios matrix)
+      if (!"risk_ratios" %in% var_names) {
+        if (verbose)
+          warning("Missing risk_ratios, using default UK based values")
+        risk_ratios <- matrix(c(
+          0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+          0, 0, 0, 0, 0, 0, 0                          
+        ), ncol = 7, byrow = T)
+      } else {
+        risk_ratios <- eval(match.call()[["risk_ratios"]])
+      }
+      
+      # Population sizes in each age and risk group
+      popv <- stratify_by_risk(
+        age.groups, risk_ratios );
+      
+      # Population size initially infected by age and risk group
+      initial.infected <- rep( 10^parameters[9], 7 ) 
+      initial.infected <- stratify_by_risk(
+        initial.infected, risk_ratios );
+      
+      # Run simulation
+      # Note that to reduce complexity 
+      # we are using the same susceptibility parameter for multiple age groups
+      infectionODEs(popv, initial.infected,
+                    vaccine_calendar,
+                    contacts,
+                    c(parameters[6], parameters[6], parameters[6],
+                      parameters[7], parameters[7], parameters[7], parameters[8]),
+                    transmissibility = parameters[5],
+                    c(0.8,1.8), 7)
+    }
+  }
+ 
+  # One set of parameters
+  if (is.null(nrow(parameters))) {
+    if (missing(contact_ids)) {
+      result <- incidence_function(vaccine_calendar, parameters, ...)
+    } else {
+      result <- incidence_function(vaccine_calendar, parameters, contact_ids, ...)
+    }
+    if (!missing(time_column) && !is.null(time_column))
+      result[[time_column]] <- NULL
+    return(colSums(result))
+  } else {
+    # Table of parameters and optionally contact_ids
+    if (missing(time_column))
+      time_column <- NULL
+    if (missing(contact_ids)) {
+      return(apply(parameters, 1, function(pars) 
+        vaccination_scenario(parameters = pars, vaccine_calendar = vaccine_calendar,
+                             incidence_function = incidence_function, 
+                             time_column = time_column, ...)
+        ))
+    } else {
+      pc <- cbind(parameters, contact_ids)
+      return(t(apply(pc, 1, function(pars_contacts) 
+        vaccination_scenario(parameters = pars_contacts[1:nrow(parameters)], 
+                             contact_ids = pars_contacts[(nrow(parameters)+1):length(pars_contacts)],
+                             vaccine_calendar = vaccine_calendar,
+                             incidence_function = incidence_function, 
+                             time_column = time_column, ...))
+        ))
+    }
+  }
+}
