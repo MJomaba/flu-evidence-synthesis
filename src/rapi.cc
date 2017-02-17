@@ -546,12 +546,12 @@ Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
 //'
 //' @param transmission_rate The transmission rate of the disease
 //' @param contaxt_matrix The contact matrix between age groups
-//' @param population The population size of the different age groups
+//' @param age_groups The population size of the different age groups
 //' @param duration Duration of the infectious period. Default value is 1.8 days
 //'
 //' @return Returns the R0
 // [[Rcpp::export]]
-double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population,
+double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd age_groups,
         double duration = 1.8) {
     //auto evs = (contact_matrix*population).eigenvalues();
     //return transmission_rate*evs.maxCoeff()*duration;

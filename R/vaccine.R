@@ -165,7 +165,7 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param parameters The parameters to use. Both a vector or a data frame with each row a set of parameters 
 #' (e.g. a batch of inferred parameters by adaptive_mcmc$batch) are accepted.
-#' @param contact_ids Optional: The contact_ids used to infer the contact matrix. Similar to the @param parameters this can be a
+#' @param contact_ids Optional: The contact_ids used to infer the contact matrix. Similar to the \code{parameters} this can be a
 #' vector or a data frame.
 #' @param incidence_function An optional function that takes a \code{vaccine_calendar}, \code{parameters} and optionally
 #' \code{contact_ids} and returns the incidence over time. If none is provided then the default
