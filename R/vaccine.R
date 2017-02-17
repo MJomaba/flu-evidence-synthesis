@@ -270,8 +270,8 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
     } else {
       pc <- cbind(parameters, contact_ids)
       return(t(apply(pc, 1, function(pars_contacts) 
-        vaccination_scenario(parameters = pars_contacts[1:nrow(parameters)], 
-                             contact_ids = pars_contacts[(nrow(parameters)+1):length(pars_contacts)],
+        vaccination_scenario(parameters = pars_contacts[1:ncol(parameters)], 
+                             contact_ids = pars_contacts[(ncol(parameters)+1):length(pars_contacts)],
                              vaccine_calendar = vaccine_calendar,
                              incidence_function = incidence_function, 
                              time_column = time_column, ...))
