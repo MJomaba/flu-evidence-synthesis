@@ -555,11 +555,12 @@ double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::Ve
         double duration = 1.8) {
     //auto evs = (contact_matrix*population).eigenvalues();
     //return transmission_rate*evs.maxCoeff()*duration;
-    assert(contact_matrix.cols() == population.size());
+    if (contact_matrix.cols() != age_groups.size())
+        ::Rf_error("Number of age groups should be equal to the dimensions of the contact_matrix");
     auto a = contact_matrix;
     for (size_t i = 0; i < a.rows(); ++i) {
         for (size_t j = 0; j < a.cols(); ++j) {
-            a(i,j) = contact_matrix(i,j)*population[j];
+            a(i,j) = contact_matrix(i,j)*age_groups[j];
         }
     }
 
