@@ -218,15 +218,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // contact_matrix
-Eigen::MatrixXd contact_matrix(Eigen::MatrixXi polymod_data, std::vector<size_t> age_sizes, Rcpp::NumericVector age_group_limits);
-RcppExport SEXP fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP age_sizesSEXP, SEXP age_group_limitsSEXP) {
+Eigen::MatrixXd contact_matrix(Eigen::MatrixXi polymod_data, std::vector<size_t> demography, Rcpp::NumericVector age_group_limits);
+RcppExport SEXP fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP demographySEXP, SEXP age_group_limitsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_sizes(age_sizesSEXP);
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type demography(demographySEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type age_group_limits(age_group_limitsSEXP);
-    rcpp_result_gen = Rcpp::wrap(contact_matrix(polymod_data, age_sizes, age_group_limits));
+    rcpp_result_gen = Rcpp::wrap(contact_matrix(polymod_data, demography, age_group_limits));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -267,16 +267,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // as_R0
-double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population, double duration);
-RcppExport SEXP fluEvidenceSynthesis_as_R0(SEXP transmission_rateSEXP, SEXP contact_matrixSEXP, SEXP populationSEXP, SEXP durationSEXP) {
+double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd age_groups, double duration);
+RcppExport SEXP fluEvidenceSynthesis_as_R0(SEXP transmission_rateSEXP, SEXP contact_matrixSEXP, SEXP age_groupsSEXP, SEXP durationSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< double >::type transmission_rate(transmission_rateSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type contact_matrix(contact_matrixSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type population(populationSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type age_groups(age_groupsSEXP);
     Rcpp::traits::input_parameter< double >::type duration(durationSEXP);
-    rcpp_result_gen = Rcpp::wrap(as_R0(transmission_rate, contact_matrix, population, duration));
+    rcpp_result_gen = Rcpp::wrap(as_R0(transmission_rate, contact_matrix, age_groups, duration));
     return rcpp_result_gen;
 END_RCPP
 }

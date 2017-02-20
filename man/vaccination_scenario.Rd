@@ -13,7 +13,7 @@ vaccination_scenario(vaccine_calendar, parameters, contact_ids,
 \item{parameters}{The parameters to use. Both a vector or a data frame with each row a set of parameters 
 (e.g. a batch of inferred parameters by adaptive_mcmc$batch) are accepted.}
 
-\item{contact_ids}{Optional: The contact_ids used to infer the contact matrix. Similar to the @param parameters this can be a
+\item{contact_ids}{Optional: The contact_ids used to infer the contact matrix. Similar to the \code{parameters} this can be a
 vector or a data frame.}
 
 \item{incidence_function}{An optional function that takes a \code{vaccine_calendar}, \code{parameters} and optionally

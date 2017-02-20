@@ -101,6 +101,22 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
                           no_age_groups, starting_year)
 }
 
+#' Create a contact matrix based on polymod data.
+#'
+#' @description Renamed to contact_matrix for consistency in naming
+#' 
+#' @param polymod_data Contact data for different age groups
+#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
+#' @keywords internal
+#'
+#' @return Returns a symmetric matrix with the frequency of contact between each age group
+contact.matrix <- function(polymod_data, age_sizes,
+  age_group_limits = c(1, 5, 15, 25, 45, 65 ) ) {
+  .Deprecated("contact_matrix")
+  contact_matrix(polymod_data, age_sizes, age_group_limits)
+}
+
 #' Number of people of each age for the UK in 1999
 #' @keywords internal
 "age_sizes"

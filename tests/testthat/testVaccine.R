@@ -112,7 +112,7 @@ test_that("Vaccination scenario and infectionODEs give similar results",
   # Need to separate into age groups... 
   odes <- infectionODEs( popv, initial.infected,
                          test.vac,
-                         contact.matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
+                         contact_matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
                                          age_sizes[,1], c(1,5,15,25,45,65) ),
                          c(rep(inference.results$batch[1000,6],3),rep(inference.results$batch[1000,7],3),inference.results$batch[1000,8]),
                          inference.results$batch[1000,5],
@@ -138,7 +138,7 @@ test_that("We can specify efficacy by risk group", {
     poly <- polymod_uk[,c(1,2,3,9)]
     poly[,3] <- rowSums(polymod_uk[,3:8])
 
-    contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+    contacts <- contact_matrix(as.matrix(poly), age_sizes$V1, c(65))
     susceptibility <- c( 0.7, 0.3 ) # Different for different ages
     transmissibility <- 0.17 # Same for all ages
     infection_delays <- c( 0.8, 1.8 ) # 0.8 and 1.8 day.
@@ -292,7 +292,7 @@ test_that("New vaccination_scenario gives similar results to infectionODEs",
   # Need to separate into age groups... 
   odes <- infectionODEs( popv, initial.infected,
                          test.vac,
-                         contact.matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
+                         contact_matrix( as.matrix(polymod_uk[inference.results$contact.ids[1000,],]),
                                          age_sizes[,1], c(1,5,15,25,45,65) ),
                          c(rep(inference.results$batch[1000,6],3),rep(inference.results$batch[1000,7],3),inference.results$batch[1000,8]),
                          inference.results$batch[1000,5],
@@ -327,7 +327,7 @@ test_that("New vaccination_scenario works when passed an incidence_function",
     # Need to separate into age groups... 
     infectionODEs( popv, initial.infected,
                    test.vac,
-                   contact.matrix( as.matrix(polymod_uk[contact_ids,]),
+                   contact_matrix( as.matrix(polymod_uk[contact_ids,]),
                                    age_sizes[,1], c(1,5,15,25,45,65) ),
                    c(rep(parameters[6],3),rep(parameters[7],3),parameters[8]),
                    parameters[5],

@@ -200,13 +200,13 @@ adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, acceptfun, nburn, ini
 #' Create a contact matrix based on polymod data.
 #'
 #' @param polymod_data Contact data for different age groups
-#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param demography A vector with the population size by each age {0,1,2,..}
 #' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
 #'
 #' @return Returns a symmetric matrix with the frequency of contact between each age group
 #'
-contact.matrix <- function(polymod_data, age_sizes, age_group_limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
-    .Call('fluEvidenceSynthesis_contact_matrix', PACKAGE = 'fluEvidenceSynthesis', polymod_data, age_sizes, age_group_limits)
+contact_matrix <- function(polymod_data, demography, age_group_limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
+    .Call('fluEvidenceSynthesis_contact_matrix', PACKAGE = 'fluEvidenceSynthesis', polymod_data, demography, age_group_limits)
 }
 
 #' Age as age group
@@ -258,12 +258,12 @@ stratify_by_risk <- function(age_groups, risk) {
 #'
 #' @param transmission_rate The transmission rate of the disease
 #' @param contaxt_matrix The contact matrix between age groups
-#' @param population The population size of the different age groups
+#' @param age_groups The population size of the different age groups
 #' @param duration Duration of the infectious period. Default value is 1.8 days
 #'
 #' @return Returns the R0
-as_R0 <- function(transmission_rate, contact_matrix, population, duration = 1.8) {
-    .Call('fluEvidenceSynthesis_as_R0', PACKAGE = 'fluEvidenceSynthesis', transmission_rate, contact_matrix, population, duration)
+as_R0 <- function(transmission_rate, contact_matrix, age_groups, duration = 1.8) {
+    .Call('fluEvidenceSynthesis_as_R0', PACKAGE = 'fluEvidenceSynthesis', transmission_rate, contact_matrix, age_groups, duration)
 }
 
 #' @title Calculate transmission rate from R0 

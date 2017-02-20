@@ -205,7 +205,7 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
       } else {
         age_group_limits <- eval(match.call()[["age_group_limits"]])
       }
-      contacts <- contact.matrix(as.matrix(polymod_data[contact_ids,]),
+      contacts <- contact_matrix(as.matrix(polymod_data[contact_ids,]),
                                  demography, age_group_limits )
       
       age.groups <- stratify_by_age( demography, 
