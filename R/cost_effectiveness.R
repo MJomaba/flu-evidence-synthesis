@@ -60,9 +60,9 @@ public_health_outcome <- function(proportion, incidence, no_risk_groups = NULL, 
 #' 
 #' @param vaccination_calendar The vaccination calendar. This object should have the same layout as a 
 #' vaccination_calendar returned by \code{\link{as.vaccination.calendar}}.
-#' @param population A vector with the size of the population in each age and risk group
+#' @param age_risk_groups A vector with the size of the population in each age and risk group
 #' @return The number of doses by age and risk group.
-vaccine_doses <- function(vaccination_calendar, population) {
+vaccine_doses <- function(vaccination_calendar, age_risk_groups) {
   cov <- .final_coverage(vaccination_calendar)
   if (length(population) == length(cov)) {
     return(cov*population)
