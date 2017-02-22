@@ -1,86 +1,3 @@
-#' Number of Influenza-like illness cases per week
-#'
-#' @format A list with both the number of cases and the total number of monitored people
-#' \describe{
-#'   \item{ili}{Matrix with total number of cases per week (row) and age group (column)}
-#'   \item{total.monitored}{The number of people monitored over the same time/age group}
-#' }
-"ili"
-
-#' Number of confirmed positive samples per week
-#'
-#' Generally only for a fraction of the Influenza-like illness cases an actual (blood) sample is taken to confirm whether/which strain the subject is infected with.
-#'
-#' @format A list with both the number of positive samples and the total number samples taken
-#' \describe{
-#'   \item{positive}{Matrix with total number of positive samples per week (row) and age group (column)}
-#'   \item{total.samples}{The total number of samples tested over the same time/age group}
-#' }
-"confirmed.samples"
-
-#' Number of people of each age for the UK in 1999
-#'
-"age_sizes"
-
-#' MCMC Result produced by the inference function
-#'
-"inference.results"
-
-#' DEPRECATED: MCMC Result produced by the inference function
-#'
-"mcmcsample"
-
-#' Polymod contact data for the UK
-#'
-#' @format Data frame containing all polymod data for the UK
-#' \describe{
-#'    \item{V1}{Age of the subject}
-#'    \item{V2}{Data taken in the weekend (1) or during the week (0)}
-#'    \item{V3-V9}{Number of contacts with persons from the different age groups}
-#' }
-"polymod_uk"
-
-#' Data on the uptake rates of vaccination in the UK
-"uptake"
-
-#' Vaccination uptake rate for the UK in 1999
-"vaccine_calendar"
-
-#' Data on vaccine coverage during the 2007-08 season
-"coverage"
-
-#' Function to create a vaccine calendar object
-#'
-#' @param coverage A vector containing the total coverage for the vaccine for each age/risk group
-#' @param efficacy The efficacy of the vaccine for that year (subdivided by each age group)
-#' @param uptake The uptake of the vaccine over different time periods
-#' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
-#' 
-vaccine.calendar <- function( coverage, efficacy, uptake )
-{
-  .Deprecated("as.vaccination.calendar")
-    new.vacc.cal<-matrix(rep(0,123*21),ncol=21)
-
-    LR.cov<-as.numeric(coverage[1:7])
-    HR.cov<-as.numeric(coverage[8:14])
-
-    #October
-    for(j in 1:31)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[2],6),uptake[3],rep(uptake[2],6),uptake[3],rep(uptake[2],6),uptake[3])/(31*100)  
-    #November
-    for(j in 32:61)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3],rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3],rep(uptake[4]-uptake[2],6),uptake[5]-uptake[3])/(30*100)
-    #December
-    for(j in 62:92)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5],rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5],rep(uptake[6]-uptake[4],6),uptake[7]-uptake[5])/(31*100)
-    #Januari
-    for(j in 93:123)
-        new.vacc.cal[j,]<-c(LR.cov,HR.cov,LR.cov)*c(rep(100-uptake[6],6),100-uptake[7],rep(100-uptake[6],6),100-uptake[7],rep(100-uptake[6],6),100-uptake[7])/(31*100)
-
-    cal <- list( "efficacy"=efficacy, "calendar"=new.vacc.cal )
-    cal
-}
-
 #' Function to read legacy file format for vaccine calendar
 #'
 #' @param file The file to load
@@ -136,9 +53,10 @@ read.legacy.vaccine.file <- function( file )
 #' @param no_risk_groups The total number of risk groups (optional)
 #' @param no_age_groups The total number of age groups (optional)
 #' @param starting_year The year of the start of the season. Only used when passed a legacy file
+#' @seealso \url{http://blackedder.github.io/flu-evidence-synthesis/vaccination.html}
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
-as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
+as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
   if (!is.null(legacy))
   {
     # We are dealing with a legacy object
@@ -238,6 +156,126 @@ as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     vc$calendar <- as.matrix(diff.coverage)/as.double(diff.dates)
     # Note that if passed data we can recursively call it with the legacy argument to 
     # normalize the result
-    return(as.vaccination.calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
+    return(as_vaccination_calendar(legacy = vc, no_risk_groups = no_risk_groups, no_age_groups = no_age_groups))
+  }
+}
+
+#' Calculate number of influenza cases given a vaccination strategy
+#'
+#' @param vaccine_calendar A vaccine calendar valid for that year
+#' @param parameters The parameters to use. Both a vector or a data frame with each row a set of parameters 
+#' (e.g. a batch of inferred parameters by adaptive_mcmc$batch) are accepted.
+#' @param contact_ids Optional: The contact_ids used to infer the contact matrix. Similar to the \code{parameters} this can be a
+#' vector or a data frame.
+#' @param incidence_function An optional function that takes a \code{vaccine_calendar}, \code{parameters} and optionally
+#' \code{contact_ids} and returns the incidence over time. If none is provided then the default
+#' \code{infectionODEs} is used. In that case both \code{polymod_data} and \code{demography} data need to be
+#' provided as well.
+#' @param time_column An optional time column that will be removed from the data returned by the incidence_function
+#' @param ... Further parameters that will be passed to the \code{incidence_function}
+#' @param verbose Whether to display warnings. Default is TRUE.
+#' 
+#' @seealso \code{\link{infectionODEs}}
+#' 
+#' @return The total incidence in a year per age and risk group
+vaccination_scenario <- function(vaccine_calendar, parameters,  
+                                 contact_ids, incidence_function,
+                                 time_column, ..., verbose = T) {
+  if (missing(incidence_function)) {
+    var_names <- names(sys.call())
+    if (!"polymod_data" %in% var_names) {
+      stop("No polymod_data set provided")
+    } else {
+      polymod_data <- eval(match.call()[["polymod_data"]])
+    }
+    if (missing(contact_ids)) {
+      stop("No contact_ids set provided")
+    }
+    if (!"demography" %in% var_names) {
+      stop("No demography provided, i.e. a vector with population size by age (starting at age is zero)")
+    } else {
+      demography <- eval(match.call()[["demography"]])
+    }
+    time_column = "Time"
+    incidence_function <- function(vaccine_calendar, parameters, contact_ids, ...) {
+      if (!"age_group_limits" %in% var_names) {
+        if (verbose)
+          warning("Missing age_group_limits, using default: c(1,5,15,25,45,65)")
+        age_group_limits <- c(1,5,15,25,45,65)
+      } else {
+        age_group_limits <- eval(match.call()[["age_group_limits"]])
+      }
+      contacts <- contact_matrix(as.matrix(polymod_data[contact_ids,]),
+                                 demography, age_group_limits )
+      
+      age.groups <- stratify_by_age( demography, 
+                                     age_group_limits )
+      
+      # Fraction of each age group classified as high risk
+      # We can classify a third risk group, but we are not doing
+      # that here (the second row is 0 in our risk.ratios matrix)
+      if (!"risk_ratios" %in% var_names) {
+        if (verbose)
+          warning("Missing risk_ratios, using default UK based values")
+        risk_ratios <- matrix(c(
+          0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+          0, 0, 0, 0, 0, 0, 0                          
+        ), ncol = 7, byrow = T)
+      } else {
+        risk_ratios <- eval(match.call()[["risk_ratios"]])
+      }
+      
+      # Population sizes in each age and risk group
+      popv <- stratify_by_risk(
+        age.groups, risk_ratios );
+      
+      # Population size initially infected by age and risk group
+      initial.infected <- rep( 10^parameters[9], 7 ) 
+      initial.infected <- stratify_by_risk(
+        initial.infected, risk_ratios );
+      
+      # Run simulation
+      # Note that to reduce complexity 
+      # we are using the same susceptibility parameter for multiple age groups
+      infectionODEs(popv, initial.infected,
+                    vaccine_calendar,
+                    contacts,
+                    c(parameters[6], parameters[6], parameters[6],
+                      parameters[7], parameters[7], parameters[7], parameters[8]),
+                    transmissibility = parameters[5],
+                    c(0.8,1.8), 7)
+    }
+  }
+ 
+  # One set of parameters
+  if (is.null(nrow(parameters))) {
+    if (missing(contact_ids)) {
+      result <- incidence_function(vaccine_calendar, parameters, ...)
+    } else {
+      result <- incidence_function(vaccine_calendar, parameters, contact_ids, ...)
+    }
+    if (!missing(time_column) && !is.null(time_column))
+      result[[time_column]] <- NULL
+    return(colSums(result))
+  } else {
+    # Table of parameters and optionally contact_ids
+    if (missing(time_column))
+      time_column <- NULL
+    if (missing(contact_ids)) {
+      return(apply(parameters, 1, function(pars) 
+        vaccination_scenario(parameters = pars, vaccine_calendar = vaccine_calendar,
+                             incidence_function = incidence_function, 
+                             time_column = time_column, ...)
+        ))
+    } else {
+      pc <- cbind(parameters, contact_ids)
+      return(t(apply(pc, 1, function(pars_contacts) 
+        vaccination_scenario(parameters = pars_contacts[1:ncol(parameters)], 
+                             contact_ids = pars_contacts[(ncol(parameters)+1):length(pars_contacts)],
+                             vaccine_calendar = vaccine_calendar,
+                             incidence_function = incidence_function, 
+                             time_column = time_column, ...))
+        ))
+    }
   }
 }

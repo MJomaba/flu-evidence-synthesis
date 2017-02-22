@@ -1,11 +1,27 @@
 context("Contacts")
 
-test_that("We can create a contact matrix", 
-  {
+test_that("We can create a contact matrix using deprecated contact.matrix", {
       data(age_sizes)
       data(polymod_uk)
       age.group.limits <- c( 1,5,15,25,45,65 )
-      cm <- contact.matrix( as.matrix(polymod_uk), age_sizes[,1], 
+      expect_warning(cm <- contact.matrix( as.matrix(polymod_uk), age_sizes[,1], 
+                           age.group.limits ))
+      expect_lt( sum(cm), 7.06338e-06 + 1e-8 )
+      expect_gt( sum(cm), 7.06338e-06 - 1e-8 )
+      for (i in 1:nrow(cm))
+        for (j in 1:nrow(cm))
+          expect_equal( cm[i,j], cm[j,i])
+
+      expect_warning(cm2 <- contact.matrix( as.matrix(polymod_uk), age_sizes[,1] ))
+      expect_identical( cm, cm2 )
+  }
+)
+
+test_that("We can create a contact matrix", {
+      data(age_sizes)
+      data(polymod_uk)
+      age.group.limits <- c( 1,5,15,25,45,65 )
+      cm <- contact_matrix( as.matrix(polymod_uk), age_sizes[,1], 
                            age.group.limits )
       expect_lt( sum(cm), 7.06338e-06 + 1e-8 )
       expect_gt( sum(cm), 7.06338e-06 - 1e-8 )
@@ -13,11 +29,10 @@ test_that("We can create a contact matrix",
         for (j in 1:nrow(cm))
           expect_equal( cm[i,j], cm[j,i])
 
-      cm2 <- contact.matrix( as.matrix(polymod_uk), age_sizes[,1] )
+      cm2 <- contact_matrix( as.matrix(polymod_uk), age_sizes[,1] )
       expect_identical( cm, cm2 )
   }
 )
-
 
 test_that("We can use custom age limits", 
   {
@@ -28,7 +43,7 @@ test_that("We can use custom age limits",
                         25, 1, 2, 6 ), nrow = 4, byrow= TRUE)
 
       age.group.limits <- c( 15 )
-      cm <- contact.matrix( poly, age_sizes[,1], 
+      cm <- contact_matrix( poly, age_sizes[,1], 
                            age.group.limits )
       expect_equal( nrow(cm), 2 )
       expect_equal( ncol(cm), 2 )

@@ -22,5 +22,9 @@ vaccinationScenario(age_sizes, vaccine_calendar, polymod_data, contact_ids,
 A data frame with the total number of influenza cases in that year
 }
 \description{
-Calculate number of influenza cases given a vaccination strategy
+Superseded by \code{vaccination_scenario}
 }
+\seealso{
+\code{\link{vaccination_scenario}}
+}
+\keyword{internal}

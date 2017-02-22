@@ -13,11 +13,18 @@ namespace flu {
 
 //' Calculate number of influenza cases given a vaccination strategy
 //'
+//' @description Superseded by \code{vaccination_scenario}
+//'
 //' @param age_sizes A vector with the population size by each age {1,2,..}
 //' @param vaccine_calendar A vaccine calendar valid for that year
 //' @param polymod_data Contact data for different age groups
 //' @param contact_ids IDs (row numbers) of the contact data used when modelling this scenario 
 //' @param parameters The parameters to use
+//' 
+//' @keywords internal
+//'
+//' @seealso \code{\link{vaccination_scenario}}
+//' 
 //' @return A data frame with the total number of influenza cases in that year
 //'
 // [[Rcpp::export]]
@@ -25,6 +32,7 @@ std::vector<double> vaccinationScenario( std::vector<size_t> age_sizes,
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data, std::vector<size_t> contact_ids,
         Eigen::VectorXd parameters ) {
+    ::Rf_warning("\'vaccinationScenario\' is deprecated\nUse \'vaccination_scenario\' instead.\nSee help(Deprecated).");
 
     std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
     auto age_data = flu::data::group_age_data( age_sizes, age_group_limits );

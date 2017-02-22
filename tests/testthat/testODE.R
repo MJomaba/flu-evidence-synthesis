@@ -252,7 +252,7 @@ test_that("We can set population sizes etc with infectionODEs", {
 
     odes <- infectionODEs( popv, initial.infected,
                             test.vac,
-                            contact.matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
+                            contact_matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
                             mcmcsample$parameters$susceptibility,
                             mcmcsample$parameters$transmissibility,
                             c(0.8,1.8), 1 )
@@ -323,7 +323,7 @@ test_that("infectionODEs works correctly with different interval", {
     # Need to separate into age groups... 
     odes <- infectionODEs( popv, initial.infected,
                             test.vac,
-                            contact.matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
+                            contact_matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
                             mcmcsample$parameters$susceptibility,
                             mcmcsample$parameters$transmissibility,
                             c(0.8,1.8), 7 )
@@ -397,7 +397,7 @@ test_that("Second risk group works as expected", {
     # Need to separate into age groups... 
     odes <- infectionODEs( popv, initial.infected,
                             test.vac,
-                            contact.matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
+                            contact_matrix( as.matrix(polymod_uk[mcmcsample$contact_ids+1,]), age_sizes[,1], c(1,5,15,25,45,65) ),
                             mcmcsample$parameters$susceptibility,
                             mcmcsample$parameters$transmissibility,
                             c(0.8,1.8), 1 )
@@ -457,7 +457,7 @@ test_that("infectionODEs works with less than 3 risk groups", {
     poly <- polymod_uk[,c(1,2,3,9)]
     poly[,3] <- rowSums(polymod_uk[,3:8])
 
-    contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+    contacts <- contact_matrix(as.matrix(poly), age_sizes$V1, c(65))
     susceptibility <- c( 0.7, 0.3 ) # Different for different ages
     transmissibility <- 0.17 # Same for all ages
     infection_delays <- c( 0.8, 1.8 ) # 0.8 and 1.8 day.

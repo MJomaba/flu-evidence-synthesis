@@ -450,25 +450,25 @@ Rcpp::List adaptiveMCMCR(
 //' Create a contact matrix based on polymod data.
 //'
 //' @param polymod_data Contact data for different age groups
-//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param demography A vector with the population size by each age {0,1,2,..}
 //' @param age_group_limits The upper limits of the different age groups (by default: c(1,5,15,25,45,65), which corresponds to age groups: <1, 1-14, 15-24, 25-44, 45-64, >=65.
 //'
 //' @return Returns a symmetric matrix with the frequency of contact between each age group
 //'
-// [[Rcpp::export(name="contact.matrix")]]
+// [[Rcpp::export]]
 Eigen::MatrixXd contact_matrix(  
         Eigen::MatrixXi polymod_data,
-        std::vector<size_t> age_sizes,
+        std::vector<size_t> demography,
         Rcpp::NumericVector age_group_limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
 {
     
     flu::data::age_data_t age_data;
-    age_data.age_sizes = age_sizes;
+    age_data.age_sizes = demography;
 
     auto agl_v = std::vector<size_t>( 
                 age_group_limits.begin(), age_group_limits.end() );
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes, agl_v );
+    age_data.age_group_sizes = flu::data::group_age_data( demography, agl_v );
 
     return flu::contacts::to_symmetric_matrix( 
             flu::contacts::table_to_contacts(polymod_data, agl_v), 
@@ -484,7 +484,7 @@ Eigen::MatrixXd contact_matrix(
 //'
 //' @return An integer representing the age group
 //'
-// [[Rcpp::export(name="as.age.group")]]
+// [[Rcpp::export]]
 size_t as_age_group( size_t age,
         Rcpp::NumericVector limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
@@ -546,20 +546,21 @@ Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
 //'
 //' @param transmission_rate The transmission rate of the disease
 //' @param contaxt_matrix The contact matrix between age groups
-//' @param population The population size of the different age groups
+//' @param age_groups The population size of the different age groups
 //' @param duration Duration of the infectious period. Default value is 1.8 days
 //'
 //' @return Returns the R0
 // [[Rcpp::export]]
-double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population,
+double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd age_groups,
         double duration = 1.8) {
     //auto evs = (contact_matrix*population).eigenvalues();
     //return transmission_rate*evs.maxCoeff()*duration;
-    assert(contact_matrix.cols() == population.size());
+    if (contact_matrix.cols() != age_groups.size())
+        ::Rf_error("Number of age groups should be equal to the dimensions of the contact_matrix");
     auto a = contact_matrix;
     for (size_t i = 0; i < a.rows(); ++i) {
         for (size_t j = 0; j < a.cols(); ++j) {
-            a(i,j) = contact_matrix(i,j)*population[j];
+            a(i,j) = contact_matrix(i,j)*age_groups[j];
         }
     }
 
