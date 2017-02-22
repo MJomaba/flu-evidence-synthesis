@@ -28,4 +28,3 @@ stat_ci(mapping = NULL, data = NULL, geom = "polygon",
 \description{
 Will draw credibitlity intervals with different colours for each interval
 }
-

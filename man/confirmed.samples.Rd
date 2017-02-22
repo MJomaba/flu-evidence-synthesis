@@ -16,4 +16,3 @@ confirmed.samples
 Generally only for a fraction of the Influenza-like illness cases an actual (blood) sample is taken to confirm whether/which strain the subject is infected with.
 }
 \keyword{datasets}
-

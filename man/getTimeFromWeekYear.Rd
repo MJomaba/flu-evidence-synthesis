@@ -17,4 +17,3 @@ The date of the Monday in that week
 \description{
 Convert given week in given year into an exact date corresponding to the Monday of that week
 }
-

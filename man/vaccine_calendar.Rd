@@ -12,4 +12,3 @@ vaccine_calendar
 Vaccination uptake rate for the UK in 1999
 }
 \keyword{datasets}
-

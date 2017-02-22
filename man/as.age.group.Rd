@@ -17,4 +17,3 @@ An integer representing the age group
 \description{
 Returns the age group a certain age belongs to given the upper age group limits
 }
-

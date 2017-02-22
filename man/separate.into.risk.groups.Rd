@@ -17,4 +17,3 @@ A vector with the population in the low risk groups, followed by the other risk 
 \description{
 Superseded by stratify_by_risk function
 }
-

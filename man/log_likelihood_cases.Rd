@@ -27,4 +27,3 @@ log_likelihood_cases(epsilon, psi, predicted, population_size, ili_cases,
 \description{
 The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function sum the log likelihood for the predicted cases for each week and age group given the data on reported Influenza Like Illnesses and confirmed samples.
 }
-

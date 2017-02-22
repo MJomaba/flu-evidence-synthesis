@@ -22,4 +22,3 @@ Returns a data.frame in long format, with for each time point, interval, column.
 This function is useful to convert the mcmc results into credible intervals, which is needed for plotting
 your results. Calls aggregateModel to aggregate the results by the passed intervals.
 }
-

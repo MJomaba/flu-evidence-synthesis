@@ -36,4 +36,3 @@ Run the SEIR model for the given parameters
 \seealso{
 \code{\link{infectionODEs.cpp}} Used internally by this function.
 }
-

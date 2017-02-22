@@ -12,4 +12,3 @@ coverage
 Data on vaccine coverage during the 2007-08 season
 }
 \keyword{datasets}
-

@@ -30,4 +30,3 @@ A data frame with number of new cases after each interval during the year
 \description{
 Run the SEIR model for the given parameters
 }
-

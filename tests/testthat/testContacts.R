@@ -39,3 +39,18 @@ test_that("We can use custom age limits",
   }
 )
 
+test_that("We can convert transmission_rate into R0 and opposite", {
+    cm <- matrix(c(2, 0.1, 0.1, 1)/100, nrow = 2)
+    pv <- c(50, 50)
+    base <- as_R0(1, cm, pv)
+    expect_equal(2*base, as_R0(1, cm, c(100,100), 1.8))
+    expect_equal(2*base, as_R0(2, cm, c(50,50), 1.8))
+    expect_equal(2*base, as_R0(1, cm, c(50,50), 2*1.8))
+    expect_gt(as_R0(1, cm, c(150,50), 1.8), 2*base)
+    expect_lt(as_R0(1, cm, c(50,150), 1.8), 2*base)
+    
+    # Calculate backwards
+    expect_equal(as_transmission_rate(as_R0(1, cm, c(50,50), 1.8), cm, c(50,50), 1.8), 1)
+  }
+)
+

@@ -20,4 +20,3 @@ Returns a symmetric matrix with the frequency of contact between each age group
 \description{
 Create a contact matrix based on polymod data.
 }
-

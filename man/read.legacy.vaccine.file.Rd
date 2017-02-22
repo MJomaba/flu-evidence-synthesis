@@ -15,4 +15,3 @@ A list that contains the \code{calendar} and \code{efficacy} of the vaccine for 
 \description{
 Function to read legacy file format for vaccine calendar
 }
-

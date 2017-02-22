@@ -501,8 +501,6 @@ size_t as_age_group( size_t age,
     return ag;
 }
 
-
-
 //' @title Stratify the population by age
 //'
 //' @description Stratifies the population and returns the population size of each age group.
@@ -536,4 +534,66 @@ Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
         Eigen::MatrixXd risk )
 {
     return flu::data::separate_into_risk_groups( age_groups, risk );
+}
+
+//' @title Calculate R0 from transmission rate
+//'
+//' @description Uses the transmission rate (\eqn{\lambda}), contact matrix (\eqn{c}), population (\eqn{N}), and infectious period (\eqn{\gamma}) 
+//' to calculate the R0 using the following equation.
+//' \deqn{\lambda max(EV(C)) \gamma}
+//' where \eqn{EV(C)} denotes the eigenvalues of the matrix \eqn{C} which is calculated from the contact matrix and the population 
+//' (\eqn{C[i,j] = c[i,j] N[j]}).
+//'
+//' @param transmission_rate The transmission rate of the disease
+//' @param contaxt_matrix The contact matrix between age groups
+//' @param population The population size of the different age groups
+//' @param duration Duration of the infectious period. Default value is 1.8 days
+//'
+//' @return Returns the R0
+// [[Rcpp::export]]
+double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population,
+        double duration = 1.8) {
+    //auto evs = (contact_matrix*population).eigenvalues();
+    //return transmission_rate*evs.maxCoeff()*duration;
+    assert(contact_matrix.cols() == population.size());
+    auto a = contact_matrix;
+    for (size_t i = 0; i < a.rows(); ++i) {
+        for (size_t j = 0; j < a.cols(); ++j) {
+            a(i,j) = contact_matrix(i,j)*population[j];
+        }
+    }
+
+    auto evs = a.eigenvalues().real().maxCoeff();
+    return transmission_rate*evs*duration;
+}
+
+//' @title Calculate transmission rate from R0 
+//'
+//' @description Uses the R0 (\eqn{R0}), contact matrix (\eqn{c}), population (\eqn{N}), and infectious period (\eqn{\gamma}) 
+//' to calculate the transmission rate using the following equation.
+//' \deqn{R0/(max(EV(C)) \gamma)}
+//' where \eqn{EV(C)} denotes the eigenvalues of the matrix \eqn{C} which is calculated from the contact matrix and the population 
+//' (\eqn{C[i,j] = c[i,j] N[j]}).
+//'
+//' @param R0 The R0 of the disease
+//' @param contaxt_matrix The contact matrix between age groups
+//' @param population The population size of the different age groups
+//' @param duration Duration of the infectious period. Default value is 1.8 days
+//'
+//' @return Returns the transmission rate 
+// [[Rcpp::export]]
+double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population,
+        double duration = 1.8) {
+    //auto evs = (contact_matrix*population).eigenvalues();
+    //return transmission_rate*evs.maxCoeff()*duration;
+    assert(contact_matrix.cols() == population.size());
+    auto a = contact_matrix;
+    for (size_t i = 0; i < a.rows(); ++i) {
+        for (size_t j = 0; j < a.cols(); ++j) {
+            a(i,j) = contact_matrix(i,j)*population[j];
+        }
+    }
+
+    auto evs = a.eigenvalues().real().maxCoeff();
+    return R0/(evs*duration);
 }

@@ -17,4 +17,3 @@ A vector with the population in the low risk groups, followed by the other risk 
 \description{
 Stratifies the age groups and returns the population size of each age group and risk group.
 }
-

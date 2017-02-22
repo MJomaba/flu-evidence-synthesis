@@ -12,4 +12,3 @@ StatCI
 Converts the data to show a polygon
 }
 \keyword{datasets}
-
