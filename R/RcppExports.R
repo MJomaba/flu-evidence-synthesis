@@ -276,12 +276,12 @@ as_R0 <- function(transmission_rate, contact_matrix, age_groups, duration = 1.8)
 #'
 #' @param R0 The R0 of the disease
 #' @param contaxt_matrix The contact matrix between age groups
-#' @param population The population size of the different age groups
+#' @param age_groups The population size of the different age groups
 #' @param duration Duration of the infectious period. Default value is 1.8 days
 #'
 #' @return Returns the transmission rate 
-as_transmission_rate <- function(R0, contact_matrix, population, duration = 1.8) {
-    .Call('fluEvidenceSynthesis_as_transmission_rate', PACKAGE = 'fluEvidenceSynthesis', R0, contact_matrix, population, duration)
+as_transmission_rate <- function(R0, contact_matrix, age_groups, duration = 1.8) {
+    .Call('fluEvidenceSynthesis_as_transmission_rate', PACKAGE = 'fluEvidenceSynthesis', R0, contact_matrix, age_groups, duration)
 }
 
 #' Calculate number of influenza cases given a vaccination strategy

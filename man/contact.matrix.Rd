@@ -18,6 +18,6 @@ contact.matrix(polymod_data, age_sizes, age_group_limits = c(1, 5, 15, 25, 45,
 Returns a symmetric matrix with the frequency of contact between each age group
 }
 \description{
-Create a contact matrix based on polymod data.
+Renamed to contact_matrix for consistency in naming
 }
 \keyword{internal}

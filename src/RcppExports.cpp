@@ -281,16 +281,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // as_transmission_rate
-double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population, double duration);
-RcppExport SEXP fluEvidenceSynthesis_as_transmission_rate(SEXP R0SEXP, SEXP contact_matrixSEXP, SEXP populationSEXP, SEXP durationSEXP) {
+double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::VectorXd age_groups, double duration);
+RcppExport SEXP fluEvidenceSynthesis_as_transmission_rate(SEXP R0SEXP, SEXP contact_matrixSEXP, SEXP age_groupsSEXP, SEXP durationSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type contact_matrix(contact_matrixSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type population(populationSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type age_groups(age_groupsSEXP);
     Rcpp::traits::input_parameter< double >::type duration(durationSEXP);
-    rcpp_result_gen = Rcpp::wrap(as_transmission_rate(R0, contact_matrix, population, duration));
+    rcpp_result_gen = Rcpp::wrap(as_transmission_rate(R0, contact_matrix, age_groups, duration));
     return rcpp_result_gen;
 END_RCPP
 }

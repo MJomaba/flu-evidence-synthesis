@@ -4,13 +4,13 @@
 \alias{vaccine_doses}
 \title{Calculate number of vaccine doses needed based on vaccine calendar}
 \usage{
-vaccine_doses(vaccination_calendar, population)
+vaccine_doses(vaccination_calendar, age_risk_groups)
 }
 \arguments{
 \item{vaccination_calendar}{The vaccination calendar. This object should have the same layout as a 
 vaccination_calendar returned by \code{\link{as.vaccination.calendar}}.}
 
-\item{population}{A vector with the size of the population in each age and risk group}
+\item{age_risk_groups}{A vector with the size of the population in each age and risk group}
 }
 \value{
 The number of doses by age and risk group.
