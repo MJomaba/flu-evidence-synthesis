@@ -578,20 +578,20 @@ double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::Ve
 //'
 //' @param R0 The R0 of the disease
 //' @param contaxt_matrix The contact matrix between age groups
-//' @param population The population size of the different age groups
+//' @param age_groups The population size of the different age groups
 //' @param duration Duration of the infectious period. Default value is 1.8 days
 //'
 //' @return Returns the transmission rate 
 // [[Rcpp::export]]
-double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::VectorXd population,
+double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::VectorXd age_groups,
         double duration = 1.8) {
     //auto evs = (contact_matrix*population).eigenvalues();
     //return transmission_rate*evs.maxCoeff()*duration;
-    assert(contact_matrix.cols() == population.size());
+    assert(contact_matrix.cols() == age_groups.size());
     auto a = contact_matrix;
     for (size_t i = 0; i < a.rows(); ++i) {
         for (size_t j = 0; j < a.cols(); ++j) {
-            a(i,j) = contact_matrix(i,j)*population[j];
+            a(i,j) = contact_matrix(i,j)*age_groups[j];
         }
     }
 
