@@ -244,15 +244,15 @@ First we setup the demographic and vaccination data. For further details on this
 
 ```{r setup_data, cache = TRUE}
 library(fluEvidenceSynthesis)
-data(age_sizes)
-ag <- stratify_by_age(age_sizes$V1, limits = c(65))
+data(demography)
+ag <- stratify_by_age(demography, limits = c(65))
 
 population <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
 
 ag <- c(1000, 1000)
 initial.infected <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
 
-vaccine_calendar <- as.vaccination.calendar(
+vaccine_calendar <- as_vaccination_calendar(
   efficacy = c(0.7, 0.3),
   coverage = as.data.frame(matrix(c(0, 0, 0, 0, 0, 0.861, 0.123, 0.861), nrow = 2, byrow = TRUE)),
   dates = c(as.Date("2010-10-01"), as.Date("2011-02-01")),
@@ -261,11 +261,10 @@ vaccine_calendar <- as.vaccination.calendar(
 )
 
 data(polymod_uk)
-data(age_sizes)
 poly <- polymod_uk[, c(1, 2, 3, 9)]
 poly[,3] <- rowSums(polymod_uk[, 3:8])
 
-contacts <- contact.matrix(as.matrix(poly), age_sizes$V1, c(65))
+contacts <- contact_matrix(as.matrix(poly), demography, c(65))
 ```
 
 Next we run our model using the newly defined `infection_odin` function and plot the result. Note the differences in the y axis scale. The low risk age group below 65 (`Age1Risk1`) has the largest population and also the largest incidence level.

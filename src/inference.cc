@@ -21,7 +21,7 @@ using namespace flu;
 
 //' MCMC based inference of the parameter values given the different data sets
 //'
-//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param demography A vector with the population size by each age {1,2,..}
 //' @param ili The number of Influenza-like illness cases per week
 //' @param mon_pop The number of people monitored for ili
 //' @param n_pos The number of positive samples for the given strain (per week)
@@ -36,7 +36,7 @@ using namespace flu;
 //' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 //'
 // [[Rcpp::export]]
-mcmc_result_inference_t inference( std::vector<size_t> age_sizes, 
+mcmc_result_inference_t inference( std::vector<size_t> demography, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
@@ -61,8 +61,8 @@ mcmc_result_inference_t inference( std::vector<size_t> age_sizes,
     std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
 
     flu::data::age_data_t age_data;
-    age_data.age_sizes = age_sizes;
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes,
+    age_data.age_sizes = demography;
+    age_data.age_group_sizes = flu::data::group_age_data( demography,
             age_group_limits );
 
     Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
@@ -298,7 +298,7 @@ double dmultinomialCPP( Eigen::VectorXi x, int size, Eigen::VectorXd prob,
 
 //' MCMC based inference of the parameter values given the different data sets based on multiple strains
 //'
-//' @param age_sizes A vector with the population size by each age {1,2,..}
+//' @param demography A vector with the population size by each age {1,2,..}
 //' @param ili The number of Influenza-like illness cases per week
 //' @param mon_pop The number of people monitored for ili
 //' @param n_pos The number of positive samples per strain (per week)
@@ -314,7 +314,7 @@ double dmultinomialCPP( Eigen::VectorXi x, int size, Eigen::VectorXd prob,
 //'
 // [[Rcpp::export]]
 mcmc_result_inference_t inference_multistrains( 
-        std::vector<size_t> age_sizes, 
+        std::vector<size_t> demography, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Rcpp::List n_pos, Eigen::MatrixXi n_samples, 
         Rcpp::List vaccine_calendar,
@@ -350,8 +350,8 @@ mcmc_result_inference_t inference_multistrains(
     std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
 
     flu::data::age_data_t age_data;
-    age_data.age_sizes = age_sizes;
-    age_data.age_group_sizes = flu::data::group_age_data( age_sizes,
+    age_data.age_sizes = demography;
+    age_data.age_group_sizes = flu::data::group_age_data( demography,
             age_group_limits );
 
     Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 

@@ -3,7 +3,7 @@
 
 #' MCMC based inference of the parameter values given the different data sets
 #'
-#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param demography A vector with the population size by each age {1,2,..}
 #' @param ili The number of Influenza-like illness cases per week
 #' @param mon_pop The number of people monitored for ili
 #' @param n_pos The number of positive samples for the given strain (per week)
@@ -17,8 +17,8 @@
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-inference <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L) {
-    .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
+inference <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L) {
+    .Call('fluEvidenceSynthesis_inference', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
 }
 
 #' Probability density function for multinomial distribution
@@ -36,7 +36,7 @@ dmultinom.cpp <- function(x, size, prob, use_log = FALSE) {
 
 #' MCMC based inference of the parameter values given the different data sets based on multiple strains
 #'
-#' @param age_sizes A vector with the population size by each age {1,2,..}
+#' @param demography A vector with the population size by each age {1,2,..}
 #' @param ili The number of Influenza-like illness cases per week
 #' @param mon_pop The number of people monitored for ili
 #' @param n_pos The number of positive samples per strain (per week)
@@ -50,8 +50,8 @@ dmultinom.cpp <- function(x, size, prob, use_log = FALSE) {
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-inference_multistrains <- function(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L) {
-    .Call('fluEvidenceSynthesis_inference_multistrains', PACKAGE = 'fluEvidenceSynthesis', age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
+inference_multistrains <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L) {
+    .Call('fluEvidenceSynthesis_inference_multistrains', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
 }
 
 #' Update means when a new posterior sample is calculated

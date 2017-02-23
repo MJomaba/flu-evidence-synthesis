@@ -225,6 +225,9 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
         risk_ratios <- eval(match.call()[["risk_ratios"]])
       }
       
+      # Only print warnings on first use of the function
+      verbose <<- F
+      
       # Population sizes in each age and risk group
       popv <- stratify_by_risk(
         age.groups, risk_ratios );

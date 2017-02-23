@@ -96,7 +96,7 @@ vaccine.calendar <- function( coverage, efficacy, uptake )
 #' @return A list that contains the \code{calendar} and \code{efficacy} of the vaccine for that year
 #'
 as.vaccination.calendar <- function(efficacy = NULL, dates = NULL, coverage = NULL, legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL, starting_year = NULL) {
-  .Deprecated("as_age_group")
+  .Deprecated("as_vaccination_calendar")
   as_vaccination_calendar(efficacy, dates, coverage, legacy, no_risk_groups, 
                           no_age_groups, starting_year)
 }
