@@ -246,7 +246,7 @@ library(ggplot2)
 colnames(inference.results$batch) <- c("eps1", "eps2", "eps3", "psi", "q",
                                        "susc1", "susc2", "susc3", "I0")
 
-ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales="free" ) + geom_histogram(aes(x=value,factor=Var2), bins=25)
+ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales="free" ) + geom_histogram(aes(x=value), bins=25)
 
 ```
 
@@ -311,7 +311,7 @@ cim <- credible.interval.model(ode.results, inference.results$batch, intervals=c
 cim$row.ID <- as.Date(as.character(cim$row.ID)) 
 
 ggplot( data=cim ) + facet_wrap( ~ column.ID, ncol=3, scales="free" ) +
-  stat_ci( aes(row.ID,value,ci=aggregate, factor=column.ID) ) +
+  stat_ci( aes(row.ID,value, ci = aggregate) ) +
   xlab("Time") + ylab("New infections")
 ```
 
