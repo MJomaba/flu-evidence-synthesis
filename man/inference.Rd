@@ -4,11 +4,11 @@
 \alias{inference}
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
-inference(age_sizes, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
+inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
   polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L)
 }
 \arguments{
-\item{age_sizes}{A vector with the population size by each age {1,2,..}}
+\item{demography}{A vector with the population size by each age {1,2,..}}
 
 \item{ili}{The number of Influenza-like illness cases per week}
 

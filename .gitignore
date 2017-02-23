@@ -27,3 +27,4 @@ symbols.rds
 *_files/
 .Rproj.user
 inst/doc
+.build.timestamp

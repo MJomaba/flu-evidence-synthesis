@@ -38,7 +38,7 @@ This example first loads the data and then runs the inference function which ret
 
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
-data("age_sizes")
+data("demography")
 data("vaccine_calendar")
 data("polymod_uk")
 data("ili")
@@ -51,21 +51,21 @@ initial.parameters <- c(0.01188150, 0.01831852, 0.05434378,
                         0.3855279, 0.9269811, 0.5710709,
                         -0.1543508 )
 
-inference.results <- inference( age_sizes=age_sizes$V1,
-                      vaccine_calendar=vaccine_calendar,
-                      polymod_data=as.matrix(polymod_uk),
-                      ili=ili$ili,
-                      mon_pop=ili$total.monitored,
-                      n_pos=confirmed.samples$positive,
-                      n_samples=confirmed.samples$total.samples,
+inference.results <- inference(demography = demography,
+                      vaccine_calendar = vaccine_calendar,
+                      polymod_data = as.matrix(polymod_uk),
+                      ili = ili$ili,
+                      mon_pop = ili$total.monitored,
+                      n_pos = confirmed.samples$positive,
+                      n_samples = confirmed.samples$total.samples,
                       initial = initial.parameters,
-                      nbatch=1000,
-                      nburn=1000, blen=10 )
+                      nbatch = 1000,
+                      nburn = 1000, blen = 10 )
 ```
 
 The data used for the inference is:
 
-age_sizes
+demography
   ~ Vector of population sizes of a certain age. First element is everyone below 1, second every below 2 etc. The final entry will be interpreted as everyone of that age or higher (needs to be higher than 65).
   
 vaccine_calendar
@@ -126,14 +126,14 @@ proposed.contact.ids <- current.contact.ids
 build.llikelihood <- function()
 {
   # Load all the data
-  data("age_sizes")
+  data("demography")
   data("vaccine_calendar")
   data("polymod_uk")
   data("ili")
   data("confirmed.samples")
   
   # Sum all populations with a certain age into their corresponding age group
-  age.group.sizes.5 <- stratify_by_age(age_sizes$V1,c(5,15,45,65))
+  age.group.sizes.5 <- stratify_by_age(demography, c(5,15,45,65))
  
   # Define the actual log likelihood function
   llikelihood.f <- function( pars )
@@ -147,10 +147,10 @@ build.llikelihood <- function()
     }
 
     age.group.limits <- c(1,5,15,25,45,65)
-    contacts <- contact.matrix(as.matrix(polymod_uk[proposed.contact.ids,]),
-                               age_sizes[,1], age.group.limits )
+    contacts <- contact_matrix(as.matrix(polymod_uk[proposed.contact.ids,]),
+                               demography, age.group.limits )
 
-    age.groups <- stratify_by_age( age_sizes[,1], 
+    age.groups <- stratify_by_age(demography, 
                                            age.group.limits )
 
     # Fraction of each age group classified as high risk
@@ -263,13 +263,13 @@ library(ggplot2)
 # has todo with loading the correct inputs for the ODE model
 ode.results <- function( pars ) 
 {
-  data("age_sizes")
+  data("demography")
   
   age.group.limits <- c(1,5,15,25,45,65)
-  contacts <- contact.matrix(as.matrix(polymod_uk),
-                             age_sizes[,1], age.group.limits )
+  contacts <- contact_matrix(as.matrix(polymod_uk),
+                             demography, age.group.limits )
   
-  age.groups <- stratify_by_age(age_sizes[,1], age.group.limits)
+  age.groups <- stratify_by_age(demography, age.group.limits)
   
   # Fraction of each age group classified as high risk
   # We can classify a third risk group, but we are not doing

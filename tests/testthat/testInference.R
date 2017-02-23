@@ -9,7 +9,7 @@ test_that("Likelihood function returns the correct value",
 
           skip(".infection.model not available (hidden)")
       }
-      data("age_sizes")
+      data("demography")
       data("vaccine_calendar")
       data("polymod_uk")
       data("mcmcsample")
@@ -18,9 +18,9 @@ test_that("Likelihood function returns the correct value",
 
       week <- 18
       age.group <- 3
-      population <- sum(age_sizes$V1[16:45]) # age group 3 is from 16 to 45
+      population <- sum(demography[16:45]) # age group 3 is from 16 to 45
 
-      inf.model <- .infection.model(age_sizes$V1,vaccine_calendar,
+      inf.model <- .infection.model(demography,vaccine_calendar,
                                    as.matrix(polymod_uk[mcmcsample$contact_ids+1,]),
                                    mcmcsample$parameters$susceptibility,
                                    mcmcsample$parameters$transmissibility,
@@ -48,7 +48,7 @@ test_that("Likelihood function returns the correct value",
 test_that("We can run inference", 
   {
       library(moments)
-      data("age_sizes")
+      data("demography")
       data("vaccine_calendar")
       data("polymod_uk")
       data("ili")
@@ -57,7 +57,7 @@ test_that("We can run inference",
       expect_equal( length(vaccine_calendar$efficacy), 7 )
 
       set.seed(100)
-      results <- inference( age_sizes=age_sizes$V1,
+      results <- inference(demography = demography,
                            vaccine_calendar=vaccine_calendar,
                            polymod_data=as.matrix(polymod_uk),
                            initial=c(0.01188150,0.01831852,0.05434378,
