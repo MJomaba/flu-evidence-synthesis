@@ -25,6 +25,21 @@ test_that("We can pass a list to public_health_outcome",
   }
 )
 
+test_that("We can pass a table of incidences to public_health_outcome", 
+  {
+    res <- public_health_outcome(2, matrix(c(9,10, 3, 4), byrow = T, nrow = 2))
+    expect_equal(res[1,], c(18, 20))
+    expect_equal(res[2,], c(6, 8))
+    
+    res <- public_health_outcome(list("gp" = 2, "hosp" = c(2, 3)), 
+                                 matrix(c(9, 10, 3, 4), byrow = T, nrow = 2))
+    expect_equal(names(res), c("gp", "hosp"))
+    expect_equal(res$gp[1,], c(18, 20))
+    expect_equal(res$gp[2,], c(6, 8))
+    expect_equal(res$hosp[1,], c(18, 30))
+    expect_equal(res$hosp[2,], c(6, 12))
+  }
+)
 
 test_that("We can calculate final coverage from a vaccination calendar", 
   {

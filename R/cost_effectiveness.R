@@ -1,4 +1,10 @@
 .proportion_by_group <- function(proportion, incidence, no_risk_groups = NULL, no_age_groups = NULL) {
+  if (length(dim(incidence)) == 2) {
+   #browser()
+    return(t(apply(incidence, 1, function(row) 
+      .proportion_by_group(proportion, row, no_risk_groups, no_age_groups))))
+  }
+  #browser()
   if (length(proportion) == 1 || length(proportion) == length(incidence))
     return(proportion*incidence)
   if (is.null(no_risk_groups) && is.null(no_age_groups)) {
