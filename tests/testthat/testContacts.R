@@ -69,3 +69,21 @@ test_that("We can convert transmission_rate into R0 and opposite", {
   }
 )
 
+test_that("We can create a contact matrix using ages higher than 90", {
+      data(demography)
+      data(polymod_uk)
+      age.group.limits <- c( 1,5,15,25,45,65 )
+      orig_cm <- contact_matrix( as.matrix(polymod_uk), demography, 
+                           age.group.limits )
+      
+      dim <- length(demography)
+      demography <- c(demography[1:(dim-1)], 
+                      rep((demography[dim]-demography[80])/9, 10))
+      demography[93] <- demography[80]
+      
+      polymod_uk[nrow(polymod_uk),1] <- 92
+      cm <- contact_matrix( as.matrix(polymod_uk), demography, 
+                            age.group.limits )
+      expect_lt(abs(orig_cm[7,7]-cm[7,7]), 1e-10)
+  }
+)
