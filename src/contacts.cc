@@ -35,7 +35,7 @@ namespace flu
             contacts_t shuffled_c;
 
             /*translate into an initial infected population*/
-            for(size_t i=0;i<90;i++)
+            for(size_t i=0;i<150;i++)
                 shuffled_c.ni[i]=0;
             shuffled_c.nwe=0;
             for(size_t i=0; i<sorted_c.contacts.size(); i++)
@@ -113,7 +113,7 @@ namespace flu
 
             contacts_t c;
 
-            for(size_t i=0; i<90; i++)
+            for(size_t i=0; i<150; i++)
                 c.ni[i]=0;
 
             c.nwe=0;

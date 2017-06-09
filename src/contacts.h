@@ -31,7 +31,7 @@ namespace flu {
             std::vector<contact_t> contacts;
 
             /// Total number of participants of each age group
-            int ni[90];
+            int ni[150];
 
             /// Total amount of contact data for weekend
             size_t nwe;
