@@ -115,71 +115,65 @@ To perform parameter inference we first need to define a function that returns t
 - Convert the model results from 7 age groups to 5 age to match the structure of the ILI and confirmation data (which is subdivided into 5 age groups)
 - Calculate the likelihood of the converted model results given the ILI and confirmation data
 
+Following these steps we can implement our custom inference function as follows:
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
 
-# This is to keep track of the bootstrapped contact results
-current.contact.ids <- seq(1,nrow(polymod_uk))
-proposed.contact.ids <- current.contact.ids
-
-# Load the data and return the log likelihood function given the data
-build.llikelihood <- function()
-{
-  # Load all the data
-  data("demography")
-  data("vaccine_calendar")
-  data("polymod_uk")
-  data("ili")
-  data("confirmed.samples")
+# The custom inference function. In this example the custom inference function 
+# performs exactly the same inference as the original C++ function (above). 
+# It is up to the user to change this in a way that works for their analysis.
+custom_inference <- function(demography, vaccine_calendar, polymod_data, ili, 
+                             mon_pop, n_pos, n_samples, initial, 
+                             nbatch, nburn, blen) {
+  current.contact.ids <- seq(1,nrow(polymod_uk))
+  proposed.contact.ids <- current.contact.ids
   
   # Sum all populations with a certain age into their corresponding age group
   age.group.sizes.5 <- stratify_by_age(demography, c(5,15,45,65))
- 
+  
   # Define the actual log likelihood function
-  llikelihood.f <- function( pars )
-  {
-    
+  llikelihood <- function( pars ) {
     # Resample contact ids 
     proposed.contact.ids <<- current.contact.ids
     if (runif(1,0,1) < 0.1) {
       rs <- round(runif(2,1,length(proposed.contact.ids)))
       proposed.contact.ids[rs[1]] <<- rs[2]
     }
-
+    
     age.group.limits <- c(1,5,15,25,45,65)
     contacts <- contact_matrix(as.matrix(polymod_uk[proposed.contact.ids,]),
                                demography, age.group.limits )
-
+    
     age.groups <- stratify_by_age(demography, 
-                                           age.group.limits )
-
+                                  age.group.limits )
+    
     # Fraction of each age group classified as high risk
     # We can classify a third risk group, but we are not doing
     # that here (the second row is 0 in our risk.ratios matrix)
     risk.ratios <- matrix(c(
-                             0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-                             0, 0, 0, 0, 0, 0, 0                          
-                             ), ncol = 7, byrow = T)
-
+      0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+      0, 0, 0, 0, 0, 0, 0                          
+    ), ncol = 7, byrow = T)
+    
     # Population sizes in each age and risk group
     popv <- stratify_by_risk(
-                     age.groups, risk.ratios );
-
+      age.groups, risk.ratios );
+    
     # Population size initially infected by age and risk group
     initial.infected <- rep( 10^pars[9], 7 ) 
     initial.infected <- stratify_by_risk(
       initial.infected, risk.ratios );
-
+    
     # Run simulation
     # Note that to reduce complexity 
     # we are using the same susceptibility parameter for multiple age groups
     odes <- infectionODEs( popv, initial.infected,
-                          vaccine_calendar,
-                          contacts,
-                          c(pars[6], pars[6], pars[6],
-                            pars[7], pars[7], pars[7], pars[8]),
-                          transmissibility = pars[5],
-                          c(0.8,1.8), 7 )
+                           vaccine_calendar,
+                           contacts,
+                           c(pars[6], pars[6], pars[6],
+                             pars[7], pars[7], pars[7], pars[8]),
+                           transmissibility = pars[5],
+                           c(0.8,1.8), 7 )
     
     # Ignore times row
     odes <- odes[,2:22]
@@ -196,44 +190,56 @@ build.llikelihood <- function()
     # For each week and each group sum log likelihood
     epsilons <- c(pars[1], pars[1], pars[2], pars[2], pars[3])
     ll <- log_likelihood_cases(
-            epsilons,pars[4], as.matrix(converted.odes),
-            age.group.sizes.5, ili$ili, ili$total.monitored,
-            confirmed.samples$positive, confirmed.samples$total.samples )
+      epsilons,pars[4], as.matrix(converted.odes),
+      age.group.sizes.5, ili, mon_pop,
+      n_pos, n_samples)
     return(ll)
   }
-  return(llikelihood.f)
-}
-
-llprior <- function(pars) {
-  if (any(pars[1:8] < 0) || any(pars[1:4] > 1) || any(pars[6:8] > 1)
-      || pars[9] < log(0.00001) || pars[9] > log(10) )
-    return(-Inf)
+  llprior <- function(pars) {
+    if (any(pars[1:8] < 0) || any(pars[1:4] > 1) || any(pars[6:8] > 1)
+        || pars[9] < log(0.00001) || pars[9] > log(10) )
+      return(-Inf)
+    
+    lprob <- dnorm(pars[5], 0.1653183, 0.02773053, 1)
+    lprob <- lprob + dlnorm(pars[1], -4.493789, 0.2860455, 1)
+    lprob <- lprob + dlnorm(pars[2], -4.117028, 0.4751615, 1)
+    lprob <- lprob + dlnorm(pars[3], -2.977965, 1.331832, 1)
+    
+    return(lprob)
+  }
   
-  lprob <- dnorm(pars[5], 0.1653183, 0.02773053, 1)
-  lprob <- lprob + dlnorm(pars[1], -4.493789, 0.2860455, 1)
-  lprob <- lprob + dlnorm(pars[2], -4.117028, 0.4751615, 1)
-  lprob <- lprob + dlnorm(pars[3], -2.977965, 1.331832, 1)
+  # Store the contact ids used during inference
+  contact.ids <- list()
   
-  return(lprob)
+  # Run adaptive.mcmc
+  mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood, 
+                               outfun = function() { 
+                                 contact.ids[[length(contact.ids)+1]] <<-  current.contact.ids
+                               },
+                               acceptfun = function() {
+                                 current.contact.ids <<- proposed.contact.ids
+                               },
+                               nburn = nburn, 
+                               initial = initial,
+                               nbatch = nbatch, blen = blen)
+  mcmc.result$contact.ids <- t(data.frame(contact.ids))
+  mcmc.result
 }
+```
 
-init.pars <- c(0.01188150,0.01831852, 0.05434378, 1.049317e-05, 0.1657944,
-                       0.3855279, 0.9269811, 0.5710709, -0.1543508)
-llikelihood <- build.llikelihood()
+The resulting custom inference function can be called similarly to the original inference function.
 
-# Store the contact ids used during inference
-contact.ids <- list()
-# Run adaptive.mcmc
-mcmc.result <- adaptive.mcmc(lprior = llprior, llikelihood = llikelihood, 
-               outfun = function() { 
-                 contact.ids[[length(contact.ids)+1]] <<-  current.contact.ids
-               },
-               acceptfun = function() {
-                 current.contact.ids <<- proposed.contact.ids
-               },
-               nburn = 100, 
-               initial = init.pars,
-               nbatch = 100, blen = 10)
+```{r,cache=T}
+inference.results <- custom_inference(demography = demography,
+                      vaccine_calendar = vaccine_calendar,
+                      polymod_data = as.matrix(polymod_uk),
+                      ili = ili$ili,
+                      mon_pop = ili$total.monitored,
+                      n_pos = confirmed.samples$positive,
+                      n_samples = confirmed.samples$total.samples,
+                      initial = initial.parameters,
+                      nbatch = 1000,
+                      nburn = 1000, blen = 10 )
 ```
 
 # Analysing the results
