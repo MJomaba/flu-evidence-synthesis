@@ -310,52 +310,27 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP fluEvidenceSynthesis_adaptiveMCMCR(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_dmultinomialCPP(SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_infectionODEs(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_log_likelihood(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_runPredatorPrey(SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_runPredatorPreySimple(SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_runSEIRModel(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_separate_into_age_groups(SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_separate_into_risk_groups(SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_total_log_likelihood(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_updateCovariance(SEXP, SEXP, SEXP, SEXP);
-RcppExport SEXP fluEvidenceSynthesis_updateMeans(SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"fluEvidenceSynthesis_inference", (DL_FUNC) &fluEvidenceSynthesis_inference, 11},
-    {"fluEvidenceSynthesis_dmultinom.cpp", (DL_FUNC) &fluEvidenceSynthesis_dmultinom.cpp, 4},
+    {"fluEvidenceSynthesis_dmultinomialCPP", (DL_FUNC) &fluEvidenceSynthesis_dmultinomialCPP, 4},
     {"fluEvidenceSynthesis_inference_multistrains", (DL_FUNC) &fluEvidenceSynthesis_inference_multistrains, 11},
-    {"fluEvidenceSynthesis_.updateMeans", (DL_FUNC) &fluEvidenceSynthesis_.updateMeans, 3},
-    {"fluEvidenceSynthesis_.updateCovariance", (DL_FUNC) &fluEvidenceSynthesis_.updateCovariance, 4},
+    {"fluEvidenceSynthesis_updateMeans", (DL_FUNC) &fluEvidenceSynthesis_updateMeans, 3},
+    {"fluEvidenceSynthesis_updateCovariance", (DL_FUNC) &fluEvidenceSynthesis_updateCovariance, 4},
     {"fluEvidenceSynthesis_getTimeFromWeekYear", (DL_FUNC) &fluEvidenceSynthesis_getTimeFromWeekYear, 2},
-    {"fluEvidenceSynthesis_.infection.model", (DL_FUNC) &fluEvidenceSynthesis_.infection.model, 8},
-    {"fluEvidenceSynthesis_infectionODEs.cpp", (DL_FUNC) &fluEvidenceSynthesis_infectionODEs.cpp, 8},
-    {"fluEvidenceSynthesis_.log_likelihood_cases", (DL_FUNC) &fluEvidenceSynthesis_.log_likelihood_cases, 8},
-    {"fluEvidenceSynthesis_log_likelihood_cases", (DL_FUNC) &fluEvidenceSynthesis_log_likelihood_cases, 8},
-    {"fluEvidenceSynthesis_.runRKF", (DL_FUNC) &fluEvidenceSynthesis_.runRKF, 2},
-    {"fluEvidenceSynthesis_.runStep", (DL_FUNC) &fluEvidenceSynthesis_.runStep, 2},
-    {"fluEvidenceSynthesis_adaptive.mcmc.cpp", (DL_FUNC) &fluEvidenceSynthesis_adaptive.mcmc.cpp, 9},
+    {"fluEvidenceSynthesis_runSEIRModel", (DL_FUNC) &fluEvidenceSynthesis_runSEIRModel, 8},
+    {"fluEvidenceSynthesis_infectionODEs", (DL_FUNC) &fluEvidenceSynthesis_infectionODEs, 8},
+    {"fluEvidenceSynthesis_log_likelihood", (DL_FUNC) &fluEvidenceSynthesis_log_likelihood, 8},
+    {"fluEvidenceSynthesis_total_log_likelihood", (DL_FUNC) &fluEvidenceSynthesis_total_log_likelihood, 8},
+    {"fluEvidenceSynthesis_runPredatorPrey", (DL_FUNC) &fluEvidenceSynthesis_runPredatorPrey, 2},
+    {"fluEvidenceSynthesis_runPredatorPreySimple", (DL_FUNC) &fluEvidenceSynthesis_runPredatorPreySimple, 2},
+    {"fluEvidenceSynthesis_adaptiveMCMCR", (DL_FUNC) &fluEvidenceSynthesis_adaptiveMCMCR, 9},
     {"fluEvidenceSynthesis_contact_matrix", (DL_FUNC) &fluEvidenceSynthesis_contact_matrix, 3},
     {"fluEvidenceSynthesis_as_age_group", (DL_FUNC) &fluEvidenceSynthesis_as_age_group, 2},
-    {"fluEvidenceSynthesis_stratify_by_age", (DL_FUNC) &fluEvidenceSynthesis_stratify_by_age, 2},
-    {"fluEvidenceSynthesis_stratify_by_risk", (DL_FUNC) &fluEvidenceSynthesis_stratify_by_risk, 2},
+    {"fluEvidenceSynthesis_separate_into_age_groups", (DL_FUNC) &fluEvidenceSynthesis_separate_into_age_groups, 2},
+    {"fluEvidenceSynthesis_separate_into_risk_groups", (DL_FUNC) &fluEvidenceSynthesis_separate_into_risk_groups, 2},
     {"fluEvidenceSynthesis_as_R0", (DL_FUNC) &fluEvidenceSynthesis_as_R0, 4},
     {"fluEvidenceSynthesis_as_transmission_rate", (DL_FUNC) &fluEvidenceSynthesis_as_transmission_rate, 4},
     {"fluEvidenceSynthesis_vaccinationScenario", (DL_FUNC) &fluEvidenceSynthesis_vaccinationScenario, 5},
-    {"fluEvidenceSynthesis_adaptiveMCMCR",             (DL_FUNC) &fluEvidenceSynthesis_adaptiveMCMCR,              9},
-    {"fluEvidenceSynthesis_dmultinomialCPP",           (DL_FUNC) &fluEvidenceSynthesis_dmultinomialCPP,            4},
-    {"fluEvidenceSynthesis_infectionODEs",             (DL_FUNC) &fluEvidenceSynthesis_infectionODEs,              8},
-    {"fluEvidenceSynthesis_log_likelihood",            (DL_FUNC) &fluEvidenceSynthesis_log_likelihood,             8},
-    {"fluEvidenceSynthesis_runPredatorPrey",           (DL_FUNC) &fluEvidenceSynthesis_runPredatorPrey,            2},
-    {"fluEvidenceSynthesis_runPredatorPreySimple",     (DL_FUNC) &fluEvidenceSynthesis_runPredatorPreySimple,      2},
-    {"fluEvidenceSynthesis_runSEIRModel",              (DL_FUNC) &fluEvidenceSynthesis_runSEIRModel,               8},
-    {"fluEvidenceSynthesis_separate_into_age_groups",  (DL_FUNC) &fluEvidenceSynthesis_separate_into_age_groups,   2},
-    {"fluEvidenceSynthesis_separate_into_risk_groups", (DL_FUNC) &fluEvidenceSynthesis_separate_into_risk_groups,  2},
-    {"fluEvidenceSynthesis_total_log_likelihood",      (DL_FUNC) &fluEvidenceSynthesis_total_log_likelihood,       8},
-    {"fluEvidenceSynthesis_updateCovariance",          (DL_FUNC) &fluEvidenceSynthesis_updateCovariance,           4},
-    {"fluEvidenceSynthesis_updateMeans",               (DL_FUNC) &fluEvidenceSynthesis_updateMeans,                3},
     {NULL, NULL, 0}
 };
 
