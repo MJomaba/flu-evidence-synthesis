@@ -231,12 +231,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // as_age_group
-size_t as_age_group(size_t age, Rcpp::NumericVector limits);
+Rcpp::IntegerVector as_age_group(Rcpp::NumericVector age, Rcpp::NumericVector limits);
 RcppExport SEXP fluEvidenceSynthesis_as_age_group(SEXP ageSEXP, SEXP limitsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type age(ageSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type age(ageSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type limits(limitsSEXP);
     rcpp_result_gen = Rcpp::wrap(as_age_group(age, limits));
     return rcpp_result_gen;

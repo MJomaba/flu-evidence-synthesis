@@ -475,17 +475,7 @@ Eigen::MatrixXd contact_matrix(
             age_data );
 }
 
-//' Age as age group
-//'
-//' @description Returns the age group a certain age belongs to given the upper age group limits 
-//'
-//' @param age The relevant age 
-//' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
-//'
-//' @return An integer representing the age group
-//'
-// [[Rcpp::export]]
-size_t as_age_group( size_t age,
+size_t as_age_group_index( size_t age,
         Rcpp::NumericVector limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
 {
@@ -499,6 +489,52 @@ size_t as_age_group( size_t age,
         group_barriers.pop_front();
     }
     return ag;
+}
+
+//' Age as age group
+//'
+//' @description Returns the age group a certain age belongs to given the upper age group limits 
+//'
+//' @param age The relevant age. This can be a vector.
+//' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
+//'
+//' @return Factors representing the age group(s)
+//'
+// [[Rcpp::export]]
+Rcpp::IntegerVector as_age_group( Rcpp::NumericVector age,
+        Rcpp::NumericVector limits = Rcpp::NumericVector::create(
+            1, 5, 15, 25, 45, 65 ) )
+{
+    Rcpp::IntegerVector out;
+    // Create levels
+    Rcpp::CharacterVector lvls;
+    for (auto i = 0; i <= limits.size(); ++i) {
+        if (i == 0) {
+            Rcpp::String str("[0,");
+            str += limits[i];
+            str += ")";
+            lvls.push_back(str);
+        } else if (i == limits.size()) {
+            Rcpp::String str("[");
+            str += limits[i-1];
+            str += ",+)";
+            lvls.push_back(str);
+        } else {
+            Rcpp::String str("[");
+            str += limits[i-1];
+            str += ",";
+            str += limits[i];
+            str += ")";
+            lvls.push_back(str);
+        }
+    }
+
+    // Map to indexes
+    for (auto &&ag : age)
+        out.push_back(as_age_group_index(ag, limits));
+    out.attr("class") = "factor";
+    out.attr("levels") = lvls;
+    return out;
 }
 
 //' @title Stratify the population by age

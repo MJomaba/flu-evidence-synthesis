@@ -216,7 +216,7 @@ contact_matrix <- function(polymod_data, demography, age_group_limits = as.numer
 #' @param age The relevant age 
 #' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
 #'
-#' @return An integer representing the age group
+#' @return Factors representing the age groups
 #'
 as_age_group <- function(age, limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
     .Call('fluEvidenceSynthesis_as_age_group', PACKAGE = 'fluEvidenceSynthesis', age, limits)
