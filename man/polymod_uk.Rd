@@ -6,9 +6,9 @@
 \title{Polymod contact data for the UK}
 \format{Data frame containing all polymod data for the UK
 \describe{
-   \item{V1}{Age of the subject}
-   \item{V2}{Data taken in the weekend (1) or during the week (0)}
-   \item{V3-V9}{Number of contacts with persons from the different age groups}
+   \item{Age}{Age of the subject}
+   \item{Weekend}{Data taken in the weekend (1) or during the week (0)}
+   \item{...}{Number of contacts with individuals from the age groups}
 }}
 \usage{
 polymod_uk
