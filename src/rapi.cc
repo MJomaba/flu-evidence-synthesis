@@ -491,23 +491,19 @@ size_t as_age_group_index( size_t age,
     return ag;
 }
 
-//' Age as age group
+//' Create age group level description based on passed upper limits
 //'
-//' @description Returns the age group a certain age belongs to given the upper age group limits 
+//' @description Returns a vector of age group levels given the upper age group limits. These levels can be used as the named levels in a factor
 //'
-//' @param age The relevant age. This can be a vector.
 //' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
 //'
-//' @return Factors representing the age group(s)
+//' @return Vector representing the age group(s)
 //'
 // [[Rcpp::export]]
-Rcpp::IntegerVector as_age_group( Rcpp::NumericVector age,
-        Rcpp::NumericVector limits = Rcpp::NumericVector::create(
-            1, 5, 15, 25, 45, 65 ) )
-{
-    Rcpp::IntegerVector out;
-    // Create levels
+Rcpp::CharacterVector age_group_levels(Rcpp::NumericVector limits = Rcpp::NumericVector::create(
+            1, 5, 15, 25, 45, 65 )) {
     Rcpp::CharacterVector lvls;
+    // Create levels
     for (auto i = 0; i <= limits.size(); ++i) {
         if (i == 0) {
             Rcpp::String str("[0,");
@@ -528,6 +524,26 @@ Rcpp::IntegerVector as_age_group( Rcpp::NumericVector age,
             lvls.push_back(str);
         }
     }
+
+    return lvls;
+}
+
+//' Age as age group
+//'
+//' @description Returns the age group a certain age belongs to given the upper age group limits 
+//'
+//' @param age The relevant age. This can be a vector.
+//' @param limits The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.
+//'
+//' @return Factors representing the age group(s)
+//'
+// [[Rcpp::export]]
+Rcpp::IntegerVector as_age_group( Rcpp::NumericVector age,
+        Rcpp::NumericVector limits = Rcpp::NumericVector::create(
+            1, 5, 15, 25, 45, 65 ) )
+{
+    Rcpp::IntegerVector out;
+    Rcpp::CharacterVector lvls = age_group_levels(limits);
 
     // Map to indexes
     for (auto &&ag : age)

@@ -50,5 +50,5 @@ test_that("We can map age groups", {
   mp <- age_group_mapping(c(1,5), c(3), demography = c(100, 200, 400, 800, 1600, 3200))
   expect_identical(as.numeric(mp$from), c(1, 2, 2, 3))
   expect_identical(as.numeric(mp$to), c(1, 1, 2, 2))
-  expect_identical(mp$weight, c(1, 600/(600+2400), 2400/(600+2400), 1, 1))
+  expect_identical(mp$weight, c(1, 600/(600+2400), 2400/(600+2400), 1))
 })

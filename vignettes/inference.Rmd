@@ -123,13 +123,19 @@ library(fluEvidenceSynthesis)
 # performs exactly the same inference as the original C++ function (above). 
 # It is up to the user to change this in a way that works for their analysis.
 custom_inference <- function(demography, vaccine_calendar, polymod_data, ili, 
-                             mon_pop, n_pos, n_samples, initial, 
+                             mon_pop, n_pos, n_samples, initial, mapping,
                              nbatch, nburn, blen) {
   current.contact.ids <- seq(1,nrow(polymod_uk))
   proposed.contact.ids <- current.contact.ids
   
+  # Seven age groups used in the model
+  age.group.limits <- c(1,5,15,25,45,65)
+  
   # Sum all populations with a certain age into their corresponding age group
   age.group.sizes.5 <- stratify_by_age(demography, c(5,15,45,65))
+  
+  if (missing(mapping))
+    mapping <- age_group_mapping(age.group.limits, c(5,15,45,65))
   
   # Define the actual log likelihood function
   llikelihood <- function( pars ) {
@@ -140,7 +146,6 @@ custom_inference <- function(demography, vaccine_calendar, polymod_data, ili,
       proposed.contact.ids[rs[1]] <<- rs[2]
     }
     
-    age.group.limits <- c(1,5,15,25,45,65)
     contacts <- contact_matrix(as.matrix(polymod_uk[proposed.contact.ids,]),
                                demography, age.group.limits )
     
@@ -179,13 +184,14 @@ custom_inference <- function(demography, vaccine_calendar, polymod_data, ili,
     odes <- odes[,2:22]
     
     # Convert the 7 age groups for each risk group to 5 groups
-    converted.odes <- odes
-    converted.odes[,1] <- rowSums(odes[,c(1,2,8,9,15,16)])
-    converted.odes[,2] <- rowSums(odes[,c(3,10,17)])
-    converted.odes[,3] <- rowSums(odes[,c(4,5,11,12,18,19)])
-    converted.odes[,4] <- rowSums(odes[,c(6,13,20)])
-    converted.odes[,5] <- rowSums(odes[,c(7,14,21)])
-    converted.odes <- converted.odes[,1:5]
+    from <- as.numeric(mapping$from)
+    to <- as.numeric(mapping$to)
+    converted.odes <- matrix(0, nrow = nrow(odes), ncol = max(to))
+    for (i in 1:nrow(mapping)) {
+      # all three age groups
+      fv <- c(0,7,14) + from[i]
+      converted.odes[,to[i]] <- converted.odes[,to[i]] + mapping$weight[i]*rowSums(odes[,fv]) 
+    }
     
     # For each week and each group sum log likelihood
     epsilons <- c(pars[1], pars[1], pars[2], pars[2], pars[3])

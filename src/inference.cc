@@ -21,7 +21,7 @@ using namespace flu;
 
 //' MCMC based inference of the parameter values given the different data sets
 //'
-//' @param demography A vector with the population size by each age {1,2,..}
+//' @param demography A vector with the population size by each age {0,1,..}
 //' @param ili The number of Influenza-like illness cases per week
 //' @param mon_pop The number of people monitored for ili
 //' @param n_pos The number of positive samples for the given strain (per week)
@@ -29,19 +29,21 @@ using namespace flu;
 //' @param vaccine_calendar A vaccine calendar valid for that year
 //' @param polymod_data Contact data for different age groups
 //' @param initial Vector with starting parameter values
+//' @param mapping Age group mapping from model age groups to data age groups
 //' @param nburn Number of iterations of burn in
 //' @param nbatch Number of batches to run (number of samples to return)
 //' @param blen Length of each batch
 //' 
 //' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 //'
-// [[Rcpp::export]]
-mcmc_result_inference_t inference( std::vector<size_t> demography, 
+// [[Rcpp::export(name="inference_cpp")]]
+mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data,
-        Eigen::VectorXd initial, 
+        Eigen::VectorXd initial,
+        Rcpp::DataFrame mapping,
         size_t nburn = 0,
         size_t nbatch = 1000, size_t blen = 1 )
 {

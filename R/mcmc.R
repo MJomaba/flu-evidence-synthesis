@@ -30,6 +30,35 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
                     acceptfun, nburn, initial, nbatch, blen, verbose)
 }
 
+
+#' MCMC based inference of the parameter values given the different data sets
+#'
+#' @param demography A vector with the population size by each age {0,1,..}
+#' @param ili The number of Influenza-like illness cases per week
+#' @param mon_pop The number of people monitored for ili
+#' @param n_pos The number of positive samples for the given strain (per week)
+#' @param n_samples The total number of samples tested 
+#' @param vaccine_calendar A vaccine calendar valid for that year
+#' @param polymod_data Contact data for different age groups
+#' @param initial Vector with starting parameter values
+#' @param mapping Optional age group mapping from model age groups to data age groups
+#' @param nburn Number of iterations of burn in
+#' @param nbatch Number of batches to run (number of samples to return)
+#' @param blen Length of each batch
+#' 
+#' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
+#'
+#' @export
+inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
+        vaccine_calendar, polymod_data, initial, mapping,
+        nburn = 0, nbatch = 1000, blen = 1 )
+{
+  if (missing(mapping))
+    mapping <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+  inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
+               nburn, nbatch, blen)
+}
+
 #' Aggregate model results at different time points
 #' 
 #' This function is useful to convert the mcmc results into aggregated results, such as mean, variance etc.

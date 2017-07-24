@@ -57,5 +57,7 @@ age_group_mapping <- function(from, to, demography) {
       warning("Invalid state in age_groups_mapping()")
     }
   }
-  data.frame(from = is, to = js, weight = weights)
+  data.frame(from = factor(is, labels = age_group_levels(from)), 
+             to = factor(js, labels = age_group_levels(to)), 
+             weight = weights)
 }
