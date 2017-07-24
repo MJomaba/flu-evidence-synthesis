@@ -4,7 +4,7 @@
 \alias{age_group_levels}
 \title{Create age group level description based on passed upper limits}
 \usage{
-age_group_levels(limits = as.numeric(c(1, 5, 15, 25, 45, 65)))
+age_group_levels(limits = as.numeric(c()))
 }
 \arguments{
 \item{limits}{The upper limit to each age groups (not included) (1,5,15,25,45,65) corresponds to the following age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64 and >=65.}

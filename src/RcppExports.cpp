@@ -8,8 +8,8 @@
 using namespace Rcpp;
 
 // inference_cpp
-mcmc_result_inference_t inference_cpp(std::vector<size_t> demography, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, size_t nburn, size_t nbatch, size_t blen);
-RcppExport SEXP _fluEvidenceSynthesis_inference_cpp(SEXP demographySEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
+mcmc_result_inference_t inference_cpp(std::vector<size_t> demography, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, Rcpp::DataFrame mapping, size_t nburn, size_t nbatch, size_t blen);
+RcppExport SEXP _fluEvidenceSynthesis_inference_cpp(SEXP demographySEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP mappingSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,10 +21,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type mapping(mappingSEXP);
     Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
     Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
     Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
-    rcpp_result_gen = Rcpp::wrap(inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen));
+    rcpp_result_gen = Rcpp::wrap(inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, nburn, nbatch, blen));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -241,6 +242,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// age_group_limits
+Rcpp::IntegerVector age_group_limits(std::vector<std::string> levels);
+RcppExport SEXP _fluEvidenceSynthesis_age_group_limits(SEXP levelsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type levels(levelsSEXP);
+    rcpp_result_gen = Rcpp::wrap(age_group_limits(levels));
+    return rcpp_result_gen;
+END_RCPP
+}
 // as_age_group
 Rcpp::IntegerVector as_age_group(Rcpp::NumericVector age, Rcpp::NumericVector limits);
 RcppExport SEXP _fluEvidenceSynthesis_as_age_group(SEXP ageSEXP, SEXP limitsSEXP) {
@@ -322,7 +334,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 11},
+    {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 12},
     {"_fluEvidenceSynthesis_dmultinomialCPP", (DL_FUNC) &_fluEvidenceSynthesis_dmultinomialCPP, 4},
     {"_fluEvidenceSynthesis_inference_multistrains", (DL_FUNC) &_fluEvidenceSynthesis_inference_multistrains, 11},
     {"_fluEvidenceSynthesis_updateMeans", (DL_FUNC) &_fluEvidenceSynthesis_updateMeans, 3},
@@ -337,6 +349,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_adaptiveMCMCR", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCR, 9},
     {"_fluEvidenceSynthesis_contact_matrix", (DL_FUNC) &_fluEvidenceSynthesis_contact_matrix, 3},
     {"_fluEvidenceSynthesis_age_group_levels", (DL_FUNC) &_fluEvidenceSynthesis_age_group_levels, 1},
+    {"_fluEvidenceSynthesis_age_group_limits", (DL_FUNC) &_fluEvidenceSynthesis_age_group_limits, 1},
     {"_fluEvidenceSynthesis_as_age_group", (DL_FUNC) &_fluEvidenceSynthesis_as_age_group, 2},
     {"_fluEvidenceSynthesis_separate_into_age_groups", (DL_FUNC) &_fluEvidenceSynthesis_separate_into_age_groups, 2},
     {"_fluEvidenceSynthesis_separate_into_risk_groups", (DL_FUNC) &_fluEvidenceSynthesis_separate_into_risk_groups, 2},

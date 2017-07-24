@@ -10,6 +10,18 @@ test_that("We can separate into risk groups",
 
   })
 
+test_that("We can convert limits into levels (factor labels)", {
+  expect_identical(age_group_levels(), c("[0,+)"))
+  expect_identical(age_group_levels(c(1)), c("[0,1)", "[1,+)"))
+  expect_identical(age_group_levels(c(15, 65)), c("[0,15)", "[15,65)", "[65,+)"))
+})
+
+test_that("We can convert levels into limits", {
+  expect_identical(as.integer(c()), age_group_limits(c("[0,+)")))
+  expect_identical(as.integer(c(1)), age_group_limits(c("[0,1)", "[1,+)")))
+  expect_identical(as.integer(c(15, 65)), age_group_limits(c("[0,15)", "[15,65)", "[65,+)")))
+})
+
 test_that("We can convert age to age group", {
   expect_equal(as.numeric(as_age_group( 6, c(1,5,10) )),3)
   expect_equal(as.numeric(as_age_group( 5, c(1,5,10) )),3)

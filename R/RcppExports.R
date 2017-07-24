@@ -11,14 +11,15 @@
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
 #' @param initial Vector with starting parameter values
+#' @param mapping Age group mapping from model age groups to data age groups
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-inference_cpp <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn = 0L, nbatch = 1000L, blen = 1L) {
-    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen)
+inference_cpp <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, nburn = 0L, nbatch = 1000L, blen = 1L) {
+    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, nburn, nbatch, blen)
 }
 
 #' Probability density function for multinomial distribution
@@ -217,8 +218,22 @@ contact_matrix <- function(polymod_data, demography, age_group_limits = as.numer
 #'
 #' @return Vector representing the age group(s)
 #'
-age_group_levels <- function(limits = as.numeric( c(             1, 5, 15, 25, 45, 65 ))) {
+age_group_levels <- function(limits = as.numeric( c())) {
     .Call('_fluEvidenceSynthesis_age_group_levels', PACKAGE = 'fluEvidenceSynthesis', limits)
+}
+
+#' Extract upper age group limits from age group level description
+#'
+#' @description Returns a vector of age group limits given the age group level descriptions. This is a helper function, which is essentially the reverse of \code{\link{age_group_levels}}.
+#'
+#' @param levels The levels representing each age groups.
+#'
+#' @return Vector representing the age group(s) limits
+#'
+#' @seealso \code{\link{age_group_levels}} For the reverse of this function.
+#'
+age_group_limits <- function(levels) {
+    .Call('_fluEvidenceSynthesis_age_group_limits', PACKAGE = 'fluEvidenceSynthesis', levels)
 }
 
 #' Age as age group

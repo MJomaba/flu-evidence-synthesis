@@ -1,4 +1,5 @@
 #include <boost/date_time.hpp>
+#include <regex>
 
 #include "rcppwrap.h"
 
@@ -500,14 +501,17 @@ size_t as_age_group_index( size_t age,
 //' @return Vector representing the age group(s)
 //'
 // [[Rcpp::export]]
-Rcpp::CharacterVector age_group_levels(Rcpp::NumericVector limits = Rcpp::NumericVector::create(
-            1, 5, 15, 25, 45, 65 )) {
+Rcpp::CharacterVector age_group_levels(Rcpp::NumericVector limits = Rcpp::NumericVector::create()) {
     Rcpp::CharacterVector lvls;
     // Create levels
     for (auto i = 0; i <= limits.size(); ++i) {
         if (i == 0) {
             Rcpp::String str("[0,");
-            str += limits[i];
+            if (limits.size() != 0) {
+                str += limits[i];
+            } else {
+                str += "+";
+            }
             str += ")";
             lvls.push_back(str);
         } else if (i == limits.size()) {
@@ -526,6 +530,32 @@ Rcpp::CharacterVector age_group_levels(Rcpp::NumericVector limits = Rcpp::Numeri
     }
 
     return lvls;
+}
+
+//' Extract upper age group limits from age group level description
+//'
+//' @description Returns a vector of age group limits given the age group level descriptions. This is a helper function, which is essentially the reverse of \code{\link{age_group_levels}}.
+//'
+//' @param levels The levels representing each age groups.
+//'
+//' @return Vector representing the age group(s) limits
+//'
+//' @seealso \code{\link{age_group_levels}} For the reverse of this function.
+//'
+// [[Rcpp::export]]
+Rcpp::IntegerVector age_group_limits(std::vector<std::string> levels) 
+{
+    //Rcpp::IntegerVector age_group_limits(Rcpp::CharacterVector levels) 
+    Rcpp::IntegerVector limits;
+
+    auto r = std::regex("\\d+,\\s*(\\d+)");
+    std::smatch match;
+    for(auto&& lvl : levels) {
+        if (regex_search(lvl, match, r)) {
+            limits.push_back(std::stoi(match[1]));
+        }
+    }
+    return limits;
 }
 
 //' Age as age group
