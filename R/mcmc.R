@@ -1,3 +1,5 @@
+#' importFrom dplyr "%>%"
+#' 
 #' Adaptive MCMC algorithm
 #'
 #' MCMC which adapts its proposal distribution for faster convergence following:
@@ -51,10 +53,26 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
         vaccine_calendar, polymod_data, initial, mapping,
-        nburn = 0, nbatch = 1000, blen = 1 )
+        risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
   if (missing(mapping))
     mapping <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+  if (missing(risk_ratios)) {
+    risk_ratios <- matrix(c(
+      0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+      0, 0, 0, 0, 0, 0, 0                          
+    ), ncol = 7, byrow = T)
+  }
+  if (class(risk_ratios) == "matrix") {
+    no_risk_groups <- nrow(risk_ratios) + 1
+    rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
+    risk_ratios <- data.frame(
+      AgeGroup = rep(mapping$from, no_risk_groups),
+      value = rv
+    ) %>% dplyr::group_by(AgeGroup) %>% dplyr::mutate(RiskGroup = factor(row_number())) %>%
+      ungroup()
+  }
+  
   .inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
                nburn, nbatch, blen)
 }
