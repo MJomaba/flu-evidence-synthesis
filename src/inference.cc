@@ -36,7 +36,7 @@ using namespace flu;
 //' 
 //' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 //'
-// [[Rcpp::export(name="inference_cpp")]]
+// [[Rcpp::export(name=".inference_cpp")]]
 mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, 
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 

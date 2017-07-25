@@ -19,7 +19,7 @@ test_that("We can convert limits into levels (factor labels)", {
 test_that("We can convert levels into limits", {
   expect_identical(as.integer(c()), age_group_limits(c("[0,+)")))
   expect_identical(as.integer(c(1)), age_group_limits(c("[0,1)", "[1,+)")))
-  expect_identical(as.integer(c(15, 65)), age_group_limits(c("[0,15)", "[15,65)", "[65,+)")))
+  expect_identical(as.integer(c(15, 65)), age_group_limits(c("[0,15)", "[15, 65)", "[65,+)")))
 })
 
 test_that("We can convert age to age group", {

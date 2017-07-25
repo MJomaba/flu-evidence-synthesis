@@ -548,13 +548,31 @@ Rcpp::IntegerVector age_group_limits(std::vector<std::string> levels)
     //Rcpp::IntegerVector age_group_limits(Rcpp::CharacterVector levels) 
     Rcpp::IntegerVector limits;
 
-    auto r = std::regex("\\d+,\\s*(\\d+)");
+    // Regex support is broken in gcc 4.8, so we will scan by hand
+    /*auto r = std::regex("\\d+,\\s*(\\d+)");
     std::smatch match;
     for(auto&& lvl : levels) {
         if (regex_search(lvl, match, r)) {
             limits.push_back(std::stoi(match[1]));
         }
     }
+    */
+
+    for(auto&& lvl : levels) {
+        if (lvl.length() > 1) {
+            std::string match;
+            for(int i = (int)lvl.length()-1; i >= 0; --i) {
+                if (isdigit(lvl[i])) {
+                    match = lvl[i] + match;
+                } if (lvl[i] == ',') {
+                    if(match.length() > 0)
+                        limits.push_back(std::stoi(match));
+                    break;
+                }
+            }
+        }
+    }
+
     return limits;
 }
 

@@ -55,7 +55,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
 {
   if (missing(mapping))
     mapping <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
-  inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
+  .inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
                nburn, nbatch, blen)
 }
 
