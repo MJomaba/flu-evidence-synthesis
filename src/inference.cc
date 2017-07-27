@@ -44,6 +44,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         Eigen::MatrixXi polymod_data,
         Eigen::VectorXd initial,
         Rcpp::DataFrame mapping,
+        Eigen::VectorXd risk_ratios,
+        size_t no_risk_groups,
         size_t nburn = 0,
         size_t nbatch = 1000, size_t blen = 1 )
 {
@@ -67,14 +69,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     age_data.age_group_sizes = flu::data::group_age_data( demography,
             age_group_limits );
 
-    Eigen::MatrixXd risk_proportions = Eigen::MatrixXd( 
-            2, age_data.age_group_sizes.size() );
-    risk_proportions << 
-        0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-        0, 0, 0, 0, 0, 0, 0;
-
-    auto pop_vec = flu::data::separate_into_risk_groups( 
-            age_data.age_group_sizes, risk_proportions  );
+    auto pop_vec = flu::data::stratify_by_risk( 
+            age_data.age_group_sizes, risk_ratios, no_risk_groups);
 
     /*pop RCGP*/
     pop_RCGP[0]=pop_vec[0]+pop_vec[1]+pop_vec[7]+pop_vec[8]+pop_vec[14]+pop_vec[15];
@@ -123,8 +119,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     auto time_latent = 0.8;
     auto time_infectious = 1.8;
 
-    auto result = one_year_SEIR_with_vaccination(pop_vec, 
-            curr_init_inf, 
+    auto result = infectionODE(pop_vec, 
+            flu::data::stratify_by_risk(curr_init_inf, risk_ratios, no_risk_groups),
             time_latent, time_infectious, 
             pars_to_susceptibility(curr_parameters),
             current_contact_regular, curr_parameters[4], 

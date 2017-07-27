@@ -67,14 +67,18 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     no_risk_groups <- nrow(risk_ratios) + 1
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     risk_ratios <- data.frame(
-      AgeGroup = rep(mapping$from, no_risk_groups),
+      AgeGroup = rep(unique(mapping$from), no_risk_groups),
       value = rv
     ) %>% dplyr::group_by(AgeGroup) %>% dplyr::mutate(RiskGroup = factor(row_number())) %>%
-      ungroup()
+      dplyr::ungroup()
+  } else if (class(risk_ratios) != "data.frame") {
+    risk_ratios <- data.frame(value = risk_ratios) 
   }
+  if (missing(no_risk_groups))
+    no_risk_groups <- nrow(risk_ratios)/unique(mapping$from)
   
   .inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
-               nburn, nbatch, blen)
+               risk_ratios$value, no_risk_groups, nburn, nbatch, blen)
 }
 
 #' Aggregate model results at different time points

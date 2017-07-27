@@ -18,8 +18,8 @@
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-.inference_cpp <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, nburn = 0L, nbatch = 1000L, blen = 1L) {
-    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, nburn, nbatch, blen)
+.inference_cpp <- function(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, no_risk_groups, nburn = 0L, nbatch = 1000L, blen = 1L) {
+    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, no_risk_groups, nburn, nbatch, blen)
 }
 
 #' Probability density function for multinomial distribution
@@ -271,8 +271,8 @@ stratify_by_age <- function(age_sizes, limits = as.numeric( c(             1, 5,
 #'
 #' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 #'
-stratify_by_risk <- function(age_groups, risk) {
-    .Call('_fluEvidenceSynthesis_separate_into_risk_groups', PACKAGE = 'fluEvidenceSynthesis', age_groups, risk)
+.stratify_by_risk <- function(age_groups, risk, no_risk_groups) {
+    .Call('_fluEvidenceSynthesis_stratify_by_risk', PACKAGE = 'fluEvidenceSynthesis', age_groups, risk, no_risk_groups)
 }
 
 #' @title Calculate R0 from transmission rate

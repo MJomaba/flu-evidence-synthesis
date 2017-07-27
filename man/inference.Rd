@@ -5,7 +5,8 @@
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
-  polymod_data, initial, mapping, nburn = 0, nbatch = 1000, blen = 1)
+  polymod_data, initial, mapping, risk_ratios, nburn = 0, nbatch = 1000,
+  blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}

@@ -43,6 +43,24 @@ namespace flu
 
                 return pop_vec;
             }
+
+        /** 
+         * \brief Separate the groups sizes into risk groups
+         */
+        template<class T>
+            Eigen::VectorXd stratify_by_risk( 
+                    const T &age_groups, const Eigen::VectorXd &risk, size_t no_risk_groups )
+            {
+                Eigen::VectorXd pop_vec(age_groups.size() * no_risk_groups);
+                for (auto i = 0; i < no_risk_groups; ++i) {
+                    for (auto j = 0; j < age_groups.size(); ++j) {
+                        auto id = j+age_groups.size()*i;
+                        pop_vec[id] = age_groups[j]*risk[id];
+                    }
+                }
+                return pop_vec;
+            }
+ 
         /**
          * \brief Group population size according to age groups
          */

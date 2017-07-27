@@ -629,11 +629,11 @@ Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
 //'
 //' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 //'
-// [[Rcpp::export(name="stratify_by_risk")]]
-Eigen::VectorXd separate_into_risk_groups( Eigen::VectorXd age_groups,
-        Eigen::MatrixXd risk )
+// [[Rcpp::export(name=".stratify_by_risk")]]
+Eigen::VectorXd stratify_by_risk( 
+        const Eigen::VectorXd &age_groups, const Eigen::VectorXd &risk, size_t no_risk_groups )
 {
-    return flu::data::separate_into_risk_groups( age_groups, risk );
+    return flu::data::stratify_by_risk(age_groups, risk, no_risk_groups);
 }
 
 //' @title Calculate R0 from transmission rate

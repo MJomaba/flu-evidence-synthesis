@@ -61,3 +61,34 @@ age_group_mapping <- function(from, to, demography) {
              to = factor(js, labels = age_group_levels(to)), 
              weight = weights)
 }
+
+#' @title Stratify age groups into different risk groups
+#' 
+#' @description Stratifies the age groups and returns the population size of each age group and risk group.
+#'
+#' @param age_groups A vector containing the population size of each age group
+#' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+#'
+#' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
+#'
+#' @export
+stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups)
+{
+  if (class(age_groups) != "data.frame")
+    age_groups <- data.frame(value = age_groups) %>%
+      dplyr::mutate(AgeGroup = row_number())
+  if (class(risk_ratios) == "matrix") {
+    rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
+    if (missing(no_risk_groups))
+      no_risk_groups <- length(rv)/nrow(age_groups)
+    risk_ratios <- data.frame(
+      AgeGroup = rep(age_groups$AgeGroup, no_risk_groups),
+      value = rv
+    ) %>% dplyr::group_by(AgeGroup) %>% dplyr::mutate(RiskGroup = factor(row_number())) %>%
+      dplyr::ungroup()
+  }
+  if (missing(no_risk_groups))
+    no_risk_groups <- nrow(risk_ratios)/length(age_groups)
+  
+  .stratify_by_risk(age_groups$value, risk_ratios$value, no_risk_groups)
+}
