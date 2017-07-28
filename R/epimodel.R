@@ -20,14 +20,13 @@ infectionODEs <- function(population, initial_infected, vaccine_calendar, contac
   {
     yr <- 1970
     if (length(vaccine_calendar$dates)>0)
-      yr <- year(vaccine_calendar$dates[1])
+      yr <- data.table::year(vaccine_calendar$dates[1])
     start.date <- as.Date(getTimeFromWeekYear(35,yr))
     dates <- c(start.date)
     #latest.date <- start.date
     latest.date <- start.date + interval
-    while( !( year(latest.date)>year(start.date)&
-              #month(latest.date)>=month(start.date)&
-              yday(latest.date)>=yday(start.date) ) )
+    while(!(data.table::year(latest.date) > data.table::year(start.date) & 
+              data.table::yday(latest.date) >= data.table::yday(start.date)))
     {
       dates <- c(dates, latest.date)
       latest.date <- latest.date + interval

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcmc.R
 \name{adaptive.mcmc}
 \alias{adaptive.mcmc}
-\title{importFrom dplyr "%>%"}
+\title{Adaptive MCMC algorithm}
 \usage{
 adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
   outfun = NULL, acceptfun = NULL, verbose = FALSE, ...)
@@ -32,11 +32,11 @@ adaptive.mcmc(lprior, llikelihood, nburn, initial, nbatch, blen = 1,
 Returns a list with the accepted samples and the corresponding llikelihood values and the return of the optional outfun
 }
 \description{
-Adaptive MCMC algorithm
-}
-\details{
 MCMC which adapts its proposal distribution for faster convergence following:
 Sherlock, C., Fearnhead, P. and Roberts, G.O. The Random Walk Metrolopois: Linking Theory and Practice Through a Case Study. Statistical Science 25, no.2 (2010): 172-190.
+}
+\details{
+importFrom dplyr "%>%"
 }
 \seealso{
 \code{\link{adaptive.mcmc.cpp}} Used internally by this function.

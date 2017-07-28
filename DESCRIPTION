@@ -22,9 +22,10 @@ Depends:
 Imports:
     Rcpp (>= 0.11.6),
     ggplot2,
-    data.table,
     BH,
-    RcppEigen
+    RcppEigen,
+    dplyr,
+    data.table
 Suggests:
     testthat,
     rjson,

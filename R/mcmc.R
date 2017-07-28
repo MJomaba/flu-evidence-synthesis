@@ -1,8 +1,9 @@
 #' importFrom dplyr "%>%"
-#' 
-#' Adaptive MCMC algorithm
+
+
+#' @title Adaptive MCMC algorithm
 #'
-#' MCMC which adapts its proposal distribution for faster convergence following:
+#' @description MCMC which adapts its proposal distribution for faster convergence following:
 #' Sherlock, C., Fearnhead, P. and Roberts, G.O. The Random Walk Metrolopois: Linking Theory and Practice Through a Case Study. Statistical Science 25, no.2 (2010): 172-190.
 #'
 #' @param lprior A function returning the log prior probability of the parameters 
