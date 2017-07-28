@@ -4,6 +4,13 @@ sudo: required
 
 after_success: "./travis.sh"
 
+install:
+- R -e 'devtools::install_deps(dep = T)'
+
+script:
+- travis_wait R CMD build .
+- R CMD check *tar.gz
+
 os:
 - linux
 - osx
