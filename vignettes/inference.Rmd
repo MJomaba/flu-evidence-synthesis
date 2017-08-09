@@ -60,7 +60,7 @@ inference.results <- inference(demography = demography,
                       n_samples = confirmed.samples$total.samples,
                       initial = initial.parameters,
                       nbatch = 1000,
-                      nburn = 1000, blen = 10 )
+                      nburn = 1000, blen = 5 )
 ```
 
 The data used for the inference is:
@@ -245,7 +245,7 @@ inference.results <- custom_inference(demography = demography,
                       n_samples = confirmed.samples$total.samples,
                       initial = initial.parameters,
                       nbatch = 1000,
-                      nburn = 1000, blen = 10 )
+                      nburn = 1000, blen = 5 )
 ```
 
 # Analysing the results
