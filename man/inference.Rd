@@ -5,8 +5,8 @@
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
-  polymod_data, initial, mapping, risk_ratios, nburn = 0, nbatch = 1000,
-  blen = 1)
+  polymod_data, initial, age_group_map, risk_group_map, risk_ratios,
+  nburn = 0, nbatch = 1000, blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
@@ -25,7 +25,9 @@ inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 
 \item{initial}{Vector with starting parameter values}
 
-\item{mapping}{Optional age group mapping from model age groups to data age groups}
+\item{age_group_map}{Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})}
+
+\item{risk_group_map}{Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})}
 
 \item{nburn}{Number of iterations of burn in}
 

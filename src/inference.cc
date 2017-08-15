@@ -29,7 +29,11 @@ using namespace flu;
 //' @param vaccine_calendar A vaccine calendar valid for that year
 //' @param polymod_data Contact data for different age groups
 //' @param initial Vector with starting parameter values
-//' @param mapping Age group mapping from model age groups to data age groups
+//' @param mapping Group mapping from model groups to data groups
+//' @param risk_ratios Risk ratios to convert to and from population groups
+//' @param no_age_groups Number of age groups
+//' @param no_risk_groups Number of risk groups
+//' @param mapping Group mapping from model groups to data groups
 //' @param nburn Number of iterations of burn in
 //' @param nbatch Number of batches to run (number of samples to return)
 //' @param blen Length of each batch
@@ -43,21 +47,21 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data,
         Eigen::VectorXd initial,
-        Rcpp::DataFrame mapping,
+        Eigen::MatrixXd mapping,
         Eigen::VectorXd risk_ratios,
+        size_t no_age_groups,
         size_t no_risk_groups,
         size_t nburn = 0,
         size_t nbatch = 1000, size_t blen = 1 )
 {
+  
+    //Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> mapping,
     mcmc_result_inference_t results;
     results.batch = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, initial.size() );
     results.llikelihoods = Eigen::VectorXd( nbatch );
     results.contact_ids = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, polymod_data.rows() );
 
-    auto nag = 7;
-
     int step_mat;
-    double pop_RCGP[5];
     double prop_likelihood;
 
     double my_acceptance_rate;
@@ -73,11 +77,13 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             age_data.age_group_sizes, risk_ratios, no_risk_groups);
 
     /*pop RCGP*/
-    pop_RCGP[0]=pop_vec[0]+pop_vec[1]+pop_vec[7]+pop_vec[8]+pop_vec[14]+pop_vec[15];
-    pop_RCGP[1]=pop_vec[2]+pop_vec[9]+pop_vec[16];
-    pop_RCGP[2]=pop_vec[3]+pop_vec[4]+pop_vec[10]+pop_vec[11]+pop_vec[17]+pop_vec[18];
-    pop_RCGP[3]=pop_vec[5]+pop_vec[12]+pop_vec[19];
-    pop_RCGP[4]=pop_vec[6]+pop_vec[13]+pop_vec[20];
+    //std::vector<double> pop_RCGP = std::vector<double>(5);
+    Eigen::VectorXd pop_RCGP = Eigen::VectorXd::Zero(ili.cols());
+    for (int i = 0; i < mapping.rows(); ++i) {
+      // to_j = weight*from_i
+      pop_RCGP((size_t) mapping(i,1)) += mapping(i,2) * pop_vec((size_t) mapping(i,0)); 
+    }
+
 
     /********************************************************************************************************************************************************
     initialisation point to start the MCMC
@@ -105,7 +111,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
 
     auto curr_parameters = initial;
     auto curr_init_inf = Eigen::VectorXd::Constant( 
-            nag, pow(10,curr_parameters[8]) );
+            no_age_groups, pow(10,curr_parameters[8]) );
 
     auto polymod = flu::contacts::table_to_contacts( polymod_data, 
             age_group_limits ); 
@@ -131,7 +137,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     auto curr_llikelihood = log_likelihood_hyper_poisson(
             pars_to_epsilon(curr_parameters),
             curr_parameters[3], 
-            days_to_weeks_5AG( result ), 
+            days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     auto proposal_state = proposal::initialize( 9 );
@@ -188,7 +194,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             /*translate into an initial infected population*/
             
             auto prop_init_inf = Eigen::VectorXd::Constant( 
-                    nag, pow(10,prop_parameters[8]) );
+                    no_age_groups, pow(10,prop_parameters[8]) );
 
             auto prop_c = curr_c;
 

@@ -396,7 +396,6 @@ namespace flu
                 times );
     }
 
-
     Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
     {
 
@@ -420,6 +419,33 @@ namespace flu
                 result_weeks(i,3)+=result_days(j,5)+result_days(j,12)+result_days(j,19);
                 result_weeks(i,4)+=result_days(j,6)+result_days(j,13)+result_days(j,20);
                 ++j;
+            }
+        }
+
+        return result_weeks;
+    }
+
+    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation,
+        const Eigen::MatrixXd &mapping, size_t no_data)
+    {
+
+        size_t weeks =  (simulation.times.back() - simulation.times.front())
+            .hours()/(24*7) + 1;
+        auto result_days = simulation.cases;
+        /*initialisation*/
+        Eigen::MatrixXd result_weeks = 
+            Eigen::MatrixXd::Zero(weeks, no_data);
+
+        size_t j = 0;
+        for(size_t i=0; i<weeks; i++)
+        {
+            auto startWeek = simulation.times[j];
+            while( j < simulation.times.size() &&
+                    (simulation.times[j]-startWeek).hours()/(24.0)<7.0 )
+            {
+              for(size_t k = 0; k < mapping.rows(); ++k)
+                result_weeks(i,(size_t) mapping(k,1)) += result_days(j,(size_t) mapping(k,0)) * mapping(k,2);
+              ++j;
             }
         }
 
@@ -597,7 +623,7 @@ namespace flu
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
             //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
-            double * pop_5AG_RCGP, int depth)
+            const Eigen::VectorXd &pop_5AG_RCGP, int depth)
     {
         long double result=0.0;
         for(int i=0;i<5;i++)

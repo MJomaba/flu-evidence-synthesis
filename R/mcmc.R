@@ -44,7 +44,8 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
 #' @param initial Vector with starting parameter values
-#' @param mapping Optional age group mapping from model age groups to data age groups
+#' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
+#' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
@@ -53,12 +54,11 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
-        vaccine_calendar, polymod_data, initial, mapping,
-        risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
+        vaccine_calendar, polymod_data, initial, age_group_map,
+        risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
-  warning("Should accept age_group_mapping, risk_group_mapping and combine it (and sort it). Then pass it to cpp as group_mapping matrix, with each row a to, from and weight.")
-  if (missing(mapping))
-    mapping <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+  if (missing(age_group_map))
+    age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
   if (missing(risk_ratios)) {
     risk_ratios <- matrix(c(
       0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
@@ -69,7 +69,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     no_risk_groups <- nrow(risk_ratios) + 1
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     risk_ratios <- data.frame(
-      AgeGroup = rep(unique(mapping$from), no_risk_groups),
+      AgeGroup = rep(unique(age_group_map$from), no_risk_groups),
       value = rv
     ) %>% dplyr::group_by(AgeGroup) %>% dplyr::mutate(RiskGroup = factor(row_number())) %>%
       dplyr::ungroup()
@@ -77,10 +77,29 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     risk_ratios <- data.frame(value = risk_ratios) 
   }
   if (missing(no_risk_groups))
-    no_risk_groups <- nrow(risk_ratios)/unique(mapping$from)
+    no_risk_groups <- nrow(risk_ratios)/unique(age_group_map$from)
+  if (missing(risk_group_map)) {
+    risk_group_map <- risk_group_mapping(from = factor(1:no_risk_groups),
+                                 to = factor(1:(ncol(ili)/length(unique(age_group_map$to)))))
+  }
   
-  .inference_cpp(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping,
-               risk_ratios$value, no_risk_groups, nburn, nbatch, blen)
+  mapping <- data.frame()
+  ## Add risk group
+  for (i in 1:nrow(risk_group_map)) {
+    mapping <- rbind(mapping, age_group_map %>% dplyr::mutate(join = i))
+  }
+  mapping <- mapping %>% dplyr::left_join(
+    risk_group_map %>% dplyr::mutate(join = row_number()) %>%
+      dplyr::rename(from_risk = from, to_risk = to, weight_risk = weight), by = "join") %>%
+    dplyr::mutate(weight = weight*weight_risk) %>% dplyr::select(-weight_risk, -join)
+  
+  from_i <- mapping %>% dplyr::select(from, from_risk) %>% dplyr::distinct() %>% dplyr::mutate(from_i = row_number() - 1)
+  to_j <- mapping %>% dplyr::select(to, to_risk) %>% dplyr::distinct() %>% dplyr::mutate(to_j = row_number() - 1)
+  mapping <- mapping %>% dplyr::left_join(from_i, by = c("from", "from_risk")) %>% 
+    dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
+  
+  .inference_cpp(demography, as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
+                 as.matrix(mapping), risk_ratios$value, max(mapping$from_i)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
 }
 
 #' Aggregate model results at different time points
