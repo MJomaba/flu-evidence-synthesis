@@ -64,3 +64,23 @@ test_that("We can map age groups", {
   expect_identical(as.numeric(mp$to), c(1, 1, 2, 2))
   expect_identical(mp$weight, c(1, 600/(600+2400), 2400/(600+2400), 1))
 })
+
+test_that("We can map risk groups", {
+  mp <- risk_group_mapping(c("R1", "R2"))
+  expect_identical(as.character(mp$from), c("R1", "R2"))
+  expect_identical(as.character(mp$to), c("All", "All"))
+  expect_identical(mp$weight, c(1,1))
+  
+  mp <- risk_group_mapping(c("R1", "R2"), "All")
+  expect_identical(as.character(mp$from), c("R1", "R2"))
+  expect_identical(as.character(mp$to), c("All", "All"))
+  expect_identical(mp$weight, c(1,1))
+   
+  mp <- risk_group_mapping("All", c("R1", "R2"), c(0.5, 0.5))
+  expect_identical(as.character(mp$from), c("All", "All"))
+  expect_identical(as.character(mp$to), c("R1", "R2"))
+  expect_identical(mp$weight, c(0.5,0.5))
+  
+  expect_warning(risk_group_mapping("All", c("R1", "R2")))
+})
+  

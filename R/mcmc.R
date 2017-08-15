@@ -56,6 +56,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
         vaccine_calendar, polymod_data, initial, mapping,
         risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
+  warning("Should accept age_group_mapping, risk_group_mapping and combine it (and sort it). Then pass it to cpp as group_mapping matrix, with each row a to, from and weight.")
   if (missing(mapping))
     mapping <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
   if (missing(risk_ratios)) {

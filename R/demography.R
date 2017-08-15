@@ -62,6 +62,38 @@ age_group_mapping <- function(from, to, demography) {
              weight = weights)
 }
 
+#' @title Calculate a mapping from one sets of risk groups to another set of risk groups
+#' 
+#' @description Sometimes data/results are stratified in different ways. For example in the UK data set vaccination
+#' is divided into risk groups: low risk and high risk, while for the virological data is not stratified by risk. 
+#' This function provides a standardised way of mapping one to another. 
+#' 
+#' @param from The risk groups you want to map from
+#' @param to The risk groups you want to map to
+#' @param weights Optional vector with the weight/fraction of how each from group should be grouped into a to group. For example if your epidemiological model
+#' groups everything together, but the data is divided into two equal risk groups you would use: 
+#' \code{risk_group_mapping(from = "All", to = c("R1", "R2"), weights = c(0.5, 0.5))}. The UK example uses the mapping: 
+#' \code{risk_group_mapping(from = c("High risk", "Low risk", "Pregnant"), to = "All")}
+#' @return A data frame containing which risk groups map to which other risk group. And what proportion (weight)
+#' of the risk groups maps to the other risk grouping.
+#' @export
+risk_group_mapping <- function(from, to, weights) {
+  if (length(from) == 1 && !missing(to))
+    from <- rep(from, length(to))
+  if (missing(to))
+    to <- rep("All", length(from))
+  if (length(to) == 1)
+    to <- rep(to, length(from))
+  if (missing(weights))
+    weights <- rep(1, length(from))
+  # Do some checking that weights are valid
+  if (sum(weights) != length(unique(from)))
+    warning(paste0("Total weight should sum up to: ", length(unique(from))))
+  data.frame(from = from,
+             to = to,
+             weight = weights)
+}
+
 #' @title Stratify age groups into different risk groups
 #' 
 #' @description Stratifies the age groups and returns the population size of each age group and risk group.

@@ -97,3 +97,7 @@ test_that("dmultinom and dmultinom.cpp return same value",
         expect_identical( dmultinom.cpp( c(5,4,3), 12, c(0.4,0.5,0.1) ), dp )
     }
 )
+
+test_that("Group mapping works correctly", {
+  # Create scenario with two age groups and two risk groups (same size)
+})
