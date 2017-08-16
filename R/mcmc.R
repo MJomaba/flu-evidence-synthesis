@@ -99,7 +99,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
   
   .inference_cpp(demography, as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
-                 as.matrix(mapping), risk_ratios$value, max(mapping$from_i)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
+                 as.matrix(mapping), risk_ratios$value, (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
 }
 
 #' Aggregate model results at different time points

@@ -151,6 +151,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
 
     size_t sampleCount = 0;
     int k = 0;
+
     while(sampleCount<nbatch)
     {
         ++k;
@@ -218,8 +219,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             prop_likelihood=log_likelihood_hyper_poisson(
                     pars_to_epsilon(prop_parameters), 
                     prop_parameters[3], 
-                    days_to_weeks_5AG(result), ili, mon_pop, 
-                    n_pos, n_samples, pop_RCGP, d_app);
+                    days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
+                    ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
             /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/
             // Make sure accept works with -inf prior
