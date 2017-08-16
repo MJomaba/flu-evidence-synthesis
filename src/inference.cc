@@ -210,10 +210,12 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             auto prop_contact_regular = 
                 contacts::to_symmetric_matrix( prop_c, age_data );
 
-            result = one_year_SEIR_with_vaccination(pop_vec, prop_init_inf, time_latent, time_infectious, 
-                    pars_to_susceptibility(prop_parameters), 
-                    prop_contact_regular, 
-                    prop_parameters[4], vaccine_calendar, 7*24 );
+            result = infectionODE(pop_vec, 
+                    flu::data::stratify_by_risk(prop_init_inf, risk_ratios, no_risk_groups),
+                    time_latent, time_infectious, 
+                    pars_to_susceptibility(prop_parameters),
+                    prop_contact_regular, prop_parameters[4], 
+                    vaccine_calendar, 7*24 );
 
             /*computes the associated likelihood with the proposed values*/
             prop_likelihood=log_likelihood_hyper_poisson(
