@@ -44,6 +44,10 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
 #' @param initial Vector with starting parameter values
+#' @param parameter_map Optional mapping parameter (by description and age group) to the relevant index
+#' in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
+#' age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
+#' and log of initial_infected population.
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
 #' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})
 #' @param nburn Number of iterations of burn in
@@ -54,7 +58,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
-        vaccine_calendar, polymod_data, initial, age_group_map,
+        vaccine_calendar, polymod_data, initial, parameter_map, age_group_map,
         risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
   if (missing(age_group_map))
@@ -98,8 +102,24 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   mapping <- mapping %>% dplyr::left_join(from_i, by = c("from", "from_risk")) %>% 
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
   
-  .inference_cpp(demography, as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
-                 as.matrix(mapping), risk_ratios$value, (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
+  if (missing(parameter_map)) {
+    parameter_map <- list(
+      e = c(1,1,2,2,3),
+      p = 4,
+      t = 5,
+      s = c(6,6,6,7,7,7,8),
+      i = 9)
+  }
+  # Go over parameter_map. Shorten list and also make sure min(index) = 0
+  m <- min(unlist(parameter_map))
+  for(n in names(parameter_map))
+    parameter_map[[substr(n, 1, 1)]] <- parameter_map[[n]] - m
+  
+  .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
+                 as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
+                 as.matrix(mapping), risk_ratios$value, 
+                 parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i,
+                 (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
 }
 
 #' Aggregate model results at different time points

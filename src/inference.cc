@@ -41,7 +41,8 @@ using namespace flu;
 //' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 //'
 // [[Rcpp::export(name=".inference_cpp")]]
-mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, 
+mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
+        std::vector<size_t> age_group_limits,
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
@@ -49,6 +50,11 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         Eigen::VectorXd initial,
         Eigen::MatrixXd mapping,
         Eigen::VectorXd risk_ratios,
+        Eigen::VectorXd epsilon_index,
+        size_t psi_index,
+        size_t transmissibility_index,
+        Eigen::VectorXd susceptibility_index,
+        size_t initial_infected_index,
         size_t no_age_groups,
         size_t no_risk_groups,
         size_t nburn = 0,
@@ -65,8 +71,6 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     double prop_likelihood;
 
     double my_acceptance_rate;
-
-    std::vector<size_t> age_group_limits = {1,5,15,25,45,65};
 
     flu::data::age_data_t age_data;
     age_data.age_sizes = demography;
@@ -89,18 +93,19 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     initialisation point to start the MCMC
     *********************************************************************************************************************************************************/
 
-    auto pars_to_epsilon = []( const Eigen::VectorXd &pars )
+    auto pars_to_epsilon = [&epsilon_index]( const Eigen::VectorXd &pars )
     {
-        Eigen::VectorXd eps(5);
-        eps << pars[0], pars[0], pars[1], pars[1], pars[2];
+        Eigen::VectorXd eps(epsilon_index.size());
+        for (size_t i = 0; i < epsilon_index.size(); ++i)
+            eps[i] = pars[epsilon_index[i]];
         return eps;
     };
 
-    auto pars_to_susceptibility = []( const Eigen::VectorXd &pars )
+    auto pars_to_susceptibility = [&susceptibility_index]( const Eigen::VectorXd &pars )
     {
-        Eigen::VectorXd susc(7);
-        susc << pars[5], pars[5], pars[5], 
-             pars[6], pars[6], pars[6], pars[7];
+        Eigen::VectorXd susc(susceptibility_index.size());
+        for (size_t i = 0; i < susceptibility_index.size(); ++i)
+            susc[i] = pars[susceptibility_index[i]];
         return susc;
     };
 
@@ -111,7 +116,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
 
     auto curr_parameters = initial;
     auto curr_init_inf = Eigen::VectorXd::Constant( 
-            no_age_groups, pow(10,curr_parameters[8]) );
+            no_age_groups, pow(10,curr_parameters[initial_infected_index]) );
 
     auto polymod = flu::contacts::table_to_contacts( polymod_data, 
             age_group_limits ); 
@@ -129,14 +134,14 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             flu::data::stratify_by_risk(curr_init_inf, risk_ratios, no_risk_groups),
             time_latent, time_infectious, 
             pars_to_susceptibility(curr_parameters),
-            current_contact_regular, curr_parameters[4], 
+            current_contact_regular, curr_parameters[transmissibility_index], 
             vaccine_calendar, 7*24 );
 
     /*curr_psi=0.00001;*/
     auto d_app = 3;
     auto curr_llikelihood = log_likelihood_hyper_poisson(
             pars_to_epsilon(curr_parameters),
-            curr_parameters[3], 
+            curr_parameters[psi_index], 
             days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
@@ -195,7 +200,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             /*translate into an initial infected population*/
             
             auto prop_init_inf = Eigen::VectorXd::Constant( 
-                    no_age_groups, pow(10,prop_parameters[8]) );
+                    no_age_groups, pow(10,prop_parameters[initial_infected_index]) );
 
             auto prop_c = curr_c;
 
@@ -214,13 +219,13 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                     flu::data::stratify_by_risk(prop_init_inf, risk_ratios, no_risk_groups),
                     time_latent, time_infectious, 
                     pars_to_susceptibility(prop_parameters),
-                    prop_contact_regular, prop_parameters[4], 
+                    prop_contact_regular, prop_parameters[transmissibility_index], 
                     vaccine_calendar, 7*24 );
 
             /*computes the associated likelihood with the proposed values*/
             prop_likelihood=log_likelihood_hyper_poisson(
                     pars_to_epsilon(prop_parameters), 
-                    prop_parameters[3], 
+                    prop_parameters[psi_index], 
                     days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
                     ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 

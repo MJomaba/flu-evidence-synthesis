@@ -5,8 +5,8 @@
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
-  polymod_data, initial, age_group_map, risk_group_map, risk_ratios,
-  nburn = 0, nbatch = 1000, blen = 1)
+  polymod_data, initial, parameter_map, age_group_map, risk_group_map,
+  risk_ratios, nburn = 0, nbatch = 1000, blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
@@ -24,6 +24,11 @@ inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 \item{polymod_data}{Contact data for different age groups}
 
 \item{initial}{Vector with starting parameter values}
+
+\item{parameter_map}{Optional mapping parameter (by description and age group) to the relevant index
+in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
+age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
+and log of initial_infected population.}
 
 \item{age_group_map}{Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})}
 
