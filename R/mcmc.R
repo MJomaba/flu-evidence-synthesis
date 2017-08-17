@@ -61,6 +61,8 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
         vaccine_calendar, polymod_data, initial, parameter_map, age_group_map,
         risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
+  if (any(n_samples>ili))
+    stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
   if (missing(age_group_map))
     age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
   if (missing(risk_ratios)) {
