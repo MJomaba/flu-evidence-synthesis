@@ -99,7 +99,7 @@ Each row represents a sample of posterior parameter values. The order of the par
 - 4: Outside infection ($\psi$)
 - 5: Transmissibility ($q$)
 - 6-8: Susceptibility for three age groups ($\sigma_i$)
-- 9: Initial number of infections ($I$)
+- 9: Initial number of infections (log transformed; $I$)
   
 For more details on the input data see `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
   
@@ -293,12 +293,12 @@ ode.results <- function( pars )
   
   # Population sizes in each age and risk group
   popv <- stratify_by_risk(
-    age.groups, risk.ratios );
+    age.groups, risk.ratios )
   
   # Population size initially infected by age and risk group
   initial.infected <- rep( 10^pars[9], 7 )
   initial.infected <- stratify_by_risk(
-    initial.infected, risk.ratios );
+    initial.infected, risk.ratios )
   
   # Run simulation
   # Note that to reduce complexity 

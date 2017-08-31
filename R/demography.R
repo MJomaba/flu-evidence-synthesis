@@ -108,11 +108,14 @@ risk_group_mapping <- function(from, to, weights) {
 #' @export
 stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups, labels)
 {
+
   if (class(age_groups) != "data.frame") {
-    ag_names <- if (!is.null(names(age_groups))) 
-      names(age_groups) else paste0("AG", seq(1, length(age_groups)))
+    age_labels <- paste0("AG", seq(1, length(age_groups)))
+    if (!is.null(names(age_groups)) && 
+        length(unique(names(age_groups))) == length(age_groups))
+      age_labels <- names(age_groups) 
     age_groups <- data.frame(value = age_groups) %>%
-      dplyr::mutate(AgeGroup = ag_names)
+      dplyr::mutate(AgeGroup = age_labels)
   }
      
   if (class(risk_ratios) == "matrix") {

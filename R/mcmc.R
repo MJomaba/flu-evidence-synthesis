@@ -129,16 +129,30 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   batch_cols <- rep("NULL", length(initial)) 
   for(n in names(parameter_map)) {
     parameter_map[[substr(n, 1, 1)]] <- parameter_map[[n]] - m
-    for (i in parameter_map[[n]])
-      batch_cols[i-m+1] <- n
+    for (i in parameter_map[[n]]) {
+      if (!is.null(names(initial))) 
+        batch_cols[i-m+1] <- names(initial)[i]
+      else
+        batch_cols[i-m+1] <- n
+    }
   }
+  
+  # Add numbering for duplicate parameter names
+  b_cols <- data.frame(value = batch_cols) %>%
+    dplyr::group_by(value) %>%
+    dplyr::mutate(ext = row_number(), mx = n()) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(value = paste0(value, ifelse(mx > 1, paste0("_", ext),"")))
   
   results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 
                  parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i,
                  (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
-  colnames(results$batch) <- batch_cols
+  if (is.null(names(initial))) {
+    colnames(results$batch) <- b_cols$value
+  } else
+    colnames(results$batch) <- batch_cols
   results
 }
 

@@ -22,6 +22,14 @@ test_that("We can separate into risk groups",
                 matrix( c(0.4,0.4,0.3,0.1,0.1,0.1), ncol=3, byrow=T ),
                 labels = c("HR", "LR", "P"))
       expect_identical(names(popv)[1], "HR [0,1)")
+      
+      # Check for correct names
+      par <- c(0.70)
+      names(par) <- "I0"
+      initial.infected <- rep(10^par, 3)
+      popv <- stratify_by_risk(initial.infected, 
+                              matrix( c(0.4,0.4,0.3,0.1,0.1,0.1), ncol=3, byrow=T ))
+      expect_identical(names(popv)[1], "RG1 AG1")
   })
 
 test_that("We can convert limits into levels (factor labels)", {
