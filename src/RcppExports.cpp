@@ -275,7 +275,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // separate_into_age_groups
-Eigen::VectorXi separate_into_age_groups(std::vector<size_t> age_sizes, Rcpp::NumericVector limits);
+Rcpp::IntegerVector separate_into_age_groups(std::vector<size_t> age_sizes, Rcpp::NumericVector limits);
 RcppExport SEXP _fluEvidenceSynthesis_separate_into_age_groups(SEXP age_sizesSEXP, SEXP limitsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

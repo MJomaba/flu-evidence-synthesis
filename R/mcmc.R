@@ -36,6 +36,15 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 
 #' MCMC based inference of the parameter values given the different data sets
 #'
+#' @details
+#' The goal
+#' 
+#' Sources of data
+#' 
+#' Parameters
+#' 
+#' Input vs output map
+#'
 #' @param demography A vector with the population size by each age {0,1,..}
 #' @param ili The number of Influenza-like illness cases per week
 #' @param mon_pop The number of people monitored for ili
@@ -55,6 +64,8 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param blen Length of each batch
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
+#'
+#' @seealso \code{\link{infectionODEs}} for more details on the parameters
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
@@ -106,22 +117,29 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   
   if (missing(parameter_map)) {
     parameter_map <- list(
-      e = c(1,1,2,2,3),
-      p = 4,
-      t = 5,
-      s = c(6,6,6,7,7,7,8),
-      i = 9)
+      epsilon = c(1,1,2,2,3),
+      psi = 4,
+      transmissibility = 5,
+      susceptibility = c(6,6,6,7,7,7,8),
+      initial.infected = 9)
   }
+  
   # Go over parameter_map. Shorten list and also make sure min(index) = 0
   m <- min(unlist(parameter_map))
-  for(n in names(parameter_map))
+  batch_cols <- rep("NULL", length(initial)) 
+  for(n in names(parameter_map)) {
     parameter_map[[substr(n, 1, 1)]] <- parameter_map[[n]] - m
+    for (i in parameter_map[[n]])
+      batch_cols[i-m+1] <- n
+  }
   
-  .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
+  results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 
                  parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i,
                  (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
+  colnames(results$batch) <- batch_cols
+  results
 }
 
 #' Aggregate model results at different time points

@@ -611,13 +611,18 @@ Rcpp::IntegerVector as_age_group( Rcpp::NumericVector age,
 //' @return A vector with the population in each age group.
 //'
 // [[Rcpp::export(name="stratify_by_age")]]
-Eigen::VectorXi separate_into_age_groups( std::vector<size_t> age_sizes,
+Rcpp::IntegerVector separate_into_age_groups( std::vector<size_t> age_sizes,
         Rcpp::NumericVector limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
 {
+    Rcpp::CharacterVector lvls = age_group_levels(limits);
     auto agl_v = std::vector<size_t>( 
                 limits.begin(), limits.end() );
-    return flu::data::group_age_data( age_sizes, agl_v );
+
+    auto v = flu::data::group_age_data( age_sizes, agl_v );
+    Rcpp::IntegerVector out = Rcpp::IntegerVector(v.data(), v.data() + v.size());
+    out.attr("names") = lvls;
+    return out;
 }
 
 //' @title Stratify age groups into different risk groups

@@ -46,3 +46,15 @@ Returns a list with the accepted samples and the corresponding llikelihood value
 \description{
 MCMC based inference of the parameter values given the different data sets
 }
+\details{
+The goal
+
+Sources of data
+
+Parameters
+
+Input vs output map
+}
+\seealso{
+\code{\link{infectionODEs}} for more details on the parameters
+}

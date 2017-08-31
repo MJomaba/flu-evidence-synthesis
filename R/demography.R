@@ -100,27 +100,54 @@ risk_group_mapping <- function(from, to, weights) {
 #'
 #' @param age_groups A vector containing the population size of each age group
 #' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+#' @param no_risk_groups Optional number of risk groups.
+#' @param labels Optional names for the risk groups.
 #'
-#' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
+#' @return A named vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 #'
 #' @export
-stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups)
+stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups, labels)
 {
-  if (class(age_groups) != "data.frame")
+  if (class(age_groups) != "data.frame") {
+    ag_names <- if (!is.null(names(age_groups))) 
+      names(age_groups) else paste0("AG", seq(1, length(age_groups)))
     age_groups <- data.frame(value = age_groups) %>%
-      dplyr::mutate(AgeGroup = row_number())
+      dplyr::mutate(AgeGroup = ag_names)
+  }
+     
   if (class(risk_ratios) == "matrix") {
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     if (missing(no_risk_groups))
       no_risk_groups <- length(rv)/nrow(age_groups)
     risk_ratios <- data.frame(
-      AgeGroup = rep(age_groups$AgeGroup, no_risk_groups),
       value = rv
-    ) %>% dplyr::group_by(AgeGroup) %>% dplyr::mutate(RiskGroup = factor(row_number())) %>%
+    )
+  }
+  if (missing(no_risk_groups)) {
+    if (missing(labels))
+      no_risk_groups <- nrow(risk_ratios)/length(age_groups)
+    else
+      no_risk_groups <- length(labels)
+  }
+  if (missing(labels)) {
+    labels <- paste0("RG", seq(1, no_risk_groups))
+  }
+  
+  v <- .stratify_by_risk(age_groups$value, risk_ratios$value, no_risk_groups)
+  
+  if (is.null(age_groups[["AgeGroup"]]))
+    age_groups <- age_groups %>%
+      dplyr::mutate(AgeGroup = paste0("AG", row_number()))
+  if (is.null(risk_ratios[["AgeGroup"]]))
+    risk_ratios <- risk_ratios %>% 
+      dplyr::mutate(AgeGroup = rep(age_groups$AgeGroup, no_risk_groups))
+  if (is.null(risk_ratios[["RiskGroup"]])) {
+    risk_ratios <- risk_ratios %>% 
+      dplyr::group_by(AgeGroup) %>%
+      dplyr::mutate(RiskGroup = labels) %>%
       dplyr::ungroup()
   }
-  if (missing(no_risk_groups))
-    no_risk_groups <- nrow(risk_ratios)/length(age_groups)
   
-  .stratify_by_risk(age_groups$value, risk_ratios$value, no_risk_groups)
+  names(v) <- paste(risk_ratios$RiskGroup, risk_ratios$AgeGroup, sep = " ")
+  v
 }
