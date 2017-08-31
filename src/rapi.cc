@@ -463,6 +463,9 @@ Eigen::MatrixXd contact_matrix(
         Rcpp::NumericVector age_group_limits = Rcpp::NumericVector::create(
             1, 5, 15, 25, 45, 65 ) )
 {
+
+    if (polymod_data.cols() - 2 != age_group_limits.size() + 1)
+        ::Rf_error("Number of age groups should be consistent for the polymod_data and the age_group_limits");
     
     flu::data::age_data_t age_data;
     age_data.age_sizes = demography;
@@ -692,7 +695,8 @@ double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::Ve
         double duration = 1.8) {
     //auto evs = (contact_matrix*population).eigenvalues();
     //return transmission_rate*evs.maxCoeff()*duration;
-    assert(contact_matrix.cols() == age_groups.size());
+    if (contact_matrix.cols() != age_groups.size())
+        ::Rf_error("Number of age groups should be equal to the dimensions of the contact_matrix");
     auto a = contact_matrix;
     for (size_t i = 0; i < a.rows(); ++i) {
         for (size_t j = 0; j < a.cols(); ++j) {

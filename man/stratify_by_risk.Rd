@@ -4,15 +4,19 @@
 \alias{stratify_by_risk}
 \title{Stratify age groups into different risk groups}
 \usage{
-stratify_by_risk(age_groups, risk_ratios, no_risk_groups)
+stratify_by_risk(age_groups, risk_ratios, no_risk_groups, labels)
 }
 \arguments{
 \item{age_groups}{A vector containing the population size of each age group}
 
+\item{no_risk_groups}{Optional number of risk groups.}
+
+\item{labels}{Optional names for the risk groups.}
+
 \item{risk}{A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk}
 }
 \value{
-A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
+A named vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 }
 \description{
 Stratifies the age groups and returns the population size of each age group and risk group.

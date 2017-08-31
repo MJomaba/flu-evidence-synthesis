@@ -54,6 +54,17 @@ test_that("We can use custom age limits",
   }
 )
 
+test_that("We throw an arror if custom age limits are not complete", 
+  {
+      data(age_sizes)
+      data(polymod_uk)
+
+      age.group.limits <- c( 15 )
+      expect_error(contact_matrix(as.matrix(polymod_uk), age_sizes[,1], 
+                           age.group.limits ))
+  }
+)
+
 test_that("We can convert transmission_rate into R0 and opposite", {
     cm <- matrix(c(2, 0.1, 0.1, 1)/100, nrow = 2)
     pv <- c(50, 50)
