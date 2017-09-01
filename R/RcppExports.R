@@ -22,8 +22,8 @@
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-.inference_cpp <- function(demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, nburn = 0L, nbatch = 1000L, blen = 1L) {
-    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, nburn, nbatch, blen)
+.inference_cpp <- function(demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, uk_prior, nburn = 0L, nbatch = 1000L, blen = 1L) {
+    .Call('_fluEvidenceSynthesis_inference_cpp', PACKAGE = 'fluEvidenceSynthesis', demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, uk_prior, nburn, nbatch, blen)
 }
 
 #' Probability density function for multinomial distribution

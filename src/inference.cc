@@ -57,6 +57,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         size_t initial_infected_index,
         size_t no_age_groups,
         size_t no_risk_groups,
+        bool uk_prior,
         size_t nburn = 0,
         size_t nbatch = 1000, size_t blen = 1 )
 {
@@ -147,6 +148,27 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
 
     auto proposal_state = proposal::initialize( 9 );
 
+    auto log_prior_ratio_f = [uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
+         initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
+             if (uk_prior)
+                log_prior(proposed, current, susceptibility);
+             else {
+                 // Use flat priors
+                 for (auto i = 0; i < epsilon_index.size(); ++i) {
+                     auto index = epsilon_index[i];
+                     if (proposed[index] < 0 || proposed[index] > 1)
+                         return log(0) - 0;
+                 }
+                 if (proposed[psi_index] < 0 || proposed[transmissibility_index] < 0)
+                     return log(0) - 0;
+                 for (auto i = 0; i < susceptibility_index.size(); ++i) {
+                     auto index = susceptibility_index[i];
+                     if (proposed[index] < 0 || proposed[index] > 1)
+                         return log(0) - 0;
+                 }
+             }
+         };
+
     /**************************************************************************************************************************************************************
     Start of the MCMC
     **************************************************************************************************************************************************************/
@@ -187,7 +209,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                 proposal_state );
 
         auto prior_ratio = 
-            log_prior(prop_parameters, curr_parameters, false );
+            log_prior_ratio_f(prop_parameters, curr_parameters, false );
 
         if (!std::isfinite(prior_ratio))
         {

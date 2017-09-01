@@ -8,8 +8,8 @@
 using namespace Rcpp;
 
 // inference_cpp
-mcmc_result_inference_t inference_cpp(std::vector<size_t> demography, std::vector<size_t> age_group_limits, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, Eigen::MatrixXd mapping, Eigen::VectorXd risk_ratios, Eigen::VectorXd epsilon_index, size_t psi_index, size_t transmissibility_index, Eigen::VectorXd susceptibility_index, size_t initial_infected_index, size_t no_age_groups, size_t no_risk_groups, size_t nburn, size_t nbatch, size_t blen);
-RcppExport SEXP _fluEvidenceSynthesis_inference_cpp(SEXP demographySEXP, SEXP age_group_limitsSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP mappingSEXP, SEXP risk_ratiosSEXP, SEXP epsilon_indexSEXP, SEXP psi_indexSEXP, SEXP transmissibility_indexSEXP, SEXP susceptibility_indexSEXP, SEXP initial_infected_indexSEXP, SEXP no_age_groupsSEXP, SEXP no_risk_groupsSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
+mcmc_result_inference_t inference_cpp(std::vector<size_t> demography, std::vector<size_t> age_group_limits, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, Eigen::MatrixXd mapping, Eigen::VectorXd risk_ratios, Eigen::VectorXd epsilon_index, size_t psi_index, size_t transmissibility_index, Eigen::VectorXd susceptibility_index, size_t initial_infected_index, size_t no_age_groups, size_t no_risk_groups, bool uk_prior, size_t nburn, size_t nbatch, size_t blen);
+RcppExport SEXP _fluEvidenceSynthesis_inference_cpp(SEXP demographySEXP, SEXP age_group_limitsSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP mappingSEXP, SEXP risk_ratiosSEXP, SEXP epsilon_indexSEXP, SEXP psi_indexSEXP, SEXP transmissibility_indexSEXP, SEXP susceptibility_indexSEXP, SEXP initial_infected_indexSEXP, SEXP no_age_groupsSEXP, SEXP no_risk_groupsSEXP, SEXP uk_priorSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -31,10 +31,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type initial_infected_index(initial_infected_indexSEXP);
     Rcpp::traits::input_parameter< size_t >::type no_age_groups(no_age_groupsSEXP);
     Rcpp::traits::input_parameter< size_t >::type no_risk_groups(no_risk_groupsSEXP);
+    Rcpp::traits::input_parameter< bool >::type uk_prior(uk_priorSEXP);
     Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
     Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
     Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
-    rcpp_result_gen = Rcpp::wrap(inference_cpp(demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, nburn, nbatch, blen));
+    rcpp_result_gen = Rcpp::wrap(inference_cpp(demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, no_age_groups, no_risk_groups, uk_prior, nburn, nbatch, blen));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -344,7 +345,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 21},
+    {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 22},
     {"_fluEvidenceSynthesis_dmultinomialCPP", (DL_FUNC) &_fluEvidenceSynthesis_dmultinomialCPP, 4},
     {"_fluEvidenceSynthesis_inference_multistrains", (DL_FUNC) &_fluEvidenceSynthesis_inference_multistrains, 11},
     {"_fluEvidenceSynthesis_updateMeans", (DL_FUNC) &_fluEvidenceSynthesis_updateMeans, 3},

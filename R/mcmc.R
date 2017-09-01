@@ -60,7 +60,8 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param age_groups Optional age groups upper limits used in your model and data. If you use different age groups for the model and the data you need
 #' to provide a age_group_map instead.
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
-#' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})
+#' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}}).
+#' This parameter is not needed if only one risk group is modelled
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
@@ -74,15 +75,20 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
         vaccine_calendar, polymod_data, initial, parameter_map, age_groups, age_group_map,
         risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
+  uk_defaults <- F
   if (any(n_samples>ili))
     stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
   if (missing(age_group_map))
-    if (missing(age_group_limits))
-      age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
-    else
-      age_group_map <- age_group_mapping(age_group_limits, age_group_limits)
+    if (missing(age_groups))
+      if (ncol(ili) == 5) { # Using UK defaults
+        uk_defaults <- T
+        age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+      } else
+        stop("Need to provide either age_groups or age_group_map")
+    else 
+      age_group_map <- age_group_mapping(age_groups, age_groups)
   if (missing(risk_ratios)) {
-    if (ncol(vaccine_calendar$calendar == 21)) {
+    if (uk_defaults) {
         risk_ratios <- matrix(c(
           0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
           0, 0, 0, 0, 0, 0, 0                          
@@ -123,13 +129,39 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   mapping <- mapping %>% dplyr::left_join(from_i, by = c("from", "from_risk")) %>% 
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
   
+  no_age_groups <- (max(mapping$from_i)+1)/no_risk_groups
   if (missing(parameter_map)) {
-    parameter_map <- list(
-      epsilon = c(1,1,2,2,3),
-      psi = 4,
-      transmissibility = 5,
-      susceptibility = c(6,6,6,7,7,7,8),
-      initial.infected = 9)
+    if (uk_defaults)
+      parameter_map <- list(
+        epsilon = c(1,1,2,2,3),
+        psi = 4,
+        transmissibility = 5,
+        susceptibility = c(6,6,6,7,7,7,8),
+        initial.infected = 9)
+    else if (!is.null(names(initial))) {
+      parameter_map <- list()
+      ns <- names(initial)
+      for (i in 1:length(initial)) {
+        if (substr(ns[i],1,2) == "e")
+          parameter_map[["epsilon"]] <- c(parameter_map[["epsilon"]], i)
+        if (substr(ns[i],1,2) == "p")
+          parameter_map[["psi"]] <- c(parameter_map[["psi"]], i)
+        if (substr(ns[i],1,2) == "t")
+          parameter_map[["transmissibility"]] <- c(parameter_map[["transmissibility"]], i)
+        if (substr(ns[i],1,2) == "s")
+          parameter_map[["susceptibility"]] <- c(parameter_map[["susceptibility"]], i)
+        if (substr(ns[i],1,2) == "i")
+          parameter_map[["initial.infected"]] <- c(parameter_map[["initial.infected"]], i)
+      }
+    }
+    else
+      parameter_map <- list(
+        epsilon = seq(1,no_age_groups),
+        psi = no_age_groups + 1,
+        transmissibility = no_age_groups + 2,
+        susceptibility = seq(no_age_groups + 3, 2*no_age_groups + 3),
+        initial.infected = 2*no_age_groups + 4
+      )
   }
   
   # Go over parameter_map. Shorten list and also make sure min(index) = 0
@@ -156,7 +188,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 
                  parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i,
-                 (max(mapping$from_i)+1)/no_risk_groups, no_risk_groups, nburn, nbatch, blen)
+                 no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
   if (is.null(names(initial))) {
     colnames(results$batch) <- b_cols$value
   } else
