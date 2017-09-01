@@ -57,6 +57,8 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
 #' age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
 #' and log of initial_infected population.
+#' @param age_group_limits Optional age group limits used in your model and data. If you use different age groups for the model and the data you need
+#' to provide a age_group_map instead.
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
 #' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})
 #' @param nburn Number of iterations of burn in
@@ -69,18 +71,24 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
-        vaccine_calendar, polymod_data, initial, parameter_map, age_group_map,
+        vaccine_calendar, polymod_data, initial, parameter_map, age_group_limits, age_group_map,
         risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
   if (any(n_samples>ili))
     stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
   if (missing(age_group_map))
-    age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+    if (missing(age_group_limits))
+      age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+    else
+      age_group_map <- age_group_mapping(age_group_limits, age_group_limits)
   if (missing(risk_ratios)) {
-    risk_ratios <- matrix(c(
-      0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-      0, 0, 0, 0, 0, 0, 0                          
-    ), ncol = 7, byrow = T)
+    if (ncol(vaccine_calendar$calendar == 21)) {
+        risk_ratios <- matrix(c(
+          0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
+          0, 0, 0, 0, 0, 0, 0                          
+        ), ncol = 7, byrow = T)
+    } else 
+      risk_ratios <- rep(1, length(unique(age_group_map$from)))
   }
   if (class(risk_ratios) == "matrix") {
     no_risk_groups <- nrow(risk_ratios) + 1
@@ -94,7 +102,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     risk_ratios <- data.frame(value = risk_ratios) 
   }
   if (missing(no_risk_groups))
-    no_risk_groups <- nrow(risk_ratios)/unique(age_group_map$from)
+    no_risk_groups <- nrow(risk_ratios)/length(unique(age_group_map$from))
   if (missing(risk_group_map)) {
     risk_group_map <- risk_group_mapping(from = factor(1:no_risk_groups),
                                  to = factor(1:(ncol(ili)/length(unique(age_group_map$to)))))

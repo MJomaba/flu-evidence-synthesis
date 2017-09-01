@@ -10,6 +10,7 @@ vignette: >
 ---
 
 ```{r load-libraries, include=F}
+library(dplyr)
 library(pander)
 library(fluEvidenceSynthesis)
 ```
@@ -54,7 +55,7 @@ Below we show how to create a vaccination calendar for 7 age groups and 3 risk g
 library("fluEvidenceSynthesis")
 
 efficacy <- rep(c(0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.3), 3)
-calendar <- matrix(rep(0,21*4),ncol = 21)
+coverage <- matrix(rep(0,21*4),ncol = 21)
 dates <-  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
             as.Date("2010-12-01"), as.Date("2011-01-01"))
 
@@ -62,19 +63,19 @@ dates <-  c(as.Date("2010-10-01"), as.Date("2010-11-01"),
 # Set rate of vaccine uptake for different dates/age groups
 # In this case the elderly (age group 7) start with a coverage of 0.62 in the first month
 # followed by 0.7 and 0.925 in the second and third month. After three months the total uptake will be.
-calendar[1,c(7,14,21)] <- 0.0
-calendar[2,c(7,14,21)] <- 0.62
-calendar[3,c(7,14,21)] <- 0.77
-calendar[4,c(7,14,21)] <- 0.925
+coverage[1,c(7,14,21)] <- 0.0
+coverage[2,c(7,14,21)] <- 0.62
+coverage[3,c(7,14,21)] <- 0.77
+coverage[4,c(7,14,21)] <- 0.925
 
 # Set coverage for high risk young children
-calendar[1,c(8,9)] <- 0.0
-calendar[2,c(8,9)] <- 0.62
-calendar[3,c(8,9)] <- 0.62
-calendar[4,c(8,9)] <- 0.62
+coverage[1,c(8,9)] <- 0.0
+coverage[2,c(8,9)] <- 0.62
+coverage[3,c(8,9)] <- 0.62
+coverage[4,c(8,9)] <- 0.62
 
 vaccine_calendar <- as_vaccination_calendar(efficacy = efficacy, dates = dates, 
-                                            coverage = calendar, no_age_groups = 7,
+                                            coverage = coverage, no_age_groups = 7,
                                             no_risk_groups = 3)
 ```
 
@@ -113,7 +114,8 @@ cases <- rowSums(vaccination_scenario(demography=demography,
                               parameters=inference.results$batch,
                               verbose = F
 ))
-ggplot(data = data.frame("cases" = cases)) + geom_histogram(aes(x = cases), bins = 25)
+cases_df <- data.frame(value = cases, scenario = "Original")
+ggplot(data = cases_df) + geom_histogram(aes(x = value), bins = 25)
 ```
 
 ## Change the vaccination coverage
@@ -128,7 +130,6 @@ change_coverage <- function(data, final_uptake) {
   # If final uptake is zero in a group then we need to make some kind of assumption on uptake rate over time
   if (any(sums == 0)) {
     warning("No prior information on uptake rate. Using constant uptake rate")
-    #browser()
     col <- which(sums == 0)
     data[,col] <- seq(0, (nrow(data)-1))
     sums <- data[nrow(data),]    
@@ -140,11 +141,11 @@ change_coverage <- function(data, final_uptake) {
 }
 
 # Scale all age groups to 80%
-new_calendar <- change_coverage(calendar, rep(0.8, ncol(calendar)))
+new_coverage <- change_coverage(coverage, rep(0.8, ncol(coverage)))
 
 # The rest of the simulation is similar as above, but now using the new_calendar
 new_vaccine_calendar <- as_vaccination_calendar(efficacy = efficacy, dates = dates, 
-                                            coverage = new_calendar, no_age_groups = 7,
+                                            coverage = new_coverage, no_age_groups = 7,
                                             no_risk_groups = 3)
 
 new_cases <- 
@@ -155,7 +156,12 @@ new_cases <-
                                parameters = inference.results$batch,
                                verbose = F
   ))
-ggplot(data=data.frame("cases"=new_cases)) + geom_histogram(aes(x=cases),bins=25)
+
+# Add the new results to the cases_df table
+cases_df <- data.frame(value = new_cases, scenario = "New") %>%
+  rbind(cases_df)
+
+ggplot(data=cases_df) + geom_violin(aes(y=value, x=scenario), scale = "width")
 ```
 
 ## Possible exercises

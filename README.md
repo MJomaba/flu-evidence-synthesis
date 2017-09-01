@@ -37,7 +37,7 @@ install_github("MJomaba/flu-evidence-synthesis", dependencies = TRUE, build_vign
 
 ## Documentation and examples
 
-All functions provided by the package are documented in R, but we recommend reading the provided vignettes for a good introduction/overview of the provided capabilities. Vignettes on the epidemiological model and parameter inference can be found [here](http://blackedder.github.io/flu-evidence-synthesis/modelling.html), [here](http://blackedder.github.io/flu-evidence-synthesis/adapting-the-transmission-model.html) and [here](http://blackedder.github.io/flu-evidence-synthesis/inference.html). There is also a vignette available on analysis the effects of different [vaccination scenarios](http://blackedder.github.io/flu-evidence-synthesis/vaccination.html).
+All functions provided by the package are documented in R, but we recommend reading the provided vignettes for a good introduction/overview of the provided capabilities. Vignettes on the epidemiological model and parameter inference can be found [here](http://blackedder.github.io/flu-evidence-synthesis/modelling.html), [here](http://blackedder.github.io/flu-evidence-synthesis/adapting-the-transmission-model.html) and [here](http://blackedder.github.io/flu-evidence-synthesis/inference.html). There is also a vignette available on analysing the effects of different [vaccination scenarios](http://blackedder.github.io/flu-evidence-synthesis/vaccination.html).
 
 If you also installed the vignettes locally (see above) you can view them using:
 
