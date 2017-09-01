@@ -233,7 +233,7 @@ infection_odin <- function(population, initial_infected, vaccine_calendar, conta
   y <- data.frame(y[2:(nrow(y)), ] - y[1:(nrow(y) - 1), ])
   
   #Cleanup and add Time column
-  colnames(y) <- sapply(seq(1,no_risk_groups), function(i) sapply(seq(1,no_age_groups), function(j) paste0("Age", i, "Risk", j)))
+  colnames(y) <- names(population)
   mutate(y, Time = as.Date(t[1:nrow(y)], origin = "1970-01-01"))
 }
 ```
@@ -247,7 +247,7 @@ library(fluEvidenceSynthesis)
 data(demography)
 ag <- stratify_by_age(demography, limits = c(65))
 
-population <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
+population <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1), labels = c("LowRisk","HighRisk"))
 
 ag <- c(1000, 1000)
 initial.infected <- stratify_by_risk(ag, matrix(c(0.01, 0.4), nrow = 1))
@@ -273,20 +273,11 @@ Next we run our model using the newly defined `infection_odin` function and plot
 library(ggplot2)
 odes <- infection_odin(population, initial.infected, vaccine_calendar, contacts, 
                c(0.7, 0.3), 0.17, c(0.8, 1.8), 7)
+fraction.infected <- odes %>%
+  gather(Group, Incidence, -Time) %>%
+  mutate(fraction = Incidence/population[Group])
 
-fraction.infected <- odes
-fraction.infected$V1 <- fraction.infected$Age1Risk1/population[1]
-fraction.infected$V2 <- fraction.infected$Age1Risk2/population[2]
-fraction.infected$V3 <- fraction.infected$Age2Risk1/population[3]
-fraction.infected$V4 <- fraction.infected$Age2Risk2/population[4]
-
-ggplot( data=fraction.infected ) + geom_line( aes(x=Time, y=V1, colour = "<65") ) + 
-  geom_line( aes(x=Time,y=V2, colour="65+") )  + 
-  geom_line( aes(x=Time, y=V3, colour="<65 High risk") ) +
-  geom_line( aes(x=Time,y=V4, colour="65+ High risk"),linetype=2 ) +
-  scale_colour_manual("", 
-                      breaks = c("<65","65+","<65 High risk","65+ High risk"),
-                      values = c("darkblue","blue","darkred","red")) +
+ggplot( data=fraction.infected ) + geom_line( aes(x=Time, y=fraction, colour = Group) ) + 
   ylab( "Fraction infected" )
 ```
 
