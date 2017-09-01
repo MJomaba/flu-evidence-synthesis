@@ -57,7 +57,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
 #' age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
 #' and log of initial_infected population.
-#' @param age_group_limits Optional age group limits used in your model and data. If you use different age groups for the model and the data you need
+#' @param age_groups Optional age groups upper limits used in your model and data. If you use different age groups for the model and the data you need
 #' to provide a age_group_map instead.
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
 #' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})
@@ -71,7 +71,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
-        vaccine_calendar, polymod_data, initial, parameter_map, age_group_limits, age_group_map,
+        vaccine_calendar, polymod_data, initial, parameter_map, age_groups, age_group_map,
         risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
 {
   if (any(n_samples>ili))
