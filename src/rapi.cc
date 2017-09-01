@@ -196,7 +196,7 @@ Rcpp::DataFrame runSEIRModel(
 //'
 // [[Rcpp::export(name="infectionODEs.cpp")]]
 Rcpp::DataFrame infectionODEs(
-        Eigen::VectorXd population, 
+        Rcpp::NumericVector population,
         Eigen::VectorXd initial_infected, 
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXd contact_matrix,
@@ -205,25 +205,30 @@ Rcpp::DataFrame infectionODEs(
         Eigen::VectorXd infection_delays, 
         Rcpp::DateVector dates )
 {
+
+    Eigen::VectorXd popv(population.size());
+    for (int i = 0; i < population.size(); ++i)
+        popv[i] = population[i];
+    
     if (contact_matrix.cols() != contact_matrix.rows()) 
         ::Rf_error("Contact matrix should be a square matrix");
     else if (contact_matrix.cols() != susceptibility.size())
         ::Rf_error("Contact matrix and susceptibility vector should use the same number of age groups.");
-    else if (contact_matrix.cols()*3 < population.size()) 
-        ::Rf_error("Maximum of three risk groups are expected. Population vector should have the initial population of each group");
-    else if (population.size()%contact_matrix.cols()!=0)
+    else if (contact_matrix.cols()*3 < popv.size()) 
+        ::Rf_error("Maximum of three risk groups are expected. Population vector should have the initial popv of each group");
+    else if (popv.size()%contact_matrix.cols()!=0)
         ::Rf_error("Population groups and contact_matrix size mismatch");
-    else if (population.size() != initial_infected.size())
+    else if (popv.size() != initial_infected.size())
         ::Rf_error("Population vector and initial_infected should have the same number of entries");
 
-    auto dim = population.size();
-    if (contact_matrix.cols() != population.size()/3)
+    auto dim = popv.size();
+    if (contact_matrix.cols() != popv.size()/3)
     {
-        population.conservativeResize(contact_matrix.cols()*3);
+        popv.conservativeResize(contact_matrix.cols()*3);
         initial_infected.conservativeResize(contact_matrix.cols()*3);
-        for( size_t i = dim; i<population.size(); ++i)
+        for( size_t i = dim; i<popv.size(); ++i)
         {
-            population[i] = 0;
+            popv[i] = 0;
             initial_infected[i] = 0;
         }
     }
@@ -235,7 +240,7 @@ Rcpp::DataFrame infectionODEs(
     }
 
     auto result = flu::infectionODE(
-        population, initial_infected, 
+        popv, initial_infected, 
         infection_delays[0], infection_delays[1],
         susceptibility, contact_matrix, transmissibility,
         vaccine_calendar, datesC );
@@ -255,19 +260,25 @@ Rcpp::DataFrame infectionODEs(
         }
     }
 
-    columnNames.push_back( "Time" );
+    if (population.hasAttribute("names"))
+        columnNames = population.attr("names");
+
+    columnNames.push_front( "Time" );
     resultList[0] = times;
 
     for (int i=0; i<dim; ++i)
     {
         resultList[i+1] = Eigen::VectorXd(result.cases.col(i));
-        columnNames.push_back( 
+        if (!population.hasAttribute("names"))
+            columnNames.push_back( 
                 "V" + boost::lexical_cast<std::string>( i+1 ) );
     }
 
-    resultList.attr("names") = columnNames;
+    auto df = Rcpp::DataFrame(resultList);
 
-    return Rcpp::DataFrame(resultList);
+    df.attr("names") = columnNames;
+
+    return df;
 }
 
 //' Returns log likelihood of the predicted number of cases given the data for that week
