@@ -116,8 +116,20 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         contact_ids.push_back(i+1);
 
     auto curr_parameters = initial;
-    auto curr_init_inf = Eigen::VectorXd::Constant( 
+    Eigen::VectorXd curr_init_inf = Eigen::VectorXd::Constant( 
             no_age_groups, pow(10,curr_parameters[initial_infected_index]) );
+
+    if (no_risk_groups < 3)
+    {
+        pop_vec.conservativeResize(no_age_groups*3);
+        curr_init_inf.conservativeResize(no_age_groups*3);
+        for( size_t i = no_age_groups*no_risk_groups; i<pop_vec.size(); ++i)
+        {
+            pop_vec[i] = 0;
+            curr_init_inf[i] = 0;
+        }
+    } else if (no_risk_groups > 3)
+        ::Rf_error("Maximum of three risk groups supported");
 
     auto polymod = flu::contacts::table_to_contacts( polymod_data, 
             age_group_limits ); 
@@ -137,7 +149,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             pars_to_susceptibility(curr_parameters),
             current_contact_regular, curr_parameters[transmissibility_index], 
             vaccine_calendar, 7*24 );
-
+    auto a = days_to_weeks_5AG(result, mapping, pop_RCGP.size());
     /*curr_psi=0.00001;*/
     auto d_app = 3;
     auto curr_llikelihood = log_likelihood_hyper_poisson(
@@ -146,12 +158,12 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    auto proposal_state = proposal::initialize( 9 );
+    auto proposal_state = proposal::initialize( curr_parameters.size() );
 
     auto log_prior_ratio_f = [uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
          initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
              if (uk_prior)
-                log_prior(proposed, current, susceptibility);
+                return log_prior(proposed, current, susceptibility);
              else {
                  // Use flat priors
                  for (auto i = 0; i < epsilon_index.size(); ++i) {
@@ -166,6 +178,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                      if (proposed[index] < 0 || proposed[index] > 1)
                          return log(0) - 0;
                  }
+                 return 0.0;
              }
          };
 
@@ -182,6 +195,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     while(sampleCount<nbatch)
     {
         ++k;
+        
 
         /*update of the variance-covariance matrix and the mean vector*/
         proposal_state = proposal::update( std::move( proposal_state ),
@@ -221,9 +235,16 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         } else {
             /*translate into an initial infected population*/
             
-            auto prop_init_inf = Eigen::VectorXd::Constant( 
+            Eigen::VectorXd prop_init_inf = Eigen::VectorXd::Constant( 
                     no_age_groups, pow(10,prop_parameters[initial_infected_index]) );
-
+            if (no_risk_groups < 3)
+            {
+                prop_init_inf.conservativeResize(no_age_groups*3);
+                for( size_t i = no_age_groups*no_risk_groups; i<prop_init_inf.size(); ++i)
+                {
+                    prop_init_inf[i] = 0;
+                }
+            }
             auto prop_c = curr_c;
 
             /*do swap of contacts step_mat times (reduce or increase to change 'distance' of new matrix from current)*/

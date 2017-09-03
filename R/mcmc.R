@@ -1,6 +1,3 @@
-#' importFrom dplyr "%>%"
-
-
 #' @title Adaptive MCMC algorithm
 #'
 #' @description MCMC which adapts its proposal distribution for faster convergence following:
@@ -78,10 +75,13 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   uk_defaults <- F
   if (any(n_samples>ili))
     stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
+  no_risk_groups <- vaccine_calendar$no_risk_groups
+  no_age_groups <- vaccine_calendar$no_age_groups
+  if (no_risk_groups > 2 && no_age_groups == 7 && ncol(ili) == 5)
+    uk_defaults <- T
   if (missing(age_group_map))
     if (missing(age_groups))
-      if (ncol(ili) == 5) { # Using UK defaults
-        uk_defaults <- T
+      if (uk_defaults) { # Using UK defaults
         age_group_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
       } else
         stop("Need to provide either age_groups or age_group_map")
@@ -93,11 +93,13 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
           0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
           0, 0, 0, 0, 0, 0, 0                          
         ), ncol = 7, byrow = T)
-    } else 
-      risk_ratios <- rep(1, length(unique(age_group_map$from)))
+    } else {
+      if (no_age_groups > 1)
+        stop("No risk ratios supplied.")
+      risk_ratios <- rep(1, no_age_groups)
+    }
   }
   if (class(risk_ratios) == "matrix") {
-    no_risk_groups <- nrow(risk_ratios) + 1
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     risk_ratios <- data.frame(
       AgeGroup = rep(unique(age_group_map$from), no_risk_groups),
@@ -107,8 +109,6 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   } else if (class(risk_ratios) != "data.frame") {
     risk_ratios <- data.frame(value = risk_ratios) 
   }
-  if (missing(no_risk_groups))
-    no_risk_groups <- nrow(risk_ratios)/length(unique(age_group_map$from))
   if (missing(risk_group_map)) {
     risk_group_map <- risk_group_mapping(from = factor(1:no_risk_groups),
                                  to = factor(1:(ncol(ili)/length(unique(age_group_map$to)))))
@@ -129,7 +129,6 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   mapping <- mapping %>% dplyr::left_join(from_i, by = c("from", "from_risk")) %>% 
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
   
-  no_age_groups <- (max(mapping$from_i)+1)/no_risk_groups
   if (missing(parameter_map)) {
     if (uk_defaults)
       parameter_map <- list(
@@ -142,15 +141,15 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
       parameter_map <- list()
       ns <- names(initial)
       for (i in 1:length(initial)) {
-        if (substr(ns[i],1,2) == "e")
+        if (substr(ns[i],1,1) == "e")
           parameter_map[["epsilon"]] <- c(parameter_map[["epsilon"]], i)
-        if (substr(ns[i],1,2) == "p")
+        if (substr(ns[i],1,1) == "p")
           parameter_map[["psi"]] <- c(parameter_map[["psi"]], i)
-        if (substr(ns[i],1,2) == "t")
+        if (substr(ns[i],1,1) == "t")
           parameter_map[["transmissibility"]] <- c(parameter_map[["transmissibility"]], i)
-        if (substr(ns[i],1,2) == "s")
+        if (substr(ns[i],1,1) == "s")
           parameter_map[["susceptibility"]] <- c(parameter_map[["susceptibility"]], i)
-        if (substr(ns[i],1,2) == "i")
+        if (substr(ns[i],1,1) == "i")
           parameter_map[["initial.infected"]] <- c(parameter_map[["initial.infected"]], i)
       }
     }
@@ -183,7 +182,6 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     dplyr::mutate(ext = row_number(), mx = n()) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(value = paste0(value, ifelse(mx > 1, paste0("_", ext),"")))
-  
   results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 

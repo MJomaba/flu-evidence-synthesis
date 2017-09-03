@@ -143,7 +143,8 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     # Check that summed rates (by column,multiplied by number of days) are below 1
     if (!all(rates <= 1))
       stop( "Total fraction of people vaccinated greater than 1" )
-    
+    vc$no_risk_groups <- no_risk_groups
+    vc$no_age_groups <- no_age_groups
     return(vc)
   } else {
     vc <- list("efficacy" = efficacy, "dates" = dates)

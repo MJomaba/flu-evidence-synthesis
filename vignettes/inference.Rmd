@@ -11,6 +11,7 @@ vignette: >
 
 ```{r,include=F}
 library(pander)
+library(dplyr)
 ```
 
 # Introduction
@@ -30,26 +31,140 @@ The methods are computationally intensive and fitting the model can easily take 
 
 # Examples
 
-## Simple example
+This vignette includes three examples. The first one has a model of two age groups and one risk group. The second example is based on the UK analysis, which includes 7 age groups, and two risk groups. The final example implements the UK analysis in pure R. This can be used as a starting point on how to implement your own analysis based on our analysis.
 
-The example below shows an example for the case where the data used corresponds to the structure of the data gathered in the UK. The example assumes 7 age groups: <1, 1-4, 5-14, 15-24, 25-44, 45-64, >65. In the UK ILI and virulogical data are only separated into 5 age groups though (<4,5-14,15-24,25-64,>65), so `inference` will internally group the first two (<1,1-4) and the middle age groups together when calculating the likelihood of the model given the data.
+## Two age groups
 
-This example first loads the data and then runs the inference function which returns the results of parameter inference using MCMC. This option is the most performant one, since everything is implemented in C++, but also the least flexible option.
+In this example we will run parameter inference for a model with two age groups ([0,65) and [65,+)) and one risk group. The four main steps needed are 1) prepare the data, 2) load a [vaccination calendar](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html), 3) decide on parameterisation of the [model](https://blackedder.github.io/flu-evidence-synthesis/modelling.html) and 4) run the inference.
+
+### Prepare the data
+
+The main sets of data needed are the contact data (e.g. from the polymod study), Influenza Like Illness (ILI) counts throughout the year and virological confirmation samples for (a subset) of the ILI diagnosed patients. Note that the example data included in the package is part of the UK data (see example below). For this example we load and simplify the data into two age groups. When you are using your own data then you will need to load that into R instead.
+
+```{r prepare_data_example1, cache = T}
+# Here we load the needed data and regroup it from 5 into two age groups.
+library(fluEvidenceSynthesis)
+data("demography")
+data("polymod_uk")
+data("ili")
+# Virologically confirmed infections
+data("confirmed.samples")
+
+# Group all the example data into two age groups:
+polymod <- polymod_uk[,c(1,2)]
+polymod[,3] <- rowSums(polymod_uk[,c(3,4,5,6,7,8)])
+polymod[,4] <- polymod_uk[,9]
+
+ili_df <- ili
+ili_df$ili <- ili$ili[,c(1,2)]
+ili_df$ili[,1] <- rowSums(ili$ili[,c(1,2,3,4)])
+ili_df$ili[,2] <- ili$ili[,5]
+ili_df$total.monitored <- ili$total.monitored[,c(1,2)]
+ili_df$total.monitored[,1] <- rowSums(ili$total.monitored[,c(1,2,3,4)])
+ili_df$total.monitored[,2] <- ili$total.monitored[,5]
+
+confirmed.samples_df <- confirmed.samples
+confirmed.samples_df$positive <- confirmed.samples$positive[,c(1,2)]
+confirmed.samples_df$positive[,1] <- rowSums(confirmed.samples$positive[,c(1,2,3,4)])
+confirmed.samples_df$positive[,2] <- confirmed.samples$positive[,5]
+confirmed.samples_df$total.samples <- confirmed.samples$total.samples[,c(1,2)]
+confirmed.samples_df$total.samples[,1] <- rowSums(confirmed.samples$total.samples[,c(1,2,3,4)])
+confirmed.samples_df$total.samples[,2] <- confirmed.samples$total.samples[,5]
+```
+
+For more details on the input data see `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
+
+### Vaccination calendar
+
+We will use a similar vaccination calendar as the first example in the [vaccination vignette](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html) but simplified to only have one risk group:
+
+```{r vc_example_1, cache = T}
+data(coverage)
+# Coverage rates for the low risk <65 and low risk 65+
+cov <- coverage[,c("Under.65","X65")]/100.0
+
+vaccine_calendar <- as_vaccination_calendar(efficacy = c(0.7, 0.4), 
+                                        dates = coverage$Date,
+                                        coverage = cov, 
+                                        no_age_groups = 2, no_risk_groups = 1)
+```
+
+### Parameterisation
+
+There are five main parameters included in the model. For more details on this see the [modelling vignette](https://blackedder.github.io/flu-evidence-synthesis/modelling.html) and the manuscript (Baguelin et al., 2013).
+
+- Ascertainment probabilty for three age groups ($\epsilon_i$)
+- Outside infection ($\psi$)
+- Transmissibility ($q$)
+- Susceptibility for three age groups ($\sigma_i$)
+- Initial number of infections (log transformed; $I$)
+
+The ascertianment probality and susceptibility are age group specific, so we need two parameters for that. Next we chose relevant initial parameter values. The exact values chosen here are not that relevant, although the closer to the correct values the faster the inference of the parameters inference will converge.
+
+```{r parameters_example_1, cache = T}
+initial_parameters <- c(0.1, 0.1, 1e-5, 0.16, 0.5, 0.5, -0.15)
+names(initial_parameters) <- c("epsilon_1", "epsilon_2", "psi", "transmissibility", "susceptibility_1", "susceptibility_2", "initial_infected")
+```
+ 
+### Inference
+
+```{r inference_example_1, dependson=c("parameters_example_1", "prepare_data_example_1", "vc_example_1")}
+inference.results <- inference(demography = demography,
+                      vaccine_calendar = vaccine_calendar,
+                      polymod_data = as.matrix(polymod),
+                      ili = ili_df$ili,
+                      mon_pop = ili_df$total.monitored,
+                      n_pos = confirmed.samples_df$positive,
+                      n_samples = confirmed.samples_df$total.samples,
+                      initial = initial_parameters,
+                      age_groups = c(65),
+                      nbatch = 1000,
+                      nburn = 1000, blen = 5 )
+```
+
+The `inference` function returns a list with the accepted parameters (`inference.results$batch`) and the corresponding log-likelihood values (`inference.results$llikelihoods`) as well as a matrix (`inference.results$contact.ids`) containing the row numbers of the contacts data used to build the contact matrix.
+
+```{r}
+pander(head(inference.results$batch))
+```
+
+## UK based example
+
+The UK model is more complicated than the example above, because we model 7 different age groups ([0,1), [1,5), [5,15), [15,25), [25,45), [45,65), [65,+)) and two risk groups (low risk and high risk), so our vaccination calendar represents that fact. In contrast our ILI and virological data is only recorded in five different age groups ([0,5), [5,15), [15,45), [45,65), [65,+)) and is not split into multiple age groups. This means that we need to map our epidemiological model output (7 age groups, 2 risk groups) to the data (5 age groups). This can be done using the `age_group_mapping` and `risk_group_mapping` functions. 
+
+Another detail is that we reduced the models complexity by assuming that age group [0,15) and [15,65) had the same ascertainment rate ($\epsilon$) and susceptibility. To do this we pass a `parameter_map` to the inference function, which will map the needed parameters to certain indices in the parameter list.
 
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
 data("demography")
-data("vaccine_calendar")
 data("polymod_uk")
 data("ili")
-
 # Virologically confirmed infections
 data("confirmed.samples")
+
+# UK vaccine calendar
+data("vaccine_calendar")
+
+age_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
+risk_map <- risk_group_mapping(c("LowRisk", "HighRisk"), c("All"))
+# The percentage of each age group in the high risk group
+risk_ratios <- matrix(c(0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45), ncol = 7, byrow = T)
+
+par_map <- list(
+  epsilon = c(1,1,1,2,2,2,3),
+  psi = 4,
+  transmissibility = 5,
+  susceptibility = c(6,6,6,7,7,7,8),
+  initial_infected = c(9))
 
 initial.parameters <- c(0.01188150, 0.01831852, 0.05434378,
                         1.049317e-05, 0.1657944,
                         0.3855279, 0.9269811, 0.5710709,
-                        -0.1543508 )
+                        -0.1543508)
+# Adding names for clarity, is not actually needed
+names(initial.parameters) <- c("espilon_1", "epsilon_2", "epsilon_3", "psi",
+                               "transmissibility", "susceptibility_1", "susceptibility_2", "suceptibility_3",
+                               "initial_infected")
 
 inference.results <- inference(demography = demography,
                       vaccine_calendar = vaccine_calendar,
@@ -59,50 +174,18 @@ inference.results <- inference(demography = demography,
                       n_pos = confirmed.samples$positive,
                       n_samples = confirmed.samples$total.samples,
                       initial = initial.parameters,
+                      age_group_map = age_map,
+                      risk_group_map = risk_map,
+                      parameter_map = par_map,
+                      risk_ratios = risk_ratios,
                       nbatch = 1000,
                       nburn = 1000, blen = 5 )
 ```
-
-The data used for the inference is:
-
-demography
-  ~ Vector of population sizes of a certain age. First element is everyone below 1, second every below 2 etc. The final entry will be interpreted as everyone of that age or higher (needs to be higher than 65).
-  
-vaccine_calendar
-  ~ Object representing the vaccine program applied that year. In short this contains the fraction of population, in a certain age and risk group, vaccinated within a given week.
-  
-polymod_data
-  ~ Data gathered by the POLYMOD study on contacts of subjects with the different age groups. This data will be resampled during inference to use as a prior distribution on contacts.
- 
-ili
-  ~ The number of people with Influenza Like Illness in each week
-
-mon_pop
-  ~ The total number of people monitored for ILI. For the UK this is defined as the number of people registered at the General Practitioner (GP; Doctor).
-  
-n_pos
-  ~ The number of samples positive for a given Influenza strain
-  
-n_samples
-  ~ The number of total samples tested. This is assumed to be a strict subset of the number of ILI cases
-  
-  
-The `inference` function returns a list with the accepted parameters (`inference.results$batch`) and the corresponding log-likelihood values (`inference.results$llikelihoods`) as well as a matrix (`inference.results$contact.ids`) containing the row numbers of the contacts data used to build the contact matrix.
 
 ```{r}
 pander(head(inference.results$batch))
 ```
 
-Each row represents a sample of posterior parameter values. The order of the parameters is as follows:
-
-- 1-3: Ascertainment probabilty for three age groups ($\epsilon_i$)
-- 4: Outside infection ($\psi$)
-- 5: Transmissibility ($q$)
-- 6-8: Susceptibility for three age groups ($\sigma_i$)
-- 9: Initial number of infections (log transformed; $I$)
-  
-For more details on the input data see `?data_name`, e.g. `?polymod_uk` will give an overview of the polymod data layout required.
-  
 ## More in depth example
 
 Above we used the general `inference` function to perform parameter inference using the data. In this section we implement this function in R, which allows adjustment of the inference process to allow different data structures or different number of age groups. This method gives the user more control, but it will be slower than calling the `inference` function directly.

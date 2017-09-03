@@ -66,6 +66,8 @@ test_that("We can convert age vector to age group", {
 })
  
 test_that("We can map age groups", {
+  mp <- age_group_mapping(c(5), c(5))
+  expect_equal(nrow(mp), 2)
   mp <- age_group_mapping(c(1,5), c(5))
   expect_identical(as.numeric(mp$from), c(1, 2, 3))
   expect_identical(as.numeric(mp$to), c(1, 1, 2))

@@ -111,7 +111,7 @@ odes <- infectionODEs( population, initial.infected, vaccine_calendar, contacts,
 pander(head(odes))
 ```
 
-```{r,fig.width=6,fig.height=5, fig.cap = "Fraction infected for each group. Note that the results for both risk groups for ages [65,+) are the same and therefore cover each other"}
+```{r,fig.width=6,fig.height=5, fig.cap = "Fraction infected for each group. Note that the results for both risk groups for ages 65+ are the same and therefore cover each other"}
 fraction.infected <- odes %>%
   gather(Group, Incidence, -Time) %>%
   mutate(fraction = Incidence/population[Group])

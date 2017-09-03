@@ -25,7 +25,8 @@ Imports:
     BH,
     RcppEigen,
     dplyr,
-    data.table
+    data.table,
+    magrittr
 Suggests:
     testthat,
     rjson,
