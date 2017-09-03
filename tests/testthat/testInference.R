@@ -83,11 +83,11 @@ test_that("We can run inference",
       expect_lt(m1, 2268 )
       expect_gt(m1, 2242 )
       m2 <- moment(results$llikelihoods,central=TRUE,2)
-      expect_lt(m2, 3.5 )
+      expect_lt(m2, 5.5 )
       expect_gt(m2, 0.9 )
       m3 <- moment(results$llikelihoods,central=TRUE,3)
-      expect_lt(m3, -1.0 )
-      expect_gt(m3, -5.0 )
+      expect_lt(m3, 1.0 )
+      expect_gt(m3, -7.0 )
   }
 )
 

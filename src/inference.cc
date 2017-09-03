@@ -116,8 +116,9 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         contact_ids.push_back(i+1);
 
     auto curr_parameters = initial;
-    Eigen::VectorXd curr_init_inf = Eigen::VectorXd::Constant( 
-            no_age_groups, pow(10,curr_parameters[initial_infected_index]) );
+    Eigen::VectorXd curr_init_inf = flu::data::stratify_by_risk(
+            Eigen::VectorXd::Constant(no_age_groups, pow(10,curr_parameters[initial_infected_index]) ),
+            risk_ratios, no_risk_groups);
 
     if (no_risk_groups < 3)
     {
@@ -144,12 +145,11 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     auto time_infectious = 1.8;
 
     auto result = infectionODE(pop_vec, 
-            flu::data::stratify_by_risk(curr_init_inf, risk_ratios, no_risk_groups),
+            curr_init_inf,
             time_latent, time_infectious, 
             pars_to_susceptibility(curr_parameters),
             current_contact_regular, curr_parameters[transmissibility_index], 
             vaccine_calendar, 7*24 );
-    auto a = days_to_weeks_5AG(result, mapping, pop_RCGP.size());
     /*curr_psi=0.00001;*/
     auto d_app = 3;
     auto curr_llikelihood = log_likelihood_hyper_poisson(
@@ -195,7 +195,6 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     while(sampleCount<nbatch)
     {
         ++k;
-        
 
         /*update of the variance-covariance matrix and the mean vector*/
         proposal_state = proposal::update( std::move( proposal_state ),
@@ -235,8 +234,9 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         } else {
             /*translate into an initial infected population*/
             
-            Eigen::VectorXd prop_init_inf = Eigen::VectorXd::Constant( 
-                    no_age_groups, pow(10,prop_parameters[initial_infected_index]) );
+            Eigen::VectorXd prop_init_inf = flu::data::stratify_by_risk(
+                    Eigen::VectorXd::Constant(no_age_groups, pow(10,prop_parameters[initial_infected_index]) ),
+                    risk_ratios, no_risk_groups);
             if (no_risk_groups < 3)
             {
                 prop_init_inf.conservativeResize(no_age_groups*3);
@@ -259,7 +259,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                 contacts::to_symmetric_matrix( prop_c, age_data );
 
             result = infectionODE(pop_vec, 
-                    flu::data::stratify_by_risk(prop_init_inf, risk_ratios, no_risk_groups),
+                    prop_init_inf, 
                     time_latent, time_infectious, 
                     pars_to_susceptibility(prop_parameters),
                     prop_contact_regular, prop_parameters[transmissibility_index], 

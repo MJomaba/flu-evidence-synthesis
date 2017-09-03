@@ -77,7 +77,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
   no_risk_groups <- vaccine_calendar$no_risk_groups
   no_age_groups <- vaccine_calendar$no_age_groups
-  if (no_risk_groups > 2 && no_age_groups == 7 && ncol(ili) == 5)
+  if (no_risk_groups >= 2 && no_age_groups == 7 && ncol(ili) == 5)
     uk_defaults <- T
   if (missing(age_group_map))
     if (missing(age_groups))
@@ -89,12 +89,9 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
       age_group_map <- age_group_mapping(age_groups, age_groups)
   if (missing(risk_ratios)) {
     if (uk_defaults) {
-        risk_ratios <- matrix(c(
-          0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-          0, 0, 0, 0, 0, 0, 0                          
-        ), ncol = 7, byrow = T)
+        risk_ratios <- matrix(c(0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, rep(0,no_age_groups*(no_risk_groups-2))), ncol = 7, byrow = T)
     } else {
-      if (no_age_groups > 1)
+      if (no_risk_groups > 1)
         stop("No risk ratios supplied.")
       risk_ratios <- rep(1, no_age_groups)
     }
@@ -182,6 +179,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     dplyr::mutate(ext = row_number(), mx = n()) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(value = paste0(value, ifelse(mx > 1, paste0("_", ext),"")))
+  
   results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 

@@ -145,6 +145,9 @@ data("confirmed.samples")
 # UK vaccine calendar
 data("vaccine_calendar")
 
+vaccine_calendar$calendar[,15:21] <- 0
+devtools::use_data(vaccine_calendar, overwrite = T)
+
 age_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
 risk_map <- risk_group_mapping(c("LowRisk", "HighRisk"), c("All"))
 # The percentage of each age group in the high risk group
@@ -188,7 +191,7 @@ pander(head(inference.results$batch))
 
 ## More in depth example
 
-Above we used the general `inference` function to perform parameter inference using the data. In this section we implement this function in R, which allows adjustment of the inference process to allow different data structures or different number of age groups. This method gives the user more control, but it will be slower than calling the `inference` function directly.
+Above we used the general `inference` function to perform parameter inference using the data. In this section we implement this function in R, which allows adjustment of the inference process to allow different models, additional data etc.. This method gives the user more control, but it will be slower than calling the `inference` function directly.
 
 To perform parameter inference we first need to define a function that returns the (log) likelihood for given parameter values, as dependent on the data and a function which returns the log prior probability of the parameters. These functions are then passed to `adaptive.mcmc` which returns a posterior sample for the parameter values. By combining a number of data sources, the likelihood function becomes relatively complex, and so needs to perform the following steps (for full details see Baguelin et al., 2013):
 
