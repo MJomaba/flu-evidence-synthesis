@@ -297,7 +297,7 @@ test_that("New vaccination_scenario gives similar results to infectionODEs",
                          c(rep(inference.results$batch[1000,6],3),rep(inference.results$batch[1000,7],3),inference.results$batch[1000,8]),
                          inference.results$batch[1000,5],
                          c(0.8,1.8), 1 )
-  expect_lt(abs(sum(total_size-colSums(odes[,2:ncol(odes)]))),1e-3)
+  expect_lt(abs(sum(total_size-colSums(odes[,2:15]))),1e-3)
 })
 
 test_that("New vaccination_scenario works when passed an incidence_function", 
@@ -362,7 +362,7 @@ test_that("New vaccination_scenario works when passed an incidence_function",
         contact_ids = inference.results$contact.ids[1000,],
         parameters = inference.results$batch[1000,],
         verbose = F)
-  expect_lt(abs(sum(total_size-reference)),1e-3)
+  expect_lt(abs(sum(total_size[1:length(reference)]-reference)),1e-3)
   
   # Test on table of parameters/contact_ids
   df <- vaccination_scenario(test.vac, inference.results$batch[1:10,],

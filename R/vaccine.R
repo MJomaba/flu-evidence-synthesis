@@ -173,6 +173,9 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
 #' \code{infectionODEs} is used. In that case both \code{polymod_data} and \code{demography} data need to be
 #' provided as well.
 #' @param time_column An optional time column that will be removed from the data returned by the incidence_function
+#' @param parameter_map Optional: mapping for the parameters (by description and age group) to the relevant index
+#' in the parameter vector. Needed parameters are: transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
+#' and log of initial_infected population \code{\link{parameter_mapping}}.
 #' @param ... Further parameters that will be passed to the \code{incidence_function}
 #' @param verbose Whether to display warnings. Default is TRUE.
 #' 
@@ -181,8 +184,17 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
 #' @return The total incidence in a year per age and risk group
 vaccination_scenario <- function(vaccine_calendar, parameters,  
                                  contact_ids, incidence_function,
-                                 time_column, ..., verbose = T) {
+                                 time_column, parameter_map, ..., verbose = T) {
   if (missing(incidence_function)) {
+    uk_defaults <- F
+    no_risk_groups <- vaccine_calendar$no_risk_groups
+    no_age_groups <- vaccine_calendar$no_age_groups
+    no_parameters <- length(parameters)
+    if (!is.null(nrow(parameters)))
+      no_parameters <- ncol(parameters)
+    if (no_risk_groups >= 2 && no_age_groups == 7 && no_parameters == 9)
+      uk_defaults <- T
+    
     var_names <- names(sys.call())
     if (!"polymod_data" %in% var_names) {
       stop("No polymod_data set provided")
@@ -198,9 +210,26 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
       demography <- eval(match.call()[["demography"]])
     }
     time_column = "Time"
+    
+    if (missing(parameter_map)) {
+      if (uk_defaults) {
+        parameter_map <-
+          parameter_mapping(
+            epsilon = c(1,1,2,2,3),
+            psi = 4,
+            transmissibility = 5,
+            susceptibility = c(6,6,6,7,7,7,8),
+            initial_infected = 9)
+      } else if (no_parameters == 2*no_age_groups + 3) {
+        parameter_map <- parameter_mapping(parameters = initial)
+      } else {
+        stop("Missing parameter map")
+      }
+    }
+    
     incidence_function <- function(vaccine_calendar, parameters, contact_ids, ...) {
       if (!"age_group_limits" %in% var_names) {
-        if (verbose)
+        if (verbose || !uk_defaults)
           warning("Missing age_group_limits, using default: c(1,5,15,25,45,65)")
         age_group_limits <- c(1,5,15,25,45,65)
       } else {
@@ -209,19 +238,20 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
       contacts <- contact_matrix(as.matrix(polymod_data[contact_ids,]),
                                  demography, age_group_limits )
       
-      age.groups <- stratify_by_age( demography, 
-                                     age_group_limits )
+      age.groups <- stratify_by_age(demography, 
+                                     age_group_limits)
       
       # Fraction of each age group classified as high risk
       # We can classify a third risk group, but we are not doing
       # that here (the second row is 0 in our risk.ratios matrix)
       if (!"risk_ratios" %in% var_names) {
-        if (verbose)
-          warning("Missing risk_ratios, using default UK based values")
-        risk_ratios <- matrix(c(
-          0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, 
-          0, 0, 0, 0, 0, 0, 0                          
-        ), ncol = 7, byrow = T)
+        if (uk_defaults) {
+          risk_ratios <- matrix(c(0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45, rep(0,no_age_groups*(no_risk_groups-2))), ncol = 7, byrow = T)
+        } else {
+          if (no_risk_groups > 1)
+            stop("No risk ratios supplied.")
+          risk_ratios <- rep(1, no_age_groups)
+        }
       } else {
         risk_ratios <- eval(match.call()[["risk_ratios"]])
       }
@@ -233,19 +263,19 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
       popv <- stratify_by_risk(
         age.groups, risk_ratios );
       
+
       # Population size initially infected by age and risk group
-      initial.infected <- rep( 10^parameters[9], 7 ) 
+      initial.infected <- rep( 10^parameters[parameter_map$initial_infected], 7 ) 
       initial.infected <- stratify_by_risk(
         initial.infected, risk_ratios );
-      
+     
       # Run simulation
       # Note that to reduce complexity 
       # we are using the same susceptibility parameter for multiple age groups
       infectionODEs(popv, initial.infected,
                     vaccine_calendar,
                     contacts,
-                    c(parameters[6], parameters[6], parameters[6],
-                      parameters[7], parameters[7], parameters[7], parameters[8]),
+                    parameters[parameter_map$susceptibility],
                     transmissibility = parameters[5],
                     c(0.8,1.8), 7)
     }

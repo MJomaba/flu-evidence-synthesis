@@ -359,7 +359,7 @@ test_that("infectionODEs works correctly with different interval", {
 })
 
 test_that("Second risk group works as expected", {
-     data("age_sizes")
+    data("age_sizes")
     data("polymod_uk")
     data("mcmcsample")
     data("vaccine_calendar")
@@ -473,4 +473,32 @@ test_that("infectionODEs works with less than 3 risk groups", {
     # Up to two time diffs will be slightly more/less than 7 days due to summer time
     expect_lt(sum(comp!=0),3)
     expect_lt( sum(abs(comp)), 2.1/24 )
+})
+
+test_that("parameter_mapping works", {
+  pm <- parameter_mapping(epsilon = c(1,1,2,2,3), psi = 4, transmissibility = 5,
+                    susceptibility = c(6,6,6,7,7,7,8), initial_infected = 9)
+  expect_equal(pm$epsilon, c(1,1,2,2,3))
+  
+  pm <- parameter_mapping(psi = 4, transmissibility = 5,
+                    susceptibility = c(6,6,6,7,7,7,8), initial_infected = 9)
+  expect_equal(pm$susceptibility, c(6,6,6,7,7,7,8))
+   
+  # Test with named parameters
+  pars <- c(0.1,0.2,0.3,0.4,0.5,0.6, 0.7)
+  names(pars) <- c("epsilon", "epsilon", "psi", "transmissibiltiy", "susceptibility1", "susceptibility2", "initial")
+  pm <- parameter_mapping(parameters = pars)
+  expect_equal(pm$epsilon, c(1,2))
+  expect_equal(pm$susceptibility, c(5,6))
+  
+  # Test with list of parameter names
+  pm <- parameter_mapping(parameters = c("epsilon", "epsilon", "psi", "transmissibiltiy", "susceptibility1", "susceptibility2", "initial"))
+  expect_equal(pm$epsilon, c(1,2))
+  expect_equal(pm$susceptibility, c(5,6))
+   
+  # Test with vector of parameters (assume simplest model in this case)
+  names(pars) <- NULL
+  pm <- parameter_mapping(parameters = pars)
+  expect_equal(pm$epsilon, c(1,2))
+  expect_equal(pm$susceptibility, c(5,6))
 })

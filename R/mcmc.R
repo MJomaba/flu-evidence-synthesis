@@ -51,9 +51,9 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param polymod_data Contact data for different age groups
 #' @param initial Vector with starting parameter values
 #' @param parameter_map Optional mapping parameter (by description and age group) to the relevant index
-#' in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
+#' in the initial vector. Needed parameters are: epsilon (ascertainment) with a separate value per data
 #' age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
-#' and log of initial_infected population.
+#' and log of initial_infected population \code{\link{parameter_mapping}}.
 #' @param age_groups Optional age groups upper limits used in your model and data. If you use different age groups for the model and the data you need
 #' to provide a age_group_map instead.
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
@@ -74,7 +74,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
 {
   uk_defaults <- F
   if (any(n_samples>ili))
-    stop("The model assumes that the virological samples are a subsample of individuals identfied with ILI. The ili counts should always be larger or equal to n_samples") 
+    stop("The model assumes that the virological samples are a subsample of patients diagnosed as ILI cases. The ili counts should always be larger than or equal to n_samples") 
   no_risk_groups <- vaccine_calendar$no_risk_groups
   no_age_groups <- vaccine_calendar$no_age_groups
   if (no_risk_groups >= 2 && no_age_groups == 7 && ncol(ili) == 5)
@@ -127,37 +127,19 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
   
   if (missing(parameter_map)) {
-    if (uk_defaults)
-      parameter_map <- list(
-        epsilon = c(1,1,2,2,3),
-        psi = 4,
-        transmissibility = 5,
-        susceptibility = c(6,6,6,7,7,7,8),
-        initial.infected = 9)
-    else if (!is.null(names(initial))) {
-      parameter_map <- list()
-      ns <- names(initial)
-      for (i in 1:length(initial)) {
-        if (substr(ns[i],1,1) == "e")
-          parameter_map[["epsilon"]] <- c(parameter_map[["epsilon"]], i)
-        if (substr(ns[i],1,1) == "p")
-          parameter_map[["psi"]] <- c(parameter_map[["psi"]], i)
-        if (substr(ns[i],1,1) == "t")
-          parameter_map[["transmissibility"]] <- c(parameter_map[["transmissibility"]], i)
-        if (substr(ns[i],1,1) == "s")
-          parameter_map[["susceptibility"]] <- c(parameter_map[["susceptibility"]], i)
-        if (substr(ns[i],1,1) == "i")
-          parameter_map[["initial.infected"]] <- c(parameter_map[["initial.infected"]], i)
-      }
+    if (uk_defaults) {
+      parameter_map <-
+        parameter_mapping(
+          epsilon = c(1,1,2,2,3),
+          psi = 4,
+          transmissibility = 5,
+          susceptibility = c(6,6,6,7,7,7,8),
+          initial_infected = 9)
+    } else if (length(initial) == 2*no_age_groups + 3) {
+      parameter_map <- parameter_mapping(parameters = initial)
+    } else {
+      stop("Missing parameter map")
     }
-    else
-      parameter_map <- list(
-        epsilon = seq(1,no_age_groups),
-        psi = no_age_groups + 1,
-        transmissibility = no_age_groups + 2,
-        susceptibility = seq(no_age_groups + 3, 2*no_age_groups + 3),
-        initial.infected = 2*no_age_groups + 4
-      )
   }
   
   # Go over parameter_map. Shorten list and also make sure min(index) = 0
