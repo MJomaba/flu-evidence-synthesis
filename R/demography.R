@@ -125,6 +125,10 @@ stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups, labels)
     risk_ratios <- data.frame(
       value = rv
     )
+  } else if (is.null(dim(risk_ratios))) {
+    risk_ratios <- data.frame(
+      value = risk_ratios
+    )
   }
   if (missing(no_risk_groups)) {
     if (missing(labels))

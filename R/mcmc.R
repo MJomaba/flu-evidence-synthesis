@@ -34,13 +34,28 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' MCMC based inference of the parameter values given the different data sets
 #'
 #' @details
-#' The goal
+#' The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted 
+#' number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to obtain the posterior 
+#' distribution of the parameters of an underlying epidemiological model (see also: \code{\link{infectionODEs}}).
 #' 
-#' Sources of data
+#' When running inference there are four main steps needed are 1) prepare the data, 2) load a vaccination calendar (\code{\link{as_vaccination_calendar}})
+#' 3) decide on parameterisation of the model (\code{\url{https://blackedder.github.io/flu-evidence-synthesis/modelling.html}}) and 4) run the inference using
+#' this function.
 #' 
-#' Parameters
+#' The initial parameters vector should contain values for the parameters (in order):
 #' 
-#' Input vs output map
+#' * Ascertainment probabilty for each age group (epsilon)
+#' * Outside infection (psi)
+#' * Transmissibility
+#' * Susceptibility for each age group
+#' * Initial number of infections (log transformed)
+#' 
+#' If your model is more complex and the number of age groups and risk groups are different between the epidemiological model (vaccination calendar) and the influenza data then you need to 
+#' provide (one or more of) the following extra variables to the function: \code{parameter_map} (see also: \code{\link{parameter_mapping}}), \code{age_group_map} (see also: 
+#' \code{\link{age_group_mapping}}) and \code{risk_group_map} (see also: \code{\link{risk_group_mapping}}). 
+#' See \code{\url{https://blackedder.github.io/flu-evidence-synthesis/inference.html}} for more details.
+#' 
+#' @md
 #'
 #' @param demography A vector with the population size by each age {0,1,..}
 #' @param ili The number of Influenza-like illness cases per week
@@ -65,7 +80,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
-#' @seealso \code{\link{infectionODEs}} for more details on the parameters
+#' @seealso \code{\link{infectionODEs}}; \code{\link{age_group_mapping}}; \code{\link{risk_group_mapping}}; \code{\link{parameter_mapping}}; \url{https://blackedder.github.io/flu-evidence-synthesis/inference.html}
 #'
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 

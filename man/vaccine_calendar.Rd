@@ -4,7 +4,7 @@
 \name{vaccine_calendar}
 \alias{vaccine_calendar}
 \title{Vaccination uptake rate for the UK in 1999}
-\format{An object of class \code{list} of length 2.}
+\format{An object of class \code{list} of length 4.}
 \usage{
 vaccine_calendar
 }

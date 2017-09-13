@@ -86,7 +86,6 @@ parameter_mapping <- function(epsilon, psi, transmissibility, susceptibility,
       ns <- parameters
     else
       ns <- names(parameters)
-    browser()
     for (i in 1:length(parameters)) {
       if (substr(ns[i],1,1) == "e")
         parameter_map[["epsilon"]] <- c(parameter_map[["epsilon"]], i)
@@ -97,7 +96,7 @@ parameter_mapping <- function(epsilon, psi, transmissibility, susceptibility,
       if (substr(ns[i],1,1) == "s")
         parameter_map[["susceptibility"]] <- c(parameter_map[["susceptibility"]], i)
       if (substr(ns[i],1,1) == "i")
-        parameter_map[["initial.infected"]] <- c(parameter_map[["initial.infected"]], i)
+        parameter_map[["initial_infected"]] <- c(parameter_map[["initial_infected"]], i)
     }
   } else {
     parameter_map <- list()

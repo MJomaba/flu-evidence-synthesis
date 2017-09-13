@@ -5,7 +5,7 @@
 \title{Calculate number of influenza cases given a vaccination strategy}
 \usage{
 vaccination_scenario(vaccine_calendar, parameters, contact_ids,
-  incidence_function, time_column, ..., verbose = T)
+  incidence_function, time_column, parameter_map, ..., verbose = T)
 }
 \arguments{
 \item{vaccine_calendar}{A vaccine calendar valid for that year}
@@ -22,6 +22,10 @@ vector or a data frame.}
 provided as well.}
 
 \item{time_column}{An optional time column that will be removed from the data returned by the incidence_function}
+
+\item{parameter_map}{Optional: mapping for the parameters (by description and age group) to the relevant index
+in the parameter vector. Needed parameters are: transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
+and log of initial_infected population \code{\link{parameter_mapping}}.}
 
 \item{...}{Further parameters that will be passed to the \code{incidence_function}}
 

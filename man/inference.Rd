@@ -5,8 +5,8 @@
 \title{MCMC based inference of the parameter values given the different data sets}
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
-  polymod_data, initial, parameter_map, age_group_map, risk_group_map,
-  risk_ratios, nburn = 0, nbatch = 1000, blen = 1)
+  polymod_data, initial, parameter_map, age_groups, age_group_map,
+  risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
@@ -26,13 +26,17 @@ inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 \item{initial}{Vector with starting parameter values}
 
 \item{parameter_map}{Optional mapping parameter (by description and age group) to the relevant index
-in the initial vector. Needed parameters are: epsilon (ascertainmen) with a separater value per data
+in the initial vector. Needed parameters are: epsilon (ascertainment) with a separate value per data
 age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
-and log of initial_infected population.}
+and log of initial_infected population \code{\link{parameter_mapping}}.}
+
+\item{age_groups}{Optional age groups upper limits used in your model and data. If you use different age groups for the model and the data you need
+to provide a age_group_map instead.}
 
 \item{age_group_map}{Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})}
 
-\item{risk_group_map}{Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}})}
+\item{risk_group_map}{Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}}).
+This parameter is not needed if only one risk group is modelled}
 
 \item{nburn}{Number of iterations of burn in}
 
@@ -47,14 +51,28 @@ Returns a list with the accepted samples and the corresponding llikelihood value
 MCMC based inference of the parameter values given the different data sets
 }
 \details{
-The goal
+The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted
+number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to obtain the posterior
+distribution of the parameters of an underlying epidemiological model (see also: \code{\link{infectionODEs}}).
 
-Sources of data
+When running inference there are four main steps needed are 1) prepare the data, 2) load a vaccination calendar (\code{\link{as_vaccination_calendar}})
+3) decide on parameterisation of the model (\code{\url{https://blackedder.github.io/flu-evidence-synthesis/modelling.html}}) and 4) run the inference using
+this function.
 
-Parameters
+The initial parameters vector should contain values for the parameters (in order):
+\itemize{
+\item Ascertainment probabilty for each age group (epsilon)
+\item Outside infection (psi)
+\item Transmissibility
+\item Susceptibility for each age group
+\item Initial number of infections (log transformed)
+}
 
-Input vs output map
+If your model is more complex and the number of age groups and risk groups are different between the epidemiological model (vaccination calendar) and the influenza data then you need to
+provide (one or more of) the following extra variables to the function: \code{parameter_map} (see also: \code{\link{parameter_mapping}}), \code{age_group_map} (see also:
+\code{\link{age_group_mapping}}) and \code{risk_group_map} (see also: \code{\link{risk_group_mapping}}).
+See \code{\url{https://blackedder.github.io/flu-evidence-synthesis/inference.html}} for more details.
 }
 \seealso{
-\code{\link{infectionODEs}} for more details on the parameters
+\code{\link{infectionODEs}}; \code{\link{age_group_mapping}}; \code{\link{risk_group_mapping}}; \code{\link{parameter_mapping}}; \url{https://blackedder.github.io/flu-evidence-synthesis/inference.html}
 }

@@ -221,7 +221,10 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
             susceptibility = c(6,6,6,7,7,7,8),
             initial_infected = 9)
       } else if (no_parameters == 2*no_age_groups + 3) {
-        parameter_map <- parameter_mapping(parameters = initial)
+        if (is.null(nrow(parameters)))
+          parameter_map <- parameter_mapping(parameters = parameters)
+        else
+          parameter_map <- parameter_mapping(parameters = parameters[1,])
       } else {
         stop("Missing parameter map")
       }
@@ -229,9 +232,12 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
     
     incidence_function <- function(vaccine_calendar, parameters, contact_ids, ...) {
       if (!"age_group_limits" %in% var_names) {
-        if (verbose || !uk_defaults)
-          warning("Missing age_group_limits, using default: c(1,5,15,25,45,65)")
-        age_group_limits <- c(1,5,15,25,45,65)
+        if (uk_defaults) {
+          if (verbose) 
+            warning("Missing age_group_limits, using default: c(1,5,15,25,45,65)")
+          age_group_limits <- c(1,5,15,25,45,65)
+        } else 
+          stop("Missing age_group_limits")
       } else {
         age_group_limits <- eval(match.call()[["age_group_limits"]])
       }
@@ -260,14 +266,11 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
       verbose <<- F
       
       # Population sizes in each age and risk group
-      popv <- stratify_by_risk(
-        age.groups, risk_ratios );
-      
+      popv <- stratify_by_risk(age.groups, risk_ratios, no_risk_groups)
 
       # Population size initially infected by age and risk group
-      initial.infected <- rep( 10^parameters[parameter_map$initial_infected], 7 ) 
-      initial.infected <- stratify_by_risk(
-        initial.infected, risk_ratios );
+      initial.infected <- rep( 10^parameters[parameter_map$initial_infected], no_age_groups ) 
+      initial.infected <- stratify_by_risk(initial.infected, risk_ratios, no_risk_groups);
      
       # Run simulation
       # Note that to reduce complexity 
