@@ -49,7 +49,7 @@ age_group_mapping <- function(from, to, demography) {
   weights <- wj/wi[is]
   data.frame(from = factor(is, labels = age_group_levels(from)), 
              to = factor(js, labels = age_group_levels(to)), 
-             weight = weights)
+             weight = as.numeric(weights))
 }
 
 #' @title Calculate a mapping from one sets of risk groups to another set of risk groups
