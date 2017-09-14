@@ -16,47 +16,37 @@
 #' of the age groups maps to the other age grouping.
 #' @export
 age_group_mapping <- function(from, to, demography) {
+  uni <- sort(union(from, to))
   i <- 1
   j <- 1
   is <- c()
   js <- c()
-  weights <- c()
-  while(TRUE) {
-    if (j == length(to) + 1 && i == length(from) + 1) {
-      is <- c(is, i)
-      js <- c(js, j)
-      weights <- c(weights, 1)
-      break
-    } else if (j == length(to) + 1) {
-      is <- c(is, i)
-      js <- c(js, j)
-      weights <- c(weights, 1)
-      i <- i + 1
-    } else if (from[i] <= to[j]) {
-      is <- c(is, i)
-      js <- c(js, j)
-      weights <- c(weights, 1)
-      if (from[i] == to[j])
-        j <- j + 1
-      i <- i + 1
-    } else if (from[i] > to[j]) {
-      is <- c(is, i)
-      js <- c(js, j)
-      if (missing(demography))
-        stop("Mapping incompatible age groups requires demography data")
-      fa <- function(ag) if (ag < 0 || ag >= length(demography)) 0 else demography[ag+1]
-      low_w <- sum(sapply(seq(max(-1, from[i - 1], na.rm = T), to[j] - 1), fa))
-      high_w <- sum(sapply(seq(to[j], from[i] - 1), fa))
-      j <- j + 1
-      is <- c(is, i)
-      js <- c(js, j)
-      i <- i + 1
-      weights <- c(weights, low_w/(low_w+high_w), high_w/(low_w+high_w))
-      #weights <- c(weights, low_w, high_w)
-    } else {
-      warning("Invalid state in age_groups_mapping()")
-    }
+  if (length(uni) == length(from)) {
+    wi <- rep(1, length(from) + 1)
+    wj <- wi
+  } else {
+    # to are not strict subgroups, so need to have demography
+    if (missing(demography))
+      stop("Mapping incompatible age groups requires demography data")
+    wi <- stratify_by_age(demography, from)
+    wj <- stratify_by_age(demography, uni)
   }
+  for (k in 1:length(uni)) {
+    ag <- uni[k]
+    if (i <= length(from) && from[i] < ag) {
+      i <- i + 1
+      cw_i <- 0
+    }
+    is <- c(is, i)
+    if (j <= length(to) && to[j] < ag) {
+      j <- j + 1
+      cw_j <- 0
+    }
+    js <- c(js, j)
+  }
+  is <- c(is, length(from) + 1)
+  js <- c(js, length(to) + 1)
+  weights <- wj/wi[is]
   data.frame(from = factor(is, labels = age_group_levels(from)), 
              to = factor(js, labels = age_group_levels(to)), 
              weight = weights)
