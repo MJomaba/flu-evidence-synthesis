@@ -18,7 +18,8 @@ Depends:
     gtable,
     scales,
     lazyeval,
-    tibble
+    tibble,
+    dplyr
 Imports:
     Rcpp (>= 0.11.6),
     ggplot2,
@@ -35,7 +36,8 @@ Suggests:
     knitr,
     moments,
     rmarkdown,
-    pander
+    pander,
+    tidyr
 SystemRequirements: C++11
 LazyData: true
 VignetteBuilder: knitr
