@@ -9,11 +9,11 @@ stratify_by_risk(age_groups, risk_ratios, no_risk_groups, labels)
 \arguments{
 \item{age_groups}{A vector containing the population size of each age group}
 
+\item{risk_ratios}{A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk}
+
 \item{no_risk_groups}{Optional number of risk groups.}
 
 \item{labels}{Optional names for the risk groups.}
-
-\item{risk}{A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk}
 }
 \value{
 A named vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).

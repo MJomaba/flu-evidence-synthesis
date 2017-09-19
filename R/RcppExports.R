@@ -193,6 +193,7 @@ log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_c
 #' @param initial Vector with starting parameter values
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
+#' @param verbose Output debugging information
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values
 #'
@@ -271,12 +272,12 @@ stratify_by_age <- function(age_sizes, limits = as.numeric( c(             1, 5,
 #' @description Stratifies the age groups and returns the population size of each age group and risk group.
 #'
 #' @param age_groups A vector containing the population size of each age group
-#' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+#' @param risk_ratios A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
 #'
 #' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 #'
-.stratify_by_risk <- function(age_groups, risk, no_risk_groups) {
-    .Call('_fluEvidenceSynthesis_stratify_by_risk', PACKAGE = 'fluEvidenceSynthesis', age_groups, risk, no_risk_groups)
+.stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups) {
+    .Call('_fluEvidenceSynthesis_stratify_by_risk', PACKAGE = 'fluEvidenceSynthesis', age_groups, risk_ratios, no_risk_groups)
 }
 
 #' @title Calculate R0 from transmission rate
@@ -288,7 +289,7 @@ stratify_by_age <- function(age_sizes, limits = as.numeric( c(             1, 5,
 #' (\eqn{C[i,j] = c[i,j] N[j]}).
 #'
 #' @param transmission_rate The transmission rate of the disease
-#' @param contaxt_matrix The contact matrix between age groups
+#' @param contact_matrix The contact matrix between age groups
 #' @param age_groups The population size of the different age groups
 #' @param duration Duration of the infectious period. Default value is 1.8 days
 #'
@@ -306,7 +307,7 @@ as_R0 <- function(transmission_rate, contact_matrix, age_groups, duration = 1.8)
 #' (\eqn{C[i,j] = c[i,j] N[j]}).
 #'
 #' @param R0 The R0 of the disease
-#' @param contaxt_matrix The contact matrix between age groups
+#' @param contact_matrix The contact matrix between age groups
 #' @param age_groups The population size of the different age groups
 #' @param duration Duration of the infectious period. Default value is 1.8 days
 #'

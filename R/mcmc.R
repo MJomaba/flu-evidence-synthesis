@@ -39,7 +39,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' distribution of the parameters of an underlying epidemiological model (see also: \code{\link{infectionODEs}}).
 #' 
 #' When running inference there are four main steps needed are 1) prepare the data, 2) load a vaccination calendar (\code{\link{as_vaccination_calendar}})
-#' 3) decide on parameterisation of the model (\code{\url{https://blackedder.github.io/flu-evidence-synthesis/modelling.html}}) and 4) run the inference using
+#' 3) decide on parameterisation of the model (\url{https://blackedder.github.io/flu-evidence-synthesis/modelling.html}) and 4) run the inference using
 #' this function.
 #' 
 #' The initial parameters vector should contain values for the parameters (in order):
@@ -53,7 +53,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' If your model is more complex and the number of age groups and risk groups are different between the epidemiological model (vaccination calendar) and the influenza data then you need to 
 #' provide (one or more of) the following extra variables to the function: \code{parameter_map} (see also: \code{\link{parameter_mapping}}), \code{age_group_map} (see also: 
 #' \code{\link{age_group_mapping}}) and \code{risk_group_map} (see also: \code{\link{risk_group_mapping}}). 
-#' See \code{\url{https://blackedder.github.io/flu-evidence-synthesis/inference.html}} for more details.
+#' See \url{https://blackedder.github.io/flu-evidence-synthesis/inference.html} for more details.
 #' 
 #' @md
 #'
@@ -74,6 +74,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param age_group_map Optional age group mapping from model age groups to data age groups (\code{\link{age_group_mapping}})
 #' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}}).
 #' This parameter is not needed if only one risk group is modelled
+#' @param risk_ratios A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk. (\code{\link{stratify_by_risk}})
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch

@@ -288,15 +288,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // stratify_by_risk
-Eigen::VectorXd stratify_by_risk(const Eigen::VectorXd& age_groups, const Eigen::VectorXd& risk, size_t no_risk_groups);
-RcppExport SEXP _fluEvidenceSynthesis_stratify_by_risk(SEXP age_groupsSEXP, SEXP riskSEXP, SEXP no_risk_groupsSEXP) {
+Eigen::VectorXd stratify_by_risk(const Eigen::VectorXd& age_groups, const Eigen::VectorXd& risk_ratios, size_t no_risk_groups);
+RcppExport SEXP _fluEvidenceSynthesis_stratify_by_risk(SEXP age_groupsSEXP, SEXP risk_ratiosSEXP, SEXP no_risk_groupsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type age_groups(age_groupsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type risk(riskSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type risk_ratios(risk_ratiosSEXP);
     Rcpp::traits::input_parameter< size_t >::type no_risk_groups(no_risk_groupsSEXP);
-    rcpp_result_gen = Rcpp::wrap(stratify_by_risk(age_groups, risk, no_risk_groups));
+    rcpp_result_gen = Rcpp::wrap(stratify_by_risk(age_groups, risk_ratios, no_risk_groups));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -9,11 +9,11 @@ as_transmission_rate(R0, contact_matrix, age_groups, duration = 1.8)
 \arguments{
 \item{R0}{The R0 of the disease}
 
+\item{contact_matrix}{The contact matrix between age groups}
+
 \item{age_groups}{The population size of the different age groups}
 
 \item{duration}{Duration of the infectious period. Default value is 1.8 days}
-
-\item{contaxt_matrix}{The contact matrix between age groups}
 }
 \value{
 Returns the transmission rate

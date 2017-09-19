@@ -23,6 +23,8 @@ adaptive.mcmc.cpp(lprior, llikelihood, outfun, acceptfun, nburn, initial,
 \item{nbatch}{Number of batches to run (number of samples to return)}
 
 \item{blen}{Length of each batch}
+
+\item{verbose}{Output debugging information}
 }
 \value{
 Returns a list with the accepted samples and the corresponding llikelihood values

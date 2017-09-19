@@ -427,6 +427,7 @@ Eigen::MatrixXd runPredatorPreySimple(double step_size = 0.1, double h_step=1e-5
 //' @param initial Vector with starting parameter values
 //' @param nbatch Number of batches to run (number of samples to return)
 //' @param blen Length of each batch
+//' @param verbose Output debugging information
 //' 
 //' @return Returns a list with the accepted samples and the corresponding llikelihood values
 //'
@@ -644,15 +645,15 @@ Rcpp::IntegerVector separate_into_age_groups( std::vector<size_t> age_sizes,
 //' @description Stratifies the age groups and returns the population size of each age group and risk group.
 //'
 //' @param age_groups A vector containing the population size of each age group
-//' @param risk A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
+//' @param risk_ratios A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk
 //'
 //' @return A vector with the population in the low risk groups, followed by the other risk groups. The length is equal to the number of age groups times the number of risk groups (including the low risk group).
 //'
 // [[Rcpp::export(name=".stratify_by_risk")]]
 Eigen::VectorXd stratify_by_risk( 
-        const Eigen::VectorXd &age_groups, const Eigen::VectorXd &risk, size_t no_risk_groups )
+        const Eigen::VectorXd &age_groups, const Eigen::VectorXd &risk_ratios, size_t no_risk_groups )
 {
-    return flu::data::stratify_by_risk(age_groups, risk, no_risk_groups);
+    return flu::data::stratify_by_risk(age_groups, risk_ratios, no_risk_groups);
 }
 
 //' @title Calculate R0 from transmission rate
@@ -664,7 +665,7 @@ Eigen::VectorXd stratify_by_risk(
 //' (\eqn{C[i,j] = c[i,j] N[j]}).
 //'
 //' @param transmission_rate The transmission rate of the disease
-//' @param contaxt_matrix The contact matrix between age groups
+//' @param contact_matrix The contact matrix between age groups
 //' @param age_groups The population size of the different age groups
 //' @param duration Duration of the infectious period. Default value is 1.8 days
 //'
@@ -696,7 +697,7 @@ double as_R0(double transmission_rate, Eigen::MatrixXd contact_matrix, Eigen::Ve
 //' (\eqn{C[i,j] = c[i,j] N[j]}).
 //'
 //' @param R0 The R0 of the disease
-//' @param contaxt_matrix The contact matrix between age groups
+//' @param contact_matrix The contact matrix between age groups
 //' @param age_groups The population size of the different age groups
 //' @param duration Duration of the infectious period. Default value is 1.8 days
 //'
