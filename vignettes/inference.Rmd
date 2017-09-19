@@ -132,7 +132,7 @@ pander(head(inference.results$batch))
 
 The UK model is more complicated than the example above, because we model 7 different age groups ([0,1), [1,5), [5,15), [15,25), [25,45), [45,65), [65,+)) and two risk groups (low risk and high risk), so our vaccination calendar represents that fact. In contrast our ILI and virological data is only recorded in five different age groups ([0,5), [5,15), [15,45), [45,65), [65,+)) and is not split into multiple age groups. This means that we need to map our epidemiological model output (7 age groups, 2 risk groups) to the data (5 age groups). This can be done using the `age_group_mapping` and `risk_group_mapping` functions. 
 
-Another detail is that we reduced the models complexity by assuming that age group [0,15) and [15,65) had the same ascertainment rate ($\epsilon$) and susceptibility. To do this we pass a `parameter_map` to the inference function, which will map the needed parameters to certain indices in the parameter list.
+Another detail is that we reduced the models complexity by assuming that age group [0,15) and [15,65) had the same ascertainment rate ($\epsilon$) and susceptibility. To do this we pass a `parameter_map` to the inference function, which will map the needed parameters to certain indices in the parameter list (see `?parameter_mapping` for more details).
 
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
@@ -153,8 +153,8 @@ risk_map <- risk_group_mapping(c("LowRisk", "HighRisk"), c("All"))
 # The percentage of each age group in the high risk group
 risk_ratios <- matrix(c(0.021, 0.055, 0.098, 0.087, 0.092, 0.183, 0.45), ncol = 7, byrow = T)
 
-par_map <- list(
-  epsilon = c(1,1,1,2,2,2,3),
+par_map <- parameter_mapping(
+  epsilon = c(1,1,2,2,3), # The first parameter in the initial.parameters is used for the first 2 age groups, etc.
   psi = 4,
   transmissibility = 5,
   susceptibility = c(6,6,6,7,7,7,8),
