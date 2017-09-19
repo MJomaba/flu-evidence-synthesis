@@ -55,13 +55,14 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         size_t transmissibility_index,
         Eigen::VectorXd susceptibility_index,
         size_t initial_infected_index,
+        Rcpp::Function lprior,
+        bool pass_prior,
         size_t no_age_groups,
         size_t no_risk_groups,
         bool uk_prior,
         size_t nburn = 0,
         size_t nbatch = 1000, size_t blen = 1 )
 {
-  
     //Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> mapping,
     mcmc_result_inference_t results;
     results.batch = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>( nbatch, initial.size() );
@@ -160,25 +161,40 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
 
     auto proposal_state = proposal::initialize( curr_parameters.size() );
 
-    auto log_prior_ratio_f = [uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
+    double curr_prior = 0;
+    double prop_prior = 0;
+    auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
+        double lPrior = Rcpp::as<double>(lprior( pars ));
+        return lPrior;
+    };
+
+    auto log_prior_ratio_f = [pass_prior, &Rlprior, &prop_prior, &curr_prior, uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
          initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
              if (uk_prior)
                 return log_prior(proposed, current, susceptibility);
-             else {
+             else if (pass_prior) {
+                 prop_prior = Rlprior(proposed);
+                 return prop_prior - curr_prior;
+             } else {
+                 prop_prior = 0;
                  // Use flat priors
                  for (auto i = 0; i < epsilon_index.size(); ++i) {
                      auto index = epsilon_index[i];
-                     if (proposed[index] < 0 || proposed[index] > 1)
-                         return log(0) - 0;
+                     if (proposed[index] < 0 || proposed[index] > 1) {
+                         prop_prior = log(0);
+                         break;
+                     }
                  }
                  if (proposed[psi_index] < 0 || proposed[transmissibility_index] < 0)
-                     return log(0) - 0;
+                     prop_prior = log(0);
                  for (auto i = 0; i < susceptibility_index.size(); ++i) {
                      auto index = susceptibility_index[i];
-                     if (proposed[index] < 0 || proposed[index] > 1)
-                         return log(0) - 0;
+                     if (!std::isfinite(prop_prior) || proposed[index] < 0 || proposed[index] > 1) {
+                         prop_prior = log(0);
+                         break;
+                     }
                  }
-                 return 0.0;
+                 return prop_prior - curr_prior;
              }
          };
 
@@ -288,6 +304,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                 proposal_state = proposal::accepted( 
                         std::move(proposal_state), true, k );
 
+                curr_prior = prop_prior;
                 curr_parameters = prop_parameters;
 
                 /*update current likelihood*/

@@ -75,6 +75,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param risk_group_map Optional risk group mapping from model risk groups to data risk groups (\code{\link{risk_group_mapping}}).
 #' This parameter is not needed if only one risk group is modelled
 #' @param risk_ratios A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk. (\code{\link{stratify_by_risk}})
+#' @param lprior Optional function returning the log prior probability of the parameters. If no function is passed then a flat prior is used.
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
@@ -86,7 +87,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
         vaccine_calendar, polymod_data, initial, parameter_map, age_groups, age_group_map,
-        risk_group_map, risk_ratios, nburn = 0, nbatch = 1000, blen = 1 )
+        risk_group_map, risk_ratios, lprior, nburn = 0, nbatch = 1000, blen = 1 )
 {
   uk_defaults <- F
   if (any(n_samples>ili))
@@ -178,10 +179,16 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     dplyr::ungroup() %>%
     dplyr::mutate(value = paste0(value, ifelse(mx > 1, paste0("_", ext),"")))
   
+  pass_prior = T
+  if (missing(lprior)) {
+    lprior <- function(pars) {} # Dummy function
+    pass_prior = F
+  }
+  
   results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                  as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
                  as.matrix(mapping), risk_ratios$value, 
-                 parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i,
+                 parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, lprior, pass_prior,
                  no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
   if (is.null(names(initial))) {
     colnames(results$batch) <- b_cols$value
