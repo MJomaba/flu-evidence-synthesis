@@ -27,7 +27,7 @@ library(devtools)
 install_github("MJomaba/flu-evidence-synthesis", dependencies = TRUE)
 ```
 
-The above will install the package without the vignettes. To install them as well use this instead:
+The above will install the package without the vignettes. To install them as well you first need to install [odin](https://github.com/mrc-ide/odin#installation) following [these instructions](https://github.com/mrc-ide/odin#installation), because one of the vignettes depends on that package. After installing odin you can install the package and its vignettes as follows.
 
 ```{r}
 library(devtools)
