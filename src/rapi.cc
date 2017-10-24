@@ -581,7 +581,8 @@ Rcpp::IntegerVector age_group_limits(std::vector<std::string> levels)
                     match = lvl[i] + match;
                 } if (lvl[i] == ',') {
                     if(match.length() > 0)
-                        limits.push_back(std::stoi(match));
+                        //limits.push_back(std::stoi(match));
+                        limits.push_back(boost::lexical_cast<int>(match));
                     break;
                 }
             }
