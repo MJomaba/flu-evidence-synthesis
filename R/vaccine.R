@@ -279,7 +279,7 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
                     vaccine_calendar,
                     contacts,
                     parameters[parameter_map$susceptibility],
-                    transmissibility = parameters[5],
+                    transmissibility = parameters[parameter_map$transmissibility],
                     c(0.8,1.8), 7)
     }
   }
