@@ -195,11 +195,12 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
     if (no_risk_groups >= 2 && no_age_groups == 7 && no_parameters == 9)
       uk_defaults <- T
     
-    var_names <- names(sys.call())
+    dots <- list(...)
+    var_names <- names(dots)
     if (!"polymod_data" %in% var_names) {
       stop("No polymod_data set provided")
     } else {
-      polymod_data <- eval(match.call()[["polymod_data"]])
+      polymod_data <- dots[["polymod_data"]]
     }
     if (missing(contact_ids)) {
       stop("No contact_ids set provided")
@@ -207,7 +208,7 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
     if (!"demography" %in% var_names) {
       stop("No demography provided, i.e. a vector with population size by age (starting at age is zero)")
     } else {
-      demography <- eval(match.call()[["demography"]])
+      demography <- dots[["demography"]]
     }
     time_column = "Time"
     
@@ -239,7 +240,7 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
         } else 
           stop("Missing age_group_limits")
       } else {
-        age_group_limits <- eval(match.call()[["age_group_limits"]])
+        age_group_limits <- dots[["age_group_limits"]]
       }
       contacts <- contact_matrix(as.matrix(polymod_data[contact_ids,]),
                                  demography, age_group_limits )
@@ -259,7 +260,7 @@ vaccination_scenario <- function(vaccine_calendar, parameters,
           risk_ratios <- rep(1, no_age_groups)
         }
       } else {
-        risk_ratios <- eval(match.call()[["risk_ratios"]])
+        risk_ratios <- dots[["risk_ratios"]]
       }
       
       # Only print warnings on first use of the function
