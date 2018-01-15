@@ -5,7 +5,7 @@
 \title{Returns log likelihood of the predicted number of cases given the data}
 \usage{
 log_likelihood_cases(epsilon, psi, predicted, population_size, ili_cases,
-  ili_monitored, confirmed_positive, confirmed_samples)
+  ili_monitored, confirmed_positive, confirmed_samples, depth = 2L)
 }
 \arguments{
 \item{epsilon}{Parameter for the probability distribution by age group}
@@ -23,6 +23,8 @@ log_likelihood_cases(epsilon, psi, predicted, population_size, ili_cases,
 \item{confirmed_positive}{The number of samples positive for the Influenza strain  by week and age group}
 
 \item{confirmed_samples}{Number of samples tested for the Influenza strain  by week and age group}
+
+\item{depth}{Depth/precision of the approximation. In general the a value of 2 is used. Higher is more precise.}
 }
 \description{
 The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function sum the log likelihood for the predicted cases for each week and age group given the data on reported Influenza Like Illnesses and confirmed samples.

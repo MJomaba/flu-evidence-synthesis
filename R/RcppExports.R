@@ -156,10 +156,11 @@ infectionODEs.cpp <- function(population, initial_infected, vaccine_calendar, co
 #' @param ili_monitored The size of the population monitored for ILI  by week and age group
 #' @param confirmed_positive The number of samples positive for the Influenza strain  by week and age group
 #' @param confirmed_samples Number of samples tested for the Influenza strain  by week and age group
+#' @param depth Depth/precision of the approximation. In general the a value of 2 is used. Higher is more precise.
 #'
 #'
-log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples) {
-    .Call('_fluEvidenceSynthesis_total_log_likelihood', PACKAGE = 'fluEvidenceSynthesis', epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples)
+log_likelihood_cases <- function(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples, depth = 2L) {
+    .Call('_fluEvidenceSynthesis_total_log_likelihood', PACKAGE = 'fluEvidenceSynthesis', epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples, depth)
 }
 
 #' Run an ODE model with the runge-kutta solver for testing purposes
