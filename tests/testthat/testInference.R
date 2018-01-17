@@ -98,6 +98,15 @@ test_that("dmultinom and dmultinom.cpp return same value",
     }
 )
 
+test_that("Likelihood works for large values", {
+  expect_gt(log_likelihood_cases(c(0.00622462018361167),0.0414822583510223,matrix(170776.505911481),31742426,matrix(589),matrix(383614),matrix(36),matrix(100), depth = 8),
+        426)    
+  expect_lt(log_likelihood_cases(c(0.00622462018361167),0.0414822583510223,matrix(170776.505911481),31742426,matrix(589),matrix(383614),matrix(36),matrix(100), depth = 8),
+        428)    
+  expect_gt(log_likelihood_cases(c(0.00622462018361167),0.0414822583510223,matrix(170776.505911481),31742426,matrix(589),matrix(383614),matrix(136),matrix(210), depth = 8)
+         , -10e10)
+})
+
 test_that("Group mapping works correctly", {
   # Create scenario with two age groups and two risk groups (same size)
 })

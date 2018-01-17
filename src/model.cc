@@ -2,6 +2,18 @@
 
 #include "ode.h"
 
+inline long double safe_sum_log(long double a, long double b) {
+  // The general algorithm
+  //auto c = std::max(a, b);
+  //return log(exp(a-c) + exp(b-c)) + c;
+  
+  // Optimised
+  if (a > b)
+    return log(1 + exp(b-a)) + a;
+  else
+    return log(exp(a-b) + 1) + b;
+}
+
 namespace flu 
 {
     boost::posix_time::ptime getTimeFromWeekYear( int week, int year )
@@ -526,35 +538,40 @@ namespace flu
         }
 
         /*define the first aij*/
-        long double aij=pow(epsilon,confirmed_positive)*exp(-psi*ili_monitored*epsilon);
+        long double laij=log(epsilon)*confirmed_positive-psi*ili_monitored*epsilon;
 
         if(confirmed_positive<n)
-            for(int g=confirmed_positive; g<n; g++)
-                aij*=m-g;
+            for(int g=confirmed_positive; g<n; g++) {
+                laij += log(m-g);
+            }
 
         if((Z_in_mon==confirmed_positive)&&(Z_in_mon>0))
-            for(int g=1; g<=confirmed_positive;g++)
-                aij*=g;
+            for(int g=1; g<=confirmed_positive;g++) {
+                laij += log(g);
+            }
 
         if((confirmed_positive>0)&&(confirmed_positive<Z_in_mon))
-            for(int g=0;g<confirmed_positive;g++)
-                aij*=Z_in_mon-g;
+            for(int g=0;g<confirmed_positive;g++) {
+                laij+=log(Z_in_mon-g);
+            }
 
         if((Z_in_mon>0)&&(confirmed_positive>Z_in_mon))
-            for(int g=0; g<Z_in_mon;g++)
-                aij*=confirmed_positive-g;
+            for(int g=0; g<Z_in_mon;g++) {
+                laij+=log(confirmed_positive-g);
+            }
 
-        if(confirmed_positive>Z_in_mon)
-            aij*=pow(psi*ili_monitored,confirmed_positive-Z_in_mon);
+        if(confirmed_positive>Z_in_mon) {
+            laij+=log(psi*ili_monitored)*(confirmed_positive-Z_in_mon);
+        }
 
         if(confirmed_positive<Z_in_mon)
-            aij*=pow(1-epsilon,Z_in_mon-confirmed_positive);
+            laij+=log(1-epsilon)*(Z_in_mon-confirmed_positive);
 
         /*store the values of the first aij on the current line*/
-        long double aij_seed=aij;
+        long double laij_seed=laij;
         int k_seed=confirmed_positive;
 
-        auto likelihood_AG_week=aij;
+        auto llikelihood_AG_week=laij;
 
         /*Calculation of the first line*/
         int max_m_plus;
@@ -566,8 +583,9 @@ namespace flu
         if(max_m_plus>confirmed_positive)
             for(int k=confirmed_positive+1;k<=max_m_plus;k++)
             {
-                aij*=(k*(m-k-n+confirmed_positive+1)*(Z_in_mon-k+h_init+1)*epsilon)/((m-k+1)*(k-confirmed_positive)*(k-h_init)*(1-epsilon));
-                likelihood_AG_week+=aij;
+                laij+=log(k) + log(epsilon) + log(m-k-n+confirmed_positive+1)+log(Z_in_mon-k+h_init+1)-log(m-k+1)- 
+                  log(k-confirmed_positive) - log(k-h_init) - log(1-epsilon);
+                llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
             }
 
         /*top_sum=min(depth,m-n+confirmed_positive)*/
@@ -583,14 +601,18 @@ namespace flu
                 if(h>confirmed_positive) /*diagonal increment*/
                 {
                     k_seed++;
-                    aij_seed*=(k_seed*(m-k_seed-n+confirmed_positive+1)*psi*epsilon*ili_monitored)/((m-k_seed+1)*(k_seed-confirmed_positive)*h);
+                    laij_seed+=log(k_seed)+log(m-k_seed-n+confirmed_positive+1) + log(psi) +
+                      log(epsilon) + log(ili_monitored)- log(m-k_seed+1) - 
+                      log(k_seed-confirmed_positive) - log(h);
                 }
 
-                if(h<=confirmed_positive) /*vertical increment*/
-                    aij_seed*=((k_seed-h+1)*psi*ili_monitored*(1-epsilon))/((Z_in_mon-k_seed+h)*h);
+                if(h<=confirmed_positive) /*vertical increment*/ {
+                    laij_seed+=log(k_seed-h+1) + log(psi) + log(ili_monitored) + log(1-epsilon) -
+                      log(Z_in_mon-k_seed+h) - log(h);
+                }
 
-                aij=aij_seed;
-                likelihood_AG_week+=aij;
+                laij=laij_seed;
+                llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
 
                 /*calculation of the line*/
                 if(Z_in_mon+h>m-n+confirmed_positive)
@@ -601,12 +623,15 @@ namespace flu
                 if(max_m_plus>k_seed)
                     for(int k=k_seed+1;k<=max_m_plus;k++)
                     {
-                        aij*=(k*(m-k-n+confirmed_positive+1)*(Z_in_mon-k+h+1)*epsilon)/((m-k+1)*(k-confirmed_positive)*(k-h)*(1-epsilon));
-                        likelihood_AG_week+=aij;
+                        laij+=log(k) + log(m-k-n+confirmed_positive+1) + log(Z_in_mon-k+h+1) +
+                          log(epsilon) - log(m-k+1) - log(k-confirmed_positive) -log(k-h) -
+                          log(1-epsilon);
+                        llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
                     }
             }
 
-        auto ll = log(likelihood_AG_week);
+        //auto ll = log(likelihood_AG_week);
+        auto ll = llikelihood_AG_week;
         if (!std::isfinite(ll))
         {
             /*Rcpp::Rcerr << "Numerical error detected for week " 
