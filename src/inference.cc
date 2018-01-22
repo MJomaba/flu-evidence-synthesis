@@ -172,8 +172,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     
     auto Rlpeak_prior = [&lpeak_prior](const boost::posix_time::ptime &time,
                                        const double &value) {
-        //double lPrior = Rcpp::as<double>(lpeak_prior(time, value));
-        auto t = Rcpp::Date(boost::posix_time::to_iso_extended_string( time ), "%Y-%m-%dT%H:%M:%OS");
+        boost::gregorian::date d = time.date();
+        Rcpp::Date t = Rcpp::Date(d.month(), d.day(), d.year());
         double lPrior = Rcpp::as<double>(lpeak_prior(t, value));
         return lPrior;
     };
@@ -293,9 +293,9 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             
             prop_likelihood = 0;
             if (pass_peak) {
-              auto rS = result.cases.rowwise().sum();
-              auto id = rS.maxCoeff();
-              prop_likelihood = Rlpeak_prior(result.times[id], rS[id]);
+              size_t id;
+              auto value = result.cases.rowwise().sum().maxCoeff(&id);
+              prop_likelihood = Rlpeak_prior(result.times[id], value);
             }
 
             /*computes the associated likelihood with the proposed values*/
