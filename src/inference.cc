@@ -57,6 +57,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         size_t initial_infected_index,
         Rcpp::Function lprior,
         bool pass_prior,
+        Rcpp::Function lpeak_prior,
+        bool pass_peak,
         size_t no_age_groups,
         size_t no_risk_groups,
         bool uk_prior,
@@ -165,6 +167,14 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     double prop_prior = 0;
     auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
         double lPrior = Rcpp::as<double>(lprior( pars ));
+        return lPrior;
+    };
+    
+    auto Rlpeak_prior = [&lpeak_prior](const boost::posix_time::ptime &time,
+                                       const double &value) {
+        //double lPrior = Rcpp::as<double>(lpeak_prior(time, value));
+        auto t = Rcpp::Date(boost::posix_time::to_iso_extended_string( time ), "%Y-%m-%dT%H:%M:%OS");
+        double lPrior = Rcpp::as<double>(lpeak_prior(t, value));
         return lPrior;
     };
 
@@ -280,9 +290,16 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                     pars_to_susceptibility(prop_parameters),
                     prop_contact_regular, prop_parameters[transmissibility_index], 
                     vaccine_calendar, 7*24 );
+            
+            prop_likelihood = 0;
+            if (pass_peak) {
+              auto rS = result.cases.rowwise().sum();
+              auto id = rS.maxCoeff();
+              prop_likelihood = Rlpeak_prior(result.times[id], rS[id]);
+            }
 
             /*computes the associated likelihood with the proposed values*/
-            prop_likelihood=log_likelihood_hyper_poisson(
+            prop_likelihood += log_likelihood_hyper_poisson(
                     pars_to_epsilon(prop_parameters), 
                     prop_parameters[psi_index], 
                     days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 

@@ -6,7 +6,8 @@
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
   polymod_data, initial, parameter_map, age_groups, age_group_map,
-  risk_group_map, risk_ratios, lprior, nburn = 0, nbatch = 1000, blen = 1)
+  risk_group_map, risk_ratios, lprior, lpeak_prior, nburn = 0,
+  nbatch = 1000, blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
@@ -41,6 +42,9 @@ This parameter is not needed if only one risk group is modelled}
 \item{risk_ratios}{A matrix with the fraction in the risk groups. The leftover fraction is assumed to be low risk. (\code{\link{stratify_by_risk}})}
 
 \item{lprior}{Optional function returning the log prior probability of the parameters. If no function is passed then a flat prior is used.}
+
+\item{lpeak_prior}{Optional function to include prior knowledge on the peak time and height. This function should accept a time and
+height (no. of infected in the population) and return a log likelihood value for those values.}
 
 \item{nburn}{Number of iterations of burn in}
 
