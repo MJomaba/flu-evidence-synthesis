@@ -170,8 +170,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // total_log_likelihood
-double total_log_likelihood(Eigen::VectorXd epsilon, double psi, Eigen::MatrixXi predicted, Eigen::VectorXi population_size, Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored, Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples);
-RcppExport SEXP _fluEvidenceSynthesis_total_log_likelihood(SEXP epsilonSEXP, SEXP psiSEXP, SEXP predictedSEXP, SEXP population_sizeSEXP, SEXP ili_casesSEXP, SEXP ili_monitoredSEXP, SEXP confirmed_positiveSEXP, SEXP confirmed_samplesSEXP) {
+double total_log_likelihood(Eigen::VectorXd epsilon, double psi, Eigen::MatrixXi predicted, Eigen::VectorXi population_size, Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored, Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples, int depth);
+RcppExport SEXP _fluEvidenceSynthesis_total_log_likelihood(SEXP epsilonSEXP, SEXP psiSEXP, SEXP predictedSEXP, SEXP population_sizeSEXP, SEXP ili_casesSEXP, SEXP ili_monitoredSEXP, SEXP confirmed_positiveSEXP, SEXP confirmed_samplesSEXP, SEXP depthSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -183,7 +183,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili_monitored(ili_monitoredSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type confirmed_positive(confirmed_positiveSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXi >::type confirmed_samples(confirmed_samplesSEXP);
-    rcpp_result_gen = Rcpp::wrap(total_log_likelihood(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples));
+    Rcpp::traits::input_parameter< int >::type depth(depthSEXP);
+    rcpp_result_gen = Rcpp::wrap(total_log_likelihood(epsilon, psi, predicted, population_size, ili_cases, ili_monitored, confirmed_positive, confirmed_samples, depth));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -356,7 +357,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_runSEIRModel", (DL_FUNC) &_fluEvidenceSynthesis_runSEIRModel, 8},
     {"_fluEvidenceSynthesis_infectionODEs", (DL_FUNC) &_fluEvidenceSynthesis_infectionODEs, 8},
     {"_fluEvidenceSynthesis_log_likelihood", (DL_FUNC) &_fluEvidenceSynthesis_log_likelihood, 8},
-    {"_fluEvidenceSynthesis_total_log_likelihood", (DL_FUNC) &_fluEvidenceSynthesis_total_log_likelihood, 8},
+    {"_fluEvidenceSynthesis_total_log_likelihood", (DL_FUNC) &_fluEvidenceSynthesis_total_log_likelihood, 9},
     {"_fluEvidenceSynthesis_runPredatorPrey", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPrey, 2},
     {"_fluEvidenceSynthesis_runPredatorPreySimple", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPreySimple, 2},
     {"_fluEvidenceSynthesis_adaptiveMCMCR", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCR, 9},

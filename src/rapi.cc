@@ -320,13 +320,14 @@ double log_likelihood( double epsilon, double psi,
 //' @param ili_monitored The size of the population monitored for ILI  by week and age group
 //' @param confirmed_positive The number of samples positive for the Influenza strain  by week and age group
 //' @param confirmed_samples Number of samples tested for the Influenza strain  by week and age group
+//' @param depth Depth/precision of the approximation. In general the a value of 2 is used. Higher is more precise.
 //'
 //'
 // [[Rcpp::export(name="log_likelihood_cases")]]
 double total_log_likelihood(  Eigen::VectorXd epsilon, double psi, 
         Eigen::MatrixXi predicted, Eigen::VectorXi population_size, 
         Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored,
-        Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples )
+        Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples, int depth = 2)
 {
     double ll = 0;
     for (size_t j = 0; j < ili_cases.cols(); ++j) {
@@ -335,7 +336,7 @@ double total_log_likelihood(  Eigen::VectorXd epsilon, double psi,
                     predicted(i,j), population_size[j],
                     ili_cases(i,j), ili_monitored(i,j),
                     confirmed_positive(i,j), confirmed_samples(i,j), 
-                    2 );
+                    depth);
         }
     }
     return ll;
