@@ -178,6 +178,14 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         return lPrior;
     };
 
+    if (pass_peak) {
+        size_t id;
+        auto value = result.cases.rowwise().sum().maxCoeff(&id);
+        curr_llikelihood += Rlpeak_prior(result.times[id], value);
+    }
+
+
+
     auto log_prior_ratio_f = [pass_prior, &Rlprior, &prop_prior, &curr_prior, uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
          initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
              if (uk_prior)
