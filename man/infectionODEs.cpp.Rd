@@ -5,7 +5,8 @@
 \title{Run the SEIR model for the given parameters}
 \usage{
 infectionODEs.cpp(population, initial_infected, vaccine_calendar,
-  contact_matrix, susceptibility, transmissibility, infection_delays, dates)
+  contact_matrix, susceptibility, transmissibility, infection_delays,
+  dates)
 }
 \arguments{
 \item{population}{The population size of the different age groups, subdivided into risk groups}

@@ -106,7 +106,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 my_acceptance_rate=
                     exp(prop_llikelihood-curr_llikelihood+
                             prop_lprior - curr_lprior);
-            Rcpp::Rcout << "Bla " << my_acceptance_rate << std::endl;
         } else {
             if (std::isinf(curr_lprior))
                 ::Rf_error("Algorithm stuck on infinite prior");

@@ -4,8 +4,8 @@
 \alias{contact.matrix}
 \title{Create a contact matrix based on polymod data.}
 \usage{
-contact.matrix(polymod_data, age_sizes, age_group_limits = c(1, 5, 15, 25, 45,
-  65))
+contact.matrix(polymod_data, age_sizes, age_group_limits = c(1, 5, 15,
+  25, 45, 65))
 }
 \arguments{
 \item{polymod_data}{Contact data for different age groups}

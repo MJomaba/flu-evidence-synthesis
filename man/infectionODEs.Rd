@@ -4,9 +4,9 @@
 \alias{infectionODEs}
 \title{Run the SEIR model for the given parameters}
 \usage{
-infectionODEs(population, initial_infected, vaccine_calendar, contact_matrix,
-  susceptibility, transmissibility, infection_delays, interval = 7,
-  dates = NULL)
+infectionODEs(population, initial_infected, vaccine_calendar,
+  contact_matrix, susceptibility, transmissibility, infection_delays,
+  interval = 7, dates = NULL)
 }
 \arguments{
 \item{population}{The population size of the different age groups, subdivided into risk groups}

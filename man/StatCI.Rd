@@ -4,7 +4,7 @@
 \name{StatCI}
 \alias{StatCI}
 \title{Stat object for drawing credible intervals}
-\format{An object of class \code{StatCI} (inherits from \code{Stat}, \code{ggproto}) of length 5.}
+\format{An object of class \code{StatCI} (inherits from \code{Stat}, \code{ggproto}, \code{gg}) of length 5.}
 \usage{
 StatCI
 }

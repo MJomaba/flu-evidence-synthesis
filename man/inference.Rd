@@ -6,7 +6,8 @@
 \usage{
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
   polymod_data, initial, parameter_map, age_groups, age_group_map,
-  risk_group_map, risk_ratios, lprior, nburn = 0, nbatch = 1000, blen = 1)
+  risk_group_map, risk_ratios, lprior, nburn = 0, nbatch = 1000,
+  blen = 1)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
