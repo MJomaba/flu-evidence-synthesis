@@ -40,4 +40,4 @@ Suggests:
 SystemRequirements: C++11
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

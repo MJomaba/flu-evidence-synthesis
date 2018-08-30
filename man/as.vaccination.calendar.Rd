@@ -4,9 +4,9 @@
 \alias{as.vaccination.calendar}
 \title{Create a vaccination calendar object}
 \usage{
-as.vaccination.calendar(efficacy = NULL, dates = NULL, coverage = NULL,
-  legacy = NULL, no_risk_groups = NULL, no_age_groups = NULL,
-  starting_year = NULL)
+as.vaccination.calendar(efficacy = NULL, dates = NULL,
+  coverage = NULL, legacy = NULL, no_risk_groups = NULL,
+  no_age_groups = NULL, starting_year = NULL)
 }
 \arguments{
 \item{efficacy}{Vector holding the vaccine efficacy for each age group and risk group}
