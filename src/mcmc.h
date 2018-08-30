@@ -26,9 +26,17 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     result.llikelihoods = Eigen::VectorXd( nbatch );
 
     auto curr_parameters = initial;
+    PutRNGstate();
     auto curr_lprior = lprior( curr_parameters );
     auto curr_llikelihood = llikelihood( curr_parameters );
+    GetRNGstate();
     auto proposal_state = proposal::initialize( initial.size() );
+
+
+    if (verbose) {
+        Rcpp::Rcout << "Initial LPrior\t" << curr_lprior  << std::endl;
+        Rcpp::Rcout << "Initial Llikeli\t" << curr_llikelihood << std::endl;
+    }
 
 
     size_t sampleCount = 0;
@@ -67,8 +75,10 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
 
         if (verbose)
             start_time = std::chrono::high_resolution_clock::now();
+        PutRNGstate();
         auto prop_lprior = 
             lprior(prop_parameters);
+        GetRNGstate();
         if (verbose)
             Rcpp::Rcout << "LPrior\t" << prop_lprior << "\t" <<
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -81,7 +91,9 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         {
             if (verbose)
                 start_time = std::chrono::high_resolution_clock::now();
+            PutRNGstate();
             prop_llikelihood = llikelihood( prop_parameters );
+            GetRNGstate();
             if (verbose)
                 Rcpp::Rcout << "Llikeli\t" << prop_llikelihood << "\t" <<
                     std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -94,13 +106,14 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 my_acceptance_rate=
                     exp(prop_llikelihood-curr_llikelihood+
                             prop_lprior - curr_lprior);
+            Rcpp::Rcout << "Bla " << my_acceptance_rate << std::endl;
         } else {
             if (std::isinf(curr_lprior))
                 ::Rf_error("Algorithm stuck on infinite prior");
             my_acceptance_rate = -1.0;
         }
-
-        if(R::runif(0,1)<my_acceptance_rate) //with prior
+        auto rnd = R::runif(0.0, 1.0);
+        if(rnd < my_acceptance_rate) //with prior
         {
             //update the acceptance rate
             proposal_state = proposal::accepted( 
@@ -114,7 +127,9 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             // Call the accept function
             if (verbose)
                 start_time = std::chrono::high_resolution_clock::now();
+            PutRNGstate();
             acceptfun();
+            GetRNGstate();
             if (verbose)
                 Rcpp::Rcout << "acceptfun\t" << 0.0/0.0 << "\t" <<
                     std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -135,7 +150,9 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             result.batch.row( sampleCount ) = curr_parameters;
             if (verbose)
                 start_time = std::chrono::high_resolution_clock::now();
+            PutRNGstate();
             outfun();
+            GetRNGstate();
             if (verbose)
                 Rcpp::Rcout << "outfun\t" << 0.0/0.0 << "\t" <<
                     std::chrono::duration_cast<std::chrono::nanoseconds>(
