@@ -28,3 +28,4 @@ symbols.rds
 .Rproj.user
 inst/doc
 .build.timestamp
+man/dot-*
