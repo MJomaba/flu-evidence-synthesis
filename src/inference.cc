@@ -166,7 +166,9 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     double curr_prior = 0;
     double prop_prior = 0;
     auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
+        PutRNGstate();
         double lPrior = Rcpp::as<double>(lprior( pars ));
+        GetRNGstate();
         return lPrior;
     };
     
@@ -174,7 +176,9 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                                        const double &value) {
         boost::gregorian::date d = time.date();
         Rcpp::Date t = Rcpp::Date(d.month(), d.day(), d.year());
+        PutRNGstate();
         double lPrior = Rcpp::as<double>(lpeak_prior(t, value));
+        GetRNGstate();
         return lPrior;
     };
 
@@ -285,6 +289,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             // TODO/WARN Need to draw this before hand and pass it as data to
             // likelihood function... Even when doing that we still need to know k,
             // so might as well make the likelihood function increase k when called
+            
             if(R::runif(0,1) < p_ac_mat)
                 prop_c = contacts::bootstrap_contacts( std::move(prop_c),
                         polymod, step_mat );

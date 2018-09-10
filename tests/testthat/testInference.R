@@ -69,7 +69,7 @@ test_that("We can run inference",
                            n_pos=confirmed.samples$positive,
                            n_samples=confirmed.samples$total.samples,
                            nbatch=1000,
-                           nburn=1000, blen=1 )
+                           nburn=1000, blen=1)
 
       expect_that( nrow(results$batch), equals( 1000 ) )
       expect_that( nrow(results$contact.ids), equals( 1000 ) )

@@ -26,10 +26,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     result.llikelihoods = Eigen::VectorXd( nbatch );
 
     auto curr_parameters = initial;
-    PutRNGstate();
     auto curr_lprior = lprior( curr_parameters );
     auto curr_llikelihood = llikelihood( curr_parameters );
-    GetRNGstate();
     auto proposal_state = proposal::initialize( initial.size() );
 
 
@@ -75,10 +73,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
 
         if (verbose)
             start_time = std::chrono::high_resolution_clock::now();
-        PutRNGstate();
         auto prop_lprior = 
             lprior(prop_parameters);
-        GetRNGstate();
         if (verbose)
             Rcpp::Rcout << "LPrior\t" << prop_lprior << "\t" <<
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -91,9 +87,7 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         {
             if (verbose)
                 start_time = std::chrono::high_resolution_clock::now();
-            PutRNGstate();
             prop_llikelihood = llikelihood( prop_parameters );
-            GetRNGstate();
             if (verbose)
                 Rcpp::Rcout << "Llikeli\t" << prop_llikelihood << "\t" <<
                     std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -106,7 +100,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
                 my_acceptance_rate=
                     exp(prop_llikelihood-curr_llikelihood+
                             prop_lprior - curr_lprior);
-            Rcpp::Rcout << "Bla " << my_acceptance_rate << std::endl;
         } else {
             if (std::isinf(curr_lprior))
                 ::Rf_error("Algorithm stuck on infinite prior");

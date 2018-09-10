@@ -444,12 +444,16 @@ Rcpp::List adaptiveMCMCR(
         size_t nbatch, size_t blen = 1, bool verbose = false )
 {
     auto cppLprior = [&lprior]( const Eigen::VectorXd &pars ) {
+        PutRNGstate();
         double lPrior = Rcpp::as<double>(lprior( pars ));
+        GetRNGstate();
         return lPrior;
     };
 
     auto cppLlikelihood = [&llikelihood]( const Eigen::VectorXd &pars ) {
+        PutRNGstate();
         double ll = Rcpp::as<double>(llikelihood( pars ));
+        GetRNGstate();
         return ll;
     };
 
