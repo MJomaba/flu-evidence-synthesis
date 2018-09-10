@@ -112,6 +112,8 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
             my_acceptance_rate = -1.0;
         }
         auto rnd = R::runif(0.0, 1.0);
+        if (verbose)
+            Rcpp::Rcout << "RND: " << rnd << " rate " << my_acceptance_rate << std::endl;
         if(rnd < my_acceptance_rate) //with prior
         {
             //update the acceptance rate
