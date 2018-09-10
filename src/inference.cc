@@ -57,6 +57,8 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         size_t initial_infected_index,
         Rcpp::Function lprior,
         bool pass_prior,
+        Rcpp::Function lpeak_prior,
+        bool pass_peak,
         size_t no_age_groups,
         size_t no_risk_groups,
         bool uk_prior,
@@ -167,6 +169,22 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         double lPrior = Rcpp::as<double>(lprior( pars ));
         return lPrior;
     };
+    
+    auto Rlpeak_prior = [&lpeak_prior](const boost::posix_time::ptime &time,
+                                       const double &value) {
+        boost::gregorian::date d = time.date();
+        Rcpp::Date t = Rcpp::Date(d.month(), d.day(), d.year());
+        double lPrior = Rcpp::as<double>(lpeak_prior(t, value));
+        return lPrior;
+    };
+
+    if (pass_peak) {
+        size_t id;
+        auto value = result.cases.rowwise().sum().maxCoeff(&id);
+        curr_llikelihood += Rlpeak_prior(result.times[id], value);
+    }
+
+
 
     auto log_prior_ratio_f = [pass_prior, &Rlprior, &prop_prior, &curr_prior, uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
          initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
@@ -280,9 +298,16 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
                     pars_to_susceptibility(prop_parameters),
                     prop_contact_regular, prop_parameters[transmissibility_index], 
                     vaccine_calendar, 7*24 );
+            
+            prop_likelihood = 0;
+            if (pass_peak) {
+              size_t id;
+              auto value = result.cases.rowwise().sum().maxCoeff(&id);
+              prop_likelihood = Rlpeak_prior(result.times[id], value);
+            }
 
             /*computes the associated likelihood with the proposed values*/
-            prop_likelihood=log_likelihood_hyper_poisson(
+            prop_likelihood += log_likelihood_hyper_poisson(
                     pars_to_epsilon(prop_parameters), 
                     prop_parameters[psi_index], 
                     days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
