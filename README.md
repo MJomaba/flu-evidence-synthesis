@@ -1,8 +1,8 @@
 # fluEvidenceSynthesis
 
-This repository contains the code used for flu data analysis first published in
+This repository contains the fluEvidenceSynthesis package which was described in more detail in:
 
-Baguelin, Marc, Stefan Flasche, Anton Camacho, Nikolaos Demiris, Elizabeth Miller, and W. John Edmunds. ‘Assessing Optimal Target Populations for Influenza Vaccination Programmes: An Evidence Synthesis and Modelling Study’. PLoS Med 10, no. 10 (8 October 2013): e1001527. doi:10.1371/journal.pmed.1001527.
+van Leeuwen, Edwin, Petra Klepac, Dominic Thorrington, Richard Pebody, and Marc Baguelin. “FluEvidenceSynthesis: An R Package for Evidence Synthesis Based Analysis of Epidemiological Outbreaks.” PLOS Computational Biology 13, no. 11 (2017): e1005838. https://doi.org/10.1371/journal.pcbi.1005838.
 
 The code is distributed under a GPLv3 license. Please remember to cite the above manuscript when using this code.
 

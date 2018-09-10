@@ -1,0 +1,18 @@
+citHeader("To cite fluEvidenceSynthesis in publications use:")
+
+citEntry(entry = "Article",
+  title        = "fluEvidenceSynthesis: An R package for evidence synthesis based analysis of epidemiological outbreaks",
+  author       = personList(as.person("Edwin van Leeuwen"),
+                   as.person("Petra Klepac"),
+                   as.person("Dominic Thorrington"),
+                   as.person("Richard Pebody"),
+                   as.person("Marc Baguelin")   
+                   ),
+  journal      = "PLOS Computational Biology",
+  year         = "2017",
+  volume       = "13",
+  number       = "11",
+  pages        = "e1005848",
+  url          = "http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005838",
+  textVersion  = "van Leeuwen, Edwin, Petra Klepac, Dominic Thorrington, Richard Pebody, and Marc Baguelin. \"FluEvidenceSynthesis: An R Package for Evidence Synthesis Based Analysis of Epidemiological Outbreaks.\" PLOS Computational Biology 13, no. 11 (2017): e1005838. https://doi.org/10.1371/journal.pcbi.1005838."
+)

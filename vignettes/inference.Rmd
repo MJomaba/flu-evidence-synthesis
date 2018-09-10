@@ -321,7 +321,7 @@ custom_inference <- function(demography, vaccine_calendar, polymod_data, ili,
 
 The resulting custom inference function can be called similarly to the original inference function.
 
-```{r,cache=T}
+```{r,cache = T, eval = F}
 inference.results <- custom_inference(demography = demography,
                       vaccine_calendar = vaccine_calendar,
                       polymod_data = as.matrix(polymod_uk),
