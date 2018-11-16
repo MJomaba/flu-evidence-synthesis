@@ -725,3 +725,21 @@ double as_transmission_rate(double R0, Eigen::MatrixXd contact_matrix, Eigen::Ve
     auto evs = a.eigenvalues().real().maxCoeff();
     return R0/(evs*duration);
 }
+
+//' Test multinormal implementation 
+//'
+//' @param means Means
+//' @param cov Covariance matrix 
+//'
+//' @return A random draw 
+// [[Rcpp::export(name=".testRMultinormal")]]
+Eigen::VectorXd testRMultinormal(Eigen::VectorXd mean, Eigen::MatrixXd cov) {
+    auto normal_draw = Eigen::VectorXd(mean.size());
+    for(int i=0;i<mean.size();i++)
+    {
+        normal_draw[i]=R::rnorm(0,1);
+    }
+    Eigen::MatrixXd chol_emp_cov = Eigen::LLT<Eigen::MatrixXd>(cov).matrixL();
+    return mean + chol_emp_cov*normal_draw;
+}
+

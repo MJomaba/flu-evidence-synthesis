@@ -132,3 +132,23 @@ test_that("We can use the accept function",
       expect_lt(abs(0.3-mean(mcmc.result$batch[,2])), 0.015)
   }
 )
+
+test_that("Random multinormal draw works", {
+  set.seed(100)
+  if (!exists(".testRMultinormal"))
+  {
+    # In certain situation this function is hidden 
+    # (i.e. for devtools::check(), but not for devtools::test()
+    
+    skip(".testRMultinormal not available (hidden)")
+  }
+  
+  s <- matrix(0, nrow = 10000, ncol = 2)
+  for (i in 1:10000) 
+    s[i,] <- .testRMultinormal(c(1,0.1), matrix(c(3, 0.1, 0.1, 1), nrow = 2, ncol = 2))
+  expect_lt(abs(3-var(s[,1], s[,1])), 0.01)
+  expect_lt(abs(0.1-var(s[,1], s[,2])), 0.01)
+  expect_lt(abs(1-var(s[,2], s[,2])), 0.01)
+  expect_lt(abs(1-mean(s[,1])), 0.02)
+  expect_lt(abs(0.1-mean(s[,2])), 0.02)
+})

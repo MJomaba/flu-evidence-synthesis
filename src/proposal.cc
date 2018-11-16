@@ -46,6 +46,7 @@ namespace flu {
                 init_cov_matrix(i,i) = 0.0000001;
             }
 
+
             state.chol_ini = Eigen::LLT<Eigen::MatrixXd>(
                     init_cov_matrix).matrixL();
             state.chol_emp_cov = state.chol_ini;

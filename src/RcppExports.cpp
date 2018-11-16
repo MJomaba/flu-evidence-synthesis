@@ -333,6 +333,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// testRMultinormal
+Eigen::VectorXd testRMultinormal(Eigen::VectorXd mean, Eigen::MatrixXd cov);
+RcppExport SEXP _fluEvidenceSynthesis_testRMultinormal(SEXP meanSEXP, SEXP covSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov(covSEXP);
+    rcpp_result_gen = Rcpp::wrap(testRMultinormal(mean, cov));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vaccinationScenario
 std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, std::vector<size_t> contact_ids, Eigen::VectorXd parameters);
 RcppExport SEXP _fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP contact_idsSEXP, SEXP parametersSEXP) {
@@ -371,6 +383,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_stratify_by_risk", (DL_FUNC) &_fluEvidenceSynthesis_stratify_by_risk, 3},
     {"_fluEvidenceSynthesis_as_R0", (DL_FUNC) &_fluEvidenceSynthesis_as_R0, 4},
     {"_fluEvidenceSynthesis_as_transmission_rate", (DL_FUNC) &_fluEvidenceSynthesis_as_transmission_rate, 4},
+    {"_fluEvidenceSynthesis_testRMultinormal", (DL_FUNC) &_fluEvidenceSynthesis_testRMultinormal, 2},
     {"_fluEvidenceSynthesis_vaccinationScenario", (DL_FUNC) &_fluEvidenceSynthesis_vaccinationScenario, 5},
     {NULL, NULL, 0}
 };

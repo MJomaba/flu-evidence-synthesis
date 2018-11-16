@@ -317,6 +317,16 @@ as_transmission_rate <- function(R0, contact_matrix, age_groups, duration = 1.8)
     .Call('_fluEvidenceSynthesis_as_transmission_rate', PACKAGE = 'fluEvidenceSynthesis', R0, contact_matrix, age_groups, duration)
 }
 
+#' Test multinormal implementation 
+#'
+#' @param means Means
+#' @param cov Covariance matrix 
+#'
+#' @return A random draw 
+.testRMultinormal <- function(mean, cov) {
+    .Call('_fluEvidenceSynthesis_testRMultinormal', PACKAGE = 'fluEvidenceSynthesis', mean, cov)
+}
+
 #' Calculate number of influenza cases given a vaccination strategy
 #'
 #' @description Superseded by \code{vaccination_scenario}
