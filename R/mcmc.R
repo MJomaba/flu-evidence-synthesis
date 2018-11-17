@@ -31,6 +31,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
       m <- initial$batch
     # Assume initial contains posterior samples and use that to calculate 
     # proposal covariance matrix
+    m <- as.matrix(m)
     means <- rep(0, ncol(m))
     cv <- matrix(0, nrow = ncol(m), ncol = ncol(m))
     w <- nrow(m)
@@ -39,8 +40,11 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
       for (j in 1:ncol(m)) {
         cv[i,j] <- cov(m[,i], m[,j])
       }
-      if (all(cv[i,] ==0))
-        w <- 0 # This parameter is stuck so we cannot use these results
+      if (all(cv[i,] == 0)) {
+        warning("Variance in posterior sample 0 for parameter ", i, " this could indicate the algorithm was stuck")
+        # This parameter is stuck so we set variance to very small, in other to take small steps
+        cv[i,i] <- 1e-10
+      }
     }
     return(.adaptive.mcmc.proposal(lprior, function(pars) llikelihood(pars, ...), outfun,
                              acceptfun, nburn, 
