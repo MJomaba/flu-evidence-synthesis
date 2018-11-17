@@ -233,6 +233,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// adaptiveMCMCRCovariance
+Rcpp::List adaptiveMCMCRCovariance(Rcpp::Function lprior, Rcpp::Function llikelihood, Rcpp::Function outfun, Rcpp::Function acceptfun, size_t nburn, Eigen::VectorXd means, Eigen::MatrixXd covariance, size_t covariance_weight, size_t nbatch, size_t blen, bool verbose);
+RcppExport SEXP _fluEvidenceSynthesis_adaptiveMCMCRCovariance(SEXP lpriorSEXP, SEXP llikelihoodSEXP, SEXP outfunSEXP, SEXP acceptfunSEXP, SEXP nburnSEXP, SEXP meansSEXP, SEXP covarianceSEXP, SEXP covariance_weightSEXP, SEXP nbatchSEXP, SEXP blenSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::Function >::type lprior(lpriorSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type llikelihood(llikelihoodSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type outfun(outfunSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type acceptfun(acceptfunSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type means(meansSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type covariance(covarianceSEXP);
+    Rcpp::traits::input_parameter< size_t >::type covariance_weight(covariance_weightSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
+    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(adaptiveMCMCRCovariance(lprior, llikelihood, outfun, acceptfun, nburn, means, covariance, covariance_weight, nbatch, blen, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // contact_matrix
 Eigen::MatrixXd contact_matrix(Eigen::MatrixXi polymod_data, std::vector<size_t> demography, Rcpp::NumericVector age_group_limits);
 RcppExport SEXP _fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP demographySEXP, SEXP age_group_limitsSEXP) {
@@ -375,6 +396,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_runPredatorPrey", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPrey, 2},
     {"_fluEvidenceSynthesis_runPredatorPreySimple", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPreySimple, 2},
     {"_fluEvidenceSynthesis_adaptiveMCMCR", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCR, 9},
+    {"_fluEvidenceSynthesis_adaptiveMCMCRCovariance", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCRCovariance, 11},
     {"_fluEvidenceSynthesis_contact_matrix", (DL_FUNC) &_fluEvidenceSynthesis_contact_matrix, 3},
     {"_fluEvidenceSynthesis_age_group_levels", (DL_FUNC) &_fluEvidenceSynthesis_age_group_levels, 1},
     {"_fluEvidenceSynthesis_age_group_limits", (DL_FUNC) &_fluEvidenceSynthesis_age_group_limits, 1},

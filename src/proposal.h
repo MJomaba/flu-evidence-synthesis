@@ -47,6 +47,8 @@ namespace flu {
             double delta;
             double lambda;
 
+            size_t initial_weight = 0; // Weight of initial covariance matrix, used when a correlation matrix is passed along
+
             proposal_state_t() {
                 adaptive_scaling = 0.3;
                 conv_scaling = 0.001;
@@ -58,6 +60,8 @@ namespace flu {
         };
 
         proposal_state_t initialize( size_t dim );
+
+        proposal_state_t initialize(Eigen::VectorXd means, Eigen::MatrixXd cov, size_t weight);
         
         proposal_state_t update( proposal_state_t&& state,
                 const Eigen::VectorXd &parameters,

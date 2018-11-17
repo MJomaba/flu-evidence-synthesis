@@ -204,6 +204,31 @@ adaptive.mcmc.cpp <- function(lprior, llikelihood, outfun, acceptfun, nburn, ini
     .Call('_fluEvidenceSynthesis_adaptiveMCMCR', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, acceptfun, nburn, initial, nbatch, blen, verbose)
 }
 
+#' Adaptive MCMC algorithm implemented in C++
+#'
+#' MCMC which adapts its proposal distribution for faster convergence following:
+#' Sherlock, C., Fearnhead, P. and Roberts, G.O. The Random Walk Metrolopois: Linking Theory and Practice Through a Case Study. Statistical Science 25, no.2 (2010): 172-190.
+#'
+#' @param lprior A function returning the log prior probability of the parameters 
+#' @param llikelihood A function returning the log likelihood of the parameters given the data
+#' @param outfun A function that is called for each batch. Can be useful to log certain values. 
+#' @param acceptfun A function that is called whenever a sample is accepted. 
+#' @param nburn Number of iterations of burn in
+#' @param means Vector with estimated/guess mean parameter values of the posterior distribution
+#' @param covariance Estimated covariance of the posterior distribution
+#' @param covariance_weight The weight to give the initial estimate for the means and covariance
+#' @param nbatch Number of batches to run (number of samples to return)
+#' @param blen Length of each batch
+#' @param verbose Output debugging information
+#' 
+#' @return Returns a list with the accepted samples and the corresponding llikelihood values
+#'
+#' @seealso \code{\link{adaptive.mcmc}} For a more flexible R frontend to this function.
+#'
+.adaptive.mcmc.proposal <- function(lprior, llikelihood, outfun, acceptfun, nburn, means, covariance, covariance_weight, nbatch, blen = 1L, verbose = FALSE) {
+    .Call('_fluEvidenceSynthesis_adaptiveMCMCRCovariance', PACKAGE = 'fluEvidenceSynthesis', lprior, llikelihood, outfun, acceptfun, nburn, means, covariance, covariance_weight, nbatch, blen, verbose)
+}
+
 #' Create a contact matrix based on polymod data.
 #'
 #' @param polymod_data Contact data for different age groups
