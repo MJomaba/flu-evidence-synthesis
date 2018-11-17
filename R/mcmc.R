@@ -25,9 +25,31 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
     outfun <- function() { NULL }
   if (is.null(acceptfun))
     acceptfun <- function() { NULL }
-  
-  adaptive.mcmc.cpp(lprior, function(pars) llikelihood(pars, ...), outfun,
-                    acceptfun, nburn, initial, nbatch, blen, verbose)
+  if ("batch" %in% names(initial) || length(dim(initial == 2))) {
+    m <- initial
+    if ("batch" %in% names(initial))
+      m <- initial$batch
+    # Assume initial contains posterior samples and use that to calculate 
+    # proposal covariance matrix
+    means <- rep(0, ncol(m))
+    cv <- matrix(0, nrow = ncol(m), ncol = ncol(m))
+    w <- nrow(m)
+    for (i in 1:ncol(m)) {
+      means[i] <- mean(m[,i])
+      for (j in 1:ncol(m)) {
+        cv[i,j] <- cov(m[,i], m[,j])
+      }
+      if (all(cv[i,] ==0))
+        w <- 0 # This parameter is stuck so we cannot use these results
+    }
+    return(.adaptive.mcmc.proposal(lprior, function(pars) llikelihood(pars, ...), outfun,
+                             acceptfun, nburn, 
+                             means, cv, w,
+                             nbatch, blen, verbose))
+  } else {
+    return(adaptive.mcmc.cpp(lprior, function(pars) llikelihood(pars, ...), outfun,
+                             acceptfun, nburn, initial, nbatch, blen, verbose))
+  }
 }
 
 

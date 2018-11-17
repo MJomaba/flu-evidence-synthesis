@@ -15,10 +15,10 @@ struct mcmc_result_t
 };
 
 template<typename Func1, typename Func2, typename Func3, typename Func4>
-mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood, 
+mcmc_result_t adaptiveMCMCWithProposal( const Func1 &lprior, const Func2 &llikelihood, 
         const Func3 &outfun, const Func4 &acceptfun,
         size_t nburn,
-        const Eigen::VectorXd &initial, 
+        const Eigen::VectorXd &initial, proposal::proposal_state_t proposal_state,
         size_t nbatch, size_t blen = 1, bool verbose = false )
 {
     mcmc_result_t result;
@@ -28,8 +28,6 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     auto curr_parameters = initial;
     auto curr_lprior = lprior( curr_parameters );
     auto curr_llikelihood = llikelihood( curr_parameters );
-    auto proposal_state = proposal::initialize( initial.size() );
-
 
     if (verbose) {
         Rcpp::Rcout << "Initial LPrior\t" << curr_lprior  << std::endl;
@@ -42,6 +40,11 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
     while(sampleCount<nbatch)
     {
         ++k;
+
+        if (verbose) {
+            Rcpp::Rcout << "Covariance matrix parameters\t" << proposal_state.emp_cov_matrix <<
+                std::endl;
+        } 
 
         //update of the variance-covariance matrix and the mean vector
         proposal_state = proposal::update( std::move( proposal_state ),
@@ -158,6 +161,29 @@ mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood,
         }
     }
     return result;
+}
+
+template<typename Func1, typename Func2, typename Func3, typename Func4>
+mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood, 
+        const Func3 &outfun, const Func4 &acceptfun,
+        size_t nburn,
+        const Eigen::VectorXd &means, const Eigen::MatrixXd &covariance, const size_t covariance_weight,
+        size_t nbatch, size_t blen = 1, bool verbose = false )
+{
+    auto proposal_state = proposal::initialize(means, covariance, covariance_weight);
+    return adaptiveMCMCWithProposal(lprior, llikelihood, outfun, acceptfun,
+            nburn, means, proposal_state, nbatch, blen, verbose);
+}
+
+template<typename Func1, typename Func2, typename Func3, typename Func4>
+mcmc_result_t adaptiveMCMC( const Func1 &lprior, const Func2 &llikelihood, 
+        const Func3 &outfun, const Func4 &acceptfun,
+        size_t nburn, const Eigen::VectorXd &initial, 
+        size_t nbatch, size_t blen = 1, bool verbose = false )
+{
+    auto proposal_state = proposal::initialize( initial.size() );
+    return adaptiveMCMCWithProposal(lprior, llikelihood, outfun, acceptfun,
+            nburn, initial, proposal_state, nbatch, blen, verbose);
 }
 }
 #endif
