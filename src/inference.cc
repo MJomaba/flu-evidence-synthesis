@@ -19,35 +19,13 @@
 
 using namespace flu;
 
-//' MCMC based inference of the parameter values given the different data sets
-//'
-//' @param demography A vector with the population size by each age {0,1,..}
-//' @param ili The number of Influenza-like illness cases per week
-//' @param mon_pop The number of people monitored for ili
-//' @param n_pos The number of positive samples for the given strain (per week)
-//' @param n_samples The total number of samples tested 
-//' @param vaccine_calendar A vaccine calendar valid for that year
-//' @param polymod_data Contact data for different age groups
-//' @param initial Vector with starting parameter values
-//' @param mapping Group mapping from model groups to data groups
-//' @param risk_ratios Risk ratios to convert to and from population groups
-//' @param no_age_groups Number of age groups
-//' @param no_risk_groups Number of risk groups
-//' @param mapping Group mapping from model groups to data groups
-//' @param nburn Number of iterations of burn in
-//' @param nbatch Number of batches to run (number of samples to return)
-//' @param blen Length of each batch
-//' 
-//' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
-//'
-// [[Rcpp::export(name=".inference_cpp")]]
-mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
+mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demography,
         std::vector<size_t> age_group_limits,
         Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data,
-        Eigen::VectorXd initial,
+        const Eigen::VectorXd &initial, proposal::proposal_state_t proposal_state,
         Eigen::MatrixXd mapping,
         Eigen::VectorXd risk_ratios,
         Eigen::VectorXd epsilon_index,
@@ -161,8 +139,6 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
             days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    auto proposal_state = proposal::initialize( curr_parameters.size() );
-
     double curr_prior = 0;
     double prop_prior = 0;
     auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
@@ -187,8 +163,6 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
         auto value = result.cases.rowwise().sum().maxCoeff(&id);
         curr_llikelihood += Rlpeak_prior(result.times[id], value);
     }
-
-
 
     auto log_prior_ratio_f = [pass_prior, &Rlprior, &prop_prior, &curr_prior, uk_prior, &epsilon_index, psi_index, transmissibility_index, &susceptibility_index, 
          initial_infected_index](const Eigen::VectorXd &proposed, const Eigen::VectorXd &current, bool susceptibility) {
@@ -366,6 +340,127 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography,
     }
     return results;
 }
+
+// [[Rcpp::export(name=".inference_cpp_with_covariance")]]
+mcmc_result_inference_t inference_cppWithCovariance( std::vector<size_t> demography, std::vector<size_t> age_group_limits,
+        Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
+        Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
+        flu::vaccine::vaccine_t vaccine_calendar,
+        Eigen::MatrixXi polymod_data,
+        Eigen::VectorXd means, Eigen::MatrixXd covariance, size_t covariance_weight,
+        Eigen::MatrixXd mapping,
+        Eigen::VectorXd risk_ratios,
+        Eigen::VectorXd epsilon_index,
+        size_t psi_index,
+        size_t transmissibility_index,
+        Eigen::VectorXd susceptibility_index,
+        size_t initial_infected_index,
+        Rcpp::Function lprior,
+        bool pass_prior,
+        Rcpp::Function lpeak_prior,
+        bool pass_peak,
+        size_t no_age_groups,
+        size_t no_risk_groups,
+        bool uk_prior,
+        size_t nburn = 0,
+        size_t nbatch = 1000, size_t blen = 1 )
+{
+    auto proposal_state = proposal::initialize(means, covariance, covariance_weight);
+    return inference_cppWithProposal( demography,
+        age_group_limits,
+        ili, mon_pop, 
+        n_pos, n_samples, 
+        vaccine_calendar,
+        polymod_data,
+        means, proposal_state,
+        mapping,
+        risk_ratios,
+        epsilon_index,
+        psi_index,
+        transmissibility_index,
+        susceptibility_index,
+        initial_infected_index,
+        lprior,
+        pass_prior,
+        lpeak_prior,
+        pass_peak,
+        no_age_groups,
+        no_risk_groups,
+        uk_prior,
+        nburn,
+        nbatch, blen );
+}
+
+//' MCMC based inference of the parameter values given the different data sets
+//'
+//' @param demography A vector with the population size by each age {0,1,..}
+//' @param ili The number of Influenza-like illness cases per week
+//' @param mon_pop The number of people monitored for ili
+//' @param n_pos The number of positive samples for the given strain (per week)
+//' @param n_samples The total number of samples tested 
+//' @param vaccine_calendar A vaccine calendar valid for that year
+//' @param polymod_data Contact data for different age groups
+//' @param initial Vector with starting parameter values
+//' @param mapping Group mapping from model groups to data groups
+//' @param risk_ratios Risk ratios to convert to and from population groups
+//' @param no_age_groups Number of age groups
+//' @param no_risk_groups Number of risk groups
+//' @param mapping Group mapping from model groups to data groups
+//' @param nburn Number of iterations of burn in
+//' @param nbatch Number of batches to run (number of samples to return)
+//' @param blen Length of each batch
+//' 
+//' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
+// [[Rcpp::export(name=".inference_cpp")]]
+mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, std::vector<size_t> age_group_limits,
+        Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, 
+        Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
+        flu::vaccine::vaccine_t vaccine_calendar,
+        Eigen::MatrixXi polymod_data,
+        Eigen::VectorXd initial,
+        Eigen::MatrixXd mapping,
+        Eigen::VectorXd risk_ratios,
+        Eigen::VectorXd epsilon_index,
+        size_t psi_index,
+        size_t transmissibility_index,
+        Eigen::VectorXd susceptibility_index,
+        size_t initial_infected_index,
+        Rcpp::Function lprior,
+        bool pass_prior,
+        Rcpp::Function lpeak_prior,
+        bool pass_peak,
+        size_t no_age_groups,
+        size_t no_risk_groups,
+        bool uk_prior,
+        size_t nburn = 0,
+        size_t nbatch = 1000, size_t blen = 1 )
+{
+    auto proposal_state = proposal::initialize( initial.size() );
+    return inference_cppWithProposal( demography,
+            age_group_limits,
+            ili, mon_pop, 
+            n_pos, n_samples, 
+            vaccine_calendar,
+            polymod_data,
+            initial, proposal_state,
+            mapping,
+            risk_ratios,
+            epsilon_index,
+            psi_index,
+            transmissibility_index,
+            susceptibility_index,
+            initial_infected_index,
+            lprior,
+            pass_prior,
+            lpeak_prior,
+            pass_peak,
+            no_age_groups,
+            no_risk_groups,
+            uk_prior,
+            nburn,
+            nbatch, blen );
+}
+
 
 double dmultinomial( const Eigen::VectorXi &x, int size, 
         const Eigen::VectorXd &prob, 

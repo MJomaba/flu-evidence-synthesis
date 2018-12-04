@@ -170,7 +170,16 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
   to_j <- mapping %>% dplyr::select(to, to_risk) %>% dplyr::distinct() %>% dplyr::mutate(to_j = row_number() - 1)
   mapping <- mapping %>% dplyr::left_join(from_i, by = c("from", "from_risk")) %>% 
     dplyr::left_join(to_j, by = c("to", "to_risk")) %>% dplyr::select(from_i, to_j, weight)
-  
+
+    if ("batch" %in% names(initial) || length(dim(initial == 2))) {
+        if ("batch" %in% names(initial)) {
+            initial_par <- initial$batch[nrow(initial$batch),]
+        } else {
+            initial_par <- initial[nrow(initial),]
+        }
+    } else
+        initial_par <- initial
+
   if (missing(parameter_map)) {
     if (uk_defaults) {
       parameter_map <-
@@ -180,21 +189,22 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
           transmissibility = 5,
           susceptibility = c(6,6,6,7,7,7,8),
           initial_infected = 9)
-    } else if (length(initial) == 2*no_age_groups + 3) {
-      parameter_map <- parameter_mapping(parameters = initial)
+    } else if (length(initial_par) == 2*no_age_groups + 3) {
+      parameter_map <- parameter_mapping(parameters = initial_par)
     } else {
       stop("Missing parameter map")
     }
   }
+
   
   # Go over parameter_map. Shorten list and also make sure min(index) = 0
   m <- min(unlist(parameter_map))
-  batch_cols <- rep("NULL", length(initial)) 
+  batch_cols <- rep("NULL", length(initial_par)) 
   for(n in names(parameter_map)) {
     parameter_map[[substr(n, 1, 1)]] <- parameter_map[[n]] - m
     for (i in parameter_map[[n]]) {
-      if (!is.null(names(initial))) 
-        batch_cols[i-m+1] <- names(initial)[i]
+      if (!is.null(names(initial_par))) 
+        batch_cols[i-m+1] <- names(initial_par)[i]
       else
         batch_cols[i-m+1] <- n
     }
@@ -218,14 +228,44 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     lpeak_prior <- function(time, value) {} # Dummy
     pass_peak <- F
   }
-  
-  results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
-                 as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial, 
-                 as.matrix(mapping), risk_ratios$value, 
-                 parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 
-                 lprior, pass_prior, lpeak_prior, pass_peak,
-                 no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
-  if (is.null(names(initial))) {
+  # Continue from previous state
+  if ("batch" %in% names(initial) || length(dim(initial == 2))) {
+    m <- initial
+    if ("batch" %in% names(initial))
+      m <- initial$batch
+    # Assume initial contains posterior samples and use that to calculate 
+    # proposal covariance matrix
+    m <- as.matrix(m)
+    means <- rep(0, ncol(m))
+    cv <- matrix(0, nrow = ncol(m), ncol = ncol(m))
+    w <- nrow(m)
+    for (i in 1:ncol(m)) {
+      means[i] <- mean(m[,i])
+      for (j in 1:ncol(m)) {
+        cv[i,j] <- cov(m[,i], m[,j])
+      }
+      if (all(cv[i,] == 0)) {
+        warning("Variance in posterior sample 0 for parameter ", i, " this could indicate the algorithm was stuck")
+        # This parameter is stuck so we set variance to very small, in other to take small steps
+        cv[i,i] <- 1e-10
+      }
+    }
+    results <- .inference_cpp_with_covariance(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
+                                              as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, 
+                                              means, cv, w, 
+                                              as.matrix(mapping), risk_ratios$value, 
+                                              parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 
+                                              lprior, pass_prior, lpeak_prior, pass_peak,
+                                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
+  } else {
+    results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
+                              as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial_par, 
+                              as.matrix(mapping), risk_ratios$value, 
+                              parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 
+                              lprior, pass_prior, lpeak_prior, pass_peak,
+                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
+  }
+  if (is.null(names(initial_par))) {
     colnames(results$batch) <- b_cols$value
   } else
     colnames(results$batch) <- batch_cols
