@@ -24,7 +24,7 @@ inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
 
 \item{polymod_data}{Contact data for different age groups}
 
-\item{initial}{Vector with starting parameter values}
+\item{initial}{Vector with starting parameter values or one can pass the results of a previous fit to continue from those results}
 
 \item{parameter_map}{Optional mapping parameter (by description and age group) to the relevant index
 in the initial vector. Needed parameters are: epsilon (ascertainment) with a separate value per data

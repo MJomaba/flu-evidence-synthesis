@@ -90,7 +90,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param n_samples The total number of samples tested 
 #' @param vaccine_calendar A vaccine calendar valid for that year
 #' @param polymod_data Contact data for different age groups
-#' @param initial Vector with starting parameter values
+#' @param initial Vector with starting parameter values or one can pass the results of a previous fit to continue from those results
 #' @param parameter_map Optional mapping parameter (by description and age group) to the relevant index
 #' in the initial vector. Needed parameters are: epsilon (ascertainment) with a separate value per data
 #' age group, transmissibility, psi (infection from outside sources), susceptibility (with a value per age group)
@@ -233,6 +233,11 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     m <- initial
     if ("batch" %in% names(initial))
       m <- initial$batch
+    icontact_ids <- seq(1, nrow(polymod_data))
+    if ("contact.ids" %in% names(initial))
+      icontact_ids <- initial$contact.ids[nrow(m),]
+    
+    ipar <- m[nrow(m),]
     # Assume initial contains posterior samples and use that to calculate 
     # proposal covariance matrix
     m <- as.matrix(m)
@@ -252,6 +257,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     }
     results <- .inference_cpp_with_covariance(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                                               as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, 
+                                              ipar, icontact_ids,
                                               means, cv, w, 
                                               as.matrix(mapping), risk_ratios$value, 
                                               parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 

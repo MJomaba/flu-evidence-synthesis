@@ -25,7 +25,8 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data,
-        const Eigen::VectorXd &initial, proposal::proposal_state_t proposal_state,
+        const Eigen::VectorXd &initial, const Eigen::VectorXd &initial_contact_ids, 
+        proposal::proposal_state_t proposal_state,
         Eigen::MatrixXd mapping,
         Eigen::VectorXd risk_ratios,
         Eigen::VectorXd epsilon_index,
@@ -90,11 +91,11 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
             susc[i] = pars[susceptibility_index[i]];
         return susc;
     };
-
+    
     /*translate into an initial infected population*/
     std::vector<size_t> contact_ids;
     for (size_t i = 0; i < (size_t)polymod_data.rows(); ++i)
-        contact_ids.push_back(i+1);
+        contact_ids.push_back(initial_contact_ids[i]);
 
     auto curr_parameters = initial;
     Eigen::VectorXd curr_init_inf = flu::data::stratify_by_risk(
@@ -347,6 +348,7 @@ mcmc_result_inference_t inference_cppWithCovariance( std::vector<size_t> demogra
         Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, 
         flu::vaccine::vaccine_t vaccine_calendar,
         Eigen::MatrixXi polymod_data,
+        Eigen::VectorXd initial_parameters, Eigen::VectorXd initial_contact_ids,
         Eigen::VectorXd means, Eigen::MatrixXd covariance, size_t covariance_weight,
         Eigen::MatrixXd mapping,
         Eigen::VectorXd risk_ratios,
@@ -372,7 +374,7 @@ mcmc_result_inference_t inference_cppWithCovariance( std::vector<size_t> demogra
         n_pos, n_samples, 
         vaccine_calendar,
         polymod_data,
-        means, proposal_state,
+        initial_parameters, initial_contact_ids, proposal_state,
         mapping,
         risk_ratios,
         epsilon_index,
@@ -436,13 +438,18 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, std::vect
         size_t nbatch = 1000, size_t blen = 1 )
 {
     auto proposal_state = proposal::initialize( initial.size() );
+    Eigen::VectorXd contact_ids(polymod_data.rows());
+    for (size_t i = 0; i < (size_t)polymod_data.rows(); ++i)
+        contact_ids[i] = i+1;
+ 
+  
     return inference_cppWithProposal( demography,
             age_group_limits,
             ili, mon_pop, 
             n_pos, n_samples, 
             vaccine_calendar,
             polymod_data,
-            initial, proposal_state,
+            initial, contact_ids, proposal_state,
             mapping,
             risk_ratios,
             epsilon_index,
