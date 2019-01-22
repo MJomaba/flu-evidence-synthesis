@@ -137,7 +137,7 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
     auto curr_llikelihood = log_likelihood_hyper_poisson(
             pars_to_epsilon(curr_parameters),
             curr_parameters[psi_index], 
-            days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
+            days_to_weeks_AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
     double curr_prior = 0;
@@ -290,7 +290,7 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
             prop_likelihood += log_likelihood_hyper_poisson(
                     pars_to_epsilon(prop_parameters), 
                     prop_parameters[psi_index], 
-                    days_to_weeks_5AG(result, mapping, pop_RCGP.size()), 
+                    days_to_weeks_AG(result, mapping, pop_RCGP.size()), 
                     ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
             /*Acceptance rate include the likelihood and the prior but no correction for the proposal as we use a symmetrical RW*/

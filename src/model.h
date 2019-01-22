@@ -75,8 +75,7 @@ namespace flu
     void days_to_weeks(double *, double *);
     void days_to_weeks_no_class(double *, double *);
 
-    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation);
-    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation,
+    Eigen::MatrixXd days_to_weeks_AG(const cases_t &simulation,
         const Eigen::MatrixXd &mapping, size_t no_data);
 
     /// Returns (simplified) log likelihood of one prediction
@@ -85,13 +84,6 @@ namespace flu
             int ili_cases, int ili_monitored,
             int confirmed_positive, int confirmed_samples, 
             int depth );
-
-    double binomial_log_likelihood_year(const Eigen::VectorXd &eps, 
-            const Eigen::MatrixXd &result_by_week,
-            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
-            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
-            double * pop_5AG_RCGP);
- 
 
     /// Returns log likelihood of one prediction
     long double log_likelihood( double epsilon, double psi, 
@@ -104,7 +96,7 @@ namespace flu
             double psi, const Eigen::MatrixXd &result_by_week,
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
-            const Eigen::VectorXd &pop_5AG_RCGP, int depth);
+            const Eigen::VectorXd &pop_AG_RCGP, int depth);
 
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters
