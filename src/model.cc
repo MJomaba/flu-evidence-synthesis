@@ -408,36 +408,7 @@ namespace flu
                 times );
     }
 
-    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation)
-    {
-
-        size_t weeks =  (simulation.times.back() - simulation.times.front())
-            .hours()/(24*7) + 1;
-        auto result_days = simulation.cases;
-        /*initialisation*/
-        Eigen::MatrixXd result_weeks = 
-            Eigen::MatrixXd::Zero( weeks, 5 );
-
-        size_t j = 0;
-        for(size_t i=0; i<weeks; i++)
-        {
-            auto startWeek = simulation.times[j];
-            while( j < simulation.times.size() &&
-                    (simulation.times[j]-startWeek).hours()/(24.0)<7.0 )
-            {
-                result_weeks(i,0)+=result_days(j,0)+result_days(j,1)+result_days(j,7)+result_days(j,8)+result_days(j,14)+result_days(j,15);
-                result_weeks(i,1)+=result_days(j,2)+result_days(j,9)+result_days(j,16);
-                result_weeks(i,2)+=result_days(j,3)+result_days(j,4)+result_days(j,10)+result_days(j,11)+result_days(j,17)+result_days(j,18);
-                result_weeks(i,3)+=result_days(j,5)+result_days(j,12)+result_days(j,19);
-                result_weeks(i,4)+=result_days(j,6)+result_days(j,13)+result_days(j,20);
-                ++j;
-            }
-        }
-
-        return result_weeks;
-    }
-
-    Eigen::MatrixXd days_to_weeks_5AG(const cases_t &simulation,
+    Eigen::MatrixXd days_to_weeks_AG(const cases_t &simulation,
         const Eigen::MatrixXd &mapping, size_t no_data)
     {
 
@@ -490,29 +461,6 @@ namespace flu
         }
         return log(prob);
     }
-
-    double binomial_log_likelihood_year(const std::vector<double> &eps, 
-            const Eigen::MatrixXd &result_by_week,
-            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
-            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
-            double * pop_5AG_RCGP)
-    {
-        long double result=0.0;
-        for(int i=0;i<5;i++)
-        {
-            auto epsilon=eps[i];
-            for(int week=0;week<result_by_week.rows();week++)
-            {
-                result += binomial_log_likelihood( epsilon, 
-                        result_by_week(week,i), pop_5AG_RCGP[i],
-                        ili(week,i), mon_pop(week,i),
-                        n_pos(week,i), n_samples(week,i) );
-            }
-            
-        }
-        return result;
-    }
-
 
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
@@ -648,16 +596,16 @@ namespace flu
             const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
             const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
             //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
-            const Eigen::VectorXd &pop_5AG_RCGP, int depth)
+            const Eigen::VectorXd &pop_AG_RCGP, int depth)
     {
         long double result=0.0;
-        for(int i=0;i<pop_5AG_RCGP.size();i++)
+        for(int i=0;i<pop_AG_RCGP.size();i++)
         {
             auto epsilon=eps(i);
             for(int week=0;week<result_by_week.rows();week++)
             {
                 result += log_likelihood( epsilon, psi, 
-                        result_by_week(week,i), pop_5AG_RCGP(i),
+                        result_by_week(week,i), pop_AG_RCGP(i),
                         ili(week,i), mon_pop(week,i),
                         n_pos(week,i), n_samples(week,i), depth );
             }

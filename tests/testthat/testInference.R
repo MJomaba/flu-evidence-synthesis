@@ -88,6 +88,30 @@ test_that("We can run inference",
       m3 <- moment(results$llikelihoods,central=TRUE,3)
       expect_lt(m3, 1.0 )
       expect_gt(m3, -7.0 )
+      
+      # Can we continue from previous results
+      results <- inference(demography = demography,
+                           vaccine_calendar=vaccine_calendar,
+                           polymod_data=as.matrix(polymod_uk),
+                           initial=results, 
+                           ili=ili$ili,
+                           mon_pop=ili$total.monitored,
+                           n_pos=confirmed.samples$positive,
+                           n_samples=confirmed.samples$total.samples,
+                           nbatch=100,
+                           nburn=0, blen=1)
+
+      expect_that( nrow(results$batch), equals( 100 ) )
+      expect_that( nrow(results$contact.ids), equals( 100 ) )
+      expect_true(all(results$contact.ids > 0))
+      expect_true(all(results$contact.ids <= nrow(polymod_uk)))
+
+      # Contact ids are mixing
+      expect_false(identical(results$contact.ids[1,], results$contact.ids[100,]))
+      #mean
+      m1 <- moment(results$llikelihoods,central=FALSE)
+      expect_lt(m1, 2268 )
+      expect_gt(m1, 2242 )
   }
 )
 

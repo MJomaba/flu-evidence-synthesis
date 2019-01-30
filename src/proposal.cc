@@ -20,13 +20,13 @@ namespace flu {
                 const Eigen::VectorXd &v, 
                 const Eigen::VectorXd &means, 
                 size_t n )
-        {
+        { 
             if (n==1)
                 return Eigen::MatrixXd::Zero( v.size(), v.size() );
             return cov + (1.0/(n-1.0))*((v-means)*((v-means).transpose())) 
                 - (1.0/n)*cov;
         }
-        
+       
         proposal_state_t initialize( size_t dim )
         {
             proposal_state_t state;
@@ -46,6 +46,7 @@ namespace flu {
                 init_cov_matrix(i,i) = 0.0000001;
             }
 
+
             state.chol_ini = Eigen::LLT<Eigen::MatrixXd>(
                     init_cov_matrix).matrixL();
             state.chol_emp_cov = state.chol_ini;
@@ -58,6 +59,15 @@ namespace flu {
             state.delta = state.m/100;
             state.lambda = 0.001/sqrt(dim);
 
+            return state;
+        }
+
+        proposal_state_t initialize(Eigen::VectorXd means, Eigen::MatrixXd cov, size_t weight)
+        {
+            auto state = initialize(means.size());
+            state.means_parameters = means;
+            state.emp_cov_matrix = cov;
+            state.initial_weight = weight;
             return state;
         }
 
@@ -104,9 +114,9 @@ namespace flu {
         {
             /*update of the variance-covariance matrix and the mean vector*/
             state.means_parameters = updateMeans( 
-                    state.means_parameters, parameters, k );
+                    state.means_parameters, parameters, k + state.initial_weight );
             state.emp_cov_matrix = updateCovariance( state.emp_cov_matrix,
-                    parameters, state.means_parameters, k );
+                    parameters, state.means_parameters, k + state.initial_weight );
             /*adjust variance for MCMC parameters*/
             /*if(k%100==0)
             {*/
@@ -236,7 +246,7 @@ namespace flu {
                 normal_draw[i]=R::rnorm(0,1);
             }
 
-            if (state.no_accepted<100 || R::runif(0,1)<0.05)
+            if ((state.initial_weight == 0 && state.no_accepted<100) || R::runif(0,1)<0.05)
             {
                 state.adaptive_step = false;
 

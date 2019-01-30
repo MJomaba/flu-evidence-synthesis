@@ -7,6 +7,46 @@
 
 using namespace Rcpp;
 
+// inference_cppWithCovariance
+mcmc_result_inference_t inference_cppWithCovariance(std::vector<size_t> demography, std::vector<size_t> age_group_limits, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial_parameters, Eigen::VectorXd initial_contact_ids, Eigen::VectorXd means, Eigen::MatrixXd covariance, size_t covariance_weight, Eigen::MatrixXd mapping, Eigen::VectorXd risk_ratios, Eigen::VectorXd epsilon_index, size_t psi_index, size_t transmissibility_index, Eigen::VectorXd susceptibility_index, size_t initial_infected_index, Rcpp::Function lprior, bool pass_prior, Rcpp::Function lpeak_prior, bool pass_peak, size_t no_age_groups, size_t no_risk_groups, bool uk_prior, size_t nburn, size_t nbatch, size_t blen);
+RcppExport SEXP _fluEvidenceSynthesis_inference_cppWithCovariance(SEXP demographySEXP, SEXP age_group_limitsSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initial_parametersSEXP, SEXP initial_contact_idsSEXP, SEXP meansSEXP, SEXP covarianceSEXP, SEXP covariance_weightSEXP, SEXP mappingSEXP, SEXP risk_ratiosSEXP, SEXP epsilon_indexSEXP, SEXP psi_indexSEXP, SEXP transmissibility_indexSEXP, SEXP susceptibility_indexSEXP, SEXP initial_infected_indexSEXP, SEXP lpriorSEXP, SEXP pass_priorSEXP, SEXP lpeak_priorSEXP, SEXP pass_peakSEXP, SEXP no_age_groupsSEXP, SEXP no_risk_groupsSEXP, SEXP uk_priorSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type demography(demographySEXP);
+    Rcpp::traits::input_parameter< std::vector<size_t> >::type age_group_limits(age_group_limitsSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili(iliSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type mon_pop(mon_popSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_pos(n_posSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
+    Rcpp::traits::input_parameter< flu::vaccine::vaccine_t >::type vaccine_calendar(vaccine_calendarSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial_parameters(initial_parametersSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial_contact_ids(initial_contact_idsSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type means(meansSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type covariance(covarianceSEXP);
+    Rcpp::traits::input_parameter< size_t >::type covariance_weight(covariance_weightSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type mapping(mappingSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type risk_ratios(risk_ratiosSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type epsilon_index(epsilon_indexSEXP);
+    Rcpp::traits::input_parameter< size_t >::type psi_index(psi_indexSEXP);
+    Rcpp::traits::input_parameter< size_t >::type transmissibility_index(transmissibility_indexSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type susceptibility_index(susceptibility_indexSEXP);
+    Rcpp::traits::input_parameter< size_t >::type initial_infected_index(initial_infected_indexSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type lprior(lpriorSEXP);
+    Rcpp::traits::input_parameter< bool >::type pass_prior(pass_priorSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type lpeak_prior(lpeak_priorSEXP);
+    Rcpp::traits::input_parameter< bool >::type pass_peak(pass_peakSEXP);
+    Rcpp::traits::input_parameter< size_t >::type no_age_groups(no_age_groupsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type no_risk_groups(no_risk_groupsSEXP);
+    Rcpp::traits::input_parameter< bool >::type uk_prior(uk_priorSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
+    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
+    rcpp_result_gen = Rcpp::wrap(inference_cppWithCovariance(demography, age_group_limits, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial_parameters, initial_contact_ids, means, covariance, covariance_weight, mapping, risk_ratios, epsilon_index, psi_index, transmissibility_index, susceptibility_index, initial_infected_index, lprior, pass_prior, lpeak_prior, pass_peak, no_age_groups, no_risk_groups, uk_prior, nburn, nbatch, blen));
+    return rcpp_result_gen;
+END_RCPP
+}
 // inference_cpp
 mcmc_result_inference_t inference_cpp(std::vector<size_t> demography, std::vector<size_t> age_group_limits, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Eigen::MatrixXi n_pos, Eigen::MatrixXi n_samples, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, Eigen::MatrixXd mapping, Eigen::VectorXd risk_ratios, Eigen::VectorXd epsilon_index, size_t psi_index, size_t transmissibility_index, Eigen::VectorXd susceptibility_index, size_t initial_infected_index, Rcpp::Function lprior, bool pass_prior, Rcpp::Function lpeak_prior, bool pass_peak, size_t no_age_groups, size_t no_risk_groups, bool uk_prior, size_t nburn, size_t nbatch, size_t blen);
 RcppExport SEXP _fluEvidenceSynthesis_inference_cpp(SEXP demographySEXP, SEXP age_group_limitsSEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP mappingSEXP, SEXP risk_ratiosSEXP, SEXP epsilon_indexSEXP, SEXP psi_indexSEXP, SEXP transmissibility_indexSEXP, SEXP susceptibility_indexSEXP, SEXP initial_infected_indexSEXP, SEXP lpriorSEXP, SEXP pass_priorSEXP, SEXP lpeak_priorSEXP, SEXP pass_peakSEXP, SEXP no_age_groupsSEXP, SEXP no_risk_groupsSEXP, SEXP uk_priorSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
@@ -54,27 +94,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::VectorXd >::type prob(probSEXP);
     Rcpp::traits::input_parameter< bool >::type use_log(use_logSEXP);
     rcpp_result_gen = Rcpp::wrap(dmultinomialCPP(x, size, prob, use_log));
-    return rcpp_result_gen;
-END_RCPP
-}
-// inference_multistrains
-mcmc_result_inference_t inference_multistrains(std::vector<size_t> demography, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Rcpp::List n_pos, Eigen::MatrixXi n_samples, Rcpp::List vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, size_t nburn, size_t nbatch, size_t blen);
-RcppExport SEXP _fluEvidenceSynthesis_inference_multistrains(SEXP demographySEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type demography(demographySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili(iliSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type mon_pop(mon_popSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type n_pos(n_posSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
-    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
-    rcpp_result_gen = Rcpp::wrap(inference_multistrains(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -233,6 +252,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// adaptiveMCMCRCovariance
+Rcpp::List adaptiveMCMCRCovariance(Rcpp::Function lprior, Rcpp::Function llikelihood, Rcpp::Function outfun, Rcpp::Function acceptfun, size_t nburn, Eigen::VectorXd means, Eigen::MatrixXd covariance, size_t covariance_weight, size_t nbatch, size_t blen, bool verbose);
+RcppExport SEXP _fluEvidenceSynthesis_adaptiveMCMCRCovariance(SEXP lpriorSEXP, SEXP llikelihoodSEXP, SEXP outfunSEXP, SEXP acceptfunSEXP, SEXP nburnSEXP, SEXP meansSEXP, SEXP covarianceSEXP, SEXP covariance_weightSEXP, SEXP nbatchSEXP, SEXP blenSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::Function >::type lprior(lpriorSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type llikelihood(llikelihoodSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type outfun(outfunSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type acceptfun(acceptfunSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type means(meansSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type covariance(covarianceSEXP);
+    Rcpp::traits::input_parameter< size_t >::type covariance_weight(covariance_weightSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
+    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(adaptiveMCMCRCovariance(lprior, llikelihood, outfun, acceptfun, nburn, means, covariance, covariance_weight, nbatch, blen, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
 // contact_matrix
 Eigen::MatrixXd contact_matrix(Eigen::MatrixXi polymod_data, std::vector<size_t> demography, Rcpp::NumericVector age_group_limits);
 RcppExport SEXP _fluEvidenceSynthesis_contact_matrix(SEXP polymod_dataSEXP, SEXP demographySEXP, SEXP age_group_limitsSEXP) {
@@ -333,6 +373,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// testRMultinormal
+Eigen::VectorXd testRMultinormal(Eigen::VectorXd mean, Eigen::MatrixXd cov);
+RcppExport SEXP _fluEvidenceSynthesis_testRMultinormal(SEXP meanSEXP, SEXP covSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type cov(covSEXP);
+    rcpp_result_gen = Rcpp::wrap(testRMultinormal(mean, cov));
+    return rcpp_result_gen;
+END_RCPP
+}
 // vaccinationScenario
 std::vector<double> vaccinationScenario(std::vector<size_t> age_sizes, flu::vaccine::vaccine_t vaccine_calendar, Eigen::MatrixXi polymod_data, std::vector<size_t> contact_ids, Eigen::VectorXd parameters);
 RcppExport SEXP _fluEvidenceSynthesis_vaccinationScenario(SEXP age_sizesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP contact_idsSEXP, SEXP parametersSEXP) {
@@ -350,9 +402,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_fluEvidenceSynthesis_inference_cppWithCovariance", (DL_FUNC) &_fluEvidenceSynthesis_inference_cppWithCovariance, 30},
     {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 26},
     {"_fluEvidenceSynthesis_dmultinomialCPP", (DL_FUNC) &_fluEvidenceSynthesis_dmultinomialCPP, 4},
-    {"_fluEvidenceSynthesis_inference_multistrains", (DL_FUNC) &_fluEvidenceSynthesis_inference_multistrains, 11},
     {"_fluEvidenceSynthesis_updateMeans", (DL_FUNC) &_fluEvidenceSynthesis_updateMeans, 3},
     {"_fluEvidenceSynthesis_updateCovariance", (DL_FUNC) &_fluEvidenceSynthesis_updateCovariance, 4},
     {"_fluEvidenceSynthesis_getTimeFromWeekYear", (DL_FUNC) &_fluEvidenceSynthesis_getTimeFromWeekYear, 2},
@@ -363,6 +415,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_runPredatorPrey", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPrey, 2},
     {"_fluEvidenceSynthesis_runPredatorPreySimple", (DL_FUNC) &_fluEvidenceSynthesis_runPredatorPreySimple, 2},
     {"_fluEvidenceSynthesis_adaptiveMCMCR", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCR, 9},
+    {"_fluEvidenceSynthesis_adaptiveMCMCRCovariance", (DL_FUNC) &_fluEvidenceSynthesis_adaptiveMCMCRCovariance, 11},
     {"_fluEvidenceSynthesis_contact_matrix", (DL_FUNC) &_fluEvidenceSynthesis_contact_matrix, 3},
     {"_fluEvidenceSynthesis_age_group_levels", (DL_FUNC) &_fluEvidenceSynthesis_age_group_levels, 1},
     {"_fluEvidenceSynthesis_age_group_limits", (DL_FUNC) &_fluEvidenceSynthesis_age_group_limits, 1},
@@ -371,6 +424,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_stratify_by_risk", (DL_FUNC) &_fluEvidenceSynthesis_stratify_by_risk, 3},
     {"_fluEvidenceSynthesis_as_R0", (DL_FUNC) &_fluEvidenceSynthesis_as_R0, 4},
     {"_fluEvidenceSynthesis_as_transmission_rate", (DL_FUNC) &_fluEvidenceSynthesis_as_transmission_rate, 4},
+    {"_fluEvidenceSynthesis_testRMultinormal", (DL_FUNC) &_fluEvidenceSynthesis_testRMultinormal, 2},
     {"_fluEvidenceSynthesis_vaccinationScenario", (DL_FUNC) &_fluEvidenceSynthesis_vaccinationScenario, 5},
     {NULL, NULL, 0}
 };
