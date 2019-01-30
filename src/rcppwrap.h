@@ -12,16 +12,7 @@ namespace Rcpp {
 
     template <> parameter_set as( SEXP );
     template <> SEXP wrap( const parameter_set &parameters );
-    /* 
-    /// Parameters of the model
-    struct parameter_set {
-        std::vector<double> epsilon = std::vector<double>(5);
-        double psi;
-        double transmissibility;
-        std::vector<double> susceptibility = std::vector<double>(7);
-        double init_pop;
-    };*/
-
+    
     template <> state_t as( SEXP );
     template <> SEXP wrap( const state_t &sample );
     /// Keeps the current state of the model/mcmc

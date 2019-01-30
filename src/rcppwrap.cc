@@ -63,15 +63,6 @@ template <> flu::vaccine::vaccine_t Rcpp::as( SEXP rVac )
     return vac_cal;
 }
 
-/* 
-/// Parameters of the model
-struct parameter_set {
-    std::vector<double> epsilon = std::vector<double>(5);
-    double psi;
-    double transmissibility;
-    std::vector<double> susceptibility = std::vector<double>(7);
-    double init_pop;
-};*/
 template <> flu::parameter_set Rcpp::as( SEXP rPar ) 
 {
     flu::parameter_set pars;

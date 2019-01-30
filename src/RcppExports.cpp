@@ -97,27 +97,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// inference_multistrains
-mcmc_result_inference_t inference_multistrains(std::vector<size_t> demography, Eigen::MatrixXi ili, Eigen::MatrixXi mon_pop, Rcpp::List n_pos, Eigen::MatrixXi n_samples, Rcpp::List vaccine_calendar, Eigen::MatrixXi polymod_data, Eigen::VectorXd initial, size_t nburn, size_t nbatch, size_t blen);
-RcppExport SEXP _fluEvidenceSynthesis_inference_multistrains(SEXP demographySEXP, SEXP iliSEXP, SEXP mon_popSEXP, SEXP n_posSEXP, SEXP n_samplesSEXP, SEXP vaccine_calendarSEXP, SEXP polymod_dataSEXP, SEXP initialSEXP, SEXP nburnSEXP, SEXP nbatchSEXP, SEXP blenSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<size_t> >::type demography(demographySEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type ili(iliSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type mon_pop(mon_popSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type n_pos(n_posSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type n_samples(n_samplesSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type vaccine_calendar(vaccine_calendarSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXi >::type polymod_data(polymod_dataSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd >::type initial(initialSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nburn(nburnSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nbatch(nbatchSEXP);
-    Rcpp::traits::input_parameter< size_t >::type blen(blenSEXP);
-    rcpp_result_gen = Rcpp::wrap(inference_multistrains(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar, polymod_data, initial, nburn, nbatch, blen));
-    return rcpp_result_gen;
-END_RCPP
-}
 // updateMeans
 Eigen::VectorXd updateMeans(Eigen::VectorXd means, Eigen::VectorXd v, size_t n);
 RcppExport SEXP _fluEvidenceSynthesis_updateMeans(SEXP meansSEXP, SEXP vSEXP, SEXP nSEXP) {
@@ -426,7 +405,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_fluEvidenceSynthesis_inference_cppWithCovariance", (DL_FUNC) &_fluEvidenceSynthesis_inference_cppWithCovariance, 30},
     {"_fluEvidenceSynthesis_inference_cpp", (DL_FUNC) &_fluEvidenceSynthesis_inference_cpp, 26},
     {"_fluEvidenceSynthesis_dmultinomialCPP", (DL_FUNC) &_fluEvidenceSynthesis_dmultinomialCPP, 4},
-    {"_fluEvidenceSynthesis_inference_multistrains", (DL_FUNC) &_fluEvidenceSynthesis_inference_multistrains, 11},
     {"_fluEvidenceSynthesis_updateMeans", (DL_FUNC) &_fluEvidenceSynthesis_updateMeans, 3},
     {"_fluEvidenceSynthesis_updateCovariance", (DL_FUNC) &_fluEvidenceSynthesis_updateCovariance, 4},
     {"_fluEvidenceSynthesis_getTimeFromWeekYear", (DL_FUNC) &_fluEvidenceSynthesis_getTimeFromWeekYear, 2},
