@@ -576,6 +576,9 @@ namespace flu
                           log(1-epsilon);
                         llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
                     }
+                if (llikelihood_AG_week - laij > 50)
+                    break;
+                //Rcpp::Rcout << h << " " << llikelihood_AG_week << " " << laij << " " << top_sum << std::endl;
             }
 
         //auto ll = log(likelihood_AG_week);
