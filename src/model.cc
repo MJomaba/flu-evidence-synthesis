@@ -604,6 +604,12 @@ namespace flu
             auto epsilon=eps(i);
             for(int week=0;week<result_by_week.rows();week++)
             {
+                /*auto ll = log_likelihood( epsilon, psi, 
+                        result_by_week(week,i), pop_AG_RCGP(i),
+                        ili(week,i), mon_pop(week,i),
+                        n_pos(week,i), n_samples(week,i), depth );
+                Rcpp::Rcout << result << " " << ll << " " << epsilon << " " << psi << " " << result_by_week(week, i) << " " <<  pop_AG_RCGP(i) << " " << 
+                    ili(week, i) << " " << mon_pop(week, i) << " " <<  n_pos(week, i) << " " <<  n_samples(week, i) << " " <<  depth << std::endl;*/
                 result += log_likelihood( epsilon, psi, 
                         result_by_week(week,i), pop_AG_RCGP(i),
                         ili(week,i), mon_pop(week,i),

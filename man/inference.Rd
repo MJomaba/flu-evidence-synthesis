@@ -7,7 +7,7 @@
 inference(demography, ili, mon_pop, n_pos, n_samples, vaccine_calendar,
   polymod_data, initial, parameter_map, age_groups, age_group_map,
   risk_group_map, risk_ratios, lprior, lpeak_prior, nburn = 0,
-  nbatch = 1000, blen = 1)
+  nbatch = 1000, blen = 1, depth = 3)
 }
 \arguments{
 \item{demography}{A vector with the population size by each age {0,1,..}}
@@ -51,6 +51,8 @@ height (no. of infected in the population) and return a log likelihood value for
 \item{nbatch}{Number of batches to run (number of samples to return)}
 
 \item{blen}{Length of each batch}
+
+\item{depth}{The depth of the likelihood approximation. Higher values result in better approximations. The default value is 3.}
 }
 \value{
 Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
