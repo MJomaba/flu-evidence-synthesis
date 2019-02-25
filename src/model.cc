@@ -558,6 +558,7 @@ namespace flu
                     laij_seed+=log(k_seed-h+1) + log(psi) + log(ili_monitored) + log(1-epsilon) -
                       log(Z_in_mon-k_seed+h) - log(h);
                 }
+                auto prev_ll = llikelihood_AG_week;
 
                 laij=laij_seed;
                 llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
@@ -577,7 +578,10 @@ namespace flu
                         llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
                     }
                 //Rcpp::Rcout << h << " " << llikelihood_AG_week << " " << laij << " " << top_sum << std::endl;
-                if (abs(log(1+exp(laij - llikelihood_AG_week))/llikelihood_AG_week) < 1e-8) // Note relative error is (log(1+exp(b-a))/a, with b = laij an a = llikelihood_AG_week
+                // Break on absolute error. Since we are working with logll,
+                // this actually corresponds with the relative error in the likelihood
+                // which is the important measure in Metropolis-Hastings algo.
+                if (abs(prev_ll - llikelihood_AG_week) < 1e-8)
                     break;
             }
 
