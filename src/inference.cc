@@ -140,14 +140,18 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
             days_to_weeks_AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    double curr_prior = 0;
-    double prop_prior = 0;
     auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
         PutRNGstate();
         double lPrior = Rcpp::as<double>(lprior( pars ));
         GetRNGstate();
         return lPrior;
     };
+
+    double curr_prior = 0;
+    double prop_prior = 0;
+    if (!uk_prior && pass_prior) {
+        curr_prior = Rlprior(curr_parameters);
+    } 
     
     auto Rlpeak_prior = [&lpeak_prior](const boost::posix_time::ptime &time,
                                        const double &value) {
