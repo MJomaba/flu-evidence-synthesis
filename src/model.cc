@@ -581,7 +581,7 @@ namespace flu
                 // Break on absolute error. Since we are working with logll,
                 // this actually corresponds with the relative error in the likelihood
                 // which is the important measure in Metropolis-Hastings algo.
-                if (abs(prev_ll - llikelihood_AG_week) < 1e-8)
+                if (abs(prev_ll - llikelihood_AG_week) < 1e-5)
                     break;
             }
 
