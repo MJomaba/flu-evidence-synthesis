@@ -42,7 +42,7 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
         size_t no_risk_groups,
         bool uk_prior,
         size_t nburn = 0,
-        size_t nbatch = 1000, size_t blen = 1 )
+        size_t nbatch = 1000, size_t blen = 1, size_t depth = 3)
 {
     //Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> mapping,
     mcmc_result_inference_t results;
@@ -133,21 +133,25 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
             current_contact_regular, curr_parameters[transmissibility_index], 
             vaccine_calendar, 7*24 );
     /*curr_psi=0.00001;*/
-    auto d_app = 3;
+    auto d_app = depth;
     auto curr_llikelihood = log_likelihood_hyper_poisson(
             pars_to_epsilon(curr_parameters),
             curr_parameters[psi_index], 
             days_to_weeks_AG(result, mapping, pop_RCGP.size()), 
             ili, mon_pop, n_pos, n_samples, pop_RCGP, d_app);
 
-    double curr_prior = 0;
-    double prop_prior = 0;
     auto Rlprior = [&lprior]( const Eigen::VectorXd &pars ) {
         PutRNGstate();
         double lPrior = Rcpp::as<double>(lprior( pars ));
         GetRNGstate();
         return lPrior;
     };
+
+    double curr_prior = 0;
+    double prop_prior = 0;
+    if (!uk_prior && pass_prior) {
+        curr_prior = Rlprior(curr_parameters);
+    } 
     
     auto Rlpeak_prior = [&lpeak_prior](const boost::posix_time::ptime &time,
                                        const double &value) {
@@ -365,7 +369,7 @@ mcmc_result_inference_t inference_cppWithCovariance( std::vector<size_t> demogra
         size_t no_risk_groups,
         bool uk_prior,
         size_t nburn = 0,
-        size_t nbatch = 1000, size_t blen = 1 )
+        size_t nbatch = 1000, size_t blen = 1, size_t depth = 3)
 {
     auto proposal_state = proposal::initialize(means, covariance, covariance_weight);
     return inference_cppWithProposal( demography,
@@ -390,7 +394,7 @@ mcmc_result_inference_t inference_cppWithCovariance( std::vector<size_t> demogra
         no_risk_groups,
         uk_prior,
         nburn,
-        nbatch, blen );
+        nbatch, blen, depth);
 }
 
 //' MCMC based inference of the parameter values given the different data sets
@@ -435,7 +439,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, std::vect
         size_t no_risk_groups,
         bool uk_prior,
         size_t nburn = 0,
-        size_t nbatch = 1000, size_t blen = 1 )
+        size_t nbatch = 1000, size_t blen = 1, size_t depth = 3)
 {
     auto proposal_state = proposal::initialize( initial.size() );
     Eigen::VectorXd contact_ids(polymod_data.rows());
@@ -465,7 +469,7 @@ mcmc_result_inference_t inference_cpp( std::vector<size_t> demography, std::vect
             no_risk_groups,
             uk_prior,
             nburn,
-            nbatch, blen );
+            nbatch, blen, depth);
 }
 
 

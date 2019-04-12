@@ -558,6 +558,7 @@ namespace flu
                     laij_seed+=log(k_seed-h+1) + log(psi) + log(ili_monitored) + log(1-epsilon) -
                       log(Z_in_mon-k_seed+h) - log(h);
                 }
+                auto prev_ll = llikelihood_AG_week;
 
                 laij=laij_seed;
                 llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
@@ -576,6 +577,12 @@ namespace flu
                           log(1-epsilon);
                         llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
                     }
+                //Rcpp::Rcout << h << " " << llikelihood_AG_week << " " << laij << " " << top_sum << std::endl;
+                // Break on absolute error. Since we are working with logll,
+                // this actually corresponds with the relative error in the likelihood
+                // which is the important measure in Metropolis-Hastings algo.
+                if (abs(prev_ll - llikelihood_AG_week) < 1e-5)
+                    break;
             }
 
         //auto ll = log(likelihood_AG_week);
@@ -604,6 +611,12 @@ namespace flu
             auto epsilon=eps(i);
             for(int week=0;week<result_by_week.rows();week++)
             {
+                /*auto ll = log_likelihood( epsilon, psi, 
+                        result_by_week(week,i), pop_AG_RCGP(i),
+                        ili(week,i), mon_pop(week,i),
+                        n_pos(week,i), n_samples(week,i), depth );
+                Rcpp::Rcout << result << " " << ll << " " << epsilon << " " << psi << " " << result_by_week(week, i) << " " <<  pop_AG_RCGP(i) << " " << 
+                    ili(week, i) << " " << mon_pop(week, i) << " " <<  n_pos(week, i) << " " <<  n_samples(week, i) << " " <<  depth << std::endl;*/
                 result += log_likelihood( epsilon, psi, 
                         result_by_week(week,i), pop_AG_RCGP(i),
                         ili(week,i), mon_pop(week,i),
