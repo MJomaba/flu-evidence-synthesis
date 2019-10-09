@@ -212,6 +212,17 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
     while(sampleCount<nbatch)
     {
         ++k;
+        if(k%blen==0 && k>=(int)nburn)
+        {
+          // Add results
+          results.llikelihoods[sampleCount] = curr_llikelihood;
+          results.batch.row( sampleCount ) = curr_parameters;
+          for( size_t i = 0; i < curr_c.contacts.size(); ++i )
+            results.contact_ids( sampleCount, i ) =
+              curr_c.contacts[i].id;
+
+          ++sampleCount;
+        }
 
         /*update of the variance-covariance matrix and the mean vector*/
         proposal_state = proposal::update( std::move( proposal_state ),
@@ -331,17 +342,6 @@ mcmc_result_inference_t inference_cppWithProposal( std::vector<size_t> demograph
             }
         }
 
-        if(k%blen==0 && k>=(int)nburn)
-        {
-            // Add results
-            results.llikelihoods[sampleCount] = curr_llikelihood;
-            results.batch.row( sampleCount ) = curr_parameters;
-            for( size_t i = 0; i < curr_c.contacts.size(); ++i )
-                results.contact_ids( sampleCount, i ) =
-                    curr_c.contacts[i].id;
-
-            ++sampleCount;
-        }
     }
     return results;
 }
