@@ -465,8 +465,8 @@ namespace flu
     long double log_likelihood( double epsilon, double psi, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,
-            int confirmed_positive, int confirmed_samples, 
-            int depth )
+            int confirmed_positive, int confirmed_samples,
+            double abs_err )
     {
         int Z_in_mon=(int)round(predicted*ili_monitored/population_size);
         int n=confirmed_samples;
@@ -478,12 +478,6 @@ namespace flu
             h_init=confirmed_positive-Z_in_mon;
         else
             h_init=0;
-
-        if(h_init>depth)
-        {
-            return -(h_init-depth)*
-                std::numeric_limits<double>::max()/1e6;
-        }
 
         /*define the first aij*/
         long double laij=log(epsilon)*confirmed_positive-psi*ili_monitored*epsilon;
@@ -536,12 +530,7 @@ namespace flu
                 llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
             }
 
-        /*top_sum=min(depth,m-n+confirmed_positive)*/
-        int top_sum;
-        if(depth<m-n+confirmed_positive)
-            top_sum=depth;
-        else
-            top_sum=m-n+confirmed_positive;
+        int top_sum=m-n+confirmed_positive;
 
         if(h_init<top_sum)
             for(int h=h_init+1;h<=top_sum;h++)
@@ -577,12 +566,13 @@ namespace flu
                           log(1-epsilon);
                         llikelihood_AG_week = safe_sum_log(laij, llikelihood_AG_week);
                     }
-                //Rcpp::Rcout << h << " " << llikelihood_AG_week << " " << laij << " " << top_sum << std::endl;
+                // Rcpp::Rcout << h << " " << llikelihood_AG_week << " " << laij
+                // << " " << top_sum << std::endl;
                 // Break on absolute error. Since we are working with logll,
-                // this actually corresponds with the relative error in the likelihood
-                // which is the important measure in Metropolis-Hastings algo.
-                if (abs(prev_ll - llikelihood_AG_week) < 1e-5)
-                    break;
+                // this actually corresponds with the relative error in the
+                // likelihood which is the important measure in
+                // Metropolis-Hastings algo.
+                if (abs(prev_ll - llikelihood_AG_week) < abs_err) break;
             }
 
         //auto ll = log(likelihood_AG_week);
@@ -598,33 +588,32 @@ namespace flu
         return ll;
     }
 
-    double log_likelihood_hyper_poisson(const Eigen::VectorXd &eps, 
-            double psi, const Eigen::MatrixXd &result_by_week,
-            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
-            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
-            //int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled, 
-            const Eigen::VectorXd &pop_AG_RCGP, int depth)
-    {
-        long double result=0.0;
-        for(int i=0;i<pop_AG_RCGP.size();i++)
-        {
-            auto epsilon=eps(i);
-            for(int week=0;week<result_by_week.rows();week++)
-            {
-                /*auto ll = log_likelihood( epsilon, psi, 
-                        result_by_week(week,i), pop_AG_RCGP(i),
-                        ili(week,i), mon_pop(week,i),
-                        n_pos(week,i), n_samples(week,i), depth );
-                Rcpp::Rcout << result << " " << ll << " " << epsilon << " " << psi << " " << result_by_week(week, i) << " " <<  pop_AG_RCGP(i) << " " << 
-                    ili(week, i) << " " << mon_pop(week, i) << " " <<  n_pos(week, i) << " " <<  n_samples(week, i) << " " <<  depth << std::endl;*/
-                result += log_likelihood( epsilon, psi, 
-                        result_by_week(week,i), pop_AG_RCGP(i),
-                        ili(week,i), mon_pop(week,i),
-                        n_pos(week,i), n_samples(week,i), depth );
-            }
-            
+    double log_likelihood_hyper_poisson(
+        const Eigen::VectorXd &eps, double psi,
+        const Eigen::MatrixXd &result_by_week, const Eigen::MatrixXi &ili,
+        const Eigen::MatrixXi &mon_pop, const Eigen::MatrixXi &n_pos,
+        const Eigen::MatrixXi &n_samples,
+        // int * n_ILI, int * mon_popu, int * n_posi, int * n_sampled,
+        const Eigen::VectorXd &pop_AG_RCGP, double abs_err) {
+      long double result = 0.0;
+      for (int i = 0; i < pop_AG_RCGP.size(); i++) {
+        auto epsilon = eps(i);
+        for (int week = 0; week < result_by_week.rows(); week++) {
+          /*auto ll = log_likelihood( epsilon, psi,
+                  result_by_week(week,i), pop_AG_RCGP(i),
+                  ili(week,i), mon_pop(week,i),
+                  n_pos(week,i), n_samples(week,i), abs_err);
+          Rcpp::Rcout << result << " " << ll << " " << epsilon << " " << psi <<
+          " " << result_by_week(week, i) << " " <<  pop_AG_RCGP(i) << " " <<
+              ili(week, i) << " " << mon_pop(week, i) << " " <<  n_pos(week, i)
+          << " " <<  n_samples(week, i) << std::endl;*/
+          result +=
+              log_likelihood(epsilon, psi, result_by_week(week, i),
+                             pop_AG_RCGP(i), ili(week, i), mon_pop(week, i),
+                             n_pos(week, i), n_samples(week, i), abs_err);
         }
-        return(result);
+      }
+      return (result);
     }
 
     /// Return the log prior probability of the proposed parameters - current parameters

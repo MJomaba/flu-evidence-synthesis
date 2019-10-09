@@ -82,21 +82,22 @@ namespace flu
     long double binomial_log_likelihood( double epsilon, 
             size_t predicted, double population_size, 
             int ili_cases, int ili_monitored,
-            int confirmed_positive, int confirmed_samples, 
-            int depth );
+            int confirmed_positive, int confirmed_samples);
 
     /// Returns log likelihood of one prediction
-    long double log_likelihood( double epsilon, double psi, 
-            size_t predicted, double population_size, 
-            int ili_cases, int ili_monitored,
-            int confirmed_positive, int confirmed_samples, 
-            int depth = 2 );
+    long double log_likelihood(double epsilon, double psi, size_t predicted,
+                               double population_size, int ili_cases,
+                               int ili_monitored, int confirmed_positive,
+                               int confirmed_samples, double abs_err = 1e-5);
 
-    double log_likelihood_hyper_poisson(const Eigen::VectorXd &eps, 
-            double psi, const Eigen::MatrixXd &result_by_week,
-            const Eigen::MatrixXi &ili, const Eigen::MatrixXi &mon_pop, 
-            const Eigen::MatrixXi &n_pos, const Eigen::MatrixXi &n_samples, 
-            const Eigen::VectorXd &pop_AG_RCGP, int depth);
+    double log_likelihood_hyper_poisson(const Eigen::VectorXd &eps, double psi,
+                                        const Eigen::MatrixXd &result_by_week,
+                                        const Eigen::MatrixXi &ili,
+                                        const Eigen::MatrixXi &mon_pop,
+                                        const Eigen::MatrixXi &n_pos,
+                                        const Eigen::MatrixXi &n_samples,
+                                        const Eigen::VectorXd &pop_AG_RCGP,
+                                        double abs_err);
 
     /**
      * \brief Return the log prior probability of the proposed parameters - current parameters

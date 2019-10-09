@@ -310,36 +310,44 @@ double log_likelihood( double epsilon, double psi,
 
 //' Returns log likelihood of the predicted number of cases given the data
 //'
-//' The model results in a prediction for the number of new cases in a certain age group and for a certain week. This function sum the log likelihood for the predicted cases for each week and age group given the data on reported Influenza Like Illnesses and confirmed samples.
+//' The model results in a prediction for the number of new cases in a certain
+//' age group and for a certain week. This function sum the log likelihood for
+//' the predicted cases for each week and age group given the data on reported
+//' Influenza Like Illnesses and confirmed samples.
 //'
 //' @param epsilon Parameter for the probability distribution by age group
 //' @param psi Parameter for the probability distribution
-//' @param predicted Number of cases predicted by your model for each week and age group
-//' @param population_size The total population size in the age groups 
-//' @param ili_cases The number of Influenza Like Illness cases by week and age group
-//' @param ili_monitored The size of the population monitored for ILI  by week and age group
-//' @param confirmed_positive The number of samples positive for the Influenza strain  by week and age group
-//' @param confirmed_samples Number of samples tested for the Influenza strain  by week and age group
-//' @param depth Depth/precision of the approximation. In general the a value of 2 is used. Higher is more precise.
+//' @param predicted Number of cases predicted by your model for each week and
+//'   age group
+//' @param population_size The total population size in the age groups
+//' @param ili_cases The number of Influenza Like Illness cases by week and age
+//'   group
+//' @param ili_monitored The size of the population monitored for ILI  by
+//'   week and age group
+//' @param confirmed_positive The number of samples positive
+//'   for the Influenza strain  by week and age group
+//' @param confirmed_samples Number of samples tested for the Influenza strain
+//'   by week and age group '
+//' @param abs_err Absolute error of the likelihood approximation. By default a
+//'   value of 1e-5 is used, lower is more precise, but slower.
 //'
 //'
 // [[Rcpp::export(name="log_likelihood_cases")]]
-double total_log_likelihood(  Eigen::VectorXd epsilon, double psi, 
-        Eigen::MatrixXi predicted, Eigen::VectorXi population_size, 
-        Eigen::MatrixXi ili_cases, Eigen::MatrixXi ili_monitored,
-        Eigen::MatrixXi confirmed_positive, Eigen::MatrixXi confirmed_samples, int depth = 2)
-{
-    double ll = 0;
-    for (size_t j = 0; j < ili_cases.cols(); ++j) {
-        for (size_t i = 0; i < ili_cases.rows(); ++i) {
-            ll += flu::log_likelihood( epsilon[j], psi,
-                    predicted(i,j), population_size[j],
-                    ili_cases(i,j), ili_monitored(i,j),
-                    confirmed_positive(i,j), confirmed_samples(i,j), 
-                    depth);
-        }
+double total_log_likelihood(
+    Eigen::VectorXd epsilon, double psi, Eigen::MatrixXi predicted,
+    Eigen::VectorXi population_size, Eigen::MatrixXi ili_cases,
+    Eigen::MatrixXi ili_monitored, Eigen::MatrixXi confirmed_positive,
+    Eigen::MatrixXi confirmed_samples, double abs_err = 1e-5) {
+  double ll = 0;
+  for (size_t j = 0; j < ili_cases.cols(); ++j) {
+    for (size_t i = 0; i < ili_cases.rows(); ++i) {
+      ll += flu::log_likelihood(epsilon[j], psi, predicted(i, j),
+                                population_size[j], ili_cases(i, j),
+                                ili_monitored(i, j), confirmed_positive(i, j),
+                                confirmed_samples(i, j), abs_err);
     }
-    return ll;
+  }
+  return ll;
 }
 
 
