@@ -107,6 +107,8 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @param nburn Number of iterations of burn in
 #' @param nbatch Number of batches to run (number of samples to return)
 #' @param blen Length of each batch
+#' @param depth Obsolete, use abs_err instead. The depth of the likelihood approximation. Higher values result in better approximations. The default value is 3.
+#' @param abs_err The absolute error of the likelihood approximation. Lower values are more precise at the cost of performance. Default value is 1e-5.
 #' 
 #' @return Returns a list with the accepted samples and the corresponding llikelihood values and a matrix (contact.ids) containing the ids (row number) of the contacts data used to build the contact matrix.
 #'
@@ -115,7 +117,7 @@ adaptive.mcmc <- function(lprior, llikelihood, nburn,
 #' @export
 inference <- function(demography, ili, mon_pop, n_pos, n_samples, 
         vaccine_calendar, polymod_data, initial, parameter_map, age_groups, age_group_map,
-        risk_group_map, risk_ratios, lprior, lpeak_prior, nburn = 0, nbatch = 1000, blen = 1 )
+        risk_group_map, risk_ratios, lprior, lpeak_prior, nburn = 0, nbatch = 1000, blen = 1, depth = 3, abs_err)
 {
   uk_defaults <- F
   if (any(n_samples>ili))
@@ -228,6 +230,9 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
     lpeak_prior <- function(time, value) {} # Dummy
     pass_peak <- F
   }
+  if (missing(abs_err)) {
+    abs_err <- 3/depth * 1e-5
+  }
   # Continue from previous state
   if ("batch" %in% names(initial) || length(dim(initial == 2))) {
     m <- initial
@@ -262,14 +267,14 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
                                               as.matrix(mapping), risk_ratios$value, 
                                               parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 
                                               lprior, pass_prior, lpeak_prior, pass_peak,
-                                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
+                                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen, abs_err)
   } else {
     results <- .inference_cpp(demography, sort(unique(age_group_limits(as.character(age_group_map$from)))),
                               as.matrix(ili), as.matrix(mon_pop), as.matrix(n_pos), as.matrix(n_samples), vaccine_calendar, polymod_data, initial_par, 
                               as.matrix(mapping), risk_ratios$value, 
                               parameter_map$e, parameter_map$p, parameter_map$t, parameter_map$s, parameter_map$i, 
                               lprior, pass_prior, lpeak_prior, pass_peak,
-                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen)
+                              no_age_groups, no_risk_groups, uk_defaults, nburn, nbatch, blen, abs_err)
   }
   if (is.null(names(initial_par))) {
     colnames(results$batch) <- b_cols$value
