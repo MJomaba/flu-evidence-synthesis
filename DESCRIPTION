@@ -19,13 +19,13 @@ Depends:
     scales,
     lazyeval,
     tibble,
-    dplyr
+    dplyr,
+    lubridate
 Imports:
     Rcpp (>= 0.11.6),
     ggplot2,
     BH,
     RcppEigen,
-    data.table,
     magrittr
 Suggests:
     testthat,
@@ -36,6 +36,7 @@ Suggests:
     moments,
     rmarkdown,
     pander,
+    dplyr,
     tidyr
 SystemRequirements: C++11
 LazyData: true

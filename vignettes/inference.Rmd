@@ -9,6 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+-->
 ```{r,include=F}
 library(pander)
 library(dplyr)
@@ -21,7 +22,7 @@ This package implements all the tools needed to analyse and compare the effectiv
 #. Parameter inference using existing model
 #. Simulation of different possible vaccination strategies using the inferred parameters
 
-This vignette will focus on how the fluEvidenceSythesis package can be used to perform the first step of parameter inference.
+This vignette will focus on how the fluEvidenceSynthesis package can be used to perform the first step of parameter inference.
 
 The method we use here combines data from numerous sources that are then used to compute the likelihood of the predicted number of influenza cases in a given week. Given the data and the likelihood function we use MCMC to obtain the posterior distribution of the parameters of an underlying epidemiological model. In this vignette we give practical examples on the required data and how to use the package to perform the MCMC fitting.
 
@@ -79,6 +80,7 @@ For more details on the input data see `?data_name`, e.g. `?polymod_uk` will giv
 We will use a similar vaccination calendar as the first example in the [vaccination vignette](https://blackedder.github.io/flu-evidence-synthesis/vaccination.html) but simplified to only have one risk group:
 
 ```{r vc_example_1, cache = T}
+library(fluEvidenceSynthesis)
 data(coverage)
 # Coverage rates for the low risk <65 and low risk 65+
 cov <- coverage[,c("Under.65","X65")]/100.0
@@ -108,7 +110,7 @@ names(initial_parameters) <- c("epsilon_1", "epsilon_2", "psi", "transmissibilit
  
 ### Inference
 
-```{r inference_example_1, dependson=c("parameters_example_1", "prepare_data_example_1", "vc_example_1")}
+```{r inference_example_1, dependson=c("parameters_example_1", "prepare_data_example_1", "vc_example_1"), cache = T}
 inference.results <- inference(demography = demography,
                       vaccine_calendar = vaccine_calendar,
                       polymod_data = as.matrix(polymod),
@@ -130,11 +132,12 @@ pander(head(inference.results$batch))
 
 ## UK based example
 
-The UK model is more complicated than the example above, because we model 7 different age groups ([0,1), [1,5), [5,15), [15,25), [25,45), [45,65), [65,+)) and two risk groups (low risk and high risk), so our vaccination calendar represents that fact. In contrast our ILI and virological data is only recorded in five different age groups ([0,5), [5,15), [15,45), [45,65), [65,+)) and is not split into multiple age groups. This means that we need to map our epidemiological model output (7 age groups, 2 risk groups) to the data (5 age groups). This can be done using the `age_group_mapping` and `risk_group_mapping` functions. 
+
+The UK model is more complicated than the example above, because we model 7 different age groups ($[0,1), [1,5), [5,15), [15,25), [25,45), [45,65), [65,+)$) and two risk groups (low risk and high risk), so our vaccination calendar represents that fact. In contrast our ILI and virological data is only recorded in five different age groups ($[0,5), [5,15), [15,45), [45,65), [65,+)$) and is not split into multiple age groups. This means that we need to map our epidemiological model output (7 age groups, 2 risk groups) to the data (5 age groups). This can be done using the `age_group_mapping` and `risk_group_mapping` functions. 
 
 Another detail is that we reduced the models complexity by assuming that age group [0,15) and [15,65) had the same ascertainment rate ($\epsilon$) and susceptibility. To do this we pass a `parameter_map` to the inference function, which will map the needed parameters to certain indices in the parameter list (see `?parameter_mapping` for more details).
 
-```{r,cache=T}
+```{r, cache=T}
 library(fluEvidenceSynthesis)
 data("demography")
 data("polymod_uk")
@@ -146,7 +149,6 @@ data("confirmed.samples")
 data("vaccine_calendar")
 
 vaccine_calendar$calendar[,15:21] <- 0
-devtools::use_data(vaccine_calendar, overwrite = T)
 
 age_map <- age_group_mapping(c(1,5,15,25,45,65), c(5,15,45,65))
 risk_map <- risk_group_mapping(c("LowRisk", "HighRisk"), c("All"))
@@ -202,6 +204,7 @@ To perform parameter inference we first need to define a function that returns t
 - Calculate the likelihood of the converted model results given the ILI and confirmation data
 
 Following these steps we can implement our custom inference function as follows:
+
 ```{r,cache=T}
 library(fluEvidenceSynthesis)
 
@@ -347,7 +350,6 @@ colnames(inference.results$batch) <- c("eps1", "eps2", "eps3", "psi", "q",
 ggplot(data=melt(inference.results$batch)) + facet_wrap( ~ Var2, ncol=3, scales="free" ) + geom_histogram(aes(x=value), bins=25)
 
 ```
-
 
 ## Posterior model results
 
