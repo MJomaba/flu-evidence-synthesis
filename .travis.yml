@@ -21,11 +21,13 @@ addons:
       - r-cran-bh
 
 install:
-- R -e 'install.packages("devtools"); devtools::install_deps(dep = T)'
+  - R -e 'install.packages("devtools"); devtools::install_deps(dep = T)'
 
 script:
-- travis_wait 30 R CMD build .
-- R CMD check *tar.gz
+  - R CMD build .
+  - R CMD check *.tar.gz
+  - R CMD INSTALL *.tar.gz
+  - R -e 'library(fluEvidenceSynthesis);library(rmarkdown);render("vignettes/modelling.Rmd");render("vignettes/inference.Rmd");render("vignettes/vaccination.Rmd");render("vignettes/adapting-the-transmission-model.Rmd");'
 
 os:
 - linux
