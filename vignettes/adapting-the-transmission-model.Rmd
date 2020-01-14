@@ -225,16 +225,14 @@ infection_odin <- function(population, initial_infected, vaccine_calendar, conta
                        calendar = calendar[,1:no_groups],
                        gamma1 = 2/infection_delays[1], gamma2 = 2/infection_delays[2])
   y <- mod$run(t, hmax = NULL, method = "euler", hini = 0.25, atol = 1)
-  
-  # Only return new infections by week, ignore the rest
-  y <- y[, (ncol(y) - no_groups + 1):ncol(y)]
+  y <- mod$transform_variables(y)$cumI
   
   # Returning the differences in cumulative infections from one week to the other
   y <- data.frame(y[2:(nrow(y)), ] - y[1:(nrow(y) - 1), ])
   
   #Cleanup and add Time column
   colnames(y) <- names(population)
-  mutate(y, Time = as.Date(t[1:nrow(y)], origin = "1970-01-01"))
+  mutate(y, Time = as.Date(t[2:(nrow(y)+1)], origin = "1970-01-01"))
 }
 ```
 
@@ -271,8 +269,10 @@ Next we run our model using the newly defined `infection_odin` function and plot
 
 ```{r run_example, dependson=c("infection_odin","setup_data"), cache = TRUE, fig.width=6, fig.height=7}
 library(ggplot2)
+
 odes <- infection_odin(population, initial.infected, vaccine_calendar, contacts, 
                c(0.7, 0.3), 0.17, c(0.8, 1.8), 7)
+
 fraction.infected <- odes %>%
   gather(Group, Incidence, -Time) %>%
   mutate(fraction = Incidence/population[Group])
