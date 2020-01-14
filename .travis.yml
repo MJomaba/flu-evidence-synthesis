@@ -2,8 +2,6 @@ language: r
 warnings_are_errors: false
 sudo: required
 
-after_success: "./travis.sh"
-
 addons:
   apt:
     packages:
@@ -32,9 +30,17 @@ script:
 os:
 - linux
 - osx
-env:
-  global:
-  - secure: EAd9FNVHrku/eXaU5RDSHR96ucpZqCxofXJF2zcepGTdEy5DPImKLSBHCftk1s15PTVRJ3NiF352n4D0ehBts8OFYICFOZ5KUPxhjow8YXmjS1i6pZuKTNJEwjWQO6gkVRKUPMqdyLDWn3WSELU54WcjlCXvTlF/3Tn2hBhcdZqUB5XUXYqItrHKn6MQQC7p/QGFDedBOZFAPSW7GbHUQ8QbRm41sGdC5ydBmP2dPc9OC82s1sbnSnlJeM5eIWJXwT2RYVmg7adoXYRbFuPPdJGuwmdwVu7JJhQJ63lAF/OaPbJLUxeag8wo+QHzEBgNwYau3E3RgTTac6pOvk2lI0TMeRaDZMwD1hJyXVF724BtYU2OGHRjn2bZz5Ea97DUIe5DzBXPtNHYXdZS9hfX3n/rIyGeLWj5cUDPsUy+emB8Y+GeqTLFmFfRSI+gDl372NNgcl3B44ZjCwUNRpWkPqm2wcFipP/Rauf18C8DSN9c1Y4wAoGlG5+kT/4UJJVlYmVEKo2rb7Hqqc4MLNnd05Ns0fUS63KlJUG/1BkSJDsmr4IjW3/i7cJFN7KrpuOT4p5w7CFym1XKDrB3XJDpJpa6m8k/jyCsNeNdl4kiDaXXclcYzwUc6FJJE+dyItkPtfDkgqdx1EMMc6ntbliyETyQ3crjINosI1rF2aYtD7E=
 
 notifications:
   slack: phe-flumod:lk26uoOoSWKaKpmJiHSesYNW
+
+after_success: ./travis.sh
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: docs/
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  on:
+    branch: master
