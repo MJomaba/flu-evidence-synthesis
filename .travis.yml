@@ -4,6 +4,22 @@ sudo: required
 
 after_success: "./travis.sh"
 
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libxml2-dev
+      - libgit2-dev
+      - libssl-dev
+      - libssh2-1-dev
+      - pandoc
+      - pandoc-citeproc
+      - r-cran-testthat
+      - r-cran-devtools
+      - r-cran-tidyverse
+      - r-cran-rcppeigen
+      - r-cran-bh
+
 install:
 - R -e 'install.packages("devtools"); devtools::install_deps(dep = T)'
 

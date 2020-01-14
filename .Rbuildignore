@@ -9,3 +9,4 @@ travis.sh
 .*_files
 .*.tar.gz
 test.log
+.clang-format
