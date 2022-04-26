@@ -108,7 +108,7 @@ stratify_by_risk <- function(age_groups, risk_ratios, no_risk_groups, labels)
       dplyr::mutate(AgeGroup = age_labels)
   }
      
-  if (class(risk_ratios) == "matrix") {
+  if ("matrix" %in% class(risk_ratios)) {
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     if (missing(no_risk_groups))
       no_risk_groups <- length(rv)/nrow(age_groups)
