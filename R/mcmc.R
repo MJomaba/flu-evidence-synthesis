@@ -143,7 +143,7 @@ inference <- function(demography, ili, mon_pop, n_pos, n_samples,
       risk_ratios <- rep(1, no_age_groups)
     }
   }
-  if (class(risk_ratios) == "matrix") {
+  if ("matrix" %in% class(risk_ratios)) {
     rv <- c(rep(1, ncol(risk_ratios)) - colSums(risk_ratios), t(risk_ratios))
     risk_ratios <- data.frame(
       AgeGroup = rep(unique(age_group_map$from), no_risk_groups),

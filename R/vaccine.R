@@ -137,7 +137,7 @@ as_vaccination_calendar <- function(efficacy = NULL, dates = NULL, coverage = NU
     
     rates <-  vc$calendar[1:(nrow(vc$calendar) - 1),]*
       as.numeric((vc$dates[2:(length(vc$dates))] - vc$dates[1:(length(vc$dates) - 1)]))
-    if (class(rates) == "matrix")
+    if ("matrix" %in% class(rates))
       rates <- colSums(rates)
     
     # Check that summed rates (by column,multiplied by number of days) are below 1
